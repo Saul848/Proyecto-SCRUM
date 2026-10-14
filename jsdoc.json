@@ -1,0 +1,25 @@
+
+{
+  "source": {
+    "include": [
+      "app.js",
+      "clases",
+      "controladores",
+      "dao",
+      "middleware",
+      "routes",
+      "public/js"
+    ],
+    "includePattern": ".+\\.js$",
+    "exclude": [
+      "node_modules",
+      "public/html",
+      "public/css",
+      "data"
+    ]
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true
+  }
+}
