@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/proyecto.css">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Modal para Crear Proyecto -->
+<div id="modalCrearProyecto" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-btn" id="btnCerrarModal">&times;</span>
+    <h2>Crear Nuevo Proyecto</h2>
+    
+    <form id="formCrearProyecto">
+      <!-- Nombre del Proyecto -->
+      <div class="form-group">
+        <label for="nombreProyecto">Nombre del Proyecto *</label>
+        <input type="text" id="nombreProyecto" required placeholder="Ej. Sistema de gestión SCRUM">
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="descripcionProyecto">Descripción</label>
+        <textarea id="descripcionProyecto" rows="3" placeholder="Breve descripción del proyecto..."></textarea>
+      </div>
+
+      <!-- Invitaciones de Participantes -->
+      <hr>
+      <h3>Invitar Participantes</h3>
+      <div class="form-group-inline">
+        <input type="email" id="emailInvitado" placeholder="Correo del integrante">
+        <select id="rolInvitado">
+          <option value="Desarrollador">Desarrollador</option>
+          <option value="Facilitador">Facilitador</option>
+          <option value="Cliente">Cliente / Product Owner</option>
+        </select>
+        <button type="button" id="btnAgregarInvitado">+ Agregar</button>
+      </div>
+
+      <!-- Lista de invitados agregados temporalmente -->
+      <ul id="listaInvitadosAgregados"></ul>
+
+      <!-- Botones de Acción -->
+      <div class="modal-actions">
+        <button type="button" id="btnCancelar">Cancelar</button>
+        <button type="submit" id="btnGuardarProyecto">Crear Proyecto</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>
