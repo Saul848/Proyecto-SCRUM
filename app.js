@@ -21,7 +21,7 @@ app.use(express.json());
 /**
  * Middleware para servir archivos estáticos (frontend UI, assets, etc.).
  */
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public/html')));
 
 /**
  *
@@ -52,6 +52,6 @@ https.createServer(opciones, app).listen(PORT, ()=>{
  */
 http.createServer((req, res)=>{
     const host = (req.headers.host || "localhost").split(":")[0];
-    res.writeHead(301, {Location:"https://${host}:8443${req.url}" });
+    res.writeHead(301, {Location:`https://${host}:8443${req.url}`});
     res.end();
 }).listen(8082);
