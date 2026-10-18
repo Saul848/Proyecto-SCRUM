@@ -21,7 +21,7 @@ app.use(express.json());
 /**
  * Middleware para servir archivos estáticos (frontend UI, assets, etc.).
  */
-app.use(express.static(path.join(__dirname, 'public/html')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /**
  *
@@ -31,7 +31,7 @@ app.use('/data', express.static(path.join(__dirname, 'data')));
 /**
  * Rutas de usuarios
  */
-app.use('/usuarios', require('./routes/usuarios'));
+app.use('/usuarios', require('./routes/UsuarioRoutes'));
 
 /**
  * Carga del certificado autorfirmado para el cifrado
