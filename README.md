@@ -3,214 +3,214 @@ Proyecto para la matería Gestión de Procesos de Desarrollo de Software (GPDS)
 
 Script realizado en la BD
 
-CREATE SCHEMA ScrumBird;
-SET search_path TO ScrumBird, public;
+CREATE SCHEMA scrumbird;
+SET search_path TO scrumbird, public;
 
-CREATE TABLE Usuario (
-    ID INT PRIMARY KEY,
-    Nombre VARCHAR(255) NOT NULL,
-    Password VARCHAR(255) NOT NULL,
-    CorreoElectronico VARCHAR(255),
-	NombreDeUsuario VARCHAR (255) NOT NULL
+CREATE TABLE usuario (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(255),
+    nombre_de_usuario VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Proyecto (
-    ID INT PRIMARY KEY,
-    Nombre VARCHAR(255) NOT NULL,
-    Creador INT,
-    FechaCreacion DATE,
-    Duracion VARCHAR(100),
-    FOREIGN KEY (Creador) REFERENCES Usuario(ID)
+CREATE TABLE proyecto (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    creador INT,
+    fecha_creacion DATE,
+    duracion VARCHAR(100),
+    FOREIGN KEY (creador) REFERENCES usuario(id)
 );
 
-CREATE TABLE TrabajandoEnProyecto (
-    IDUsuario INT,
-    IDProyecto INT,
-    Rol VARCHAR(100),
-    PRIMARY KEY (IDUsuario, IDProyecto),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (IDProyecto) REFERENCES Proyecto(ID) ON DELETE CASCADE
+CREATE TABLE trabajando_en_proyecto (
+    id_usuario INT,
+    id_proyecto INT,
+    rol VARCHAR(100),
+    PRIMARY KEY (id_usuario, id_proyecto),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Mensaje (
-    ID INT PRIMARY KEY,
-    IDAutor INT,
-    IDUsuarioDestino INT,
-    Fecha TIMESTAMP NOT NULL, --Fecha y hora exacta
-    Mensaje VARCHAR(255) NOT NULL,
-    FOREIGN KEY (IDAutor) REFERENCES Usuario(ID),
-    FOREIGN KEY (IDUsuarioDestino) REFERENCES Usuario(ID)
+CREATE TABLE mensaje (
+    id INT PRIMARY KEY,
+    id_autor INT,
+    id_usuario_destino INT,
+    fecha TIMESTAMP NOT NULL, -- Fecha y hora exacta
+    mensaje VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_autor) REFERENCES usuario(id),
+    FOREIGN KEY (id_usuario_destino) REFERENCES usuario(id)
 );
 
-CREATE TABLE Grupo (
-    ID INT PRIMARY KEY,
-    Nombre VARCHAR(255) NOT NULL,
-    Descripcion VARCHAR(255)
+CREATE TABLE grupo (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion VARCHAR(255)
 );
 
-CREATE TABLE EstaEnGrupo (
-	IDUsuario INT,
-	IDGrupo INT,
-	rol VARCHAR(255) NOT NULL,
-    PRIMARY KEY (IDUsuario, IDGrupo),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuario(ID),
-    FOREIGN KEY (IDGrupo) REFERENCES Grupo(ID)	
-)
-
-CREATE TABLE MensajeGrupo (
-    ID INT PRIMARY KEY,
-    IDAutor INT,
-    IDGrupoDestino INT,
-    Fecha TIMESTAMP NOT NULL,
-    Mensaje VARCHAR(255) NOT NULL,
-    FOREIGN KEY (IDAutor) REFERENCES Usuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (IDGrupoDestino) REFERENCES Grupo(ID) ON DELETE CASCADE
+CREATE TABLE esta_en_grupo (
+    id_usuario INT,
+    id_grupo INT,
+    rol VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id_usuario, id_grupo),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id),
+    FOREIGN KEY (id_grupo) REFERENCES grupo(id)    
 );
 
-CREATE TABLE Sprint (
-    ID INT PRIMARY KEY,
-    NoIteracion INT NOT NULL,
-    Objetivo VARCHAR(255) NOT NULL,
-    FechaInicio DATE NOT NULL,
-    FechaFin DATE NOT NULL,
-    IDProyecto INT NOT NULL,
-    FOREIGN KEY (IDProyecto) REFERENCES Proyecto(ID) ON DELETE CASCADE
+CREATE TABLE mensaje_grupo (
+    id INT PRIMARY KEY,
+    id_autor INT,
+    id_grupo_destino INT,
+    fecha TIMESTAMP NOT NULL,
+    mensaje VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_autor) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_grupo_destino) REFERENCES grupo(id) ON DELETE CASCADE
 );
 
-CREATE TABLE HistoriaDeUsuario (
-    ID INT PRIMARY KEY,
-    Nombre VARCHAR(255) NOT NULL,
-    Descripcion VARCHAR(255) NOT NULL,
-    CriteriosDeAceptacion VARCHAR(255) NOT NULL,
-    Valor INT NOT NULL,
-    PuntosDeHistoria INT,
-    FactorDeComplejidad DOUBLE PRECISION,
-    CosteEstimado INT,
-    IDProyecto INT,
-    AsignadoAlSprint INT,
-    FOREIGN KEY (IDProyecto) REFERENCES Proyecto(ID) ON DELETE CASCADE,
-    FOREIGN KEY (AsignadoAlSprint) REFERENCES Sprint(ID) ON DELETE SET NULL
+CREATE TABLE sprint (
+    id INT PRIMARY KEY,
+    no_iteracion INT NOT NULL,
+    objetivo VARCHAR(255) NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    id_proyecto INT NOT NULL,
+    FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Comentario (
-    ID INT PRIMARY KEY,
-    Emisor INT NOT NULL,
-    IDHistoria INT NOT NULL,
-    FechaUltimaModificacion DATE NOT NULL,
-    Contenido VARCHAR(255) NOT NULL,
-    IDProyecto INT,
-    FOREIGN KEY (Emisor) REFERENCES Usuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (IDHistoria) REFERENCES HistoriaDeUsuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (IDProyecto) REFERENCES Proyecto(ID) ON DELETE CASCADE
+CREATE TABLE historia_de_usuario (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    criterios_de_aceptacion VARCHAR(255) NOT NULL,
+    valor INT NOT NULL,
+    puntos_de_historia INT,
+    factor_de_complejidad DOUBLE PRECISION,
+    coste_estimado INT,
+    id_proyecto INT,
+    asignado_al_sprint INT,
+    FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE,
+    FOREIGN KEY (asignado_al_sprint) REFERENCES sprint(id) ON DELETE SET NULL
 );
 
-CREATE TABLE TrabajandoEnHistoria (
-    ID INT PRIMARY KEY,
-    Responsable INT NOT NULL,
-    HistoriaAsignada INT NOT NULL,
-    Estado VARCHAR(100) NOT NULL,
-    EvidenciasDesarrollo VARCHAR(255),
-    IDProyecto INT NOT NULL,
-    FOREIGN KEY (Responsable) REFERENCES Usuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (HistoriaAsignada) REFERENCES HistoriaDeUsuario(ID) ON DELETE CASCADE,
-    FOREIGN KEY (IDProyecto) REFERENCES Proyecto(ID) ON DELETE CASCADE
+CREATE TABLE comentario (
+    id INT PRIMARY KEY,
+    emisor INT NOT NULL,
+    id_historia INT NOT NULL,
+    fecha_ultima_modificacion DATE NOT NULL,
+    contenido VARCHAR(255) NOT NULL,
+    id_proyecto INT,
+    FOREIGN KEY (emisor) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_historia) REFERENCES historia_de_usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE
+);
+
+CREATE TABLE trabajando_en_historia (
+    id INT PRIMARY KEY,
+    responsable INT NOT NULL,
+    historia_asignada INT NOT NULL,
+    estado VARCHAR(100) NOT NULL,
+    evidencias_desarrollo VARCHAR(255),
+    id_proyecto INT NOT NULL,
+    FOREIGN KEY (responsable) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (historia_asignada) REFERENCES historia_de_usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE
 );
 
 -- ==========================================
--- 1. TABLA: Usuario
+-- 1. TABLA: usuario
 -- ==========================================
-INSERT INTO Usuario (ID, Nombre, Password, CorreoElectronico, NombreDeUsuario) VALUES
+INSERT INTO usuario (id, nombre, password, correo_electronico, nombre_de_usuario) VALUES
 (1, 'Ana Pérez', 'pass123', 'ana@example.com', 'ana_p'),
 (2, 'Carlos Gómez', 'pass456', 'carlos@example.com', 'carlos_g'),
 (3, 'Sofía Ruiz', 'pass789', 'sofia@example.com', 'sofia_r');
 
 -- ==========================================
--- 2. TABLA: Grupo
+-- 2. TABLA: grupo
 -- ==========================================
-INSERT INTO Grupo (ID, Nombre, Descripcion) VALUES
+INSERT INTO grupo (id, nombre, descripcion) VALUES
 (1, 'Equipo Frontend', 'Desarrolladores de la interfaz de usuario'),
 (2, 'Equipo Backend', 'Desarrolladores de servicios y base de datos'),
 (3, 'Equipo QA', 'Control de calidad y pruebas de software');
 
 -- ==========================================
--- 3. TABLA: Proyecto
+-- 3. TABLA: proyecto
 -- ==========================================
-INSERT INTO Proyecto (ID, Nombre, Creador, FechaCreacion, Duracion) VALUES
+INSERT INTO proyecto (id, nombre, creador, fecha_creacion, duracion) VALUES
 (1, 'ScrumBird Web', 1, '2026-01-10', '3 meses'),
 (2, 'App Móvil ScrumBird', 2, '2026-02-15', '4 meses'),
 (3, 'Portal de Reportes', 3, '2026-03-01', '2 meses');
 
 -- ==========================================
--- 4. TABLA: TrabajandoEnProyecto
+-- 4. TABLA: trabajando_en_proyecto
 -- ==========================================
-INSERT INTO TrabajandoEnProyecto (IDUsuario, IDProyecto, Rol) VALUES
+INSERT INTO trabajando_en_proyecto (id_usuario, id_proyecto, rol) VALUES
 (1, 1, 'Product Owner'),
 (2, 2, 'Scrum Master'),
 (3, 3, 'Developer');
 
 -- ==========================================
--- 5. TABLA: Mensaje
+-- 5. TABLA: mensaje
 -- ==========================================
-INSERT INTO Mensaje (ID, IDAutor, IDUsuarioDestino, Fecha, Mensaje) VALUES
+INSERT INTO mensaje (id, id_autor, id_usuario_destino, fecha, mensaje) VALUES
 (1, 1, 2, '2026-10-18 09:00:00', 'Hola Carlos, ¿cómo va el avance del sprint?'),
 (2, 2, 1, '2026-10-18 09:05:00', 'Hola Ana, todo en orden por aquí.'),
 (3, 3, 1, '2026-10-18 10:30:00', 'Ana, ¿puedes revisar los pendientes?');
 
 -- ==========================================
--- 6. TABLA: EstaEnGrupo
+-- 6. TABLA: esta_en_grupo
 -- ==========================================
-INSERT INTO EstaEnGrupo (IDUsuario, IDGrupo, rol) VALUES
+INSERT INTO esta_en_grupo (id_usuario, id_grupo, rol) VALUES
 (1, 1, 'Líder técnico'),
 (2, 2, 'Colaborador'),
 (3, 3, 'Tester principal');
 
 -- ==========================================
--- 7. TABLA: MensajeGrupo
+-- 7. TABLA: mensaje_grupo
 -- ==========================================
-INSERT INTO MensajeGrupo (ID, IDAutor, IDGrupoDestino, Fecha, Mensaje) VALUES
+INSERT INTO mensaje_grupo (id, id_autor, id_grupo_destino, fecha, mensaje) VALUES
 (1, 1, 1, '2026-10-18 11:00:00', 'Bienvenidos a la reunión del equipo frontend'),
 (2, 2, 2, '2026-10-18 11:15:00', 'Actualización de la base de datos completada'),
 (3, 3, 3, '2026-10-18 11:30:00', 'Casos de prueba subidos al repositorio');
 
 -- ==========================================
--- 8. TABLA: Sprint
+-- 8. TABLA: sprint
 -- ==========================================
-INSERT INTO Sprint (ID, NoIteracion, Objetivo, FechaInicio, FechaFin, IDProyecto) VALUES
+INSERT INTO sprint (id, no_iteracion, objetivo, fecha_inicio, fecha_fin, id_proyecto) VALUES
 (1, 1, 'Configuración inicial y login', '2026-01-10', '2026-01-24', 1),
 (2, 1, 'Estructura base de la app móvil', '2026-02-15', '2026-03-01', 2),
 (3, 1, 'Diseño de base de datos de reportes', '2026-03-01', '2026-03-15', 3);
 
 -- ==========================================
--- 9. TABLA: HistoriaDeUsuario
+-- 9. TABLA: historia_de_usuario
 -- ==========================================
-INSERT INTO HistoriaDeUsuario (ID, Nombre, Descripcion, CriteriosDeAceptacion, Valor, PuntosDeHistoria, FactorDeComplejidad, CosteEstimado, IDProyecto, AsignadoAlSprint) VALUES
+INSERT INTO historia_de_usuario (id, nombre, descripcion, criterios_de_aceptacion, valor, puntos_de_historia, factor_de_complejidad, coste_estimado, id_proyecto, asignado_al_sprint) VALUES
 (1, 'Autenticación', 'Permitir iniciar sesión', 'Validar credenciales correctamente', 10, 5, 1.5, 3, 1, 1),
 (2, 'Splash Screen', 'Mostrar pantalla de carga', 'Duración de 2 segundos sin bloqueos', 5, 3, 1.0, 2, 2, 2),
 (3, 'Exportar PDF', 'Exportar datos a formato PDF', 'Descarga correcta del archivo', 8, 8, 2.0, 5, 3, 3);
 
 -- ==========================================
--- 10. TABLA: Comentario
+-- 10. TABLA: comentario
 -- ==========================================
-INSERT INTO Comentario (ID, Emisor, IDHistoria, FechaUltimaModificacion, Contenido, IDProyecto) VALUES
+INSERT INTO comentario (id, emisor, id_historia, fecha_ultima_modificacion, contenido, id_proyecto) VALUES
 (1, 1, 1, '2026-10-18', 'Excelente avance en el login', 1),
 (2, 2, 2, '2026-10-18', 'Falta afinar la resolución de la imagen', 2),
 (3, 3, 3, '2026-10-18', 'Revisar la paginación del reporte', 3);
 
 -- ==========================================
--- 11. TABLA: TrabajandoEnHistoria
+-- 11. TABLA: trabajando_en_historia
 -- ==========================================
-INSERT INTO TrabajandoEnHistoria (ID, Responsable, HistoriaAsignada, Estado, EvidenciasDesarrollo, IDProyecto) VALUES
+INSERT INTO trabajando_en_historia (id, responsable, historia_asignada, estado, evidencias_desarrollo, id_proyecto) VALUES
 (1, 1, 1, 'En proceso', 'commit_hash_123', 1),
 (2, 2, 2, 'Completado', 'commit_hash_456', 2),
 (3, 3, 3, 'Pendiente', 'sin evidencias', 3);
 
-SELECT * FROM ScrumBird.Usuario;
-SELECT * FROM ScrumBird.Grupo;
-SELECT * FROM ScrumBird.TrabajandoEnProyecto;
-SELECT * FROM ScrumBird.Mensaje;
-SELECT * FROM ScrumBird.EstaEnGrupo;
-SELECT * FROM ScrumBird.MensajeGrupo;
-SELECT * FROM ScrumBird.Sprint;
-SELECT * FROM ScrumBird.HistoriaDeUsuario;
-SELECT * FROM ScrumBird.Comentario;
-SELECT * FROM ScrumBird.TrabajandoEnHistoria;
+SELECT * FROM scrumbird.usuario;
+SELECT * FROM scrumbird.grupo;
+SELECT * FROM scrumbird.trabajando_en_proyecto;
+SELECT * FROM scrumbird.mensaje;
+SELECT * FROM scrumbird.esta_en_grupo;
+SELECT * FROM scrumbird.mensaje_grupo;
+SELECT * FROM scrumbird.sprint;
+SELECT * FROM scrumbird.historia_de_usuario;
+SELECT * FROM scrumbird.comentario;
+SELECT * FROM scrumbird.trabajando_en_historia;
