@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Desarrollador</title>
+    <link rel="stylesheet" href="../css/planningPokerDesarrollador.css">
+    <script type="module" src="../js/planningPokerDesarrollador.js"></script>
+</head>
+<body>
+    <main>
+        <section id="cont-planning-poker">
+            <div id="cont-planning-poker-main">
+                <section class="section-planning-poker" id="section-pp-info-principal">
+                    <div class="card-planing-poker" id="card-pp-title">
+                        <h1 class="title-planning-poker" id="title-pp-title">Planning Poker</h1>
+                        <p class="text-info-planning-poker" id="text-info-pp-title">Historia 1 de 6 · Sesión de
+                            estimación
+                            del Sprint 3</p>
+
+                    </div>
+                    <div class="card-planing-poker" id="card-pp-info">
+                        <p class="text-info-planning-poker" id="text-info-pp-info">Historia en estimación</p>
+                        <h2 class="title-planning-poker" id="title-pp-userHistory">[Historia de usuario 1]</h2>
+                            <p class="text-info-planning-poker" id="text-info-pp-uH-description">Como [rol] quiero
+                                [acción]
+                                para [beneficio]</p>
+
+                    </div>
+                </section>
+
+                <section class="section-planning-poker" id="section-info-dynamic">
+                    <div class="card-planing-poker" id="card-pp-processVoting">
+                        <div class="processVoting-cont" id="pV-cont-info">
+                            <h2 class="title-planning-poker" id="title-pp-pV-title">¡Votando!</h2>
+                                <p class="text-info-planning-poker" id="text-info-pp-pV-info">Puedes cambiar tu eleccion, mientras el facilitador no revele los resultados</p>
+                        </div>
+                        <div class="processVoting-cont" id="pV-cont-cards">
+                            <div class="pV-cards-section" id="pV-cards-section-cards">
+                                <div class="card-voting-hidden" id="card-voting-hidden-user1">
+                                    <div class="card-voting-hidden-visual voted"></div>
+                                    <div class="card-voting-hidden-info" id="card-voting-hidden-info-voter">
+                                        <p class="text-info-planning-poker" id="text-info-pp-voter-name">Voto registrado</p>
+                                    </div>
+                                </div>
+                                <div class="card-voting-hidden" id="card-voting-hidden-user2">
+                                    <div class="card-voting-hidden-visual unvoted"></div>
+                                    <div class="card-voting-hidden-info" id="card-voting-hidden-info-voter">
+                                        <p class="text-info-planning-poker" id="text-info-pp-voter-name">Aun no has votado</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-planing-poker" id="card-pp-resultsVoting">
+                        <div class="resultsVoting-cont" id="rV-cont-info">
+                            <h2 class="title-planning-poker" id="title-pp-rV-promedy">9.5</h2>
+                                <p class="text-info-planning-poker" id="text-info-pp-rV-info">Promedio de 4
+                                    participantes
+                                    que votaron</p>
+                        </div>
+                        <div class="resultsVoting-cont" id="rV-cont-cards">
+                            <div class="rV-cards-section" id="rV-cards-section-cards">
+                                <div class="card-voting-revealed" id="card-voting-revealed-user1">
+                                    <div class="card-voting-revealed-visual voted">
+                                        <p class="text-info-result-vote">5</p>
+                                    </div>
+                                    <div class="card-voting-revealed-info" id="card-voting-revealed-info-voter">
+                                        <p class="text-info-planning-poker" id="text-info-pp-voter-name">Tu voto</p>
+                                    </div>
+                                </div>
+                                <div class="card-voting-revealed" id="card-voting-revealed-user2">
+                                    <div class="card-voting-revealed-visual unvoted">
+                                        <p class="text-info-result-vote">--</p>
+                                    </div>
+                                    <div class="card-voting-revealed-info" id="card-voting-revealed-info-voter">
+                                        <p class="text-info-planning-poker" id="text-info-pp-voter-name">No votaste</p>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-planing-poker" id="card-pp-resultStatistics">
+                        <div class="resultStatistics-section" id="rS-statistics">
+                            <div class="statistics-cont" id="statistics-cont-table">
+                                <table>
+                                    <tr>
+                                        <th>5</th>
+                                        <th>8</th>
+                                        <th>13</th>
+                                        <th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th><th>5</th>
+                                        <th>8</th>
+                                        <th>13</th>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td><td>1</td>
+                                        <td>2</td>
+                                        <td>1</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="resultStatistics-section" id="rS-analysis">
+                            <div class="analysis-cont" id="analysis-cont-recomendation">
+                                <p class="text-info-planning-poker" id="text-info-pp-rS-recomendation">Espera a que el facilitador abra la discusión o cierre la votacion.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-planing-poker" id="card-pp-choice">
+                        <div class="card-pp-choice-cont" id="card-pp-choice-cont-info">
+                            <h2 class="title-planning-poker" id="title-pp-choice-title">Elige tu carta</h2>
+                            <p class="text-info-planning-poker" id="text-info-pp-uH-description">Estima el esfuerzo relativo, no las horas.</p>
+                        </div>
+                        <div class="card-pp-choice-cont" id="card-pp-choice-cont-buttons">
+                            <button class="card-choice" data-valor="0" title="0">0</button>
+                            <button class="card-choice" data-valor="1" title="1">1</button>
+                            <button class="card-choice" data-valor="2" title="2">2</button>
+                            <button class="card-choice" data-valor="3" title="3">3</button>
+                            <button class="card-choice" data-valor="5" title="5">5</button>
+                            <button class="card-choice" data-valor="8" title="8">8</button>
+                            <button class="card-choice" data-valor="13" title="13">13</button>
+                            <button class="card-choice" data-valor="21" title="21">21</button>
+                            <button class="card-choice" data-valor="34" title="34">34</button>
+                            <button class="card-choice" data-valor="55" title="55">55</button>
+                            <button class="card-choice" data-valor="89" title="89">89</button>
+                            <button class="card-choice" data-valor="UNKNOWN" title="unknown">?</button>
+                            <button class="card-choice" data-valor="BREAK" title="break">☕</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <aside id="cont-planning-poker-aside">
+                <section class="section-planning-poker" id="section-panel-message">
+                    <div class="panel-message" id="panel-message-cont">
+                        <h2 class="title-planning-poker" id="title-pp-pM-title">Chat de la sesion</h2>
+                            <div class="panel-message-cont-section" id="message-cont-section-messages">
+                                <div class="cont-message message-received" id="cont-message-user2">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Esta historia incluye las
+                                            prueba unitarias?</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-sent" id="cont-message-user5">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Raul Sola</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Si, esta especificado en los
+                                            requisitos</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-sent" id="cont-message-user5">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Raul Sola</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Si, esta especificado en los
+                                            requisitos</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-sent" id="cont-message-user5">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Raul Sola</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Si, esta especificado en los
+                                            requisitos</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-received" id="cont-message-user2">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-received" id="cont-message-user2">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-received" id="cont-message-user2">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-sent" id="cont-message-user5">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Raul Sola</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Si, esta especificado en los
+                                            requisitos</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-sent" id="cont-message-user5">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Raul Sola</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Si, esta especificado en los
+                                            requisitos</p>
+                                    </div>
+                                </div>
+                                <div class="cont-message message-received" id="cont-message-user2">
+                                    <div class="message-emisor ">
+                                        <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
+                                    </div>
+                                    <div class="message-data">
+                                        <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-message-cont-section" id="message-cont-section-actions">
+                                <textarea id="message-to-sent" placeholder="Escribe tu mensaje..."></textarea>
+                                <button class="btn-planing-poker" id="btn-pp-sentMessage" title="enviar mensaje">
+                                    <img src="../img/sent-message.svg" alt="Enviar mensaje">
+                                </button>
+                            </div>
+                    </div>
+                </section>
+            </aside>
+        </section>
+    </main>
+
+</body>
+</html>

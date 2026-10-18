@@ -21,7 +21,7 @@ app.use(express.json());
 /**
  * Middleware para servir archivos estáticos (frontend UI, assets, etc.).
  */
-app.use(express.static(path.join(__dirname, 'public/html')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /**
  *
