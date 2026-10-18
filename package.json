@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Saul848/Proyecto-SCRUM#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.7",
     "express": "^5.3.0",
     "fast-xml-parser": "^5.11.1",

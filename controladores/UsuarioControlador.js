@@ -19,6 +19,16 @@ class UsuariosControlador {
         }
     }
 
+    // En UsuarioControlador.js
+    async listar2(req, res) {
+        try {
+            const usuarios = await this.dao.listar2();
+            res.json({ data: usuarios }); // <--- Aquí envuelves el array para que `datos.data` funcione
+        } catch (err) {
+            this.#error(res, err);
+        }
+    }
+
     // GET /usuarios/:id
     async obtener(req, res) {
         const id = this.#idValido(req.params.id);
