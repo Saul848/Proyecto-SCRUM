@@ -46,21 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Envío del Registro de Cuenta ---
+  // --- Envío del Registro de Cuenta ---
   formRegistro.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const nombre = document.getElementById('reg-nombre').value.trim();
+    const username = document.getElementById('reg-username').value.trim();
     const email = document.getElementById('reg-email').value.trim();
     const passwd = document.getElementById('reg-passwd').value;
-    const confirm = document.getElementById('reg-confirm').value;
-
-    if (passwd !== confirm) {
-      alert('Las contraseñas no coinciden.');
-      return;
-    }
-
-    // Para el username usamos la parte inicial del correo (antes del @)
-    const username = email.split('@')[0].slice(0, 20);
 
     try {
       const respuesta = await fetch('/usuarios', {
@@ -76,9 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      alert('¡Cuenta creada exitosamente! Ahora inicia sesión.');
+      alert('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.');
       formRegistro.reset();
-      
+
       // Regresa automáticamente la tarjeta al lado de login y coloca el correo
       contenedor.classList.remove('panel-activo');
       document.getElementById('login-email').value = email;
