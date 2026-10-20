@@ -66,8 +66,3 @@ http.createServer((req, res)=>{
     res.end();
 }).listen(8082);
 
-const proyectosRoutes = require('./routes/proyectosRoutes');
-app.use('/proyectos', proyectosRoutes);
-
-const usuarioRoutes = require('./routes/UsuarioRoutes');
-app.use('/usuarios', usuarioRoutes);

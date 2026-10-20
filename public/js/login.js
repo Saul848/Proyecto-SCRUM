@@ -1,19 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const formLogin = document.getElementById('form-login');
+  const contenedor = document.getElementById('contenedor');
+  const btnIrRegistro = document.getElementById('btn-ir-registro');
+  const btnIrLogin = document.getElementById('btn-ir-login');
 
+  const formLogin = document.getElementById('form-login');
+  const formRegistro = document.getElementById('form-registro');
+
+  // --- Transición Visual entre Login y Registro ---
+  btnIrRegistro.addEventListener('click', () => {
+    contenedor.classList.add('panel-activo');
+  });
+
+  btnIrLogin.addEventListener('click', () => {
+    contenedor.classList.remove('panel-activo');
+  });
+
+  // --- Envío del Login ---
   formLogin.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const correo = document.getElementById('correo').value.trim();
-    const passwd = document.getElementById('passwd').value;
+    const email = document.getElementById('login-email').value.trim();
+    const passwd = document.getElementById('login-passwd').value;
 
     try {
-      const respuesta = await fetch('/api/usuarios/login', {
+      const respuesta = await fetch('/usuarios/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: correo, passwd })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, passwd })
       });
 
       const resultado = await respuesta.json();
@@ -23,19 +36,55 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Guardar información del usuario autenticado en sesión local
+      // Guardar usuario en sesión y redirigir
       sessionStorage.setItem('usuarioActivo', JSON.stringify(resultado.data));
-
-      // Redirigir al panel principal de proyectos
-      window.location.href = '/html/proyectos.html'; // Ajusta al HTML principal de tu equipo
+      window.location.href = '/html/PanelPrincipal.html';
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
       alert('No se pudo conectar con el servidor.');
     }
   });
 
-  // Notificación temporal si presionan el botón del compañero
-  document.getElementById('btn-registrarse').addEventListener('click', () => {
-    alert('El módulo de registro de usuario está en desarrollo.');
+  // --- Envío del Registro de Cuenta ---
+  formRegistro.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const passwd = document.getElementById('reg-passwd').value;
+    const confirm = document.getElementById('reg-confirm').value;
+
+    if (passwd !== confirm) {
+      alert('Las contraseñas no coinciden.');
+      return;
+    }
+
+    // Para el username usamos la parte inicial del correo (antes del @)
+    const username = email.split('@')[0].slice(0, 20);
+
+    try {
+      const respuesta = await fetch('/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, username, email, passwd })
+      });
+
+      const resultado = await respuesta.json();
+
+      if (!respuesta.ok) {
+        alert(resultado.error || 'Error al registrar usuario');
+        return;
+      }
+
+      alert('¡Cuenta creada exitosamente! Ahora inicia sesión.');
+      formRegistro.reset();
+      
+      // Regresa automáticamente la tarjeta al lado de login y coloca el correo
+      contenedor.classList.remove('panel-activo');
+      document.getElementById('login-email').value = email;
+    } catch (error) {
+      console.error('Error al registrar:', error);
+      alert('No se pudo conectar con el servidor para registrar la cuenta.');
+    }
   });
 });
