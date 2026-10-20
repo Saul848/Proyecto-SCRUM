@@ -29,6 +29,16 @@ app.use(express.static(path.join(__dirname, 'public/html')));
 app.use('/data', express.static(path.join(__dirname, 'data')));
 
 /**
+ * Rutas de usuarios
+ */
+app.use('/usuarios', require('./routes/UsuarioRoutes'));
+
+/**
+ * Rutas de historias
+ */
+app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facilitador - Product Backlog</title>
+  <link rel="stylesheet" href="../css/FacilitadorPB.css">
+</head>
+<body>
+
+  <!-- Bloque superior -->
+  <header id="BloqueSuperior">
+    <div id="DivMsjFacilitador">Facilitador</div>
+    <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
+  </header>
+
+  <!-- Bloque inferior -->
+  <main id="BloqueInferior">
+    
+    <!-- Section panelLateral -->
+    <section id="panelLateral">
+      <div id="divIndice">
+        <span id="labelSeccion">❖ Seccion</span>
+        <a href="#" id="linkMiEquipo">Mi equipo</a>
+        <a href="#" id="linkMensajes">Mensajes</a>
+        <a href="#" id="linkProductBacklog" class="active">Product Backlog</a>
+        <a href="#" id="linkSprint">Sprint</a>
+        <a href="#" id="linkMisTareas">Mis tareas</a>
+        <a href="#" id="linkReunirse">Reunirse</a>
+        <a href="#" id="linkGraficas">Graficas</a>
+        <a href="#" id="linkAjustes">Ajustes</a>
+      </div>
+    </section>
+
+    <!-- Section zonaDeTrabajo -->
+    <section id="zonaDeTrabajo">
+      <div id="DivContPB">
+        
+        <!-- Encabezados de la tabla -->
+        <div id="DivEncabezados">
+          <label id="LabelID">ID</label>
+          <label id="LabelNombreHistoria">Historias de usuario</label>
+          <label id="LabelDescripccion">Descripccion</label>
+          <label id="LabelCriterios">Criterios de acpetacion</label>
+          <label id="LabelValor">Valor</label>
+          <label id="LabelSprintAsginado">Sprint asignado</label>
+          <div class="espacioAcciones"></div>
+        </div>
+
+        <!-- Contenedor con scrollbar vertical -->
+        <div id="DivHistoria">
+        </div> <!-- Fin de DivHistoria -->
+
+<div id="divOpccionesInferiores">
+          <!-- Botones de acciones de la parte inferior de la zona de trabajo -->
+          <div id="DivBtnCompartirMaterial">
+            <button id="btnCompartirMaterial">Compartir material adicional</button>
+          </div>
+          <div id="DivBtnAgregarHistoria">
+            <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
+          </div>
+          <div id="DivBtnModHistoria">
+            <button id="btnModHistoria"># Modificar historia</button>
+          </div>
+
+          <!-- PANEL MODAL -->
+          <div id="modalHistoria" class="modal">
+            <div class="modal-contenido">
+              <h3>Añadir / Modificar Historia de Usuario</h3>
+              
+              <!-- Campo 1: Título -->
+              <div class="entradaInp">
+                <label for="inpTitulo">Título de la historia:</label>
+                <input type="text" id="inpTitulo" placeholder="Escribe el título...">
+              </div>
+
+              <!-- Campo 2: Descripción -->
+              <div class="entradaTextA">
+                <label for="inpDescripccion">Descripción:</label>
+                <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
+              </div>
+
+              <!-- Campo 3: Criterios de aceptación -->
+              <div class="entradaTextA">
+                <label for="inpCriterios">Criterios de aceptación:</label>
+                <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
+              </div>
+
+              <!-- Campo 4: Valor -->
+              <div class="entradaInp">
+                <label for="inpValor">Valor:</label>
+                <input type="number" id="inpValor" placeholder="0 - 4000">
+              </div>
+
+              <!-- Campo 5: Sprint asignado -->
+              <div class="entradaInp">
+                <label for="inpSprintAsig">Sprint asignado:</label>
+                <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
+              </div>
+
+              <div class="modal-botones">
+                <button id="btnGuardarModal">Guardar</button>
+                <button id="btnCerrarModal">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+<script src="../js/FacilitadorPB.js" defer></script>
+</body>
+</html>
