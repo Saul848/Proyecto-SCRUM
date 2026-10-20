@@ -86,6 +86,14 @@ class UsuarioDAO {
         );
         return rowCount > 0;
     }
+    // Obtener usuario por correo electrónico para login
+    async obtenerPorCorreo(correo) {
+        const { rows } = await this.pool.query(
+            'SELECT id, nombre, password, correo_electronico, nombre_de_usuario FROM scrumbird.usuario WHERE correo_electronico = $1',
+            [correo]
+        );
+        return rows[0] || null;
+    }
 }
 
 module.exports = UsuarioDAO;

@@ -116,22 +116,38 @@ class UsuariosControlador {
         }
     }
 
-    // POST /usuarios/login   body: { username, passwd }
+    
+    // POST /usuarios/login   body: { identificador, passwd } o { email, passwd }
     async login(req, res) {
-        const { username, passwd } = req.body;
-        if (!username || !passwd) {
-        return res.status(400).json({ error: 'username y passwd son obligatorios' });
-        }
-        try {
-        const usuario = await this.dao.obtenerPorUsername(username);
-        // Mismo mensaje si el usuario no existe o la contraseña falla
-        const valido = usuario && (await bcrypt.compare(passwd, usuario.passwd));
-        if (!valido) return res.status(401).json({ error: 'Credenciales incorrectas' });
+        // Acepta 'email', 'correo', o 'username' desde el formulario
+        const identificador = req.body.email || req.body.correo || req.body.username;
+        const passwd = req.body.passwd || req.body.password;
 
-        const { passwd: _omitido, ...publico } = usuario;
-        res.json(publico); // más adelante aquí se crea la sesión o el token
+        if (!identificador || !passwd) {
+            return res.status(400).json({ error: 'El correo/usuario y la contraseña son obligatorios' });
+        }
+
+        try {
+            // 1. Busca por correo; si no lo halla, intenta por username
+            let usuario = null;
+            if (typeof this.dao.obtenerPorCorreo === 'function') {
+                usuario = await this.dao.obtenerPorCorreo(identificador);
+            }
+            if (!usuario) {
+                usuario = await this.dao.obtenerPorUsername(identificador);
+            }
+
+            // 2. Compara contra usuario.password (nombre real en PostgreSQL)
+            const valido = usuario && (await bcrypt.compare(passwd, usuario.password));
+            if (!valido) {
+                return res.status(401).json({ error: 'Credenciales incorrectas' });
+            }
+
+            // 3. Omite la contraseña en la respuesta
+            const { password: _omitido, ...publico } = usuario;
+            res.json({ ok: true, data: publico });
         } catch (err) {
-        this.#error(res, err);
+            this.#error(res, err);
         }
     }
 
