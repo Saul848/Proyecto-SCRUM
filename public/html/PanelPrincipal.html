@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/proyecto.css">
+    <link rel="stylesheet" href="/css/panelPrincipal.css">
     <title>Document</title>
 </head>
 <body>
@@ -17,23 +17,37 @@
     </div>
   </div>
 
-  <div id="contenedorPanelLateral">
-    <ul id="panelLateral">
-      <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
-      <li>Mis proyectos</li>
-      <li>Miembros</li>
-      <li>Configuracion</li>
-      <li>Mensajes</li>
-    </ul>
+  <div id="contenedor-principal">
+    <div id="contenedorPanelLateral">
+      <ul id="panelLateral">
+        <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
+        <li>Mis proyectos</li>
+        <li><button id="btn-miembros">Miembros</button></li>
+        <li>Configuracion</li>
+        <li>Mensajes</li>
+      </ul>
+    </div>
+    
+    <div id="contenedorAreaTrabajo">
+      <a>Aqui va el modal segun la opcion del panel lateral</a>
+      <!--Aqui dentro se aplicará cada modal, deberá quitarse el contenido de uno y ser reemplazado por otro al dar
+      click en las opciones del menú lateral. No solo encimados unos sobre otros-->>
+
+      <!--Modal para visualizar la lista de usuarios de la empresa-->
+      <div id="modal-usuarios" style="display: none;" class="modal">
+        <h2>Lista de miembros de la organización</h2>
+        <div id="contenedor-blanco">
+          <div id="contenedor-azul">
+            <h3>Miembros</h3>
+            <div id="contenedor-usuarios">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   
-  <div id="contenedorAreaTrabajo">
-    <a>Aqui va el modal segun la opcion del panel lateral</a>
-    <!--Aqui dentro se aplicará cada modal, deberá quitarse el contenido de uno y ser reemplazado por otro al dar
-    click en las opciones del menú lateral. No solo encimados unos sobre otros-->>
-  </div>
-
-    <!-- Modal para Crear Proyecto -->
+  <!-- Modal para Crear Proyecto -->
   <div id="modalCrearProyecto" class="modal" style="display: none;">
     <div class="modal-content">
       <span class="close-btn" id="btnCerrarModal">&times;</span>
@@ -76,5 +90,8 @@
       </form>
     </div>
   </div>
+
+  
+  <script src="../js/usuarios.js"></script>
 </body>
 </html>
