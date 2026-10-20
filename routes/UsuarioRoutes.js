@@ -8,7 +8,6 @@ const controlador = new UsuariosControlador(new UsuarioDAO(pool));
 
 // "login" va antes de "/:id" para que no se confunda con un id
 router.post('/login', (req, res) => controlador.login(req, res));
-
 router.get('/', (req, res) => controlador.listar(req, res));
 router.get('/scrumbird', (req, res) => controlador.listar2(req, res));
 router.post('/', (req, res) => controlador.crear(req, res));

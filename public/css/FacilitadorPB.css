@@ -1,0 +1,378 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: #1e1e1e;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* Centrar y limitar el ancho máximo para pantallas de laptop grandes */
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===================================================
+   BLOQUE SUPERIOR / CABECERA
+   =================================================== */
+#BloqueSuperior {
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 25px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+#DivMsjFacilitador {
+  background-color: #ff9431;
+  color: #ffffff;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+#DivTitulo {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+}
+
+#DivTitulo span {
+  color: #0033ff;
+}
+
+/* ===================================================
+   BLOQUE INFERIOR / CONTENIDO PRINCIPAL
+   =================================================== */
+#BloqueInferior {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  /* Altura adaptada para pantallas de laptop (ej. 768px de alto) */
+  flex: 1;
+}
+
+/* Section panelLateral */
+#panelLateral {
+  width: 220px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+#divIndice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#labelSeccion {
+  color: #c7b3e5;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+#divIndice a {
+  text-decoration: none;
+  color: #000000;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+#divIndice a.active {
+  color: #0022ff;
+  background-color: #e8f0fe;
+}
+
+/* Section zonaDeTrabajo */
+#zonaDeTrabajo {
+  flex: 1;
+  background-color: #eaf2f2;
+  padding: 15px;
+  overflow: hidden;
+}
+
+#DivContPB {
+  background-color: #eaf2f2;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Encabezados de la tabla (Proporcional para laptops) */
+#DivEncabezados {
+  display: grid;
+  grid-template-columns: 50px 1.2fr 1.5fr 1.5fr 0.8fr 1fr 130px 50px;
+  align-items: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 8px 10px;
+  color: #000000;
+}
+
+/* ===================================================
+   CONTENEDOR DivHistoria (SCROLLBAR VERTICAL)
+   =================================================== */
+#DivHistoria {
+  max-height: 420px; /* Altura optimizada para pantallas de laptop */
+  overflow-y: auto;  /* Permite el scrollbar vertical requerido */
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilo personalizado de la barra de desplazamiento */
+#DivHistoria::-webkit-scrollbar {
+  width: 8px;
+}
+
+#DivHistoria::-webkit-scrollbar-track {
+  background: #d8e5e5;
+  border-radius: 4px;
+}
+
+#DivHistoria::-webkit-scrollbar-thumb {
+  background: #a0a0a0;
+  border: 2px solid #d8e5e5;
+  border-radius: 4px;
+}
+
+/* Filas individuales de historia */
+.DivFilaHistoria {
+  background-color: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 50px 1.2fr 1.5fr 1.5fr 0.8fr 1fr 130px 50px;
+  align-items: center;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+.DivFilaHistoria label {
+  color: #a0a0a0;
+  font-weight: bold;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+}
+
+.DivFilaHistoria .LabelID {
+  color: #000000;
+}
+
+/* Botones dentro de la fila */
+.btnVerComentarios {
+  background-color: #1e90ff;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btnEliminarHistoria {
+  background-color: #ff0000;
+  color: #ffffff;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#divOpccionesInferiores {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Botón inferior */
+#DivBtnCompartirMaterial {
+  margin-top: 15px;
+}
+
+#btnCompartirMaterial {
+  background-color: #e0ecec;
+  color: #000000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#btnCompartirMaterial:hover {
+  background-color: #d0e0e0;
+}
+
+/* Botón agregar historia */
+#DivBtnAgregarHistoria {
+  margin-top: 15px;
+}
+
+#btnAgregarHistoria {
+  background-color: #1e90ff;
+  color: #000000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#btnAgregarHistoria:hover {
+  background-color: #d0e0e0;
+}
+
+/* Botón modificar historia */
+#DivBtnModHistoria {
+  margin-top: 15px;
+}
+
+#btnModHistoria {
+  background-color: #1e90ff;
+  color: #000000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#btnModHistoria:hover {
+  background-color: #d0e0e0;
+}
+
+/* ===================================================
+   ESTILOS DEL PANEL MODAL
+   =================================================== */
+#modalHistoria {
+  display: none; /* Desactivado por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Clase para activar el modal mediante JavaScript */
+#modalHistoria.activo {
+  display: flex;
+}
+
+.modal-contenido {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 450px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-contenido h3 {
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
+/* Estilos para las clases solicitadas */
+.entradaInp, .entradaTextA {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.entradaInp label, .entradaTextA label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.entradaInp input, .entradaTextA textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.entradaTextA textarea {
+  resize: vertical;
+  height: 60px;
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#btnGuardarModal {
+  background-color: #1e90ff;
+  color: #ffffff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#btnCerrarModal {
+  background-color: #ff4d4d;
+  color: #ffffff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#modalHistoria {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Esta es la clase que activa/muestra el modal */
+#modalHistoria.activo {
+  display: flex; 
+}
