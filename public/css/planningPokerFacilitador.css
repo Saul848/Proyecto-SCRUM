@@ -1,0 +1,523 @@
+/* ==========================================================================
+   VARIABLES GLOBALES (:root)
+   ========================================================================== */
+:root {
+    /* Colores solicitados */
+    --btn-color: #0088FF;
+    /* Azul primario para botones e indicadores */
+    --msg-received: #C2E2F0;
+    /* Celeste mensajes recibidos */
+    --msg-sent: #B4FFC7;
+    /* Verde menta mensajes enviados */
+
+    /* Colores complementarios de interfaz */
+    --bg-main: #EBF1F3;
+    /* Fondo principal gris/azulado claro */
+    --bg-card: #FFFFFF;
+    /* Fondo de tarjetas blancas */
+    --bg-voter-box: #CCCCCC;
+    /* Fondo del contenedor de cartas */
+    --bg-banner: #E3ECEF;
+    /* Fondo de banners informativos superior */
+    --card-unvoted: #E9ECEF;
+    /* Carta sin votar (gris suave) */
+
+    /* Texto y Bordes */
+    --text-main: #111111;
+    /* Texto principal oscuro */
+    --text-sub: #666666;
+    /* Texto secundario / subtítulos */
+    --border-light: #DDDDDD;
+    /* Bordes suaves */
+    --border-dark: #222222;
+    /* Bordes oscuros / inputs / botones secundarios */
+
+    /* Fuentes y Radios */
+    --font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --radius-sm: 0.375rem;
+    /* ~6px */
+    --radius-md: 0.75rem;
+    /* ~12px */
+    --radius-lg: 1.25rem;
+    /* ~20px */
+}
+
+/* ==========================================================================
+   RESET Y ESTILOS GENERALES
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   ESTRUCTURA PRINCIPAL (Planning Poker)
+   ========================================================================== */
+#cont-planning-poker {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+}
+
+#cont-planning-poker-main {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    height: 100%;
+    min-height: 100vh;
+    gap: 1.25rem;
+    padding: 1.25rem;
+}
+
+#cont-planning-poker-aside {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    height: 100vh;
+    min-height: 100vh;
+    gap: 1.25rem;
+    padding: 1.25rem;
+}
+
+/* Columna Izquierda / Central: Dashboard de Votación */
+#section-pp-info-principal,
+#section-info-dynamic {
+    flex: 1 1 68%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Agrupador de las secciones de contenido dinámico e informativo */
+#cont-planning-poker>section:not(#section-panel-message) {
+    flex: 1 1 68%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Columna Derecha: Panel de Chat */
+#section-panel-message {
+    flex: 0 0 28%;
+    min-width: 17.5rem;
+    /* ~280px mínimo para usabilidad */
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   TARJETAS Y CONTENEDORES (Cards)
+   ========================================================================== */
+.card-planing-poker {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.03);
+}
+
+/* Títulos y Subtítulos */
+.title-planning-poker {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.text-info-planning-poker {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+}
+
+#title-pp-userHistory {
+    font-size: 1.15rem;
+    margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   BANNERS DE ESTADO (¡Votando! / Promedio)
+   ========================================================================== */
+.processVoting-cont#pV-cont-info,
+.resultsVoting-cont#rV-cont-info {
+    background-color: var(--bg-banner);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+#title-pp-pV-title,
+#title-pp-rV-promedy {
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   SECCIÓN DE CARTAS DE VOTACIÓN
+   ========================================================================== */
+.processVoting-cont#pV-cont-cards,
+.resultsVoting-cont#rV-cont-cards {
+    background-color: var(--bg-voter-box);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.pV-cards-section#pV-cards-section-cards,
+.rV-cards-section#rV-cards-section-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+
+/* Estilo individual de cartas */
+.card-voting-hidden,
+.card-voting-revealed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 3.5rem;
+    gap: 0.35rem;
+}
+
+.card-voting-hidden-visual,
+.card-voting-revealed-visual {
+    width: 100%;
+    height: 5.25rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+/* Estados de cartas */
+.card-voting-hidden-visual.voted {
+    background-color: var(--btn-color);
+}
+
+.card-voting-hidden-visual.unvoted {
+    background-color: var(--card-unvoted);
+}
+
+.card-voting-revealed-visual {
+    background-color: var(--bg-card);
+    border: 0.125rem solid var(--btn-color);
+}
+
+.card-voting-revealed-visual.unvoted {
+    border-color: var(--border-light);
+}
+
+.text-info-result-vote {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--btn-color);
+}
+
+/* Etiqueta del votante */
+.card-voting-hidden-info,
+.card-voting-revealed-info {
+    text-align: center;
+}
+
+.card-voting-hidden-info .text-info-planning-poker,
+.card-voting-revealed-info .text-info-planning-poker {
+    font-size: 0.7rem;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 3.8rem;
+}
+
+#text-info-pp-voter-name,
+#text-info-pp-voter-name{
+    /* Permite que el texto salte de línea en cualquier espacio, o incluso rompa palabras muy largas si es necesario */
+    overflow-wrap: anywhere; 
+    word-break: break-word;  
+    
+    /* Asegura que no esté forzado a quedarse en una sola línea */
+    white-space: normal;     
+}
+
+/* ==========================================================================
+   ESTADÍSTICAS Y RESULTADOS (Tabla y Análisis)
+   ========================================================================== */
+#card-pp-resultStatistics {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+#rS-statistics,
+#rS-analysis {
+    width: 50%;
+    max-width: 50%;
+    height: 100%;
+    max-height: 100%;
+}
+
+#statistics-cont-table {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.statistics-cont table {
+    border-collapse: collapse;
+    text-align: center;
+    background-color: var(--bg-card);
+}
+
+.statistics-cont th,
+.statistics-cont td {
+    border: 0.0625rem solid var(--text-main);
+    padding: 0.35rem 0.85rem;
+    font-size: 0.95rem;
+}
+
+.statistics-cont th {
+    background-color: var(--btn-color);
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.analysis-cont#analysis-cont-recomendation {
+    flex: 1;
+    text-align: right;
+}
+
+#text-info-pp-rS-recomendation {
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   BOTONES Y ACCIONES DE VOTO
+   ========================================================================== */
+#card-pp-resultActions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.resultActions-section#rA-lower {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.resultActions-section label {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* Dropdown / Select */
+#rA-select-estimateFinal {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 0.0625rem solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-card);
+    cursor: pointer;
+}
+
+/* Estilos de botones generales */
+.btn-planing-poker {
+    background-color: var(--btn-color);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-planing-poker:hover {
+    opacity: 0.9;
+}
+
+/* Botones secundarios (Votar de nuevo)(saltar votacion) */
+#btn-pp-repeatVote,
+#btn-pp-skipVote{
+    background-color: transparent;
+    color: var(--btn-color);
+    border: 0.0625rem solid var(--border-dark);
+    text-transform: none;
+    font-size: 1rem;
+    width: fit-content;
+    padding: 0.4rem 1rem;
+}
+
+#btn-pp-repeatVote:hover,
+#btn-pp-skipVote:hover{
+    background-color: powderblue;
+  transition: background-color 0.5s;
+}
+
+#btn-pp-confirm {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    text-transform: none;
+    font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   PANEL DE CHAT
+   ========================================================================== */
+.panel-message#panel-message-cont {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.03);
+}
+
+.panel-message-cont-section:first-of-type {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+#message-cont-section-messages{
+    max-height: 85%;
+    overflow-y: auto;
+}
+
+#message-cont-section-actions {
+    max-height: 15%;
+    overflow-y: auto;
+}
+
+/* Mensajes */
+.cont-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    gap: 0.2rem;
+}
+
+.cont-message.message-received {
+    align-self: flex-start;
+}
+
+.cont-message.message-sent {
+    align-self: flex-end;
+}
+
+.message-emisor .text-info-message-emisor-name {
+    font-size: 0.7rem;
+    color: var(--text-sub);
+}
+
+.cont-message.message-sent .message-emisor {
+    text-align: right;
+}
+
+.message-data {
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-md);
+}
+
+.message-received .message-data {
+    background-color: var(--msg-received);
+    color: var(--text-main);
+    border-top-left-radius: 0.125rem;
+}
+
+.message-sent .message-data {
+    background-color: var(--msg-sent);
+    color: var(--text-main);
+    border: 0.0625rem solid #72E88F;
+    border-top-right-radius: 0.125rem;
+}
+
+.text-info-planning-poker-message-data {
+    font-size: 0.825rem;
+    line-height: 1.3;
+}
+
+/* Input y botón para enviar mensaje */
+.panel-message-cont-section:last-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0.0625rem solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.5rem;
+    background-color: var(--bg-card);
+}
+
+#message-to-sent {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.25rem;
+    background: transparent;
+    resize: none;
+    min-width: 150px;
+    max-height: 150px;
+}
+
+/* ==========================================================================
+   BOTÓN DE ENVIAR MENSAJE
+   ========================================================================== */
+#btn-pp-sentMessage {
+    background: transparent;
+    border-width: 0.0625rem; /* Equivalente a 1px */
+    border-style: solid;
+    border-color: var(--text-main); /* O puedes usar var(--border-dark) */
+    border-radius: var(--radius-sm); /* Para que tenga las esquinas sutilmente redondeadas */
+    padding: 0.35rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#btn-pp-sentMessage:hover {
+    background-color: rgba(17, 17, 17, 0.05); /* Sutil efecto hover al pasar el ratón */
+}
+
+#btn-pp-sentMessage img {
+    width: 1.25rem;
+    height: 1.25rem;
+}

@@ -3,8 +3,7 @@ class UsuarioDAO {
     constructor(pool) {
         this.pool = pool; //Este pool es el verdadero conector con Postgres, es una clase JavaScript dentro del proyecto
     }
-
-    // No devuelvo la contraseña, porque no quiero que la vean. Solo se usa en el login en este caso
+    
     async listar() {
         const { rows } = await this.pool.query(
             'SELECT id, nombre, password, correo_electronico, nombre_de_usuario FROM scrumbird.usuario ORDER BY id;'
@@ -12,10 +11,10 @@ class UsuarioDAO {
         return rows;
     }
 
-    // Consulta de prueba sobre todas los campos de usuario
+    // Consulta de prueba sobre todas los campos de usuario menos la contraseña
     async listar2() {
         const { rows } = await this.pool.query(
-            'SELECT * FROM scrumbird.usuario ORDER BY id;'
+            'SELECT id, nombre, correo_electronico, nombre_de_usuario FROM scrumbird.usuario ORDER BY id;'
         );
         console.log(rows);
         return rows;
@@ -41,8 +40,8 @@ class UsuarioDAO {
     async crear({ nombre, password, correoElectronico, nombreDeUsuario }) {
         const { rows } = await this.pool.query(
             `INSERT INTO scrumbird.usuario (nombre, password, correo_electronico, nombre_de_usuario) 
-             VALUES ($1, $2, $3, $4) 
-             RETURNING id, nombre, password, correo_electronico, nombre_de_usuario`,
+            VALUES ($1, $2, $3, $4) 
+            RETURNING id, nombre, password, correo_electronico, nombre_de_usuario`,
             [nombre, password, correoElectronico, nombreDeUsuario]
         );
         return rows[0];

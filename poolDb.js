@@ -9,7 +9,7 @@ const pool = new Pool({
     port: Number(process.env.PGPORT) || 14303,
     database: process.env.PGDATABASE || "defaultdb",
     user: process.env.PGUSER || "avnadmin",
-    password: process.env.PGPASSWORD || "AVNS_UHSTKKKnaruxnHK0qIT",
+    password: process.env.PGPASSWORD || "AVNS_UHSTKKKnaruxnHK0qIT", //se deja por puebas, en un entorno real sería recomendable quitarla
     ssl: {
         rejectUnauthorized: false // <(Permite aceptar el certificado SSL del servidor en la nube)
     },
