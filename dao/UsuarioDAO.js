@@ -1,3 +1,7 @@
+/**
+ * @class UsuarioDAO
+ * @description Capa de acceso a datos para la tabla scrumbird.usuario en PostgreSQL.
+ */
 //El DAO es el único lugar donde se escribe SQL de la tabla que accedemos
 class UsuarioDAO {
     constructor(pool) {
@@ -37,6 +41,16 @@ class UsuarioDAO {
         return rows[0] || null;
     }
 
+    /**
+     * Inserta un nuevo usuario en la base de datos.
+     * @async
+     * @param {Object} datos - Datos del usuario.
+     * @param {string} datos.nombre - Nombre completo del usuario.
+     * @param {string} datos.password - Contraseña cifrada (hash).
+     * @param {string} datos.correoElectronico - Correo electrónico.
+     * @param {string} datos.nombreDeUsuario - Nombre de usuario (username).
+     * @returns {Promise<Object>} El registro insertado.
+     */
     async crear({ nombre, password, correoElectronico, nombreDeUsuario }) {
         const { rows } = await this.pool.query(
             `INSERT INTO scrumbird.usuario (nombre, password, correo_electronico, nombre_de_usuario) 
