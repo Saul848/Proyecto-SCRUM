@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fase 1</title>
+    <link rel="stylesheet" href="../css/sprintPlanning.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="menu-lateral">
+            <button class="usuario-activo" id="btnUsuario">Facilitador</button>
+            <nav>
+                <a href="#">Mi equipo</a>
+                <a href="#">Mensajes</a>
+                <a href="#">Product Backlog</a>
+                <a href="#">Sprint</a>
+                <a href="#">Mis tareas</a>
+                <a href="reuniones.html" class="activo">Reunirse</a>
+                <a href="#">Gráficas</a>
+                <a href="#">Ajustes</a>
+            </nav>
+        </aside>
+
+        <main class="area-trabajo">
+            <header class="encabezado">
+                <h1>Sprint Planning</h1>
+            </header>
+
+            <aside class="area-fondo">
+                <section id="fase1" class="fase">
+                    <div class="fase-titulo">
+                        <h2>Fase 1 de 2: ¿QUÉ vamos a entregar?</h2>
+                    </div>
+
+                    <div class="fila-doble">
+                        <div class="panel">
+                            <h3>Requisitos priorizados</h3>
+                            <ul id="listaRequisitos" class="lista-requisitos">
+                                
+                            </ul>
+                        </div>
+
+                        <div class="panel">
+                            <h3>Dudas del equipo</h3>
+                            <div id="contenedorDudas" class="contenedor-dudas">
+
+                            </div>
+
+                            <div id="zonaNuevaDuda" class="zona-nueva-duda oculto">
+                                <input type="text" id="inputDuda" placeholder="Escribe tu duda...">
+                                <button id="btnNuevaDuda" class="btn-azul">+ Nueva duda</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="btnContinuar" class="btn-azul btn-continuar oculto">Continuar a Fase 2: El CÓMO →</button>
+                </section>
+
+                <section id="fase2" class="fase oculto">
+                    <div class="fase-titulo">
+                        <h2>Fase 2 de 2: ¿CÓMO lo vamos a hacer?</h2>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Requisitos seleccionados:</h3>
+                        <p id="requisitosSeleccionados" class="texto-seleccion"></p>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Lista de tareas de la iteración</h3>
+                        <table class="tabla-tareas">
+                            <thead>
+                                <tr>
+                                    <th>Tarea</th>
+                                    <th>Esfuerzo</th>
+                                    <th>Asignado</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTareas">
+
+                            </tbody>
+                        </table>
+                        <button id="btnNuevaTarea" class="btn-azul oculto">+ Nueva Tarea</button>
+                    </div>
+
+                    <div class="acciones-finales">
+                        <button id="btnVolver" class="btn-gris">← Volver a Fase 1</button>
+                        <button id="btnConfirmar" class="btn-verde oculto">✓ Confirmar Sprint Backlog</button>
+                        <button id="btnFinalizar" class="btn-azul" data-reunion="reuniones">Finalizar reunión</button>
+                    </div>
+                </section>
+            </aside>
+        </main>
+    </div>
+
+    <script src="../js/sprintPlanning.js"></script>
+</body>
+</html>
