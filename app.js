@@ -68,3 +68,6 @@ http.createServer((req, res)=>{
 
 const proyectosRoutes = require('./routes/proyectosRoutes');
 app.use('/proyectos', proyectosRoutes);
+
+const usuarioRoutes = require('./routes/UsuarioRoutes');
+app.use('/usuarios', usuarioRoutes);

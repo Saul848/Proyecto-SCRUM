@@ -43,6 +43,14 @@ class UsuariosControlador {
     }
 
     // POST /usuarios   body: { nombre, username, email, passwd }
+    /**
+     * Procesa la petición POST para registrar un nuevo usuario.
+     * Valida los campos, genera el hash de la contraseña y delega la inserción al DAO.
+     * @async
+     * @param {import('express').Request} req - Objeto de solicitud HTTP de Express.
+     * @param {import('express').Response} res - Objeto de respuesta HTTP de Express.
+     * @returns {Promise<void>}
+     */
     async crear(req, res) {
         const { nombre, username, email, passwd } = req.body;
         const problema = this.#validar({ nombre, username, email, passwd }, true);
@@ -50,7 +58,7 @@ class UsuariosControlador {
 
         try {
         const passwdHash = await bcrypt.hash(passwd, SALT_ROUNDS);
-        const usuario = await this.dao.crear({ nombre, passwdHash, email, username });
+        const usuario = await this.dao.crear({ nombre, password:passwdHash, correoElectronico: email, nombreDeUsuario: username });
         res.status(201).json(usuario);
         } catch (err) {
         this.#error(res, err);

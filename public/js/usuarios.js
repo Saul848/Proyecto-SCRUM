@@ -1,3 +1,12 @@
+/**
+ * @file Contiene la lógica del cliente para el registro de usuarios.
+ * @description Este archivo maneja la interacción del usuario con el formulario de registro y la
+ * obtención de usuarios desde el servidor.
+ * @module public/js/usuarios
+ * @requires fetch
+ * @requires DOM
+ */
+
 function mostrarModal(idModal){
     document.querySelectorAll(".modal").forEach(modal => {
         modal.style.display = "none";
@@ -5,6 +14,52 @@ function mostrarModal(idModal){
 
     document.getElementById(idModal).style.display = "block";
 }
+
+/**
+ * Envía los datos del formulario de registro al servidor mediante una petición POST.
+ * @async
+ * @param {Event} evento - El evento de envío del formulario.
+ * @returns {Promise<void>}
+ */
+async function registrarUsuario(evento) {
+    evento.preventDefault();
+
+    const nombre = document.getElementById("reg-nombre").value;
+    const username = document.getElementById("reg-username").value;
+    const email = document.getElementById("reg-email").value;
+    const passwd = document.getElementById("reg-passwd").value;
+
+    try {
+        const respuesta = await fetch('/usuarios', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ nombre, username, email, passwd })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+            alert("¡Cuenta creada exitosamente!");
+            document.getElementById("form-registro").reset();
+        } else {
+            alert(`Error al registrarse: ${resultado.error || 'Verifica los datos'}`);
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        alert("Ocurrió un error al intentar conectar con el servidor.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const formRegistro = document.getElementById("form-registro");
+    if (formRegistro) {
+        formRegistro.addEventListener("submit", registrarUsuario);
+    }
+});
+
 async function obtenerUsuarios() {
     try {
         // Generamos la solicitud
