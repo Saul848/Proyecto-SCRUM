@@ -1,0 +1,305 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #79766f23;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+
+/*menu lateral*/
+.menu-lateral {
+  width: 220px;
+  background-color: #fff;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100vh;
+}
+
+.usuario-activo {
+  background-color: #ff7d22;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  font-weight: bold;
+  border-radius: 20px;
+  margin: 0 16px 20px;
+  cursor: pointer;
+}
+
+.menu-lateral nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-lateral nav a {
+  color: #000;
+  text-decoration: none;
+  padding: 12px 24px;
+  transition: background-color 0.2s;
+}
+
+.menu-lateral nav a:hover {
+  background-color: rgba(242, 201, 76, 0.15);
+}
+
+.menu-lateral nav a.activo {
+  background-color: #0d47a140;
+  color: #0d47a1;
+  font-weight: bold;
+}
+
+
+/*general*/
+.area-trabajo {
+  flex: 8;
+  padding: 40px;
+}
+
+.encabezado h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  background-color: #ffffff;
+  color: #000;
+  border-radius: 12px;
+  padding: 4px 12px;
+  align-items: flex-start; 
+}
+
+.iteracion {
+  font-size: 16px;
+  color: #c9c2b4;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+.area-fondo {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px 30px;
+}
+
+.fase {
+  max-width: 1100px;
+}
+
+.oculto {
+  display: none;
+}
+
+.fase-titulo h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.fila-doble {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start; 
+  flex-wrap: wrap; 
+}
+
+.fila-doble .panel {
+  flex: 1; 
+  min-width: 300px; 
+}
+
+.panel {
+  background-color: #79766f23;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.panel h3 {
+  font-size: 16px;
+  margin-bottom: 14px;
+  color: #000;
+}
+
+.lista-requisitos {
+  list-style: none;
+}
+
+.lista-requisitos li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 15px;
+  color: #000;
+}
+
+.lista-requisitos input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #fff;
+  cursor: pointer;
+}
+
+.contenedor-dudas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mensaje-duda {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.mensaje-duda .autor {
+  font-weight: bold;
+  font-size: 12px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.mensaje-duda.equipo {
+  background-color: #79766f23;
+  align-self: flex-start;
+}
+
+.mensaje-duda.cliente {
+  background-color: #1565c0;
+  align-self: flex-start;
+}
+
+.zona-nueva-duda {
+  display: flex;
+  gap: 10px;
+  align-self: flex-end;
+}
+
+.zona-nueva-duda input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #3d3526;
+  border-radius: 8px;
+  background-color: #211c15;
+  color: #ffffff;
+}
+
+/*fase 2*/
+.texto-seleccion {
+  color: #000;
+  font-size: 14px;
+}
+
+.tabla-tareas {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.tabla-tareas th,
+.tabla-tareas td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #000;
+  font-size: 14px;
+}
+
+.tabla-tareas th {
+  color: #000;
+  font-weight: bold;
+}
+
+.tabla-tareas input[type="number"] {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #3d3526;
+  border-radius: 6px;
+  background-color: #79766f23;
+  color: #000;
+}
+
+.asignado {
+  color: #000;
+}
+
+.btn-azul {
+  background-color: #1565c0;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-azul:hover {
+  background-color: #0d47a1;
+}
+
+.btn-verde {
+  background-color: #2e7d32;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-verde:hover {
+  background-color: #1b5e20;
+}
+
+.btn-gris {
+  background-color: #3d3526;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-gris:hover {
+  background-color: #4a4130;
+}
+
+.btn-continuar {
+  display: block;
+  padding: 15px 23px;
+}
+
+.acciones-finales {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-autoasignar {
+  background-color: #1565c0;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-autoasignar:hover {
+  background-color: #0d47a1;
+}
+
+.btnFinalizar {
+  display: block;
+  padding: 15px 23px;
+}
