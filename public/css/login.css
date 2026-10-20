@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #e6eef5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-login {
+  display: flex;
+  width: 780px;
+  min-height: 480px;
+  background-color: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Formulario izquierdo */
+.panel-form {
+  flex: 1;
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.panel-form h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+  color: #111111;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.campo label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #222222;
+}
+
+.campo input {
+  background-color: #d9d9d9;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: #333333;
+  outline: none;
+}
+
+.btn-azul {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  align-self: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+.btn-azul:hover {
+  background-color: #0056b3;
+}
+
+/* Panel informativo derecho */
+.panel-info {
+  flex: 1;
+  background-color: #007bff;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+}
+
+.panel-info h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.panel-info p {
+  font-size: 0.95rem;
+  margin-bottom: 30px;
+  max-width: 240px;
+  line-height: 1.4;
+}
+
+.btn-borde {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-borde:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Contenedor oscuro detrás del modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Tarjeta flotante del modal */
+.modal-contenido {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 35px 40px;
+  width: 420px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-contenido h2 {
+  margin-bottom: 20px;
+  color: #111111;
+  font-size: 1.6rem;
+}
+
+.modal-contenido form div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.modal-contenido label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333333;
+}
+
+.modal-contenido input {
+  background-color: #f0f3f6;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-cerrar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #666666;
+}
+
+.btn-cerrar:hover {
+  color: #000000;
+}
+
+.btn-secundario {
+  background-color: #e2e8f0;
+  color: #333333;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secundario:hover {
+  background-color: #cbd5e1;
+}
