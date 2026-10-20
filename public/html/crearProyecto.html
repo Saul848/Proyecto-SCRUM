@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScrumBird - Crear Proyecto</title>
+    <link rel="stylesheet" href="css/proyecto.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Panel de Prueba / Header principal -->
+    <div class="main-layout">
+        <header class="top-bar">
+            <div class="brand">
+                <span class="logo-icon">S</span>
+                <h1>Gestor Scrum</h1>
+            </div>
+            <div class="top-actions">
+                <span class="notif-badge">Notificaciones 🔔</span>
+                <span class="user-profile">👤 Alejandra</span>
+                <button class="btn-primary" id="btnAbrirModal">+ Crear nuevo proyecto</button>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <h2>Mis Proyectos</h2>
+            <p style="color: #6c757d;">Haz clic en el botón superior azul para desplegar la ventana flotante de creación.</p>
+        </main>
+    </div>
+
+    <!-- VENTANA FLOTANTE (MODAL) -->
+    <div id="modalProyecto" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Crear Nuevo Proyecto</h3>
+                <button type="button" class="btn-close" id="btnCerrarModal">&times;</button>
+            </div>
+
+            <form id="formProyecto">
+                <div class="form-group">
+                    <label for="nombre">Nombre del Proyecto</label>
+                    <input type="text" id="nombre" required placeholder="Ej. Sistema ScrumBird">
+                </div>
+
+                <div class="form-group">
+                    <label for="duracion">Duración estimada</label>
+                    <input type="text" id="duracion" placeholder="Ej. 3 meses">
+                </div>
+
+                <div class="form-group">
+                    <label>Seleccionar Colaboradores e Invitarlos</label>
+                    <div class="colaboradores-box" id="listaUsuarios">
+                        <p class="loading-text">Cargando usuarios disponibes...</p>
+                    </div>
+                </div>
+
+                <div id="mensajeAlerta" class="mensaje"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSubmit">Guardar e Invitar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modalProyecto');
+        const btnAbrir = document.getElementById('btnAbrirModal');
+        const btnCerrar = document.getElementById('btnCerrarModal');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        // Abrir y cerrar modal
+        btnAbrir.addEventListener('click', () => modal.classList.add('active'));
+        btnCerrar.addEventListener('click', () => modal.classList.remove('active'));
+        btnCancelar.addEventListener('click', () => modal.classList.remove('active'));
+
+        // Cargar usuarios al iniciar
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const respuesta = await fetch('/proyectos/usuarios');
+                const resultado = await respuesta.json();
+                
+                const contenedor = document.getElementById('listaUsuarios');
+                if (resultado.ok && resultado.data.length > 0) {
+                    contenedor.innerHTML = '';
+                    resultado.data.forEach(user => {
+                        contenedor.innerHTML += `
+                            <div class="collab-item">
+                                <div class="user-info">
+                                    <input type="checkbox" name="invitado" id="user_${user.id}" value="${user.id}" data-correo="${user.correo_electronico}">
+                                    <label for="user_${user.id}">
+                                        <strong>${user.nombre}</strong>
+                                        <span>${user.correo_electronico}</span>
+                                    </label>
+                                </div>
+                                <select name="rol_${user.id}" class="select-rol">
+                                    <option value="Developer">Developer</option>
+                                    <option value="Scrum Master">Scrum Master</option>
+                                    <option value="QA">QA</option>
+                                </select>
+                            </div>
+                        `;
+                    });
+                } else {
+                    contenedor.innerHTML = '<p class="empty-text">No hay usuarios disponibles.</p>';
+                }
+            } catch (error) {
+                console.error("Error al cargar usuarios:", error);
+                document.getElementById('listaUsuarios').innerHTML = '<p class="error-text">Error al conectar con el servidor.</p>';
+            }
+        });
+
+        // Enviar formulario
+        document.getElementById('formProyecto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Enviando...';
+
+            const nombre = document.getElementById('nombre').value;
+            const duracion = document.getElementById('duracion').value;
+
+            const checkboxes = document.querySelectorAll('input[name="invitado"]:checked');
+            const colaboradores = [];
+
+            checkboxes.forEach(cb => {
+                const id_usuario = parseInt(cb.value);
+                const correo = cb.getAttribute('data-correo');
+                const rolSelect = document.querySelector(`select[name="rol_${id_usuario}"]`);
+                const rol = rolSelect ? rolSelect.value : 'Developer';
+
+                colaboradores.push({ id_usuario, correo, rol });
+            });
+
+            const creador = 1; 
+
+            try {
+                const respuesta = await fetch('/proyectos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, duracion, creador, colaboradores })
+                });
+
+                const resultado = await respuesta.json();
+                const alerta = document.getElementById('mensajeAlerta');
+                alerta.style.display = 'block';
+
+                if (resultado.ok) {
+                    alerta.className = 'mensaje exito';
+                    alerta.textContent = resultado.mensaje;
+                    document.getElementById('formProyecto').reset();
+                    setTimeout(() => {
+                        modal.classList.remove('active');
+                        alerta.style.display = 'none';
+                    }, 2000);
+                } else {
+                    alerta.className = 'mensaje error';
+                    alerta.textContent = resultado.mensaje || 'Ocurrió un error.';
+                }
+            } catch (error) {
+                console.error("Error en la petición:", error);
+                const alerta = document.getElementById('mensajeAlerta');
+                alerta.style.display = 'block';
+                alerta.className = 'mensaje error';
+                alerta.textContent = 'Error de conexión con el servidor.';
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Guardar e Invitar';
+            }
+        });
+    </script>
+</body>
+</html>

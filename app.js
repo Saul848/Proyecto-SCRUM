@@ -21,17 +21,12 @@ app.use(express.json());
 /**
  * Middleware para servir archivos estáticos (frontend UI, assets, etc.).
  */
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/html')));
 
 /**
  *
  */
 app.use('/data', express.static(path.join(__dirname, 'data')));
-
-/**
- * Rutas de usuarios
- */
-app.use('/usuarios', require('./routes/UsuarioRoutes'));
 
 /**
  * Carga del certificado autorfirmado para el cifrado
@@ -60,3 +55,6 @@ http.createServer((req, res)=>{
     res.writeHead(301, {Location:`https://${host}:8443${req.url}`});
     res.end();
 }).listen(8082);
+
+const proyectosRoutes = require('./routes/proyectosRoutes');
+app.use('/proyectos', proyectosRoutes);
