@@ -12,13 +12,14 @@ class historiaUsuarioDAO {
         return rows;
     }
 
-    async agregarHistoria({ id, nombre, descripccion, criterios, valor, sprint }) {
+    async agregarHistoria({nombre, descripcion, criterios, valor, sprint }) {
         const { rows } = await this.pool.query(
-            `INSERT INTO scrumbird.historia_de_usuario ( id, nombre, descripccion, criterios, valor, sprint) 
-             VALUES ($1, $2, $3, $4, $5, $6) 
+            `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, criterios_de_aceptacion, valor, asignado_al_sprint) 
+             VALUES ($1, $2, $3, $4, $5) 
              `,
+            [nombre, descripcion, criterios, valor, sprint]
         );
-        return;
+        return rows;
     }
 }
 

@@ -21,7 +21,7 @@ class historiaUsuarioControlador {
 
     // POST /historias  body: { titulo, descripcion, criterios, valor, sprintAsig }
     async agregar(req, res) {
-        const { id, nombre, descripcion, criterios, valor, sprint} = req.body;
+        const { nombre, descripcion, criterios, valor, sprint} = req.body;
         try {
             const historiaCreada = await this.dao.agregarHistoria(req.body);
             res.status(201).json(historiaCreada);

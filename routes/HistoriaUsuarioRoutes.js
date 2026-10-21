@@ -8,4 +8,5 @@ const controlador = new HistoriaUsuarioControlador(new HistoriaUsuarioDAO(pool))
 
 // "login" va antes de "/:id" para que no se confunda con un id
 router.get('/', (req, res) => controlador.listar(req, res));
+router.post('/', (req, res) => controlador.agregar(req, res));
 module.exports = router;

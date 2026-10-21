@@ -3,7 +3,7 @@ const btnModHistoria = document.getElementById("btnModHistoria");
 const panelAgregarMod = document.getElementById("modalHistoria");
 const divHistoria = document.getElementById("DivHistoria");
 const btnCerrarModal = document.getElementById("btnCerrarModal");
-const btnGuardarHistoria = document.getElementById("btnGuardarModal")
+const btnGuardarHistoria = document.getElementById("btnGuardarModal");
 // Elementos inputs del modal
 const inpTitulo = document.getElementById("inpTitulo");
 const inpDescripccion = document.getElementById("inpDescripccion");
@@ -12,7 +12,7 @@ const inpValor = document.getElementById("inpValor");
 const inpSprintAsig = document.getElementById("inpSprintAsig");
 
 // Patrones para validacion de campos
-let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ y espacios
+let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
 let patronRangoValor = /^(?:[0-9]{1,3}|[1-3][0-9]{3}|4000)$/; // Patron que permite valores entre 0 y 4000
 
 // Elementos bandera
@@ -95,17 +95,14 @@ btnCerrarModal.addEventListener('click', () => {
     limpiarCamposHistoria();
 });
 
-// Listener para cerrar el modal
+// Listener para guardar el modal
 btnGuardarHistoria.addEventListener('click', () => {
-    setEnModificacion(null);
-    limpiarCamposHistoria();
+    agregarHistoriaUsuario();
 });
-
 
 // Listener para la bandera "enModificacion" oyendo al evento personalizado
 window.addEventListener('modificandoDatos', (evento) => {
     const estadoActual = evento.detail.activo;
-    
     if (estadoActual === null) {
         panelAgregarMod.classList.remove('activo'); // Oculta el modal
     } else {
@@ -281,9 +278,8 @@ async function agregarHistoriaUsuario() {
         return;
     }
 
-    let id = calcularId();
     let nombre = inpTitulo.value.trim();
-    let descripccion = inpDescripccion.value.trim();
+    let descripcion = inpDescripccion.value.trim();
     let criterios = inpCriterios.value.trim();
     let valor = inpValor.value.trim();
     let sprint = inpSprintAsig.value.trim();
@@ -294,9 +290,8 @@ async function agregarHistoriaUsuario() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            id: id,
             nombre: nombre,
-            descripccion: descripccion,
+            descripcion: descripcion,
             criterios: criterios,
             valor: valor,
             sprint: sprint
