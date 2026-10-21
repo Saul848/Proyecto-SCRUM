@@ -3,17 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facilitador - Product Backlog</title>
+  <title>Facilitador - Panel Principal</title>
   <link rel="stylesheet" href="../css/FacilitadorPB.css">
+  <link rel="stylesheet" href="../css/mensajesFacilitador.css">
 </head>
 <body>
-
-  <!-- Bloque superior -->
+<!-- Bloque superior -->
   <header id="BloqueSuperior">
     <div id="DivMsjFacilitador">Facilitador</div>
-    <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
-  </header>
+    
+    <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
+    <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
 
+    <!-- Texto secundario / información del cliente -->
+    <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
+
+    <!-- Botón derecho exclusivo de Mensajes -->
+    <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
+  </header>
+    
   <!-- Bloque inferior -->
   <main id="BloqueInferior">
     
@@ -22,8 +30,8 @@
       <div id="divIndice">
         <span id="labelSeccion">❖ Seccion</span>
         <a href="#" id="linkMiEquipo">Mi equipo</a>
-        <a href="#" id="linkMensajes">Mensajes</a>
-        <a href="#" id="linkProductBacklog" class="active">Product Backlog</a>
+        <a href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes')">Mensajes</a>
+        <a href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</a>
         <a href="#" id="linkSprint">Sprint</a>
         <a href="#" id="linkMisTareas">Mis tareas</a>
         <a href="#" id="linkReunirse">Reunirse</a>
@@ -34,80 +42,156 @@
 
     <!-- Section zonaDeTrabajo -->
     <section id="zonaDeTrabajo">
-      <div id="DivContPB">
-        
-        <!-- Encabezados de la tabla -->
-        <div id="DivEncabezados">
-          <label id="LabelID">ID</label>
-          <label id="LabelNombreHistoria">Historias de usuario</label>
-          <label id="LabelDescripccion">Descripccion</label>
-          <label id="LabelCriterios">Criterios de acpetacion</label>
-          <label id="LabelValor">Valor</label>
-          <label id="LabelSprintAsginado">Sprint asignado</label>
-          <div class="espacioAcciones"></div>
-        </div>
-
-        <!-- Contenedor con scrollbar vertical -->
-        <div id="DivHistoria">
-        </div> <!-- Fin de DivHistoria -->
-
-<div id="divOpccionesInferiores">
-          <!-- Botones de acciones de la parte inferior de la zona de trabajo -->
-          <div id="DivBtnCompartirMaterial">
-            <button id="btnCompartirMaterial">Compartir material adicional</button>
-          </div>
-          <div id="DivBtnAgregarHistoria">
-            <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
-          </div>
-          <div id="DivBtnModHistoria">
-            <button id="btnModHistoria"># Modificar historia</button>
+      
+      <!-- MODAL 1: PRODUCT BACKLOG -->
+      <div id="modal-product-backlog" class="modal-class" style="display: block;">
+        <div id="DivContPB">
+          <div id="DivEncabezados">
+            <label id="LabelID">ID</label>
+            <label id="LabelNombreHistoria">Historias de usuario</label>
+            <label id="LabelDescripccion">Descripccion</label>
+            <label id="LabelCriterios">Criterios de acpetacion</label>
+            <label id="LabelValor">Valor</label>
+            <label id="LabelSprintAsginado">Sprint asignado</label>
+            <div class="espacioAcciones"></div>
           </div>
 
-          <!-- PANEL MODAL -->
-          <div id="modalHistoria" class="modal">
-            <div class="modal-contenido">
-              <h3>Añadir / Modificar Historia de Usuario</h3>
-              
-              <!-- Campo 1: Título -->
-              <div class="entradaInp">
-                <label for="inpTitulo">Título de la historia:</label>
-                <input type="text" id="inpTitulo" placeholder="Escribe el título...">
-              </div>
+          <div id="DivHistoria"></div>
 
-              <!-- Campo 2: Descripción -->
-              <div class="entradaTextA">
-                <label for="inpDescripccion">Descripción:</label>
-                <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
-              </div>
+          <div id="divOpccionesInferiores">
+            <div id="DivBtnCompartirMaterial">
+              <button id="btnCompartirMaterial">Compartir material adicional</button>
+            </div>
+            <div id="DivBtnAgregarHistoria">
+              <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
+            </div>
+            <div id="DivBtnModHistoria">
+              <button id="btnModHistoria"># Modificar historia</button>
+            </div>
 
-              <!-- Campo 3: Criterios de aceptación -->
-              <div class="entradaTextA">
-                <label for="inpCriterios">Criterios de aceptación:</label>
-                <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
-              </div>
-
-              <!-- Campo 4: Valor -->
-              <div class="entradaInp">
-                <label for="inpValor">Valor:</label>
-                <input type="number" id="inpValor" placeholder="0 - 4000">
-              </div>
-
-              <!-- Campo 5: Sprint asignado -->
-              <div class="entradaInp">
-                <label for="inpSprintAsig">Sprint asignado:</label>
-                <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
-              </div>
-
-              <div class="modal-botones">
-                <button id="btnGuardarModal">Guardar</button>
-                <button id="btnCerrarModal">Cancelar</button>
+            <div id="modalHistoria" class="modal">
+              <div class="modal-contenido">
+                <h3>Añadir / Modificar Historia de Usuario</h3>
+                <div class="entradaInp">
+                  <label for="inpTitulo">Título de la historia:</label>
+                  <input type="text" id="inpTitulo" placeholder="Escribe el título...">
+                </div>
+                <div class="entradaTextA">
+                  <label for="inpDescripccion">Descripción:</label>
+                  <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
+                </div>
+                <div class="entradaTextA">
+                  <label for="inpCriterios">Criterios de aceptación:</label>
+                  <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
+                </div>
+                <div class="entradaInp">
+                  <label for="inpValor">Valor:</label>
+                  <input type="number" id="inpValor" placeholder="0 - 4000">
+                </div>
+                <div class="entradaInp">
+                  <label for="inpSprintAsig">Sprint asignado:</label>
+                  <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
+                </div>
+                <div class="modal-botones">
+                  <button id="btnGuardarModal">Guardar</button>
+                  <button id="btnCerrarModal">Cancelar</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- MODAL 2: MENSAJES (Módulo PB-09) -->
+      <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="main-container">
+            
+            <!-- Panel Izquierdo: Canales y Contactos -->
+            <aside class="sidebar-mensajes">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Buscar tema o mensaje...">
+                </div>
+
+                <div>
+                    <p class="menu-seccion">Canales</p>
+                    <div class="lista-elementos" id="listaCanales">
+                        <div class="elemento-item activo" onclick="cambiarCanal('Dudas de requerimientos')">#Dudas de requerimientos</div>
+                        <div class="elemento-item" onclick="cambiarCanal('Aprobaciones y entregas')">#Aprobaciones y entregas</div>
+                        <div class="elemento-item" onclick="cambiarCanal('General del proyecto')">#General del proyecto</div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="menu-seccion">Contacto directo</p>
+                    <div class="lista-elementos" id="listaContactos">
+                        <div class="elemento-item">🟢 Saúl Ortiz (cliente)</div>
+                        <div class="elemento-item">🟢 Desarrollador 1</div>
+                        <div class="elemento-item">🔴 Desarrollador 2</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Sección Derecha: Chat Activo -->
+            <section class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <h3 id="tituloCanalActual">#Dudas de requerimientos</h3>
+                        <span style="font-size: 12px; color: #22c55e;">🟢 En línea</span>
+                    </div>
+                    <button class="btn-detalles">Ver detalles</button>
+                </div>
+
+                <!-- Historial de mensajes -->
+                <div class="chat-mensajes" id="contenedorMensajes">
+                    <div class="burbuja recibida">
+                        <span class="remitente">Desarrollador 1</span>
+                        Hola Juan Carlos, para comentarte que no pude terminar una historia de usuario.
+                    </div>
+                </div>
+
+                <!-- Caja de texto para enviar -->
+                <div class="chat-input-box">
+                    <input type="text" id="inputMensaje" placeholder="Escribe tu mensaje...">
+                    <button id="btnEnviar">➤</button>
+                </div>
+            </section>
+        </div>
+      </div>
+
     </section>
   </main>
-<script src="../js/FacilitadorPB.js" defer></script>
+
+  <!-- Scripts por separado -->
+  <script src="../js/FacilitadorPB.js" defer></script>
+  <script src="../js/mensajes.js" defer></script>
+<script>
+    function mostrarModal(idModal) {
+        // 1. Ocultar todos los modales
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
+
+        // 2. Mostrar el modal seleccionado
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+
+        // 3. Controlar la cabecera superior
+        const tituloCentral = document.getElementById("tituloSeccionCentral");
+        const btnIniciar = document.getElementById("btnIniciarConversacion");
+
+        if (idModal === 'modal-mensajes') {
+            tituloCentral.textContent = "Mensajes";
+            tituloCentral.style.display = "block";
+            btnIniciar.style.display = "block";
+        } else {
+            // En Product Backlog y otras vistas
+            tituloCentral.style.display = "none";
+            btnIniciar.style.display = "none";
+        }
+    }
+  </script>
 </body>
 </html>

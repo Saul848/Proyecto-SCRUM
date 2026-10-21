@@ -376,3 +376,143 @@ body {
 #modalHistoria.activo {
   display: flex; 
 }
+/* ========================================================== */
+/* ESTILO MODERNO Y LIMPIO (RESPETANDO FONDO BLANCO Y BOTONES)*/
+/* ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+/* Fuente global DM Sans para toda la pantalla */
+body {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* Mantener el bloque superior limpio y con la fuente estilizada */
+#BloqueSuperior {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* Menú lateral moderno pero conservando la paleta limpia */
+#panelLateral {
+    border-right: 1px solid #e2e8f0 !important;
+    padding: 20px 10px !important;
+}
+
+#labelSeccion {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    letter-spacing: 0.5px;
+}
+
+#divIndice a {
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    transition: background 0.2s, color 0.2s;
+}
+
+#divIndice a:hover {
+    background-color: #f1f5f9 !important;
+}
+
+#divIndice a.active {
+    background-color: #e0f2fe !important;
+    color: #0284c7 !important;
+    font-weight: 700 !important;
+}
+
+/* Estilo para los botones principales de acciones (garantiza letras blancas y legibles) */
+#btnCompartirMaterial, #btnAgregarHistoria, #btnModHistoria, #btnGuardarModal, #btnEnviar {
+    font-family: 'DM Sans', sans-serif !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+    transition: background 0.2s;
+}
+
+#btnAgregarHistoria, #btnModHistoria, #btnGuardarModal, #btnEnviar {
+    background-color: #0088ff !important;
+}
+
+#btnAgregarHistoria:hover, #btnModHistoria:hover, #btnGuardarModal:hover, #btnEnviar:hover {
+    background-color: #0284c7 !important;
+}
+/* ========================================================== */
+/* SUAVIZAR LAS FUENTES DEL MENÚ LATERAL (QUITAR NEGRITAS)    */
+/* ========================================================== */
+
+#divIndice a {
+    font-weight: 400 !important; /* Letras normales y limpias por defecto */
+}
+
+#divIndice a.active {
+    font-weight: 600 !important; /* Solo un sutil realce cuando esté seleccionado, sin exagerar */
+}/* ========================================================== */
+/* CABECERA DINÁMICA PERFECTA (ALIGNMENT FIX)                 */
+/* ========================================================== */
+
+#BloqueSuperior {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    height: 60px;
+}
+
+/* Badge de rol */
+#DivMsjFacilitador {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    z-index: 2;
+}
+
+/* Título de la sección centrado en toda la pantalla */
+#tituloSeccionCentral {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    z-index: 1;
+}
+
+/* Contenedor derecho (Texto del cliente + Botón si existe) */
+#DivTitulo {
+    margin-left: auto;
+    margin-right: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    z-index: 2;
+}
+
+#DivTitulo span {
+    color: #0033ff;
+    font-weight: 700;
+}
+
+/* Botón iniciar conversación */
+.btn-iniciar {
+    background-color: #0088ff !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 18px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.2s;
+}
+
+.btn-iniciar:hover {
+    background-color: #0284c7 !important;
+}
