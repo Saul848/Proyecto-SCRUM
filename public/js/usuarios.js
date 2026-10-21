@@ -7,6 +7,10 @@
  * @requires DOM
  */
 
+/**
+ * Función para ocultar todos los modales de una clase, y mostrar solo el del id seleccionado
+ * @param {idModal} idModal 
+ */
 function mostrarModal(idModal){
     document.querySelectorAll(".modal-class").forEach(modal => {
         modal.style.display = "none";
@@ -87,6 +91,9 @@ async function obtenerUsuarios() {
     }
 }
 
+/**
+ * Construcción de la lista de usuarios en el panel de miembros
+ */
 document.getElementById("btn-miembros").addEventListener('click', async ()=>{
     mostrarModal("modal-usuarios");
     //Logica para mostrar el menú al seleccionar la opción
@@ -99,14 +106,23 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
     }
 
     const tarjetas = usuarios.map(usuario =>`
-    <div id="tarjetas-usuario">
+    <button class="tarjeta-usuario" data-id="${usuario.id}">
         <span>${usuario.id}</span>
         <span>${usuario.nombre}</span>
         <span>${usuario.correo_electronico}</span>
         <span>${usuario.nombre_de_usuario}</span>
-    </div>
+    </button>
     `).join("");
     console.log("filas construidas");
 
     contenedorUsuarios.innerHTML = tarjetas;
+
+    contenedorUsuarios.addEventListener('click', (evento)=>{
+        const tarjeta= evento.target.closest('.tarjeta-usuario');
+
+        if(!tarjeta) return;
+
+        const idUsuario = tarjeta.dataset.id;
+        console.log("Click en el usuario con id: ", idUsuario);
+    })
 })
