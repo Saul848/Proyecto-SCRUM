@@ -8,7 +8,7 @@
  */
 
 function mostrarModal(idModal){
-    document.querySelectorAll(".modal").forEach(modal => {
+    document.querySelectorAll(".modal-class").forEach(modal => {
         modal.style.display = "none";
     });
 
