@@ -314,3 +314,9 @@ async function agregarHistoriaUsuario() {
         alert(resultado.mensaje || resultado.error || "Error al agregar la historia");
     }
 }
+
+function cargar_cabecera_inicial(){
+    document.getElementById("cabecera-mensajes").style.display = "block";
+}
+
+cargar_cabecera_inicial();

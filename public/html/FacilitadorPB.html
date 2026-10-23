@@ -10,7 +10,7 @@
 <body>
 <!-- Bloque superior -->
   <header id="BloqueSuperior">
-    <div id="cabecera-mensajes">
+    <div class="cabecera-default" id="cabecera-mensajes">
       <div id="DivMsjFacilitador">Facilitador</div>
       
       <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
@@ -24,11 +24,12 @@
     </div>
 
     <div class="cabecera-default" id="cabecera-sprintPB">
+      <span class="badge-rol">Facilitador</span>
       <h2>Sprint backlog</h2>
-      <button>Planning poker</button>
-      <button>Generar reporte</button>
-      <button>Modificar sprint actual</button>
-      <button>Cerrar sprint</button>
+      <button class="btn-pill btn-azul">Planning poker</button>
+      <button class="btn-pill btn-azul">Generar reporte</button>
+      <button class="btn-pill btn-verde">Modificar sprint actual</button>
+      <button class="btn-pill btn-rojo">Cerrar sprint</button>
     </div>
   </header>
     
@@ -43,7 +44,7 @@
           <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
           <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes')">Mensajes</button></li>
           <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</button></li>
-          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos')">Sprint</button></li>
+          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos', 'cabecera-sprintPB')">Sprint</button></li>
           <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
           <li><button href="#" id="linkReunirse">Reunirse</button></li>
           <li><button href="#" id="linkGraficas">Graficas</button></li>
@@ -182,11 +183,17 @@
           <div id="fechas">
             <label for="">fecha inicio:</label>
             <label for="">fecha final:</label>
-            <button>cambiar duración</button>
+            <button id="boton-cambiar-duracion">cambiar duración</button>
           </div>
         </div>
 
         <div id="historias-sprint">
+          <div class="columnas-kanban">
+            <h3>Por empezar</h3>
+            <h3>En progreso</h3>
+            <h3>En revisión</h3>
+            <h3>Terminado</h3>
+          </div>
           <div id="tabla-historias"></div>
           <label for="">Responsable asignado:</label>
         </div>
@@ -194,9 +201,13 @@
         <div id="botones-inferiores">
           <button>Ver impedimentos actuales</button>
           <button>Ver historial de cambios</button>
-          <label for="">Progreso del sprint</label>
-          <label for="">#########---------</label>
-          <label for="">50%</label>
+          <div id="progreso-sprint">
+              <span>Progreso del sprint</span>
+              <div class="barra-progreso">
+                <div class="barra-progreso-relleno" style="width: 50%;"></div>
+              </div>
+              <span>50%</span>
+          </div>
         </div>
       </div>
     </section>
@@ -233,7 +244,7 @@
         }
     }
 
-    function mostrarModalSprint(idModal) {
+    function mostrarModalSprint(idModal, idCabecera) {
         // 1. Ocultar todos los modales
         document.querySelectorAll(".modal-class").forEach(modal => {
             modal.style.display = "none";
@@ -252,7 +263,7 @@
         // 3. Controlar la cabecera superior
         const cabeceraSeleccionada = document.getElementById(idCabecera);
         if(cabeceraSeleccionada){
-          cabeceraSeleccionada.style.display = "block";
+          cabeceraSeleccionada.style.display = "flex";
         }
 
         const tituloCentral = document.getElementById("tituloSeccionCentral");

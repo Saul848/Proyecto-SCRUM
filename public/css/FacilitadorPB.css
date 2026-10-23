@@ -539,3 +539,211 @@ body {
 .modal-class{
   display : none
 }
+
+/*Estilos cabecera de spring bacllog"------------------------*/
+#cabecera-sprintPB {
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 2px solid #4a90d9;
+  background-color: #ffffff;
+}
+
+.cabecera-default h2 {
+    font-size: 1.2em;
+    margin-right: 8px;
+}
+
+/* Badge "Facilitador" */
+.badge-rol {
+    background-color: #ff9a3c;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85em;
+    padding: 8px 18px;
+    border-radius: 20px;
+}
+
+/* Base de todos los botones tipo pastilla */
+.btn-pill {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    color: #ffffff;
+    transition: filter 0.15s ease;
+}
+
+.btn-pill:hover {
+    filter: brightness(0.92);
+}
+
+/* Colores específicos */
+.btn-azul {
+    background-color: #2f8fe0;
+}
+
+.btn-verde {
+    background-color: #3fcf6e;
+}
+
+.btn-rojo {
+    background-color: #f24f5c;
+}
+
+/* Estilos del area de trabajo tablero de spring backlog*/
+#panel-proyectos {
+    background-color: #ffffff;
+    border: 1px solid #b8d4ec;
+    border-radius: 6px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#panel-proyectos h2 {
+    font-size: 1.1em;
+}
+
+#objetivo-iteracion {
+    margin-bottom: 20px;
+}
+
+#objetivo-iteracion h2 {
+    display: inline-block;
+}
+
+/*objjetivo-iteracion*/
+
+/* Truco: convertimos el contenedor en flex para separar h2 y label */
+#objetivo-iteracion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#objt-iteracion-box {
+    background-color: #eef3f6;
+    width: 100%;
+    padding: 14px;
+    border-radius: 4px;
+    margin-top: 10px;
+    /* al ser 100% width y el padre ser flex, lo forzamos a su propia línea: */
+    flex-basis: 100%;
+}
+
+/*fechas*/
+#duracion-iteracion h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#fechas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #eef3f6;
+  padding: 14px 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+#fechas button {
+  background-color: #2f8fe0;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/*columnas kanban*/
+
+.columnas-kanban {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.columnas-kanban h3 {
+    flex: 1;
+    text-align: center;
+    font-size: 1em;
+}
+
+#tabla-historias {
+    border: 2px solid #2f8fe0;
+    border-radius: 4px;
+    min-height: 220px;
+    display: flex;
+}
+
+/* Cuando generes las tarjetas por columna, cada una será algo como: */
+.columna-kanban {
+    flex: 1;
+    border-right: 1px solid #d8e6f2;
+    padding: 10px;
+}
+
+.columna-kanban:last-child {
+    border-right: none;
+}
+
+#historias-sprint label {
+    display: inline-block;
+    background-color: #ff9a3c;
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 20px;
+    margin-top: 14px;
+}
+
+/* botones inferiores*/
+#botones-inferiores {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+#botones-inferiores button {
+  background-color: #2f8fe0;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Agrupamos las labels de progreso en su propio bloque a la derecha */
+#botones-inferiores label {
+  display: block;
+  text-align: center;
+}
+
+/* div del progreso del sprint */
+#progreso-sprint {
+    text-align: center;
+}
+
+.barra-progreso {
+    width: 220px;
+    height: 10px;
+    background-color: #d9d9d9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 6px 0;
+}
+
+.barra-progreso-relleno {
+    height: 100%;
+    background-color: #2f3fd0;
+}
