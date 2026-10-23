@@ -76,13 +76,6 @@ body {
   gap: 10px;
 }
 
-#labelSeccion {
-  color: #c7b3e5;
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 2px;
-}
-
 #divIndice a {
   text-decoration: none;
   color: #000000;
@@ -515,4 +508,34 @@ body {
 
 .btn-iniciar:hover {
     background-color: #0284c7 !important;
+}
+
+/*Estilos de prueba para la barra lateral*/
+
+#panelLateral {
+    list-style: none;
+    width: 18%;
+}
+
+#panelLateral li {
+    padding: 10px 16px;
+}
+
+#panelLateral button,
+#panelLateral li {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+/* clases para los modales ocultos por defecto*/
+.cabecera-default{
+  display : none
+}
+
+.modal-class{
+  display : none
 }

@@ -10,16 +10,26 @@
 <body>
 <!-- Bloque superior -->
   <header id="BloqueSuperior">
-    <div id="DivMsjFacilitador">Facilitador</div>
-    
-    <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
-    <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
+    <div id="cabecera-mensajes">
+      <div id="DivMsjFacilitador">Facilitador</div>
+      
+      <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
+      <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
 
-    <!-- Texto secundario / información del cliente -->
-    <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
+      <!-- Texto secundario / información del cliente -->
+      <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
 
-    <!-- Botón derecho exclusivo de Mensajes -->
-    <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
+      <!-- Botón derecho exclusivo de Mensajes -->
+      <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
+    </div>
+
+    <div class="cabecera-default" id="cabecera-sprintPB">
+      <h2>Sprint backlog</h2>
+      <button>Planning poker</button>
+      <button>Generar reporte</button>
+      <button>Modificar sprint actual</button>
+      <button>Cerrar sprint</button>
+    </div>
   </header>
     
   <!-- Bloque inferior -->
@@ -28,16 +38,17 @@
     <!-- Section panelLateral -->
     <section id="panelLateral">
       <div id="divIndice">
-        <span id="labelSeccion">❖ Seccion</span>
-        <a href="#" id="linkMiEquipo">Mi equipo</a>
-        <a href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes')">Mensajes</a>
-        <a href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</a>
-        <a href="#" id="linkSprint">Sprint</a>
-        <a href="#" id="linkMisTareas">Mis tareas</a>
-        <a href="#" id="linkReunirse">Reunirse</a>
-        <a href="#" id="linkGraficas">Graficas</a>
-        <a href="#" id="linkAjustes">Ajustes</a>
-      </div>
+        <span>❖ Seccion</span>
+        <ul id="panelLateral">
+          <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
+          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes')">Mensajes</button></li>
+          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</button></li>
+          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos')">Sprint</button></li>
+          <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
+          <li><button href="#" id="linkReunirse">Reunirse</button></li>
+          <li><button href="#" id="linkGraficas">Graficas</button></li>
+          <li><button href="#" id="linkAjustes">Ajustes</button></li>
+        </ul>
     </section>
 
     <!-- Section zonaDeTrabajo -->
@@ -159,6 +170,35 @@
         </div>
       </div>
 
+      <div id="panel-proyectos" class="modal-class">
+        <div id="objetivo-iteracion">
+          <h2>Objetivo actual de la iteración</h2>
+          <label for="">No. iteración #</label>
+          <div id="objt-iteracion-box">Aqui va a ir el objetivo de la iteración actual</div>
+        </div>
+
+        <div id="duracion-iteracion">
+          <h2>Duración</h2>
+          <div id="fechas">
+            <label for="">fecha inicio:</label>
+            <label for="">fecha final:</label>
+            <button>cambiar duración</button>
+          </div>
+        </div>
+
+        <div id="historias-sprint">
+          <div id="tabla-historias"></div>
+          <label for="">Responsable asignado:</label>
+        </div>
+
+        <div id="botones-inferiores">
+          <button>Ver impedimentos actuales</button>
+          <button>Ver historial de cambios</button>
+          <label for="">Progreso del sprint</label>
+          <label for="">#########---------</label>
+          <label for="">50%</label>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -186,6 +226,40 @@
             tituloCentral.textContent = "Mensajes";
             tituloCentral.style.display = "block";
             btnIniciar.style.display = "block";
+        } else {
+            // En Product Backlog y otras vistas
+            tituloCentral.style.display = "none";
+            btnIniciar.style.display = "none";
+        }
+    }
+
+    function mostrarModalSprint(idModal) {
+        // 1. Ocultar todos los modales
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
+
+        document.querySelectorAll(".cabecera-default").forEach(modal =>{
+          modal.style.display="none";
+        })
+
+        // 2. Mostrar el modal seleccionado
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+        
+        // 3. Controlar la cabecera superior
+        const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "block";
+        }
+
+        const tituloCentral = document.getElementById("tituloSeccionCentral");
+
+        if (idModal === 'modal-product-backlog') {
+            tituloCentral.textContent = "Sprint backlog del proyecto: ";
+            tituloCentral.style.display = "block";
         } else {
             // En Product Backlog y otras vistas
             tituloCentral.style.display = "none";
