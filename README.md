@@ -476,6 +476,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Actualiza el estado de la historia en la tabla trabajando_en_historia
+CREATE OR REPLACE PROCEDURE scrumbird.sp_actualizar_estado_historia(
+    p_id_historia INT,
+    p_id_proyecto INT,
+    p_nuevo_estado VARCHAR(100)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    
+    -- filtrando por la historia y el proyecto correspondientes
+    UPDATE scrumbird.trabajando_en_historia
+    SET estado = p_nuevo_estado
+    WHERE historia_asignada = p_id_historia 
+      AND id_proyecto = p_id_proyecto;
+
+    -- Opcional: Validar si se afectó algún registro
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No se encontró un registro activo para la historia con ID % en el proyecto %', p_id_historia, p_id_proyecto;
+    END IF;
+END;
+$$;
 
 
 
