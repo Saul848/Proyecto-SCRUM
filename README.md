@@ -395,6 +395,7 @@ RETURNS TABLE (
     historia_id INT,
 	titulo VARCHAR(255),
     estado_actual VARCHAR(100),
+	en_prioridad BOOLEAN,
     no_historia INT,
     no_sprint INT,
     puntos_de_esfuerzo INT,
@@ -411,6 +412,7 @@ BEGIN
         h.id AS historia_id,
 		h.nombre AS titulo,
         COALESCE(t.estado, 'Sin asignar') AS estado_actual,
+		h.prioridad AS en_prioridad,
         h.id AS no_historia,
         COALESCE(s.no_iteracion, 0) AS no_sprint,
         h.puntos_de_historia AS puntos_de_esfuerzo,
@@ -450,6 +452,7 @@ RETURNS TABLE (
     historia_id INT,
 	titulo VARCHAR(255),
     estado_actual VARCHAR(100),
+	en_prioridad BOOLEAN,
     no_historia INT,
     no_sprint INT,
     puntos_de_esfuerzo INT,
@@ -466,6 +469,7 @@ BEGIN
         h.id AS historia_id,
 		h.nombre AS titulo,
         COALESCE(t.estado, 'Sin asignar') AS estado_actual,
+		h.prioridad AS en_prioridad,
         h.id AS no_historia,
         COALESCE(s.no_iteracion, 0) AS no_sprint,
         h.puntos_de_historia AS puntos_de_esfuerzo,
@@ -490,6 +494,7 @@ BEGIN
       AND (h.asignado_al_sprint = p_id_sprint OR p_id_sprint IS NULL);
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- Actualiza el estado de la historia en la tabla trabajando_en_historia
 CREATE OR REPLACE PROCEDURE scrumbird.sp_actualizar_estado_historia(
