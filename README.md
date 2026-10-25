@@ -366,6 +366,121 @@ SELECT * FROM scrumbird.comentario;
 SELECT * FROM scrumbird.trabajando_en_historia;
 
 
+-- ==========================================
+-- PROCEDIMIENTOS ALMACENADOS
+-- ==========================================
+
+-- Obtiene el detalle completo de todas las historias de usuario asociadas 
+-- a un proyecto y sprint específicos. 
+-- Diseñada para el rol de facilitador, 
+-- incluye el estado actual, datos de esfuerzo, horas estimadas, 
+-- responsable, criterios de aceptación, 
+-- enlaces a evidencias en el servidor y un listado consolidado de comentarios
+CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_todas_historias_detalle(
+    p_id_proyecto INT,
+    p_id_sprint INT
+)
+RETURNS TABLE (
+    historia_id INT,
+    estado_actual VARCHAR(100),
+    no_historia INT,
+    no_sprint INT,
+    puntos_de_esfuerzo INT,
+    horas_estimadas INT,
+    nombre_responsable VARCHAR(255),
+    descripcion VARCHAR(255),
+    criterios_de_aceptacion VARCHAR(255),
+    evidencias_servidor VARCHAR(255),
+    comentarios TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        h.id AS historia_id,
+        COALESCE(t.estado, 'Sin asignar') AS estado_actual,
+        h.id AS no_historia,
+        COALESCE(s.no_iteracion, 0) AS no_sprint,
+        h.puntos_de_historia AS puntos_de_esfuerzo,
+        h.coste_estimado AS horas_estimadas,
+        COALESCE(u.nombre, 'Sin asignar') AS nombre_responsable,
+        h.descripcion,
+        h.criterios_de_aceptacion,
+        COALESCE(t.evidencias_desarrollo, 'Sin evidencias') AS evidencias_servidor,
+        COALESCE(
+            (SELECT STRING_AGG(c.contenido || ' (Por: ' || us_com.nombre || ' el ' || c.fecha_ultima_modificacion, ' | ')
+             FROM scrumbird.comentario c
+             JOIN scrumbird.usuario us_com ON c.emisor = us_com.id
+             WHERE c.id_historia = h.id), 
+            'Sin comentarios'
+        ) AS comentarios
+    FROM scrumbird.historia_de_usuario h
+    LEFT JOIN scrumbird.sprint s ON h.asignado_al_sprint = s.id
+    LEFT JOIN scrumbird.trabajando_en_historia t ON h.id = t.historia_asignada
+    LEFT JOIN scrumbird.usuario u ON t.responsable = u.id
+    WHERE h.id_proyecto = p_id_proyecto 
+      AND (h.asignado_al_sprint = p_id_sprint OR p_id_sprint IS NULL);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Obtiene el detalle completo únicamente de las historias de usuario 
+-- asignadas a un desarrollador en específico, 
+-- filtradas por proyecto y sprint. 
+-- Está orientada al tablero personal del colaborador, 
+-- mostrando su estado actual, estimaciones, evidencias en el servidor 
+-- y comentarios correspondientes.
+CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_historias_por_desarrollador(
+    p_id_proyecto INT,
+    p_id_sprint INT,
+    p_id_desarrollador INT
+)
+RETURNS TABLE (
+    historia_id INT,
+    estado_actual VARCHAR(100),
+    no_historia INT,
+    no_sprint INT,
+    puntos_de_esfuerzo INT,
+    horas_estimadas INT,
+    nombre_responsable VARCHAR(255),
+    descripcion VARCHAR(255),
+    criterios_de_aceptacion VARCHAR(255),
+    evidencias_servidor VARCHAR(255),
+    comentarios TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        h.id AS historia_id,
+        COALESCE(t.estado, 'Sin asignar') AS estado_actual,
+        h.id AS no_historia,
+        COALESCE(s.no_iteracion, 0) AS no_sprint,
+        h.puntos_de_historia AS puntos_de_esfuerzo,
+        h.coste_estimado AS horas_estimadas,
+        COALESCE(u.nombre, 'Sin asignar') AS nombre_responsable,
+        h.descripcion,
+        h.criterios_de_aceptacion,
+        COALESCE(t.evidencias_desarrollo, 'Sin evidencias') AS evidencias_servidor,
+        COALESCE(
+            (SELECT STRING_AGG(c.contenido || ' (Por: ' || us_com.nombre || ' el ' || c.fecha_ultima_modificacion, ' | ')
+             FROM scrumbird.comentario c
+             JOIN scrumbird.usuario us_com ON c.emisor = us_com.id
+             WHERE c.id_historia = h.id), 
+            'Sin comentarios'
+        ) AS comentarios
+    FROM scrumbird.historia_de_usuario h
+    LEFT JOIN scrumbird.sprint s ON h.asignado_al_sprint = s.id
+    JOIN scrumbird.trabajando_en_historia t ON h.id = t.historia_asignada
+    JOIN scrumbird.usuario u ON t.responsable = u.id
+    WHERE h.id_proyecto = p_id_proyecto 
+      AND t.responsable = p_id_desarrollador
+      AND (h.asignado_al_sprint = p_id_sprint OR p_id_sprint IS NULL);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
 
 --------------------------------------
 Primera version----------------------
