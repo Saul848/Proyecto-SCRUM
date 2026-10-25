@@ -8,30 +8,22 @@
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
 </head>
 <body>
-<!-- Bloque superior -->
-  <header id="BloqueSuperior">
-    <div class="cabecera-default" id="cabecera-mensajes">
-      <div id="DivMsjFacilitador">Facilitador</div>
-      
-      <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
-      <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
+<!-- Bloque superior predeterminado (Product Backlog / General) -->
+<header id="BloqueSuperior">
+  <div id="DivMsjFacilitador">Facilitador</div>
+  <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
+  <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
+  <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
+</header>
 
-      <!-- Texto secundario / información del cliente -->
-      <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
-
-      <!-- Botón derecho exclusivo de Mensajes -->
-      <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
-    </div>
-
-    <div class="cabecera-default" id="cabecera-sprintPB">
-      <span class="badge-rol">Facilitador</span>
-      <h2>Sprint backlog</h2>
-      <button class="btn-pill btn-azul">Planning poker</button>
-      <button class="btn-pill btn-azul">Generar reporte</button>
-      <button class="btn-pill btn-verde">Modificar sprint actual</button>
-      <button class="btn-pill btn-rojo">Cerrar sprint</button>
-    </div>
-  </header>
+<!-- Bloque superior exclusivo para Sprint Backlog (Oculto por defecto) -->
+<header id="cabecera-sprint" style="display: none;" class="cabecera-default">
+  <h2>Sprint backlog</h2>
+  <button class="btn-pill btn-azul">Planning poker</button>
+  <button class="btn-pill btn-azul">Generar reporte</button>
+  <button class="btn-pill btn-verde">Modificar sprint actual</button>
+  <button class="btn-pill btn-rojo">Cerrar sprint</button>
+</header>
     
   <!-- Bloque inferior -->
   <main id="BloqueInferior">
@@ -217,66 +209,58 @@
   <script src="../js/FacilitadorPB.js" defer></script>
   <script src="../js/mensajes.js" defer></script>
 <script>
+    // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
     function mostrarModal(idModal) {
-        // 1. Ocultar todos los modales
         document.querySelectorAll(".modal-class").forEach(modal => {
             modal.style.display = "none";
         });
 
-        // 2. Mostrar el modal seleccionado
         const modalSeleccionado = document.getElementById(idModal);
         if (modalSeleccionado) {
             modalSeleccionado.style.display = "block";
         }
 
-        // 3. Controlar la cabecera superior
+        const headerNormal = document.getElementById("BloqueSuperior");
+        const headerSprint = document.getElementById("cabecera-sprint");
         const tituloCentral = document.getElementById("tituloSeccionCentral");
         const btnIniciar = document.getElementById("btnIniciarConversacion");
 
+        if (headerNormal) headerNormal.style.display = "flex";
+        if (headerSprint) headerSprint.style.display = "none";
+
         if (idModal === 'modal-mensajes') {
-            tituloCentral.textContent = "Mensajes";
-            tituloCentral.style.display = "block";
-            btnIniciar.style.display = "block";
+            if (tituloCentral) {
+                tituloCentral.textContent = "Mensajes";
+                tituloCentral.style.display = "block";
+            }
+            if (btnIniciar) btnIniciar.style.display = "block";
         } else {
-            // En Product Backlog y otras vistas
-            tituloCentral.style.display = "none";
-            btnIniciar.style.display = "none";
+            if (tituloCentral) tituloCentral.style.display = "none";
+            if (btnIniciar) btnIniciar.style.display = "none";
         }
     }
 
-    function mostrarModalSprint(idModal, idCabecera) {
-        // 1. Ocultar todos los modales
-        document.querySelectorAll(".modal-class").forEach(modal => {
-            modal.style.display = "none";
-        });
+    // Función específica que usa tu compañero para el Sprint
+   function mostrarModalSprint(idModal, idCabecera) {
+    // 1. Ocultar todos los modales principales
+    document.querySelectorAll(".modal-class").forEach(modal => {
+        modal.style.display = "none";
+    });
 
-        document.querySelectorAll(".cabecera-default").forEach(modal =>{
-          modal.style.display="none";
-        })
-
-        // 2. Mostrar el modal seleccionado
-        const modalSeleccionado = document.getElementById(idModal);
-        if (modalSeleccionado) {
-            modalSeleccionado.style.display = "block";
-        }
-        
-        // 3. Controlar la cabecera superior
-        const cabeceraSeleccionada = document.getElementById(idCabecera);
-        if(cabeceraSeleccionada){
-          cabeceraSeleccionada.style.display = "flex";
-        }
-
-        const tituloCentral = document.getElementById("tituloSeccionCentral");
-
-        if (idModal === 'modal-product-backlog') {
-            tituloCentral.textContent = "Sprint backlog del proyecto: ";
-            tituloCentral.style.display = "block";
-        } else {
-            // En Product Backlog y otras vistas
-            tituloCentral.style.display = "none";
-            btnIniciar.style.display = "none";
-        }
+    // 2. Mostrar el modal correspondiente
+    const modalSeleccionado = document.getElementById(idModal);
+    if (modalSeleccionado) {
+        modalSeleccionado.style.display = "block";
     }
-  </script>
+
+    // 3. OCULTAR la cabecera principal y MOSTRAR la cabecera de sprint
+    const headerNormal = document.getElementById("BloqueSuperior");
+    const headerSprint = document.getElementById("cabecera-sprint");
+
+    if (headerNormal) headerNormal.style.display = "none";
+    if (headerSprint) headerSprint.style.display = "flex";
+}
+    
+</script>
 </body>
 </html>
