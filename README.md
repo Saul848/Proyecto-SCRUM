@@ -382,6 +382,7 @@ CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_todas_historias_detalle(
 )
 RETURNS TABLE (
     historia_id INT,
+	titulo VARCHAR(255),
     estado_actual VARCHAR(100),
     no_historia INT,
     no_sprint INT,
@@ -397,6 +398,7 @@ BEGIN
     RETURN QUERY
     SELECT 
         h.id AS historia_id,
+		h.nombre AS titulo,
         COALESCE(t.estado, 'Sin asignar') AS estado_actual,
         h.id AS no_historia,
         COALESCE(s.no_iteracion, 0) AS no_sprint,
@@ -435,6 +437,7 @@ CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_historias_por_desarrollador(
 )
 RETURNS TABLE (
     historia_id INT,
+	titulo VARCHAR(255),
     estado_actual VARCHAR(100),
     no_historia INT,
     no_sprint INT,
@@ -450,6 +453,7 @@ BEGIN
     RETURN QUERY
     SELECT 
         h.id AS historia_id,
+		h.nombre AS titulo,
         COALESCE(t.estado, 'Sin asignar') AS estado_actual,
         h.id AS no_historia,
         COALESCE(s.no_iteracion, 0) AS no_sprint,
