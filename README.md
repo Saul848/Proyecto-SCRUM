@@ -319,7 +319,27 @@ END;
 $$;
 
 
+-- Modifica el campo de evidencias, usando una ruta calculada
+-- Basada en el el id proyecto y sprint
+CREATE OR REPLACE FUNCTION scrumbird.fn_asignar_ruta_evidencias()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Si no se proporcionó una ruta de evidencias al insertar, se genera automáticamente
+    IF NEW.evidencias_desarrollo IS NULL OR NEW.evidencias_desarrollo = '' THEN
+        NEW.evidencias_desarrollo := '/evidencias/' || NEW.id_proyecto || '/' || NEW.historia_asignada;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$;
 
+-- Tigger que ejecuta la funcion de insercion automatica en el campo evidencias_desarrollo
+CREATE TRIGGER trg_asignar_evidencias_historia
+    BEFORE INSERT ON scrumbird.trabajando_en_historia
+    FOR EACH ROW
+    EXECUTE FUNCTION scrumbird.fn_asignar_ruta_evidencias();
 
 
 
