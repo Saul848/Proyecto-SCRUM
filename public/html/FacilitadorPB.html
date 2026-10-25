@@ -6,6 +6,7 @@
   <title>Facilitador - Panel Principal</title>
   <link rel="stylesheet" href="../css/FacilitadorPB.css">
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
+  <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
 </head>
 <body>
 <!-- Bloque superior -->
@@ -222,12 +223,73 @@
           </div>
         </div>
       </div>
+
+      <div id="modal-detalle-historia-kanban" class="modal-class" style="display: none;">
+        <div class="kanban-detalle-contenido">
+      
+          <!-- Sección 1: Estado actual -->
+          <div class="kanban-detalle-seccion-estado">
+            <span class="kanban-detalle-label-estado">Estado actual de la historia:</span>
+            <span id="kanban-detalle-badge-estado" class="kanban-detalle-badge">En progreso</span>
+          </div>
+      
+          <!-- Sección 2: Ficha de datos principales -->
+          <div class="kanban-detalle-seccion-datos">
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">No de historia</span>
+              <span id="kanban-detalle-no-historia" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">No de Sprint</span>
+              <span id="kanban-detalle-no-sprint" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Puntos de esfuerzo</span>
+              <span id="kanban-detalle-puntos" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Horas estimadas</span>
+              <span id="kanban-detalle-horas" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Responsable</span>
+              <span id="kanban-detalle-responsable" class="kanban-detalle-td">Sin asignar</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Comentarios</span>
+              <div id="kanban-detalle-comentarios" class="kanban-detalle-td-comentarios">
+                <span class="kanban-detalle-comentario-item">Sin asignar</span>
+              </div>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Evidencias de desarrollo</span>
+              <button id="kanban-detalle-btn-evidencias" class="kanban-detalle-btn-evidencias"
+                onclick="verEvidenciasServidor()">Ver evidencias</button>
+            </div>
+          </div>
+      
+          <!-- Sección 3: Descripción y Criterios de aceptación -->
+          <div class="kanban-detalle-seccion-inferior">
+            <div class="kanban-detalle-card-inferior">
+              <h4 class="kanban-detalle-subtitulo">Descripción</h4>
+              <div id="kanban-detalle-descripcion" class="kanban-detalle-texto-caja">Lorem ipsum</div>
+            </div>
+            <div class="kanban-detalle-card-inferior">
+              <h4 class="kanban-detalle-subtitulo">Criterios de aceptación</h4>
+              <div id="kanban-detalle-criterios" class="kanban-detalle-texto-caja">Lorem ipsum</div>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+
     </section>
   </main>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
   <script src="../js/mensajes.js" defer></script>
+  <script src="../js/modalDetalleHistoriaKanban.js"></script>
 <script>
     function mostrarModal(idModal) {
         // 1. Ocultar todos los modales

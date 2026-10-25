@@ -753,7 +753,7 @@ body {
   outline: 2px dashed #2b82c9;
 }
 
-/* Tarjeta simplificada: Solo Título y Botón */
+/* Estilo base de la tarjeta */
 .tarjeta-historia {
   background-color: #ffffff;
   border-radius: 8px;
@@ -766,6 +766,19 @@ body {
   gap: 12px;
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  margin-bottom: 8px; /* Espacio entre tarjetas */
+}
+
+/* Tarjeta Prioritaria: Rojo claro / sutil */
+.tarjeta-historia.prioritaria {
+  background-color: #fef2f2; /* Rojo muy tenue */
+  border-color: #fca5a5;    /* Borde rojizo claro */
+}
+
+/* Tarjeta No Prioritaria: Verde leve / sutil */
+.tarjeta-historia.no-prioritaria {
+  background-color: #f0fdf4; /* Verde muy tenue */
+  border-color: #86efac;    /* Borde verdoso claro */
 }
 
 .tarjeta-historia:active {

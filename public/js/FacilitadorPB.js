@@ -445,7 +445,20 @@ function inicializarTablero() {
         );
 
         if (columnaDestino) {
-            columnaDestino.appendChild(tarjeta);
+            // LÓGICA DE ORDENAMIENTO:
+            // Si es prioritaria, va hasta arriba. Si no, se coloca al final (debajo de las prioritarias).
+            if (historia.prioridad) {
+                // Inserta la tarjeta antes de la primera tarjeta existente en la columna
+                const primeraTarjeta = columnaDestino.querySelector(".tarjeta-historia");
+                if (primeraTarjeta) {
+                    columnaDestino.insertBefore(tarjeta, primeraTarjeta);
+                } else {
+                    columnaDestino.appendChild(tarjeta);
+                }
+            } else {
+                // Las no prioritarias se van al final de la columna (debajo de las prioritarias)
+                columnaDestino.appendChild(tarjeta);
+            }
         }
     });
 }
@@ -456,7 +469,15 @@ function crearTarjeta(historia) {
     // El procedimiento almacenado devuelve historia_id
     const historiaId = historia.historia_id ?? historia.id;
     const titulo = historia.titulo ?? historia.descripcion ?? "Historia sin título";
+    console.log(historia);
 
+    // Asignación de clase según si es prioritaria (boolean)
+    if (historia.prioridad) {
+        card.classList.add("prioritaria");
+    } else {
+        card.classList.add("no-prioritaria");
+    }
+    
     card.classList.add("tarjeta-historia");
     card.setAttribute("draggable", "true");
     card.dataset.id = historiaId;
@@ -465,14 +486,14 @@ function crearTarjeta(historia) {
         <h4 class="historia-titulo">${titulo}</h4>
         <div class="tarjeta-footer">
             <button class="btn-detalles"
-                onclick="verDetalles(${historiaId})">
+                onclick="verDetallesHistoriaKanban(${historiaId})">
                 Ver detalles &rarr;
             </button>
         </div>
     `;
 
     card.addEventListener("dragstart", (e) => {
-         console.log(historiasDelSprint)
+         console.log(historiasDelSprint);
 
         document.getElementById("responsableHistoria").value = historia.nombre_responsable;
         tarjetaArrastrada = card;
@@ -497,8 +518,6 @@ async function manejarDrop(e) {
 
     if (!tarjetaArrastrada) return;
 
-    // Guardamos referencias locales porque el evento dragend
-    // puede limpiar las variables globales durante la petición.
     const tarjeta = tarjetaArrastrada;
     const estadoAnterior = estadoOrigen;
     const columnaOrigen = tarjeta.parentElement;
@@ -506,7 +525,6 @@ async function manejarDrop(e) {
 
     const estadoDestino = columnaDestino.dataset.estado;
 
-    // No hacemos nada si la tarjeta se suelta en su misma columna.
     if (estadoDestino === estadoAnterior) return;
 
     // Reglas para el facilitador
@@ -548,30 +566,45 @@ async function manejarDrop(e) {
 
     const historiaId = Number(tarjeta.dataset.id);
 
-    // Movimiento visual provisional
-    columnaDestino.appendChild(tarjeta);
+    // Movimiento visual provisional respetando la prioridad al soltar
+    const esPrioritaria = tarjeta.classList.contains("prioritaria");
+    if (esPrioritaria) {
+        const primeraTarjeta = columnaDestino.querySelector(".tarjeta-historia");
+        if (primeraTarjeta) {
+            columnaDestino.insertBefore(tarjeta, primeraTarjeta);
+        } else {
+            columnaDestino.appendChild(tarjeta);
+        }
+    } else {
+        columnaDestino.appendChild(tarjeta);
+    }
 
-    // Evita que vuelvan a arrastrar la tarjeta mientras se guarda.
     tarjeta.setAttribute("draggable", "false");
 
     try {
-        // idProyecto debe contener el ID del proyecto actual.
         const guardado = await actualizarEstadoHistoria(historiaId, 1, estadoDestino);
 
         if (!guardado) {
-            // La BD no confirmó el cambio: regresar la tarjeta.
-            columnaOrigen.appendChild(tarjeta);
+            // Revertir posición si falla la BD
+            if (esPrioritaria) {
+                const primeraTarjetaOrigen = columnaOrigen.querySelector(".tarjeta-historia");
+                if (primeraTarjetaOrigen) {
+                    columnaOrigen.insertBefore(tarjeta, primeraTarjetaOrigen);
+                } else {
+                    columnaOrigen.appendChild(tarjeta);
+                }
+            } else {
+                columnaOrigen.appendChild(tarjeta);
+            }
             return;
         }
 
-        // Actualizar el estado local solamente si se guardó en la BD.
         const historiaEncontrada = historiasDelSprint.find(
             historia =>
                 Number(historia.historia_id ?? historia.id) === historiaId
         );
 
         if (historiaEncontrada) {
-            // Se conserva el nombre de propiedad que usa el objeto.
             if ("estado_actual" in historiaEncontrada) {
                 historiaEncontrada.estado_actual = estadoDestino;
             } else {
@@ -583,9 +616,17 @@ async function manejarDrop(e) {
             `BD actualizada: historia ${historiaId}, estado ${estadoDestino}`
         );
     } catch (error) {
-        // Si ocurre un error inesperado, también se revierte el movimiento.
         console.error("No se pudo guardar el cambio:", error);
-        columnaOrigen.appendChild(tarjeta);
+        if (esPrioritaria) {
+            const primeraTarjetaOrigen = columnaOrigen.querySelector(".tarjeta-historia");
+            if (primeraTarjetaOrigen) {
+                columnaOrigen.insertBefore(tarjeta, primeraTarjetaOrigen);
+            } else {
+                columnaOrigen.appendChild(tarjeta);
+            }
+        } else {
+            columnaOrigen.appendChild(tarjeta);
+        }
         alert("Ocurrió un error. La tarjeta regresará a su columna original.");
     } finally {
         tarjeta.setAttribute("draggable", "true");
@@ -628,8 +669,67 @@ async function actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
     }
 }
 
-function verDetalles(idHistoria) {
-    window.location.href = `/historias/detalle.html?id=${idHistoria}`;
+/**
+ * Abre el modal de detalle de historia y carga su información dinámicamente.
+ * @param {number} historiaId - ID de la historia de usuario seleccionada.
+ */
+async function verDetallesHistoriaKanban(historiaId) {
+    // 1. Mostrar el modal usando lógica existente
+    mostrarModal("modal-detalle-historia-kanban");
+
+    // 2. Intentar buscar la historia en el arreglo local del sprint actual
+    let historia = historiasDelSprint.find(
+        h => Number(h.historia_id ?? h.id) === Number(historiaId)
+    );
+
+
+    if (!historia) {
+        console.warn("No se encontró la historia en los datos locales.");
+        return;
+    }
+
+    // 3. Rellenar los elementos del modal con los datos de la historia
+    document.getElementById("kanban-detalle-badge-estado").textContent = historia.estado_actual ?? historia.estado ?? "Sin asignar";
+    document.getElementById("kanban-detalle-no-historia").textContent = historia.historia_id ?? historia.id ?? "#";
+    document.getElementById("kanban-detalle-no-sprint").textContent = historia.no_sprint ?? "#";
+    document.getElementById("kanban-detalle-puntos").textContent = historia.puntos_de_esfuerzo ?? historia.puntos_de_historia ?? "#";
+    document.getElementById("kanban-detalle-horas").textContent = historia.horas_estimadas ?? historia.coste_estimado ?? "#";
+    document.getElementById("kanban-detalle-responsable").textContent = historia.nombre_responsable ?? "Sin asignar";
+
+    // Rellenar comentarios (si el procedimiento devuelve un string separado por comas o un arreglo)
+    const contenedorComentarios = document.getElementById("kanban-detalle-comentarios");
+    contenedorComentarios.innerHTML = "";
+    if (historia.comentarios && historia.comentarios !== "Sin comentarios") {
+        // Si vienen separados por ' | ' como lo estructuramos en el procedimiento SQL:
+        const listaComentarios = historia.comentarios.split(" | ");
+        listaComentarios.forEach(com => {
+            const spanCom = document.createElement("span");
+            spanCom.className = "kanban-detalle-comentario-item";
+            spanCom.textContent = com;
+            contenedorComentarios.appendChild(spanCom);
+        });
+    } else {
+        contenedorComentarios.innerHTML = '<span class="kanban-detalle-comentario-item">Sin comentarios</span>';
+    }
+
+    // Rellenar descripción y criterios de aceptación
+    document.getElementById("kanban-detalle-descripcion").textContent = historia.descripcion ?? "Sin descripción";
+    document.getElementById("kanban-detalle-criterios").textContent = historia.criterios_de_aceptacion ?? "Sin criterios definidos";
+
+    // Guardar o enlazar el enlace de evidencias si lo requieres para el botón
+    window.evidenciasRutaServidor = historia.evidencias_servidor ?? "";
+}
+
+/**
+ * Acción del botón para abrir las evidencias del servidor
+ */
+function verEvidenciasServidor() {
+    if (window.evidenciasRutaServidor && window.evidenciasRutaServidor !== "Sin evidencias") {
+        alert("Ruta de evidencias en el servidor: " + window.evidenciasRutaServidor);
+        // O puedes abrirla / manejarla según tu lógica local
+    } else {
+        alert("No hay evidencias registradas para esta historia.");
+    }
 }
 
 // Inicializar al cargar el DOM
