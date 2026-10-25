@@ -193,21 +193,30 @@ CREATE TABLE comentario (
 -- 11. TABLA: trabajando_en_historia
 -- ==========================================
 
-CREATE TABLE trabajando_en_historia (
+CREATE TABLE scrumbird.trabajando_en_historia (
     id SERIAL PRIMARY KEY,
     responsable INT NOT NULL,
     historia_asignada INT NOT NULL,
-    estado VARCHAR(100) NOT NULL,
+    estado VARCHAR(100) NOT NULL
+        CHECK (estado IN (
+            'por-empezar',
+            'en-progreso',
+            'en-revision',
+            'terminado'
+        )),
     evidencias_desarrollo VARCHAR(255),
     id_proyecto INT NOT NULL,
+
     FOREIGN KEY (responsable)
-        REFERENCES usuario(id)
+        REFERENCES scrumbird.usuario(id)
         ON DELETE CASCADE,
+
     FOREIGN KEY (historia_asignada)
-        REFERENCES historia_de_usuario(id)
+        REFERENCES scrumbird.historia_de_usuario(id)
         ON DELETE CASCADE,
+
     FOREIGN KEY (id_proyecto)
-        REFERENCES proyecto(id)
+        REFERENCES scrumbird.proyecto(id)
         ON DELETE CASCADE
 );
 
