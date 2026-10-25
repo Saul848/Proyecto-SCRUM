@@ -187,6 +187,7 @@
           </div>
         </div>
 
+        <!-- TABLERO KANVAN -->
         <div id="historias-sprint">
           <div class="columnas-kanban">
             <h3>Por empezar</h3>
@@ -194,9 +195,20 @@
             <h3>En revisión</h3>
             <h3>Terminado</h3>
           </div>
-          <div id="tabla-historias"></div>
-          <label for="">Responsable asignado:</label>
+
+          <!-- Contenedor general de las 4 columnas (Grid) -->
+          <div id="tabla-historias">
+            <div class="columna-kanban" data-estado="por-empezar"></div>
+            <div class="columna-kanban" data-estado="en-progreso"></div>
+            <div class="columna-kanban" data-estado="en-revision"></div>
+            <div class="columna-kanban" data-estado="terminado"></div>
+          </div>
+
+          <label for="responsableHistoria">Responsable asignado:</label>
+          <input type="text" readonly="readonly" id="responsableHistoria">
         </div>
+
+        <!-- TERMINO tablero KANVAN -->
 
         <div id="botones-inferiores">
           <button>Ver impedimentos actuales</button>
