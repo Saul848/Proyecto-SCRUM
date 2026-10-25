@@ -196,7 +196,7 @@ SELECT * FROM scrumbird.usuario; SELECT * FROM scrumbird.grupo; SELECT * FROM sc
 -- incluye el estado actual, datos de esfuerzo, horas estimadas, 
 -- responsable, criterios de aceptación, 
 -- enlaces a evidencias en el servidor y un listado consolidado de comentarios
-DROP FUNCTION scrumbird.sp_obtener_todas_historias_detalle;
+DROP FUNCTION If EXISTS scrumbird.sp_obtener_todas_historias_detalle;
 CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_todas_historias_detalle( p_id_proyecto INT, p_id_sprint INT ) 
 RETURNS TABLE ( 
     historia_id INT, 
@@ -246,7 +246,7 @@ BEGIN
 END; 
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION scrumbird.sp_obtener_historias_por_desarrollador;
+DROP FUNCTION If EXISTS scrumbird.sp_obtener_historias_por_desarrollador;
 -- Obtiene el detalle completo únicamente de las historias de usuario 
 -- asignadas a un desarrollador en específico, 
 -- filtradas por proyecto y sprint. 
