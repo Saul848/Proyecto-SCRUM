@@ -1,4 +1,5 @@
 const { enviarInvitacionProyecto } = require('../utils/emailService');
+const { crearCarpetaProyecto } = require('../utils/fileSystemHelper'); // <-- Importar helper
 
 class ProyectosControlador {
     constructor(proyectosDAO) {
@@ -50,6 +51,11 @@ class ProyectosControlador {
                         console.error(`Error enviando correo a ${colab.correo}:`, emailErr.message);
                     }
                 }
+            }
+
+            // Crear físicamente la carpeta del proyecto en el servidor PARA EVIDENCIAS
+            if (nuevoProyecto.id) {
+                crearCarpetaProyecto(nuevoProyecto.id);
             }
 
             res.status(201).json({

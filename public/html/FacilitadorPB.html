@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/FacilitadorPB.css">
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
   <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
+  <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
 </head>
 <body>
 <!-- Bloque superior -->
@@ -224,11 +225,15 @@
         </div>
       </div>
 
+      <!-- MODAL DETALLES DE HISTORIA -->
       <div id="modal-detalle-historia-kanban" class="modal-class" style="display: none;">
         <div class="kanban-detalle-contenido">
       
           <!-- Sección 1: Estado actual -->
           <div class="kanban-detalle-seccion-estado">
+            <button class="kanban-evidencias-btn-volver" onclick="mostrarModal('panel-proyectos')">
+              &lsaquo; Volver a sprint 
+            </button>
             <span class="kanban-detalle-label-estado">Estado actual de la historia:</span>
             <span id="kanban-detalle-badge-estado" class="kanban-detalle-badge">En progreso</span>
           </div>
@@ -264,7 +269,7 @@
             <div class="kanban-detalle-columna-item">
               <span class="kanban-detalle-th">Evidencias de desarrollo</span>
               <button id="kanban-detalle-btn-evidencias" class="kanban-detalle-btn-evidencias"
-                onclick="verEvidenciasServidor()">Ver evidencias</button>
+                onclick="abrirEvidenciasHistoriaSeleccionada()">Ver evidencias</button>
             </div>
           </div>
       
@@ -283,13 +288,81 @@
         </div>
       </div>
 
+      <!-- MODAL EVIDENCIA DE HISTORIA -->
+      <div id="modal-evidencias-historia-kanban" class="modal-class" style="display: none;">
+        <div class="kanban-evidencias-contenido">
+      
+          <!-- Cabecera: Volver y Estado -->
+          <div class="kanban-evidencias-header">
+            <button class="kanban-evidencias-btn-volver" onclick="regresarAlDetalleHistoria()">
+              &lsaquo; Volver a la historia <span id="kanban-evidencias-id-historia-num">#</span>
+            </button>
+            <div class="kanban-evidencias-estado-container">
+              <span class="kanban-evidencias-label-estado">Estado de la historia:</span>
+              <span id="kanban-evidencias-badge-estado" class="kanban-evidencias-badge">En progreso</span>
+            </div>
+          </div>
+      
+          <h2 class="kanban-evidencias-titulo-principal">Evidencias de desarrollo</h2>
+      
+          <!-- Alerta dinámica de permisos o bloqueo -->
+          <div id="kanban-evidencias-alerta" class="kanban-evidencias-alerta info">
+            <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes .png o .jpg y borrar únicamente las que tú
+              subiste.</span>
+          </div>
+      
+          <!-- Cuerpo principal en 2 columnas (Archivos y Vista previa) -->
+          <div class="kanban-evidencias-body-grid">
+      
+            <!-- Columna Izquierda: Listado y Zona de Subida -->
+            <div class="kanban-evidencias-col-izquierda">
+              <div class="kanban-evidencias-sub-header">
+                <h3 id="kanban-evidencias-contador" class="kanban-evidencias-subtitulo">Archivos subidos (0)</h3>
+                <span class="kanban-evidencias-formato-lbl">Solo imágenes .png y .jpg</span>
+              </div>
+      
+              <!-- Zona de carga (Drag & Drop / Input file) -->
+              <div id="kanban-evidencias-zona-carga" class="kanban-evidencias-upload-box">
+                <div class="kanban-evidencias-upload-content">
+                  <i class="icon-upload">&#8648;</i>
+                  <span id="kanban-evidencias-upload-titulo" class="kanban-evidencias-upload-main-text">Subir evidencia</span>
+                  <span id="kanban-evidencias-upload-sub" class="kanban-evidencias-upload-sub-text">Arrastra o elige una
+                    imagen .png o .jpg</span>
+                </div>
+                <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg" style="display: none;"
+                  onchange="manejarSeleccionArchivo(this)">
+              </div>
+      
+              <!-- Contenedor dinámico de la lista de archivos subidos -->
+              <div id="kanban-evidencias-lista-archivos" class="kanban-evidencias-lista-scroll">
+                <!-- Las tarjetas de archivos se inyectan dinámicamente aquí -->
+              </div>
+            </div>
+      
+            <!-- Columna Derecha: Vista previa de la imagen seleccionada -->
+            <div class="kanban-evidencias-col-derecha">
+              <h3 class="kanban-evidencias-subtitulo">Vista previa</h3>
+              <div class="kanban-evidencias-preview-box">
+                <div id="kanban-evidencias-preview-content" class="kanban-evidencias-preview-placeholder">
+                  <div class="preview-icono-default">&#128444;</div>
+                  <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
+                  <span class="preview-sub-text">Aquí se mostrará la imagen a tamaño completo</span>
+                </div>
+              </div>
+            </div>
+      
+          </div>
+        </div>
+      </div>
+
     </section>
   </main>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
   <script src="../js/mensajes.js" defer></script>
-  <script src="../js/modalDetalleHistoriaKanban.js"></script>
+  <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
+  <script src="../js/modalEvidenciaHistoria.js" defer></script>
 <script>
     function mostrarModal(idModal) {
         // 1. Ocultar todos los modales

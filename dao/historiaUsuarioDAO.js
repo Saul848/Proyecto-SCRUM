@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 //El DAO es el único lugar donde se escribe SQL de la tabla que accedemos
 class historiaUsuarioDAO {
     constructor(pool) {
@@ -15,7 +18,8 @@ class historiaUsuarioDAO {
     async agregarHistoria({nombre, descripcion, criterios, valor, sprint }) {
         const { rows } = await this.pool.query(
             `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, criterios_de_aceptacion, valor, asignado_al_sprint) 
-             VALUES ($1, $2, $3, $4, $5) 
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, id_proyecto
              `,
             [nombre, descripcion, criterios, valor, sprint]
         );
