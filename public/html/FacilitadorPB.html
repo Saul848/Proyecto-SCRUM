@@ -6,6 +6,7 @@
   <title>Facilitador - Panel Principal</title>
   <link rel="stylesheet" href="../css/FacilitadorPB.css">
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
+  <link rel="stylesheet" href="../css/reuniones.css">
 </head>
 <body>
 <!-- Bloque superior -->
@@ -46,7 +47,7 @@
           <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</button></li>
           <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos', 'cabecera-sprintPB')">Sprint</button></li>
           <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
-          <li><button href="#" id="linkReunirse">Reunirse</button></li>
+          <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones')">Reunirse</button></li>
           <li><button href="#" id="linkGraficas">Graficas</button></li>
           <li><button href="#" id="linkAjustes">Ajustes</button></li>
         </ul>
@@ -210,12 +211,37 @@
           </div>
         </div>
       </div>
+
+      <!-- MODAL 3: REUNIRSE -->
+      <div id="modal-reuniones" class="modal-class" style="display: none;">  
+        <h1 id="titulo-reuniones">Reuniones</h1>
+        <div class="area-fondo">
+            <section class="tarjeta-reunion">
+                <h2>Planificación de la iteración (Sprint Planning)</h2>
+                <p class="detalle">Fecha: 11 Oct · 2-4 h · 2 fases (Qué y Cómo)</p>
+                <p class="estado en-curso">● Estado: En curso · 5/7 conectados</p>
+                <button class="btn-entrar" data-reunion="sprintPlanning">Entrar</button>
+                <button class="btn-editar">Editar</button>
+            </section>
+
+            <section class="tarjeta-reunion">
+                <h2>Reunión diaria Iteración 3 - Día 4</h2>
+                <p class="detalle">Fecha: 12 Oct · 9:00 - 9:15 · 15 min (timebox)</p>
+                <p class="estado programada">● Estado: Programada</p>
+                <button class="btn-entrar" data-reunion="daily">Entrar</button>
+                <button class="btn-editar">Editar</button>
+            </section>
+
+            <button class="btn-agendar">Agendar nueva reunión +</button>
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
   <script src="../js/mensajes.js" defer></script>
+  <script src="../js/reuniones.js" defer></script>
 <script>
     function mostrarModal(idModal) {
         // 1. Ocultar todos los modales
