@@ -50,6 +50,16 @@
       <!-- MODAL 1: PRODUCT BACKLOG -->
       <div id="modal-product-backlog" class="modal-class" style="display: block;">
         <div id="DivContPB">
+          
+          <!-- Barra de filtros -->
+          <div id="contenedorFiltrosPB" class="filtros-pb-container">
+            <input type="text" id="inputFiltroId" class="filtro-input filtro-id" placeholder="Filtrar ID...">
+            <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre" placeholder="Filtrar nombre...">
+            <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
+            <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint" placeholder="Filtrar sprint...">
+            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+          </div>
+
           <div id="DivEncabezados">
             <label id="LabelID">ID</label>
             <label id="LabelNombreHistoria">Historias de usuario</label>

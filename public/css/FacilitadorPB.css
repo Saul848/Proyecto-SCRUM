@@ -747,6 +747,48 @@ body {
     height: 100%;
     background-color: #2f3fd0;
 }
+
+/* ==========================================================
+   ESTILOS DE LA BARRA DE FILTROS
+   ========================================================== */
+.filtros-pb-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.filtro-input {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+.filtro-id {
+    width: 12%;
+}
+
+.filtro-nombre {
+    width: 25%;
+}
+
+.filtro-valor {
+    width: 15%;
+}
+
+.filtro-sprint {
+    width: 20%;
+}
+
+.btn-limpiar-filtros {
+    padding: 6px 12px;
+    background: #eff0e2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
 /* ========================================================== */
 /* CORRECCIÓN DE CABECERA SUPERIOR                            */
 /* ========================================================== */
