@@ -267,10 +267,13 @@ function agregarNuevaHistoria(){
     }
 }
 
-
-
 /**
- * Funcion que construye los datos de la historia y realiza la peticion POST
+ * Valida los campos del formulario, envía una petición POST al servidor para registrar
+ * una nueva historia de usuario, limpia los filtros actuales, recarga la lista maestra de historias,
+ * y oculta el modal de creación si el registro es exitoso.
+ * @async
+ * @function agregarHistoriaUsuario
+ * @returns {Promise<void>} Promesa que se resuelve cuando se completa el proceso de guardado y actualización.
  */
 async function agregarHistoriaUsuario() {
     // Primero verificamos que los campos cumplan las reglas
@@ -303,8 +306,14 @@ async function agregarHistoriaUsuario() {
     if(resultado.ok || respuesta.status === 201){
         alert(resultado.mensaje || "Historia agregada correctamente");
         
-        // Actualizamos la lista de historias dinámicamente llamando a nuestra función
-        await renderizarHistorias();
+        // Limpiamos los campos de los filtros para que la nueva historia se vea inmediatamente
+        inputFiltroId.value = "";
+        inputFiltroNombre.value = "";
+        inputFiltroValor.value = "";
+        inputFiltroSprint.value = "";
+
+        // Volvemos a inicializar el backlog para actualizar la lista, incluyendo la nueva historia
+        await inicializarBacklog();
         
         // Se limpian los campos de la sección agregar
         limpiarCamposHistoria();
@@ -320,3 +329,115 @@ function cargar_cabecera_inicial(){
 }
 
 cargar_cabecera_inicial();
+
+// Variables globales adicionales para filtros
+let todasLasHistorias = [];
+
+// Captura de elementos de filtro del DOM
+const inputFiltroId = document.getElementById("inputFiltroId");
+const inputFiltroNombre = document.getElementById("inputFiltroNombre");
+const inputFiltroValor = document.getElementById("inputFiltroValor");
+const inputFiltroSprint = document.getElementById("inputFiltroSprint");
+const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
+
+/**
+ * Inicializa el Product Backlog obteniendo la lista completa de historias desde el servidor,
+ * almacenándolas en la variable maestra global e invocando el sistema de filtrado inicial.
+ * @async
+ * @function inicializarBacklog
+ * @returns {Promise<void>} Promesa que se resuelve cuando se han cargado y filtrado las historias.
+ */
+async function inicializarBacklog() {
+    todasLasHistorias = await obtenerHistorias();
+    aplicarFiltros();
+}
+
+/**
+ * Filtra el arreglo maestro de historias en tiempo real basándose en los valores actuales
+ * ingresados en los campos de búsqueda (ID, nombre, valor y sprint asignado).
+ * Posteriormente, delega el resultado a la función de renderizado.
+ * @function aplicarFiltros
+ * @returns {void}
+ */
+function aplicarFiltros() {
+    const filtroId = inputFiltroId.value.trim().toLowerCase();
+    const filtroNombre = inputFiltroNombre.value.trim().toLowerCase();
+    const filtroValor = inputFiltroValor.value.trim().toLowerCase();
+    const filtroSprint = inputFiltroSprint.value.trim().toLowerCase();
+
+    const historiasFiltradas = todasLasHistorias.filter((historia) => {
+        const idStr = String(historia.id).toLowerCase();
+        const nombreStr = String(historia.nombre || historia.titulo || "").toLowerCase();
+        const valorStr = String(historia.valor || "").toLowerCase();
+        const sprintStr = String(historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "").toLowerCase();
+
+        const matchId = filtroId === "" || idStr.includes(filtroId);
+        const matchNombre = filtroNombre === "" || nombreStr.includes(filtroNombre);
+        const matchValor = filtroValor === "" || valorStr.includes(filtroValor);
+        const matchSprint = filtroSprint === "" || sprintStr.includes(filtroSprint);
+
+        return matchId && matchNombre && matchValor && matchSprint;
+    });
+
+    renderizarTablaFiltrada(historiasFiltradas);
+}
+
+/**
+ * Recorre un arreglo de historias de usuario y construye dinámicamente las filas HTML
+ * correspondientes, inyectándolas en el contenedor principal de la vista del Product Backlog.
+ * Muestra un mensaje informativo si no hay coincidencias.
+ * @function renderizarTablaFiltrada
+ * @param {Array<Object>} historias - Arreglo de objetos que representan las historias de usuario a mostrar.
+ * @returns {void}
+ */
+function renderizarTablaFiltrada(historias) {
+    divHistoria.innerHTML = "";
+
+    if (historias.length === 0) {
+        divHistoria.innerHTML = `<p style="text-align: center; padding: 20px; color: #64748b;">No se encontraron historias que coincidan con los filtros.</p>`;
+        return;
+    }
+
+    historias.forEach((historia) => {
+        const filaHtml = document.createElement("div");
+        filaHtml.id = `DivFilaHistoria_${historia.id}`;
+        filaHtml.className = "DivFilaHistoria";
+
+        filaHtml.innerHTML = `
+            <label class="LabelID">${historia.id}</label>
+            <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
+            <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
+            <label class="LabelCriterios">${historia.criterios || historia.criterios_de_aceptacion || "#"}</label>
+            <label class="LabelValor">${historia.valor || "#"}</label>
+            <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
+            
+            <div class="DivBtnComentar">
+                <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
+            </div>
+            <div class="DivBtnEliminar">
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}">🗑️</button>
+            </div>
+        `;
+
+        divHistoria.appendChild(filaHtml);
+    });
+}
+
+// Event listeners para actualizar el filtrado en tiempo real al escribir
+[inputFiltroId, inputFiltroNombre, inputFiltroValor, inputFiltroSprint].forEach(input => {
+    input.addEventListener("input", aplicarFiltros);
+});
+
+// Botón para limpiar los filtros
+btnLimpiarFiltros.addEventListener("click", () => {
+    inputFiltroId.value = "";
+    inputFiltroNombre.value = "";
+    inputFiltroValor.value = "";
+    inputFiltroSprint.value = "";
+    aplicarFiltros();
+});
+
+// Modificación del evento DOMContentLoaded para usar la carga inicial
+document.addEventListener("DOMContentLoaded", async () => {
+    await inicializarBacklog();
+});
