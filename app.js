@@ -38,6 +38,8 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+app.use('/api/reunion', require('./routes/reunionRoutes'));
+
 /**
  * Carga del certificado autorfirmado para el cifrado
  */

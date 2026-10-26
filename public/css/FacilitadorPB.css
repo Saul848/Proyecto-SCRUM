@@ -866,6 +866,238 @@ body {
 }
 
 .barra-progreso-relleno {
-  height: 100%;
-  background-color: #2f3fd0;
+    height: 100%;
+    background-color: #2f3fd0;
+}
+
+/* ==========================================================
+   ESTILOS DE LA BARRA DE FILTROS
+   ========================================================== */
+.filtros-pb-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.filtro-input {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+.filtro-id {
+    width: 12%;
+}
+
+.filtro-nombre {
+    width: 25%;
+}
+
+.filtro-valor {
+    width: 15%;
+}
+
+.filtro-sprint {
+    width: 20%;
+}
+
+.btn-limpiar-filtros {
+    padding: 6px 12px;
+    background: #eff0e2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+/* ========================================================== */
+/* CORRECCIÓN DE CABECERA SUPERIOR                            */
+/* ========================================================== */
+
+#BloqueSuperior {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    height: 60px;
+}
+
+#DivMsjFacilitador {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    z-index: 2;
+}
+
+#tituloSeccionCentral {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    z-index: 1;
+}
+
+#DivTitulo {
+    margin-left: auto;
+    margin-right: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    z-index: 2;
+}
+
+#DivTitulo span {
+    color: #0033ff;
+    font-weight: 700;
+}
+
+.btn-iniciar {
+    background-color: #0088ff !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 18px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.2s;
+}
+
+.btn-iniciar:hover {
+    background-color: #0284c7 !important;
+}
+/* ========================================================== */
+/* RESTAURACIÓN Y DISEÑO LIMPIO DE LA BARRA LATERAL           */
+/* ========================================================== */
+
+#panelLateral {
+    width: 260px !important;
+    min-width: 260px !important;
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    padding: 24px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+
+#divIndice {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+#labelSeccion {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 6px !important;
+    padding-left: 10px !important;
+}
+
+#divIndice a {
+    text-decoration: none !important;
+    color: #334155 !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    transition: background 0.2s, color 0.2s !important;
+    white-space: nowrap !important; /* Evita que los textos como "Product Backlog" se partan en dos líneas */
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#divIndice a:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+#divIndice a.active {
+    background-color: #e0f2fe !important;
+    color: #0284c7 !important;
+    font-weight: 600 !important;
+}
+/* ========================================================== */
+/* CORRECCIÓN DE DISEÑO PARA LA CABECERA DE SPRINT            */
+/* ========================================================== */
+
+#cabecera-sprint {
+    display: none; /* Por defecto oculta */
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Forzar que cuando tome la clase flex se despliegue correctamente */
+#cabecera-sprint[style*="display: flex"] {
+    display: flex !important;
+}
+
+#cabecera-sprint h2 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+}
+
+#cabecera-sprint .badge-rol {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+/* ========================================================== */
+/* CABECERA DE SPRINT CENTRADA Y LIMPIA                       */
+/* ========================================================== */
+
+#cabecera-sprint {
+    display: none;
+    align-items: center !important;
+    justify-content: center !important; /* Centra todo horizontalmente */
+    gap: 16px !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 60px !important;
+}
+
+#cabecera-sprint h2 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding-right: 8px !important;
+}
+
+#cabecera-sprint .badge-rol {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
 }
