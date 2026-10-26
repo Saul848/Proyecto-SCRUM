@@ -42,7 +42,6 @@ async function renderizarHistorias() {
         const filaHtml = document.createElement("div");
         filaHtml.id = `DivFilaHistoria_${historia.id}`;
         filaHtml.className = "DivFilaHistoria";
-
         filaHtml.innerHTML = `
             <label class="LabelID">${historia.id}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
@@ -55,7 +54,7 @@ async function renderizarHistorias() {
                 <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
             </div>
             <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}">🗑️</button>
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminar(${historia.id})">🗑️</button>
             </div>
         `;
 
@@ -312,5 +311,32 @@ async function agregarHistoriaUsuario() {
         setEnModificacion(null);
     } else {
         alert(resultado.mensaje || resultado.error || "Error al agregar la historia");
+    }
+}
+
+/**
+ * Funcion que realiza la solicitud delete para eliminar una historia
+ */
+async function eliminarHistoriaUsuario(id) {
+    const respuesta = await fetch("/historias", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            idHistoria: id
+        })
+    });
+
+    const resultado = await respuesta.json();
+    
+    if(resultado.ok || respuesta.status === 201){
+        alert(resultado.mensaje || "Historia eliminada correctamente");
+        // Actualizamos la lista de historias dinámicamente llamando a nuestra función
+        await renderizarHistorias();
+        // Se oculta el modal
+        setEnModificacion(null);
+    } else {
+        alert(resultado.mensaje || resultado.error || "Error al eliminar la historia");
     }
 }
