@@ -3,67 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fase 1</title>
+    <title>Sprint Planning</title>
     <link rel="stylesheet" href="../css/sprintPlanning.css">
 </head>
 <body>
     <div class="app">
-        <aside class="menu-lateral">
-            <button class="usuario-activo" id="btnUsuario">Facilitador</button>
-            <nav>
-                <a href="#">Mi equipo</a>
-                <a href="#">Mensajes</a>
-                <a href="#">Product Backlog</a>
-                <a href="#">Sprint</a>
-                <a href="#">Mis tareas</a>
-                <a href="reuniones.html" class="activo">Reunirse</a>
-                <a href="#">Gráficas</a>
-                <a href="#">Ajustes</a>
-            </nav>
-        </aside>
-
         <main class="area-trabajo">
-            <header class="encabezado">
-                <h1>Sprint Planning</h1>
-            </header>
-
-            <aside class="area-fondo">
-                <section id="fase1" class="fase">
+            <div class="area-fondo">
+                <!-- Fase 1 (selección) -->
+                <div id="vista-fase1" class="vista">
                     <div class="fase-titulo">
-                        <h2>Fase 1 de 2: ¿QUÉ vamos a entregar?</h2>
-                    </div>
-
-                    <div class="fila-doble">
-                        <div class="panel">
-                            <h3>Requisitos priorizados</h3>
-                            <ul id="listaRequisitos" class="lista-requisitos">
-                                
-                            </ul>
-                        </div>
-
-                        <div class="panel">
-                            <h3>Dudas del equipo</h3>
-                            <div id="contenedorDudas" class="contenedor-dudas">
-
-                            </div>
-
-                            <div id="zonaNuevaDuda" class="zona-nueva-duda oculto">
-                                <input type="text" id="inputDuda" placeholder="Escribe tu duda...">
-                                <button id="btnNuevaDuda" class="btn-azul">+ Nueva duda</button>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="btnContinuar" class="btn-azul btn-continuar oculto">Continuar a Fase 2: El CÓMO →</button>
-                </section>
-
-                <section id="fase2" class="fase oculto">
-                    <div class="fase-titulo">
-                        <h2>Fase 2 de 2: ¿CÓMO lo vamos a hacer?</h2>
+                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
+                        <p class="subtitulo">Fase 1 de 2: ¿QUÉ vamos a entregar?</p>
                     </div>
 
                     <div class="panel">
-                        <h3>Requisitos seleccionados:</h3>
-                        <p id="requisitosSeleccionados" class="texto-seleccion"></p>
+                        <h3>Lista de requisitos priorizados</h3>
+                        <ul id="listaRequisitos" class="lista-requisitos"></ul>
+                    </div>
+
+                    <div class="acciones">
+                        <button id="btnTerminarSeleccion" class="btn-azul" disabled>Terminar selección</button>
+                    </div>
+                </div>
+
+                <!-- Resumen Fase 1 -->
+                <div id="vista-resumen" class="vista oculto">
+                    <div class="fase-titulo">
+                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
+                        <p class="subtitulo">Fase 1 de 2: ¿QUÉ vamos a entregar?</p>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Lista de requisitos priorizada</h3>
+                        <div class="diseño-fondo">
+                            <table id="tablaResumen" class="tabla-resumen">
+                                <thead>
+                                    <tr>
+                                        <th>Historias de usuario</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoResumen"></tbody>
+                            </table>
+                            <button id="btnVolverFase1" class="btn-gris">← Volver a Fase 1</button>
+                        </div>
+                        
+                    </div>
+
+                    <div class="acciones">
+                        <button id="btnContinuar" class="btn-azul">Continuar</button>
+                        <button id="btnSalir" class="btn-rojo">Salir</button>
+                    </div>
+                </div>
+
+                <!-- Fase 2 (asignación) -->
+                <section id="vista-fase2" class="vista oculto">
+                    <div class="fase-titulo">
+                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
+                        <p class="subtitulo">Fase 2 de 2: ¿CÓMO lo vamos a hacer?</p>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Duración</h3>
+                        <div class="fila-duracion">
+                            <label>Inicio: <input type="date" id="inpFechaInicio"></label>
+                            <label>Fin: <input type="date" id="inpFechaFin"></label>
+                            <span id="txtRestante" class="texto-restante">Tiempo restante: -- días</span>
+                        </div>
                     </div>
 
                     <div class="panel">
@@ -71,29 +78,26 @@
                         <table class="tabla-tareas">
                             <thead>
                                 <tr>
-                                    <th>Tarea</th>
+                                    <th>Id</th>
+                                    <th>Título</th>
+                                    <th>Sprint asignado</th>
+                                    <th>Responsable</th>
                                     <th>Esfuerzo</th>
-                                    <th>Asignado</th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody id="cuerpoTareas">
-
-                            </tbody>
+                            <tbody id="cuerpoTareas"></tbody>
                         </table>
-                        <button id="btnNuevaTarea" class="btn-azul oculto">+ Nueva Tarea</button>
                     </div>
 
-                    <div class="acciones-finales">
-                        <button id="btnVolver" class="btn-gris">← Volver a Fase 1</button>
-                        <button id="btnConfirmar" class="btn-verde oculto">✓ Confirmar Sprint Backlog</button>
-                        <button id="btnFinalizar" class="btn-azul" data-reunion="reuniones">Finalizar reunión</button>
+                    <div class="acciones">
+                        <button id="btnVolverResumen" class="btn-gris">← Volver a Fase 1</button>
+                        <button id="btnConfirmarSprint" class="btn-verde">✓ Confirmar Sprint Backlog</button>
                     </div>
-                </section>
-            </aside>
-        </main>
+                </section>    
+            </div>
+        </main>    
     </div>
-
     <script src="../js/sprintPlanning.js"></script>
 </body>
 </html>

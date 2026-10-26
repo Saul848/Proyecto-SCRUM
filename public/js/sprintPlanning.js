@@ -1,173 +1,280 @@
 const params = new URLSearchParams(window.location.search);
-const rol = params.get('usuario') || 'facilitador';
+const rol = (params.get("usuario") || "facilitador").toLowerCase();
+const esFacilitador = rol === "facilitador";
+const ID_SPRINT = 1;
+const NOMBRE_SPRINT = "Sprint-1";
 
-document.getElementById('btnUsuario').textContent =
-  rol.charAt(0).toUpperCase() + rol.slice(1);
 
-const requisitos = [
-  { id: 'PB-01', texto: 'Inicio de sesión o creación de cuenta' },
-  { id: 'PB-02', texto: 'Creación de proyectos' },
-  { id: 'PB-03', texto: 'Generar el product backlog' },
-  { id: 'PB-04', texto: 'Generar un Sprint backlog' },
-  { id: 'PB-05', texto: 'Asignación de historias de usuario a desarrolladores' },
-  { id: 'PB-06', texto: 'Estado de las historias de usuario en la lista del Sprint backlog' }
-];
+const btnUsuario = document.getElementById("btnUsuario");
+if (btnUsuario) {
+  btnUsuario.textContent = rol.charAt(0).toUpperCase() + rol.slice(1);
+}
 
-const dudas = [
-  { autor: 'Equipo', texto: '¿PB:03 puede depender de PB-02?', tipo: 'equipo' },
-  { autor: 'Cliente', texto: 'Sí, primero el login.', tipo: 'cliente' }
-];
+let requisitos = []; // Se llenará desde la BD
 
-let tareas = [];
 
-const listaRequisitos = document.getElementById('listaRequisitos');
-requisitos.forEach((req, index) => {
-  const li = document.createElement('li');
-  li.innerHTML = `
-    <input type="checkbox" id="req-${index}" data-id="${req.id}">
-    <label for="req-${index}">${req.id} ${req.texto}</label>
-  `;
-  listaRequisitos.appendChild(li);
-});
+const desarrolladores = ["Desarrollador 1", "Desarrollador 2", "Desarrollador 3"];
 
-const contenedorDudas = document.getElementById('contenedorDudas');
-function renderizarDudas() {
-  contenedorDudas.innerHTML = '';
-  dudas.forEach(d => {
-    const div = document.createElement('div');
-    div.className = 'mensaje-duda ' + d.tipo;
-    div.innerHTML = `<span class="autor">${d.autor}:</span>${d.texto}`;
-    contenedorDudas.appendChild(div);
+let seleccionados = [];   // ids marcados en fase 1
+
+/* ============ REFERENCIAS ============ */
+const vistas = {
+  fase1:   document.getElementById("vista-fase1"),
+  resumen: document.getElementById("vista-resumen"),
+  fase2:   document.getElementById("vista-fase2")
+};
+
+const btnTerminarSeleccion = document.getElementById("btnTerminarSeleccion");
+const btnVolverFase1 = document.getElementById("btnVolverFase1");
+const btnContinuar = document.getElementById("btnContinuar");
+const btnVolverResumen = document.getElementById("btnVolverResumen");
+const btnConfirmarSprint = document.getElementById("btnConfirmarSprint");
+const btnSalir = document.getElementById("btnSalir");
+const inpFechaInicio = document.getElementById("inpFechaInicio");
+const inpFechaFin = document.getElementById("inpFechaFin");
+const txtRestante = document.getElementById("txtRestante");
+
+
+/* ============ CARGAR HISTORIAS DESDE LA BD ============ */
+async function cargarHistorias() {
+    try {
+        const res = await fetch(`/api/reunion/${ID_SPRINT}/historias`);
+        const { ok, data } = await res.json();
+        if (!ok) throw new Error('Error del servidor');
+
+        requisitos = data.map(h => ({
+            id: h.id,
+            titulo: h.nombre,
+            valor: h.valor
+        }));
+
+        pintarRequisitos();
+        actualizarSeleccion();
+    } catch (err) {
+        console.error('No se pudieron cargar las historias:', err);
+    }
+}
+
+
+function mostrarVista(nombre) {
+  Object.values(vistas).forEach(v => v.classList.add("oculto"));
+  vistas[nombre].classList.remove("oculto");
+}
+
+function requisitosSeleccionados() {
+  return requisitos.filter(r => seleccionados.includes(r.id));
+}
+
+/* ============ VISTA 1 ============ */
+function pintarRequisitos() {
+  const ul = document.getElementById("listaRequisitos");
+  ul.innerHTML = "";
+
+  requisitos.forEach(r => {
+    const li = document.createElement("li");
+    const label = document.createElement("label");
+    const chk = document.createElement("input");
+
+    chk.type = "checkbox";
+    chk.value = r.id;
+    chk.checked = seleccionados.includes(r.id);
+    chk.disabled = !esFacilitador; // solo el facilitador selecciona
+    chk.addEventListener("change", actualizarSeleccion);
+
+    label.appendChild(chk);
+    label.appendChild(document.createTextNode(" " + r.titulo));
+    li.appendChild(label);
+    ul.appendChild(li);
   });
 }
-renderizarDudas();
 
-//ocultar segun el rol
-function aplicarPermisos() {
-  const esFacilitador = rol === 'facilitador';
-  const esCliente = rol === 'cliente';
+btnTerminarSeleccion.addEventListener("click", async () => {
+    if (seleccionados.length === 0) return;
 
-  //boton de nueva duda, no lo ve cliente
-  document.getElementById('zonaNuevaDuda').classList.toggle('oculto', esCliente);
-  //el cliente no puede tachar requisitos
-  if (esCliente) {
-    document.querySelectorAll('#listaRequisitos input[type="checkbox"]')
-      .forEach(cb => cb.disabled = true);
-  }
+    try {
+        const res = await fetch('/api/reunion/seleccion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: seleccionados.map(Number) })
+        });
+        const { ok } = await res.json();
+        if (!ok) throw new Error('Error al guardar selección');
 
-  //botón de continuar solo para facilitador
-  document.getElementById('btnContinuar').classList.toggle('oculto', !esFacilitador);
-
-  //botón confirmar sprint backlog solo para facilitador
-  document.getElementById('btnConfirmar').classList.toggle('oculto', !esFacilitador);
-
-  //botón de nueva tarea solo para facilitador
-  document.getElementById('btnNuevaTarea').classList.toggle('oculto', !esFacilitador);
-}
-aplicarPermisos();
-
-//agrega nueva nota
-document.getElementById('btnNuevaDuda').addEventListener('click', () => {
-  const input = document.getElementById('inputDuda');
-  const texto = input.value.trim();
-  if (!texto) return;
-
-  const autor = rol === 'cliente' ? 'Cliente' : 'Equipo';
-  dudas.push({ autor, texto, tipo: rol === 'cliente' ? 'cliente' : 'equipo' });
-  renderizarDudas();
-  input.value = '';
+        pintarResumen();
+        mostrarVista("resumen");
+    } catch (err) {
+        console.error('No se pudo guardar la selección:', err);
+        alert('Ocurrió un error al guardar la selección.');
+    }
 });
 
-//navegación entre fases 
-const fase1 = document.getElementById('fase1');
-const fase2 = document.getElementById('fase2');
 
-document.getElementById('btnContinuar').addEventListener('click', () => {
-  const seleccionados = [];
-  document.querySelectorAll('#listaRequisitos input[type="checkbox"]:checked')
-    .forEach(cb => {
-      const req = requisitos[cb.dataset.index || requisitos.findIndex(r => r.id === cb.dataset.id)];
-      seleccionados.push(req);
-    });
 
-  if (seleccionados.length === 0) {
-    alert('Selecciona al menos un requisito para continuar.');
+function actualizarSeleccion() {
+  seleccionados = Array.from(
+    document.querySelectorAll("#listaRequisitos input[type=checkbox]:checked")
+  ).map(c => Number(c.value));
+
+  if (btnTerminarSeleccion) {
+    btnTerminarSeleccion.disabled = seleccionados.length === 0 || !esFacilitador;
+  }
+}
+
+/* ============ VISTA 2 (resumen) ============ */
+function pintarResumen() {
+  const tbody = document.getElementById("cuerpoResumen");
+  tbody.innerHTML = "";
+
+  requisitosSeleccionados().forEach(r => {
+    const tr = document.createElement("tr");
+
+    const tdTitulo = document.createElement("td");
+    tdTitulo.textContent = r.titulo;
+
+    const tdValor = document.createElement("td");
+    tdValor.textContent = r.valor;
+
+    tr.append(tdTitulo, tdValor);
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============ VISTA 3 (fase 2) ============ */
+function pintarTareas() {
+  const tbody = document.getElementById("cuerpoTareas");
+  tbody.innerHTML = "";
+
+  requisitosSeleccionados().forEach(r => {
+    const tr = document.createElement("tr");
+
+    const tdId = document.createElement("td");
+    tdId.textContent = r.id;
+
+    const tdTitulo = document.createElement("td");
+    tdTitulo.textContent = r.titulo;
+
+    const tdSprint = document.createElement("td");
+    tdSprint.textContent = NOMBRE_SPRINT;
+
+  const tdResp = document.createElement("td");
+    tdResp.className = "celda-responsable";
+    if (esFacilitador) {
+      const sel = document.createElement("select");
+      sel.className = "sel-responsable";
+      sel.innerHTML =
+        '<option value="">—</option>' +
+        desarrolladores.map(d => `<option value="${d}">${d}</option>`).join("");
+      tdResp.appendChild(sel);
+    } else {
+      tdResp.textContent = "—";
+    }
+    
+    const tdEsfuerzo = document.createElement("td");
+    const inp = document.createElement("input");
+    inp.type = "number";
+    inp.className = "inp-esfuerzo";
+    inp.min = "0";
+    inp.value = "0";
+    inp.disabled = !esFacilitador;
+    tdEsfuerzo.appendChild(inp);
+
+    const tdAccion = document.createElement("td");
+    if (esFacilitador) {
+      const btn = document.createElement("button");
+      btn.className = "btn-azul btn-asignar";
+      btn.textContent = "Asignar";
+      btn.addEventListener("click", () => {
+        const sel = tr.querySelector(".sel-responsable");
+        if (!sel.value) {
+          alert("Selecciona un desarrollador antes de asignar.");
+          return;
+        }
+        tdResp.textContent = sel.value;
+        tdAccion.textContent = "✓";
+      });
+      tdAccion.appendChild(btn);
+    }
+
+    tr.append(tdId, tdTitulo, tdSprint, tdResp, tdEsfuerzo, tdAccion);
+    tbody.appendChild(tr);
+  });
+}
+
+function calcularRestante() {
+  const ini = inpFechaInicio.value;
+  const fin = inpFechaFin.value;
+
+  if (!ini || !fin) {
+    txtRestante.textContent = "Tiempo restante: -- días";
     return;
   }
 
-  document.getElementById('requisitosSeleccionados').textContent =
-    seleccionados.map(r => r.id + ' ' + r.texto).join(' · ');
+  const dias = Math.ceil((new Date(fin) - new Date(ini)) / 86400000);
 
-    tareas = seleccionados.map(req => ({
-        id: req.id,
-        texto: req.texto,
-        esfuerzo: '',
-        asignado: ''
-    }));
-
-    renderizarTareas();
-
-  //cambia fase
-  fase1.classList.add('oculto');
-  fase2.classList.remove('oculto');
-});
-
-document.getElementById('btnVolver').addEventListener('click', () => {
-  fase2.classList.add('oculto');
-  fase1.classList.remove('oculto');
-});
-
-function renderizarTareas() {
-  const cuerpo = document.getElementById('cuerpoTareas');
-  cuerpo.innerHTML = '';
-
-  tareas.forEach((t, index) => {
-    const fila = document.createElement('tr');
-    fila.innerHTML = `
-        <td>${t.id} ${t.texto}</td>
-        <td>
-            <input type="number" min="1" max="5" value="${t.esfuerzo}"
-            data-tarea="${index}" class="input-esfuerzo"
-            ${rol === 'cliente' ? 'disabled' : ''}>
-        </td>
-        <td class="asignado" data-asignado="${index}">${t.asignado || '________'}</td>
-        <td>
-            <button class="btn-autoasignar" data-tarea="${index}"
-            ${rol === 'cliente' ? 'disabled' : ''}>Autoasignar</button>
-        </td>
-        `;
-        cuerpo.appendChild(fila);
-    });
-    
-    document.querySelectorAll('.input-esfuerzo').forEach(input => {
-        input.addEventListener('input', (e) => {
-        tareas[e.target.dataset.tarea].esfuerzo = e.target.value;
-        });
-    });
-
-    document.querySelectorAll('.btn-autoasignar').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = e.target.dataset.tarea;
-      const nombre = rol === 'cliente' ? 'Cliente' : 'Yo';
-      tareas[idx].asignado = nombre;
-      document.querySelector(`[data-asignado="${idx}"]`).textContent = nombre;
-    });
-  });
+  if (dias < 0) {
+    txtRestante.textContent = "⚠ La fecha fin es anterior al inicio";
+    return;
+  }
+  txtRestante.textContent = `Tiempo restante: ${dias} días`;
 }
 
-//nueva tarea como facilitador
-document.getElementById('btnNuevaTarea').addEventListener('click', () => {
-  const descripcion = prompt('Describe la nueva tarea:');
-  if (!descripcion) return;
-  tareas.push({ id: 'PB-N', texto: descripcion, esfuerzo: '', asignado: '' });
-  renderizarTareas();
+/* ============ NAVEGACIÓN ENTRE VISTAS ============ */
+btnVolverFase1.addEventListener("click", () => {
+  pintarRequisitos();
+  actualizarSeleccion();
+  mostrarVista("fase1");
 });
 
-document.getElementById('btnConfirmar').addEventListener('click', () => {
-  console.log('Sprint Backlog confirmado:', {
-    requisitos: tareas.map(t => t.texto),
-    tareas,
-    dudas
-  });
-  alert('Sprint Backlog confirmado. (Guardado en consola por ahora)');
+btnContinuar.addEventListener("click", () => {
+  // sin funcionalidad
+  console.log("Continuar a Fase 2");
 });
+
+btnVolverResumen.addEventListener("click", () => {
+  pintarResumen();
+  mostrarVista("resumen");
+});
+
+btnSalir.addEventListener("click", () => {
+  if (!confirm("¿Salir de la reunión? Se perderá lo no confirmado.")) return;
+  window.location.href = "FacilitadorPB.html";
+});
+
+btnConfirmarSprint.addEventListener("click", () => {
+  const filas = Array.from(document.querySelectorAll("#cuerpoTareas tr"));
+
+  const asignaciones = filas.map(tr => ({
+    id: tr.children[0].textContent,
+    sprint: tr.children[2].textContent,
+    responsable: tr.children[3].textContent.trim(),
+    esfuerzo: Number(tr.querySelector(".inp-esfuerzo").value) || 0
+  }));
+
+  const sinAsignar = asignaciones.filter(a => a.responsable === "—" || a.responsable === "");
+  if (sinAsignar.length > 0) {
+    alert(`Faltan ${sinAsignar.length} historia(s) por asignar responsable.`);
+    return;
+  }
+
+  const esfuerzoTotal = asignaciones.reduce((s, a) => s + a.esfuerzo, 0);
+
+  // Aquí después: accesoDao.guardarSprintBacklog(...)
+  console.log("Sprint Backlog confirmado:", {
+    sprint: ID_SPRINT,
+    historias: asignaciones,
+    esfuerzoTotal
+  });
+
+  alert(`Sprint Backlog confirmado.\nEsfuerzo total: ${esfuerzoTotal} puntos.`);
+  window.location.href = "FacilitadorPB.html";
+});
+
+inpFechaInicio.addEventListener("change", calcularRestante);
+inpFechaFin.addEventListener("change", calcularRestante);
+
+/* ============================================================
+   Init
+   ============================================================ */
+cargarHistorias();
+mostrarVista("fase1");
+actualizarSeleccion();
