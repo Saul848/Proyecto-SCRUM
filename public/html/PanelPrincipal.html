@@ -29,7 +29,6 @@
     </div>
     
     <section id="contenedorAreaTrabajo">
-      <a>Aqui va el modal segun la opcion del panel lateral</a>
       <!--Aqui dentro se aplicará cada modal, deberá quitarse el contenido de uno y ser reemplazado por otro al dar
       click en las opciones del menú lateral. No solo encimados unos sobre otros-->>
 
@@ -69,38 +68,38 @@
           
           <label id="exito"></label>
         </main>
-
+        <!--Modal de creación de proyectos-->
         <div id="modalProyecto" class="modal-overlay">
           <div class="modal-card">
-              <div class="modal-header">
-                  <h3>Crear Nuevo Proyecto</h3>
-                  <button type="button" class="btn-close" id="btnCerrarModal">&times;</button>
+            <div class="modal-header">
+              <h3>Crear Nuevo Proyecto</h3>
+              <button type="button" class="btn-close" id="btnCerrarModal">&times;</button>
+            </div>
+            <form id="formProyecto">
+              <div class="form-group">
+                <label for="nombre">Nombre del Proyecto</label>
+                <input type="text" id="nombre" required placeholder="Ej. Sistema ScrumBird">
               </div>
-              <form id="formProyecto">
-                  <div class="form-group">
-                      <label for="nombre">Nombre del Proyecto</label>
-                      <input type="text" id="nombre" required placeholder="Ej. Sistema ScrumBird">
-                  </div>
 
-                  <div class="form-group">
-                      <label for="duracion">Duración estimada</label>
-                      <input type="text" id="duracion" placeholder="Ej. 3 meses">
-                  </div>
+              <div class="form-group">
+                <label for="duracion">Duración estimada</label>
+                <input type="text" id="duracion" placeholder="Ej. 3 meses">
+              </div>
 
-                  <div class="form-group">
-                      <label>Seleccionar Colaboradores e Invitarlos</label>
-                      <div class="colaboradores-box" id="listaUsuarios">
-                          <p class="loading-text">Cargando usuarios disponibes...</p>
-                      </div>
-                  </div>
+              <div class="form-group">
+                <label>Seleccionar Colaboradores e Invitarlos</label>
+                <div class="colaboradores-box" id="listaUsuarios">
+                  <p class="loading-text">Cargando usuarios disponibes...</p>
+                </div>
+              </div>
 
-                  <div id="mensajeAlerta" class="mensaje"></div>
+              <div id="mensajeAlerta" class="mensaje"></div>
 
-                  <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
-                    <button type="submit" class="btn-primary" id="btnSubmit">Guardar e Invitar</button>
-                  </div>
-              </form>
+              <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
+                <button type="submit" class="btn-primary" id="btnSubmit">Guardar e Invitar</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -114,7 +113,6 @@
                 </div>
             </div>
           </div>
-
           
           <label id="exito"></label>
         </main>
