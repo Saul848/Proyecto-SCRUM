@@ -10,6 +10,7 @@ const controlador = new ProyectosControlador(new ProyectosDAO(pool));
 /*router.get('/proyectos/usuarios', (req, res) => controlador.listarUsuarios(req, res));*/
 router.get('/usuarios', (req, res) => controlador.listarUsuarios(req, res));
 
+
 router.post('/crear', (req, res) => controlador.crear(req, res));
 router.get('/listarProyectos', (req, res)=> controlador.listarProyectos(req, res))
 router.get('/listarDODProyectos/:id', (req, res)=> controlador.listarDODProyectoPorID(req, res))

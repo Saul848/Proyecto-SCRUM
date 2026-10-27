@@ -131,9 +131,10 @@ class ProyectosControlador {
         if (err.code === '23505') { // violación de unicidad en PostgreSQL
         return res.status(409).json({ error: 'El nombre ya existe' });
         }
-        console.error('Error en UsuariosControlador:', remesare.message);
+        console.error('Error en UsuariosControlador:', err.message);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
+
 }
 
 module.exports = ProyectosControlador;

@@ -800,6 +800,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await inicializarBacklog();
 });
 
+
 async function obtenerDOD(idProyecto) {
     try {
         const respuesta = await fetch(`/proyectos/listarDODProyectos/${idProyecto}`,{

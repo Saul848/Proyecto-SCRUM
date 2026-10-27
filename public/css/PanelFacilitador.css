@@ -870,6 +870,53 @@ body {
     background-color: #2f3fd0;
 }
 
+
+/*Estilos de la caja de DOD----------------------*/
+#ContDOD {
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden; /* para que el fondo gris respete el border-radius */
+  max-width: 700px;
+  margin-top: 24px;
+}
+
+#encabezado-dod {
+  background-color: #eef3f6;
+  padding: 20px 24px;
+}
+
+#encabezado-dod h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+#contenido-definicion label {
+  display: block;
+  font-size: 0.95em;
+  color: #333;
+  white-space: pre-line; /* respeta saltos de línea si usas \n en el texto */
+}
+
+#botones-definicion {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#botones-definicion button {
+    background-color: #2f8fe0;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#botones-definicion button:hover {
+  filter: brightness(0.92);
+}
 /* ==========================================================
    ESTILOS DE LA BARRA DE FILTROS
    ========================================================== */
@@ -911,6 +958,7 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+  }
 /* ========================================================== */
 /* CORRECCIÓN DE CABECERA SUPERIOR                            */
 /* ========================================================== */
