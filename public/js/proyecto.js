@@ -122,4 +122,3 @@ function mostrarModalP(idModal){
 document.getElementById("btn-proyectos").addEventListener('click', ()=>{
     mostrarModalP("modal-proyectos");
 });
-

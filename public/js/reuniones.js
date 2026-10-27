@@ -21,13 +21,6 @@ const reuniones = [
 
 const ROL_ACTUAL = 'facilitador';
 
-document.querySelectorAll('.btn-entrar').forEach(boton => {
-  boton.addEventListener('click', () => {
-    const reunionId = boton.getAttribute('data-reunion');
-    window.location.href = '/html/' + reunionId + '.html?usuario=' + ROL_ACTUAL;
-  });
-});
-
 document.querySelector('.btn-editar').addEventListener('click', () => {
   alert('Función "Editar reunión" en desarrollo.')
 })
