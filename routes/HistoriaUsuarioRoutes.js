@@ -11,4 +11,5 @@ const controlador = new HistoriaUsuarioControlador(new HistoriaUsuarioDAO(pool))
 router.get('/', (req, res) => controlador.listar(req, res));
 router.post('/', (req, res) => controlador.agregar(req, res));
 router.delete("/", (req, res) => controlador.eliminarHistoriaC(req, res));
+router.put("/", (req, res) => controlador.modificarHistoriaC(req, res));
 module.exports = router;

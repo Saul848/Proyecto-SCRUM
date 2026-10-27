@@ -1,15 +1,24 @@
 const btnAgregarHistoria = document.getElementById("btnAgregarHistoria");
 const btnModHistoria = document.getElementById("btnModHistoria");
-const panelAgregarMod = document.getElementById("modalHistoria");
+const modalAgregarHistoria = document.getElementById("modalAgregarHistoria");
+const modalModificarHistoria = document.getElementById("modalModificarHistoria");
 const divHistoria = document.getElementById("DivHistoria");
-const btnCerrarModal = document.getElementById("btnCerrarModal");
-const btnGuardarHistoria = document.getElementById("btnGuardarModal");
-// Elementos inputs del modal
-const inpTitulo = document.getElementById("inpTitulo");
-const inpDescripccion = document.getElementById("inpDescripccion");
-const inpCriterios = document.getElementById("inpCriterios");
-const inpValor = document.getElementById("inpValor");
-const inpSprintAsig = document.getElementById("inpSprintAsig");
+const btnCerrarModalAdd = document.getElementById("btnCerrarModal+");
+const btnCerrarModalMod = document.getElementById("btnCerrarModal#");
+const btnGuardarHistoria = document.getElementById("btnGuardarModal+");
+const btnModificarHistoria = document.getElementById("btnGuardarModal#");
+// Elementos inputs del modal agregar
+const inpAddTitulo = document.getElementById("inpAddTitulo");
+const inpAddDescripccion = document.getElementById("inpAddDescripccion");
+const inpAddCriterios = document.getElementById("inpAddCriterios");
+const inpAddValor = document.getElementById("inpAddValor");
+const inpAddSprintAsig = document.getElementById("inpAddSprintAsig");
+// Elementos inputs del modal modificar
+const inpModTitulo = document.getElementById("inpModTitulo");
+const inpModDescripccion = document.getElementById("inpModDescripccion");
+const inpModCriterios = document.getElementById("inpModCriterios");
+const inpModValor = document.getElementById("inpModValor");
+const inpModSprintAsig = document.getElementById("inpModSprintAsig");
 
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
@@ -20,7 +29,10 @@ let enModificacion = null; // null = oculto, true/false = visible
 
 // Variable global para almacenar las historias obtenidas del servidor
 let datosHistorias = [];
-
+//Elementos input add
+const elementosDomAdd = [inpAddTitulo, inpAddDescripccion, inpAddCriterios, inpAddValor, inpAddSprintAsig];
+//Elementos input mod
+const elementosDomMod = [inpModTitulo, inpModDescripccion, inpModCriterios, inpModValor, inpModSprintAsig];
 /**
  * Función para renderizar dinámicamente las historias de usuario en el DOM
  */
@@ -54,7 +66,7 @@ async function renderizarHistorias() {
                 <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
             </div>
             <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminar(${historia.id})">🗑️</button>
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id})">🗑️</button>
             </div>
         `;
 
@@ -71,26 +83,32 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Función para limpiar los campos del modal
  */
 function limpiarCamposHistoria() {
-    inpTitulo.value = "";
-    inpDescripccion.value = "";
-    inpCriterios.value = "";
-    inpValor.value = "";
-    inpSprintAsig.value = "";
+    inpAddTitulo.value = "";
+    inpAddDescripccion.value = "";
+    inpAddCriterios.value = "";
+    inpAddValor.value = "";
+    inpAddSprintAsig.value = "";
 }
 
 // Listener para el botón "+ Añadir nueva historia"
 btnAgregarHistoria.addEventListener("click", function () {
-    setEnModificacion(false);
+    modalAgregarHistoria.classList.add('activo');// Muestra el modal
 });
 
 // Listener para el botón "# Modificar historia"
 btnModHistoria.addEventListener("click", function () {
-    setEnModificacion(true);
+    modalModificarHistoria.classList.add('activo');// Muestra el modal
 });
 
 // Listener para cerrar el modal
-btnCerrarModal.addEventListener('click', () => {
-    setEnModificacion(null);
+btnCerrarModalAdd.addEventListener('click', () => {
+    modalAgregarHistoria.classList.remove('activo');// Muestra el modal
+    limpiarCamposHistoria();
+});
+
+// Listener para cerrar el modal
+btnCerrarModalMod.addEventListener('click', () => {
+    modalModificarHistoria.classList.remove('activo');// Muestra el modal
     limpiarCamposHistoria();
 });
 
@@ -99,49 +117,33 @@ btnGuardarHistoria.addEventListener('click', () => {
     agregarHistoriaUsuario();
 });
 
-// Listener para la bandera "enModificacion" oyendo al evento personalizado
-window.addEventListener('modificandoDatos', (evento) => {
-    const estadoActual = evento.detail.activo;
-    if (estadoActual === null) {
-        panelAgregarMod.classList.remove('activo'); // Oculta el modal
-    } else {
-        panelAgregarMod.classList.add('activo');    // Muestra el modal
-    }
-});
-
-/**
- * Función que cambia la bandera y dispara el evento personalizado
- */
-function setEnModificacion(nuevoValor) {
-    if (enModificacion !== nuevoValor) {
-        enModificacion = nuevoValor;
-
-        const evento = new CustomEvent('modificandoDatos', {
-            detail: { activo: enModificacion }
-        });
-        window.dispatchEvent(evento);
-    }
-}
 
 // Opcional: Cerrar el modal si se hace clic fuera de la caja blanca
 window.addEventListener('click', (e) => {
-    if (e.target === panelAgregarMod) {
-        setEnModificacion(null);
+    if (e.target === modalAgregarHistoria) {
+        modalAgregarHistoria.classList.remove('activo');// Muestra el modal
+        limpiarCamposHistoria();
+    }
+});
+
+// Opcional: Cerrar el modal si se hace clic fuera de la caja blanca
+window.addEventListener('click', (e) => {
+    if (e.target === modalModificarHistoria) {
+        modalModificarHistoria.classList.remove('activo');// Muestra el modal
         limpiarCamposHistoria();
     }
 });
 
 function verificarCamposAdd(){
     let verificado = true;
-    let elementosDom = [inpTitulo, inpDescripccion, inpCriterios, inpValor, inpSprintAsig];
     
-    elementosDom.forEach(elemento => {
+    elementosDomAdd.forEach(elemento => {
         if(elemento.value.trim() === ""){
             elemento.style.border = "2px solid red";
             elemento.placeholder = "Error, rellena este campo";
             verificado = false;
         } else {
-            if(elemento === inpTitulo){
+            if(elemento === inpAddTitulo){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -155,7 +157,7 @@ function verificarCamposAdd(){
                     }
                 }
             }
-            if(elemento === inpDescripccion){
+            if(elemento === inpAddDescripccion){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -165,7 +167,7 @@ function verificarCamposAdd(){
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if(elemento === inpCriterios){
+            if(elemento === inpAddCriterios){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -175,7 +177,7 @@ function verificarCamposAdd(){
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if(elemento === inpValor){
+            if(elemento === inpAddValor){
                 if(!patronRangoValor.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -185,7 +187,76 @@ function verificarCamposAdd(){
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if(elemento === inpSprintAsig){
+            if(elemento === inpAddSprintAsig){
+                if(!patronRangoValor.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "Ingrese numeros válidos";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
+        }
+    });
+    return verificado;
+}
+
+function verificarCamposMod(){
+    let verificado = true;
+    elementosDomMod;
+    
+    elementosDomMod.forEach(elemento => {
+        if(elemento.value.trim() === ""){
+            elemento.style.border = "2px solid red";
+            elemento.placeholder = "Error, rellena este campo";
+            verificado = false;
+        } else {
+            if(elemento === inpModTitulo){
+                if(!patronNombre.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "El nombre no debe llevar numeros o simbolos";
+                    verificado = false;
+                } else {
+                    if(verificarTituloUnico(elemento)){
+                        elemento.style.border = "2px solid blue";
+                    } else {
+                        verificado = false;
+                    }
+                }
+            }
+            if(elemento === inpModDescripccion){
+                if(!patronNombre.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "Ingrese una descripccion adecuada";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
+            if(elemento === inpModCriterios){
+                if(!patronNombre.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "Ingrese criterios adecuados";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
+            if(elemento === inpModValor){
+                if(!patronRangoValor.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "Ingrese numeros válidos";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
+            if(elemento === inpModSprintAsig){
                 if(!patronRangoValor.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -237,6 +308,16 @@ function verificarTituloUnico(inputDom){
     }
 }
 
+function recuperarContenido(id){
+    let posicion;
+    for(let m=0; m<datosHistorias.length; m++){
+        if(datosHistorias[m].id === id){
+            posicion = m;
+        }
+    }
+    
+}
+
 /**
  * Obtiene un arreglo de historias desde el servidor
  */
@@ -266,8 +347,6 @@ function agregarNuevaHistoria(){
     }
 }
 
-
-
 /**
  * Funcion que construye los datos de la historia y realiza la peticion POST
  */
@@ -277,11 +356,11 @@ async function agregarHistoriaUsuario() {
         return;
     }
 
-    let nombre = inpTitulo.value.trim();
-    let descripcion = inpDescripccion.value.trim();
-    let criterios = inpCriterios.value.trim();
-    let valor = inpValor.value.trim();
-    let sprint = inpSprintAsig.value.trim();
+    let nombre = inpAddTitulo.value.trim();
+    let descripcion = inpAddDescripccion.value.trim();
+    let criterios = inpAddCriterios.value.trim();
+    let valor = inpAddValor.value.trim();
+    let sprint = inpAddSprintAsig.value.trim();
 
     const respuesta = await fetch("/historias", {
         method: "POST",

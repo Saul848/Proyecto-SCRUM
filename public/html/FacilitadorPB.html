@@ -63,44 +63,86 @@
             <button id="btnModHistoria"># Modificar historia</button>
           </div>
 
-          <!-- PANEL MODAL -->
-          <div id="modalHistoria" class="modal">
+          <!-- PANEL MODAL AGREGAR HISTORIAS-->
+          <div id="modalAgregarHistoria" class="modal">
             <div class="modal-contenido">
-              <h3>Añadir / Modificar Historia de Usuario</h3>
+              <h3>Añadir Historia de Usuario</h3>
               
               <!-- Campo 1: Título -->
               <div class="entradaInp">
-                <label for="inpTitulo">Título de la historia:</label>
-                <input type="text" id="inpTitulo" placeholder="Escribe el título...">
+                <label for="inpAddTitulo">Título de la historia:</label>
+                <input type="text" id="inpAddTitulo" placeholder="Escribe el título...">
               </div>
 
               <!-- Campo 2: Descripción -->
               <div class="entradaTextA">
-                <label for="inpDescripccion">Descripción:</label>
-                <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
+                <label for="inpAddDescripccion">Descripción:</label>
+                <textarea id="inpAddDescripccion" placeholder="Escribe la descripción..."></textarea>
               </div>
 
               <!-- Campo 3: Criterios de aceptación -->
               <div class="entradaTextA">
-                <label for="inpCriterios">Criterios de aceptación:</label>
-                <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
+                <label for="inpAddCriterios">Criterios de aceptación:</label>
+                <textarea id="inpAddCriterios" placeholder="Escribe los criterios..."></textarea>
               </div>
 
               <!-- Campo 4: Valor -->
               <div class="entradaInp">
-                <label for="inpValor">Valor:</label>
-                <input type="number" id="inpValor" placeholder="0 - 4000">
+                <label for="inpAddValor">Valor:</label>
+                <input type="number" id="inpAddValor" placeholder="0 - 4000">
               </div>
 
               <!-- Campo 5: Sprint asignado -->
               <div class="entradaInp">
-                <label for="inpSprintAsig">Sprint asignado:</label>
-                <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
+                <label for="inpAddSprintAsig">Sprint asignado:</label>
+                <input type="text" id="inpAddSprintAsig" placeholder="Ej. Sprint 1">
               </div>
 
               <div class="modal-botones">
-                <button id="btnGuardarModal">Guardar</button>
-                <button id="btnCerrarModal">Cancelar</button>
+                <button id="btnGuardarModal+">Guardar</button>
+                <button id="btnCerrarModal+">Cancelar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL MODAL MODIFICAR HISTORIAS -->
+          <div id="modalModificarHistoria" class="modal">
+            <div class="modal-contenido">
+              <h3>Modificar Historia de Usuario</h3>
+              
+              <!-- Campo 1: Título -->
+              <div class="entradaInp">
+                <label for="inpModTitulo">Cambiar título de la historia:</label>
+                <input type="text" id="inpModTitulo" placeholder="Escribe el título...">
+              </div>
+
+              <!-- Campo 2: Descripción -->
+              <div class="entradaTextA">
+                <label for="inpModDescripccion">Cambiar descripción:</label>
+                <textarea id="inpModDescripccion" placeholder="Escribe la descripción..."></textarea>
+              </div>
+
+              <!-- Campo 3: Criterios de aceptación -->
+              <div class="entradaTextA">
+                <label for="inpModCriterios">Cambiar criterios de aceptación:</label>
+                <textarea id="inpModCriterios" placeholder="Escribe los criterios..."></textarea>
+              </div>
+
+              <!-- Campo 4: Valor -->
+              <div class="entradaInp">
+                <label for="inpModValor">Valor:</label>
+                <input type="number" id="inpModValor" placeholder="0 - 4000">
+              </div>
+
+              <!-- Campo 5: Sprint asignado -->
+              <div class="entradaInp">
+                <label for="inpModSprintAsig">Sprint asignado:</label>
+                <input type="text" id="inpModSprintAsig" placeholder="Ej. Sprint 1">
+              </div>
+
+              <div class="modal-botones">
+                <button id="btnGuardarModal#">Modificar</button>
+                <button id="btnCerrarModal#">Cancelar</button>
               </div>
             </div>
           </div>
