@@ -11,7 +11,7 @@ class ProyectosDAO {
      * @param {Object} proyectoData - Datos del proyecto y arreglo de colaboradores.
      */
     async crearProyectoConColaboradores(proyectoData) {
-        const { nombre, creador, duracion, colaboradores = [] } = proyectoData;
+        const { nombre, creador, duracion, colaboradores = []} = proyectoData;
         
         const client = await this.pool.connect();
         try {
@@ -21,7 +21,7 @@ class ProyectosDAO {
             const queryProyecto = `
                 INSERT INTO scrumbird.proyecto (nombre, creador, fecha_creacion, duracion)
                 VALUES ($1, $2, CURRENT_DATE, $3)
-                RETURNING id, nombre, creador, fecha_creacion, duracion;
+                RETURNING id, nombre, creador, fecha_creacion, duracion, dod;
             `;
             const resProyecto = await client.query(queryProyecto, [nombre, creador, duracion]);
             const nuevoProyecto = resProyecto.rows[0];
