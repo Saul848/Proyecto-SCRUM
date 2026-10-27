@@ -127,13 +127,13 @@
                 </div>
 
                 <div>
-                    <p class="menu-seccion">Contacto directo</p>
-                    <div class="lista-elementos" id="listaContactos">
-                        <div class="elemento-item">🟢 Saúl Ortiz (cliente)</div>
-                        <div class="elemento-item">🟢 Desarrollador 1</div>
-                        <div class="elemento-item">🔴 Desarrollador 2</div>
-                    </div>
-                </div>
+                  <p class="menu-seccion">Contacto directo</p>
+                  <div class="lista-elementos" id="listaContactos">
+                      <div class="elemento-item" onclick="cambiarCanal('Saúl Ortiz (cliente)')">🟢 Saúl Ortiz (cliente)</div>
+                      <div class="elemento-item" onclick="cambiarCanal('Desarrollador 1')">🟢 Desarrollador 1</div>
+                      <div class="elemento-item" onclick="cambiarCanal('Desarrollador 2')">🔴 Desarrollador 2</div>
+                  </div>
+              </div>
             </aside>
 
             <!-- Sección Derecha: Chat Activo -->
@@ -207,7 +207,7 @@
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
-  <script src="../js/mensajes.js" defer></script>
+  <script src="../js/mensajesF.js" defer></script>
 <script>
     // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
     function mostrarModal(idModal) {
@@ -241,26 +241,33 @@
     }
 
     // Función específica que usa tu compañero para el Sprint
-   function mostrarModalSprint(idModal, idCabecera) {
-    // 1. Ocultar todos los modales principales
-    document.querySelectorAll(".modal-class").forEach(modal => {
-        modal.style.display = "none";
-    });
+    function mostrarModalSprint(idModal, idCabecera) {
+        // 1. Ocultar todos los modales principales (incluyendo los de la clase general)
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
 
-    // 2. Mostrar el modal correspondiente
-    const modalSeleccionado = document.getElementById(idModal);
-    if (modalSeleccionado) {
-        modalSeleccionado.style.display = "block";
+        // 2. Mostrar el panel o modal de proyectos/sprint que indicó tu compañero
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+
+        // 3. Gestionar las cabeceras superiores
+        const headerNormal = document.getElementById("BloqueSuperior");
+        const headerSprint = document.getElementById("cabecera-sprint");
+        const tituloCentral = document.getElementById("tituloSeccionCentral");
+        const btnIniciar = document.getElementById("btnIniciarConversacion");
+
+        // Ocultar la barra normal y mostrar la barra de sprint de arriba
+        if (headerNormal) headerNormal.style.display = "none";
+        if (tituloCentral) tituloCentral.style.display = "none";
+        if (btnIniciar) btnIniciar.style.display = "none";
+
+        if (headerSprint) {
+            headerSprint.style.display = "flex";
+        }
     }
-
-    // 3. OCULTAR la cabecera principal y MOSTRAR la cabecera de sprint
-    const headerNormal = document.getElementById("BloqueSuperior");
-    const headerSprint = document.getElementById("cabecera-sprint");
-
-    if (headerNormal) headerNormal.style.display = "none";
-    if (headerSprint) headerSprint.style.display = "flex";
-}
-    
 </script>
 </body>
-</html>
+</html> 

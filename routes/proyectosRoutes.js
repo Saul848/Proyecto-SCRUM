@@ -13,4 +13,5 @@ router.post('/', (req, res) => controlador.crear(req, res));
 // NUEVA RUTA: Endpoint que procesa el Aceptar o Rechazar desde el correo
 router.get('/invitacion/responder', (req, res) => controlador.responderInvitacion(req, res));
 
+
 module.exports = router;
