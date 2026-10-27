@@ -4,29 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Facilitador - Panel Principal</title>
-  <link rel="stylesheet" href="../css/FacilitadorPB.css">
+  <link rel="stylesheet" href="../css/PanelFacilitador.css">
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
   <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
   <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
   <link rel="stylesheet" href="../css/reuniones.css">
 </head>
 <body>
-<!-- Bloque superior predeterminado (Product Backlog / General) -->
-<header id="BloqueSuperior">
-  <div id="DivMsjFacilitador">Facilitador</div>
-  <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
-  <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
-  <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
-</header>
+<!-- Bloque superior -->
+  <header id="BloqueSuperior">
+    <div id="contenedor-cabeceras">
+      <!--Cabecera 1-->
+      <div class="cabecera-default" id="cabecera-mensajes">
+        <div id="DivMsjFacilitador">Facilitador</div>
+        <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
+        <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
+        <!-- Texto secundario / información del cliente -->
+        <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
+        <!-- Botón derecho exclusivo de Mensajes -->
+        <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
+      </div>
+      <!--Cabecera 2-->
+      <div>
+        <div class="cabecera-default" id="cabecera-sprintPB">
+        <span class="badge-rol">Facilitador</span>
+        <h2>Sprint backlog</h2>
+        <button class="btn-pill btn-azul">Planning poker</button>
+        <button class="btn-pill btn-azul">Generar reporte</button>
+        <button class="btn-pill btn-verde">Modificar sprint actual</button>
+        <button class="btn-pill btn-rojo">Cerrar sprint</button>
+        </div>
+      </div>
+      <!--Cabecera 3-->
+      <div class="cabecera-default" id="cabecera-springPlanning">
+          <span class="badge-rol">Facilitador</span>
+          <h2>Reuniones</h2>
+      </div>
 
-<!-- Bloque superior exclusivo para Sprint Backlog (Oculto por defecto) -->
-<header id="cabecera-sprint" style="display: none;" class="cabecera-default">
-  <h2>Sprint backlog</h2>
-  <button class="btn-pill btn-azul">Planning poker</button>
-  <button class="btn-pill btn-azul">Generar reporte</button>
-  <button class="btn-pill btn-verde">Modificar sprint actual</button>
-  <button class="btn-pill btn-rojo">Cerrar sprint</button>
-</header>
+    </div>
+
+  </header>
     
   <!-- Bloque inferior -->
   <main id="BloqueInferior">
@@ -37,8 +54,8 @@
         <span>❖ Seccion</span>
         <ul id="panelLateral">
           <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
-          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes')">Mensajes</button></li>
-          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog')">Product Backlog</button></li>
+          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">Mensajes</button></li>
+          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
           <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos', 'cabecera-sprintPB')">Sprint</button></li>
           <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
           <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones')">Reunirse</button></li>
@@ -73,48 +90,62 @@
             <div class="espacioAcciones"></div>
           </div>
 
-          <div id="DivHistoria"></div>
+            <div id="DivHistoria"></div>
 
-          <div id="divOpccionesInferiores">
-            <div id="DivBtnCompartirMaterial">
-              <button id="btnCompartirMaterial">Compartir material adicional</button>
-            </div>
-            <div id="DivBtnAgregarHistoria">
-              <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
-            </div>
-            <div id="DivBtnModHistoria">
-              <button id="btnModHistoria"># Modificar historia</button>
-            </div>
+            <div id="divOpccionesInferiores">
+              <div id="DivBtnCompartirMaterial">
+                <button id="btnCompartirMaterial">Compartir material adicional</button>
+              </div>
+              <div id="DivBtnAgregarHistoria">
+                <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
+              </div>
+              <div id="DivBtnModHistoria">
+                <button id="btnModHistoria"># Modificar historia</button>
+              </div>
 
-            <div id="modalHistoria" class="modal">
-              <div class="modal-contenido">
-                <h3>Añadir / Modificar Historia de Usuario</h3>
-                <div class="entradaInp">
-                  <label for="inpTitulo">Título de la historia:</label>
-                  <input type="text" id="inpTitulo" placeholder="Escribe el título...">
-                </div>
-                <div class="entradaTextA">
-                  <label for="inpDescripccion">Descripción:</label>
-                  <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
-                </div>
-                <div class="entradaTextA">
-                  <label for="inpCriterios">Criterios de aceptación:</label>
-                  <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
-                </div>
-                <div class="entradaInp">
-                  <label for="inpValor">Valor:</label>
-                  <input type="number" id="inpValor" placeholder="0 - 4000">
-                </div>
-                <div class="entradaInp">
-                  <label for="inpSprintAsig">Sprint asignado:</label>
-                  <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
-                </div>
-                <div class="modal-botones">
-                  <button id="btnGuardarModal">Guardar</button>
-                  <button id="btnCerrarModal">Cancelar</button>
+              <div id="modalHistoria" class="modal">
+                <div class="modal-contenido">
+                  <h3>Añadir / Modificar Historia de Usuario</h3>
+                  <div class="entradaInp">
+                    <label for="inpTitulo">Título de la historia:</label>
+                    <input type="text" id="inpTitulo" placeholder="Escribe el título...">
+                  </div>
+                  <div class="entradaTextA">
+                    <label for="inpDescripccion">Descripción:</label>
+                    <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
+                  </div>
+                  <div class="entradaTextA">
+                    <label for="inpCriterios">Criterios de aceptación:</label>
+                    <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
+                  </div>
+                  <div class="entradaInp">
+                    <label for="inpValor">Valor:</label>
+                    <input type="number" id="inpValor" placeholder="0 - 4000">
+                  </div>
+                  <div class="entradaInp">
+                    <label for="inpSprintAsig">Sprint asignado:</label>
+                    <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
+                  </div>
+                  <div class="modal-botones">
+                    <button id="btnGuardarModal">Guardar</button>
+                    <button id="btnCerrarModal">Cancelar</button>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div> <!--Aquí acaba el areaPB-->
+        
+        <div id="ContDOD">
+          <div id="encabezado-dod">
+            <h2>Definición de hecho (DOD)</h2>
+            <div id="contenido-definicion">
+              <label id="dodTexto"></label>
+            </div>
+          </div>
+          <div id="botones-definicion"> 
+            <button id="addDOD">Añadir definicion de hecho</button>
+            <button id="editDOD">Modificar definición de hecho</button>
           </div>
         </div>
       </div>
@@ -391,8 +422,8 @@
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
   <script src="../js/reuniones.js" defer></script>
 <script>
-    // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
-    function mostrarModal(idModal) {
+    function mostrarModal(idModal, idCabecera) {
+        // 1. Ocultar todos los modales
         document.querySelectorAll(".modal-class").forEach(modal => {
             modal.style.display = "none";
         });
@@ -406,9 +437,7 @@
         const headerSprint = document.getElementById("cabecera-sprint");
         const tituloCentral = document.getElementById("tituloSeccionCentral");
         const btnIniciar = document.getElementById("btnIniciarConversacion");
-
-        if (headerNormal) headerNormal.style.display = "flex";
-        if (headerSprint) headerSprint.style.display = "none";
+        mostrarCabecera(idCabecera);
 
         if (idModal === 'modal-mensajes') {
             if (tituloCentral) {
@@ -417,27 +446,56 @@
             }
             if (btnIniciar) btnIniciar.style.display = "block";
         } else {
-            if (tituloCentral) tituloCentral.style.display = "none";
-            if (btnIniciar) btnIniciar.style.display = "none";
+            tituloCentral.style.display = "none";
+            btnIniciar.style.display = "none";
         }
     }
 
+    function mostrarCabecera(idCabecera){
+      document.querySelectorAll(".cabecera-default").forEach(modal => {
+        modal.style.display = "none";
+      });
+      const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "flex";
+        }
+    }
+
+    function mostrarCabecera(idCabecera){
+      document.querySelectorAll(".cabecera-default").forEach(modal => {
+        modal.style.display = "none";
+      });
+      const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "flex";
+        }
+    }
+
+    
+
+    
+
     // Función específica que usa tu compañero para el Sprint
-   function mostrarModalSprint(idModal, idCabecera) {
+  function mostrarModalSprint(idModal, idCabecera) {
     // 1. Ocultar todos los modales principales
     document.querySelectorAll(".modal-class").forEach(modal => {
         modal.style.display = "none";
     });
 
-    // 2. Mostrar el modal correspondiente
-    const modalSeleccionado = document.getElementById(idModal);
-    if (modalSeleccionado) {
-        modalSeleccionado.style.display = "block";
-    }
+        document.querySelectorAll(".cabecera-default").forEach(modal =>{
+          modal.style.display="none";
+        })
 
-    // 3. OCULTAR la cabecera principal y MOSTRAR la cabecera de sprint
-    const headerNormal = document.getElementById("BloqueSuperior");
-    const headerSprint = document.getElementById("cabecera-sprint");
+        // 2. Mostrar el modal seleccionado
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+        
+        // 3. Controlar la cabecera superior
+        mostrarCabecera(idCabecera);
+
+        const tituloCentral = document.getElementById("tituloSeccionCentral");
 
     if (headerNormal) headerNormal.style.display = "none";
     if (headerSprint) headerSprint.style.display = "flex";

@@ -38,6 +38,15 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+
+/**
+ * Rutas de proyectos
+ */
+app.use('/proyectos', require('./routes/proyectosRoutes'));
+
+/**
+ * Rutas de reuniones
+ */
 app.use('/api/reunion', require('./routes/reunionRoutes'));
 
 /**
