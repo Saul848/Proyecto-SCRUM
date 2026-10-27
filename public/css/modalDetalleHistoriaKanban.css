@@ -1,0 +1,141 @@
+/* Caja contenedora interna */
+.kanban-detalle-contenido {
+    width: 85%;
+    max-width: 1100px;
+    height: 85vh;
+    background-color: #e2e8f0;
+    border-radius: 12px;
+    padding: 2vh 2vw;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    overflow-y: auto; /* Permite scroll general si la pantalla es muy pequeña */
+}
+
+/* 1. Barra superior de Estado */
+.kanban-detalle-seccion-estado {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 1.5vh 2vw;
+    display: flex;
+    align-items: center;
+    gap: 1.5vw;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.kanban-detalle-label-estado {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #1e293b;
+}
+
+.kanban-detalle-badge {
+    background-color: #f2c94c;
+    color: #1e293b;
+    padding: 0.6vh 1.5vw;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+/* 2. Tarjeta central de Datos (Grid de 7 columnas) */
+.kanban-detalle-seccion-datos {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2vh 1.5vw;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1vw;
+    align-items: start; /* Alineado arriba para evitar saltos si una columna crece */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.kanban-detalle-columna-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    word-break: break-word; /* Evita que palabras largas rompan el contenedor */
+}
+
+.kanban-detalle-th {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #0f172a;
+}
+
+.kanban-detalle-td, .kanban-detalle-comentario-item {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* Contenedor específico de Comentarios con scroll interno si excede el espacio */
+.kanban-detalle-td-comentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vh;
+    max-height: 10vh;       /* Altura máxima controlada */
+    overflow-y: auto;       /* Activa barra de desplazamiento vertical si hay muchos comentarios */
+    padding-right: 4px;
+}
+
+.kanban-detalle-btn-evidencias {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 1vh 0.8vw;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.85rem;
+}
+
+.kanban-detalle-btn-evidencias:hover {
+    background-color: #0056b3;
+}
+
+/* 3. Sección inferior (Descripción y Criterios de aceptación lado a lado) */
+.kanban-detalle-seccion-inferior {
+    display: flex;
+    gap: 2vw;
+    flex: 1;
+    min-height: 35vh;
+    max-height: 45vh; /* Evita que crezca indefinidamente */
+}
+
+.kanban-detalle-card-inferior {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2vh 2vw;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Contiene los elementos internos */
+}
+
+.kanban-detalle-subtitulo {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #0f172a;
+    text-align: center;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Caja de texto con scroll interno para textos largos en Descripción y Criterios */
+.kanban-detalle-texto-caja {
+    color: #64748b;
+    font-size: 0.95rem;
+    text-align: left; /* Alineado a la izquierda para mejor lectura de párrafos */
+    flex: 1;
+    overflow-y: auto;  /* Scroll vertical independiente para cada cuadro si el texto es extenso */
+    padding-right: 8px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}

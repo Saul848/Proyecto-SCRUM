@@ -29,3 +29,4 @@ document.querySelector('.btn-editar').addEventListener('click', () => {
 document.querySelector('.btn-agendar').addEventListener('click', () => {
   alert('Función "Agendar nueva reunión" en desarrollo.');
 });
+

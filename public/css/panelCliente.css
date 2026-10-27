@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* 1. RESET Y CONFIGURACIÓN BASE */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #e5eff5;
+  color: #222222;
+  min-height: 100vh;
+  overflow: hidden; /* Evita scroll general en la ventana */
+}
+
+/* Íconos de Google Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-block;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  vertical-align: middle;
+}
+
+/* 2. CONTENEDOR PRINCIPAL DEL MÓDULO (MODAL-CLASS) */
+.modal-class {
+  display: none;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Cuando el contenedor está visible */
+#modal-canal-equipo[style*="display: flex"],
+#modal-canal-equipo:not([style*="display: none"]) {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* BANNER SUPERIOR */
+.top-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.banner-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.btn-solicitar-reunion {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-solicitar-reunion:hover {
+  background-color: #0066d6;
+}
+
+/* TARJETA BLANCA DEL ÁREA DE TRABAJO */
+.chat-workspace {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+  min-height: 0; /* ¡Crucial para Flexbox! */
+}
+
+/* COLUMNA IZQUIERDA: BUSCADOR, CANALES Y CONTACTOS */
+.chat-sidebar {
+  width: 300px;
+  min-width: 280px;
+  border-right: 1px solid #edf2f7;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  text-align: left;
+  overflow-y: auto;
+}
+
+/* Buscador lila / morado */
+.search-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ede9f6;
+  border: 1.5px solid #8a63d2;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  color: #333333;
+}
+
+.search-box input::placeholder {
+  color: #666666;
+}
+
+.icon-lupa {
+  font-size: 20px;
+  color: #333333;
+}
+
+/* Grupos y listas */
+.section-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.group-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.channel-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.channel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #555555;
+  transition: background-color 0.15s ease;
+}
+
+.channel-item:hover {
+  background-color: #f1f5f9;
+}
+
+.channel-item.active {
+  background-color: #e5eff5;
+  font-weight: 600;
+  color: #111111;
+}
+
+.badge-badge {
+  background-color: #ff8c00;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.contact-name {
+  font-size: 0.85rem;
+  color: #333333;
+  font-weight: 500;
+}
+
+.contact-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #555555;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #27ae60;
+  display: inline-block;
+}
+
+/* COLUMNA CONVERSACIÓN */
+.chat-conversation {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fbfcfd;
+  height: 100%;
+  min-height: 0; /* ¡Crucial para Flexbox! */
+  overflow: hidden;
+}
+
+/* Encabezado del canal activo */
+.channel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  border-bottom: 1px solid #edf2f7;
+  background-color: #ffffff;
+  flex-shrink: 0;
+}
+
+.channel-info h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.channel-participants {
+  font-size: 0.8rem;
+  color: #666666;
+}
+
+/* Botón celeste para backlog */
+.btn-backlog {
+  background-color: #5dade2;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-backlog:hover {
+  background-color: #48a2de;
+}
+
+/* Feed de mensajes con scroll automático interno */
+.messages-feed {
+  flex: 1;
+  padding: 24px 28px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0; /* ¡Crucial para Flexbox! */
+}
+
+.message-block {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+}
+
+.message-block .sender-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111111;
+}
+
+.bubble {
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+/* Mensajes recibidos del Facilitador/Equipo (gris claro) */
+.incoming {
+  align-self: flex-start;
+}
+
+.bubble-incoming {
+  background-color: #e2e8f0;
+  color: #222222;
+}
+
+/* Mensajes enviados por el Cliente (verde suave con borde) */
+.outgoing {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.bubble-outgoing {
+  background-color: #e6f7ec;
+  border: 1.5px solid #27ae60;
+  color: #1b5e20;
+  text-align: left;
+}
+
+/* Barra de input fija en la parte inferior de la conversación */
+.chat-input-bar {
+  padding: 16px 28px;
+  background-color: #ffffff;
+  border-top: 1px solid #edf2f7;
+  flex-shrink: 0;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #222222;
+  border-radius: 8px;
+  padding: 6px 14px;
+  background-color: #ffffff;
+}
+
+.input-container input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  padding: 6px 4px;
+  color: #222222;
+}
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-icon,
+.btn-send {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: transform 0.1s ease;
+}
+
+.btn-send:hover {
+  transform: scale(1.1);
+  color: #007bff;
+}
