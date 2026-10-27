@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
   <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
   <link rel="stylesheet" href="../css/reuniones.css">
+  <link rel="stylesheet" href="../css/modalSubirMaterial.css"
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
 </head>
 <body>
 <!-- Bloque superior -->
@@ -94,7 +97,10 @@
 
             <div id="divOpccionesInferiores">
               <div id="DivBtnCompartirMaterial">
-                <button id="btnCompartirMaterial">Compartir material adicional</button>
+                <button type="button" class="btn-compartir-material" id="btn-compartir-material">
+                <span class="material-symbols-outlined">upload_file</span>
+                Compartir material adicional
+                </button>
               </div>
               <div id="DivBtnAgregarHistoria">
                 <button id="btnAgregarHistoria">+ Añadir nueva historia</button>
@@ -388,6 +394,32 @@
           </div>
         </div>
       </div>
+      <!-- MODAL PARA SUBIR MATERIAL ADICIONAL -->
+      <div id="modal-material" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+      <h3>Subir Material Adicional</h3>
+      <p>Selecciona un archivo (PDF, imagen, etc.) para compartirlo con el equipo.</p>
+    
+      <form id="form-subir-material" enctype="multipart/form-data">
+       <div class="form-group">
+        <label for="archivo-input">Archivo:</label>
+        <input type="file" id="archivo-input" name="archivo" required />
+       </div>
+
+       <div class="form-group">
+        <label for="descripcion-material">Descripción o Título:</label>
+        <input type="text" id="descripcion-material" name="descripcion" placeholder="Ej. Guía de requerimientos v2" />
+       </div>
+
+       <div class="modal-actions">
+        <button type="button" id="btn-cancelar-modal" class="btn-modal-cancelar">Cancelar</button>
+        <button type="submit" class="btn-modal-submit">Subir Archivo</button>
+       </div>
+      </form>
+      </div>
+     </div>
+
+      
 
       <!-- MODAL 3: REUNIRSE -->
       <div id="modal-reuniones" class="modal-class" style="display: none;">  
@@ -421,6 +453,7 @@
   <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
   <script src="../js/reuniones.js" defer></script>
+  <script src="../js/modalSubirMaterial.js" defer></script>
 <script>
     function mostrarModal(idModal, idCabecera) {
         // 1. Ocultar todos los modales
