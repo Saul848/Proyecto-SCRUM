@@ -83,6 +83,21 @@ class ProyectosDAO {
         `;
         await this.pool.query(query, [id_usuario, id_proyecto, rol]);
     }
+
+    async listarProyectos(){
+        const { rows } = await this.pool.query(
+            'SELECT id, nombre, creador, fecha_creacion, duracion, dod FROM scrumbird.proyecto ORDER BY id;'
+        );
+        return rows;
+    }
+
+    async listarDODProyectoPorId(id){
+        const { rows } = await this.pool.query(
+            'SELECT dod FROM scrumbird.proyecto WHERE id = $1;',
+            [id]
+        );
+        return rows;
+    }
 }
 
 module.exports = ProyectosDAO;

@@ -104,6 +104,36 @@ class ProyectosControlador {
             res.status(500).send("Ocurrió un error al procesar tu respuesta.");
         }
     }
+
+    async listarProyectos(req, res) {
+        try {
+        res.json(await this.dao.listar());
+        } catch (err) {
+        this.#error(res, err);
+        }
+    }
+
+    async listarDODProyectoPorID (req, res){
+        try {
+            const { id } = req.params; 
+            const rows = await this.dao.listarDODProyectoPorId(id);
+            const dodTexto = rows.length > 0 ? rows[0].dod : null;
+
+            res.json({dod: dodTexto});
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({error: "Error al obtener el DOD"});
+        }
+    }
+
+    /** Métodos privados*/
+    #error(res, err) {
+        if (err.code === '23505') { // violación de unicidad en PostgreSQL
+        return res.status(409).json({ error: 'El nombre ya existe' });
+        }
+        console.error('Error en UsuariosControlador:', remesare.message);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
 }
 
 module.exports = ProyectosControlador;
