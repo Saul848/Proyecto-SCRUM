@@ -39,6 +39,11 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
 /**
+ * Rutas de mensajes de cliente
+ */
+app.use('/mensajes', require('./routes/MensajesClienteRoutes'));    
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {
