@@ -50,6 +50,11 @@ app.use('/proyectos', require('./routes/proyectosRoutes'));
 app.use('/api/reunion', require('./routes/reunionRoutes'));
 
 /**
+ * Rutas de mensajes de cliente
+ */
+app.use('/mensajes', require('./routes/MensajesClienteRoutes'));    
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {
