@@ -423,6 +423,49 @@ function renderizarTablaFiltrada(historias) {
     });
 }
 
+
+/**
+ * Carga la vista de Sprint Planning dentro de FacilitadorPB
+ * para mantener el panel lateral visible sin navegar a otra página.
+ */
+function abrirSprintPlanning() {
+    // 1. Ocultar todos los modales
+    document.querySelectorAll(".modal-class").forEach(modal => {
+        modal.style.display = "none";
+    });
+
+    // 2. Ocultar la cabecera normal
+    const headerNormal = document.getElementById("BloqueSuperior");
+    if (headerNormal) headerNormal.style.display = "none";
+
+    // 3. Cargar el contenido de sprintPlanning.html
+    const contenedor = document.getElementById("vista-sprintPlanning");
+    fetch('sprintPlanning.html')
+        .then(r => r.text())
+        .then(html => {
+            // Extraer solo el contenido relevante (el .app)
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            const app = temp.querySelector('.app');
+            contenedor.innerHTML = app ? app.outerHTML : html;
+            contenedor.style.display = "block";
+
+            // 4. Cargar el script de sprintPlanning para su lógica
+            cargarScriptSprint('../js/sprintPlanning.js');
+        })
+        .catch(err => console.error('Error cargando sprintPlanning:', err));
+}
+
+/**
+ * Carga un script dinámicamente (para que funcione la lógica de la reunión)
+ */
+function cargarScriptSprint(src) {
+    const script = document.createElement('script');
+    script.src = src;
+    document.body.appendChild(script);
+}
+
+
 // Event listeners para actualizar el filtrado en tiempo real al escribir
 [inputFiltroId, inputFiltroNombre, inputFiltroValor, inputFiltroSprint].forEach(input => {
     input.addEventListener("input", aplicarFiltros);

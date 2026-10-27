@@ -37,23 +37,31 @@ const txtRestante = document.getElementById("txtRestante");
 
 /* ============ CARGAR HISTORIAS DESDE LA BD ============ */
 async function cargarHistorias() {
-    try {
-        const res = await fetch(`/api/reunion/${ID_SPRINT}/historias`);
-        const { ok, data } = await res.json();
-        if (!ok) throw new Error('Error del servidor');
+  try {
+      const respuesta = await fetch('/reuniones/1/historias', {
+          headers: { "Accept": "application/json" }
+      });
+      const datos = await respuesta.json();
+      requisitos = datos.data || [];
 
-        requisitos = data.map(h => ({
-            id: h.id,
-            titulo: h.nombre,
-            valor: h.valor
-        }));
-
-        pintarRequisitos();
-        actualizarSeleccion();
-    } catch (err) {
-        console.error('No se pudieron cargar las historias:', err);
-    }
+      const lista = document.getElementById('listaRequisitos');
+      lista.innerHTML = requisitos.length
+          ? requisitos.map(h => `
+              <li>
+                  <label>
+                      <input type="checkbox" value="${h.id}">
+                      ${h.nombre} — Valor: ${h.valor}
+                  </label>
+              </li>
+          `).join('')
+          : '<li>No hay historias de usuario.</li>';
+  } catch (err) {
+      console.error('Error al cargar historias:', err);
+  }
 }
+
+
+
 
 
 function mostrarVista(nombre) {
@@ -66,33 +74,12 @@ function requisitosSeleccionados() {
 }
 
 /* ============ VISTA 1 ============ */
-function pintarRequisitos() {
-  const ul = document.getElementById("listaRequisitos");
-  ul.innerHTML = "";
-
-  requisitos.forEach(r => {
-    const li = document.createElement("li");
-    const label = document.createElement("label");
-    const chk = document.createElement("input");
-
-    chk.type = "checkbox";
-    chk.value = r.id;
-    chk.checked = seleccionados.includes(r.id);
-    chk.disabled = !esFacilitador; // solo el facilitador selecciona
-    chk.addEventListener("change", actualizarSeleccion);
-
-    label.appendChild(chk);
-    label.appendChild(document.createTextNode(" " + r.titulo));
-    li.appendChild(label);
-    ul.appendChild(li);
-  });
-}
 
 btnTerminarSeleccion.addEventListener("click", async () => {
     if (seleccionados.length === 0) return;
 
     try {
-        const res = await fetch('/api/reunion/seleccion', {
+        const res = await fetch('/reuniones/seleccion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ids: seleccionados.map(Number) })
@@ -120,6 +107,13 @@ function actualizarSeleccion() {
   }
 }
 
+document.getElementById("listaRequisitos").addEventListener("change", (e) => {
+  if (e.target.matches("input[type=checkbox]")) {
+    actualizarSeleccion();
+  }
+});
+
+
 /* ============ VISTA 2 (resumen) ============ */
 function pintarResumen() {
   const tbody = document.getElementById("cuerpoResumen");
@@ -129,7 +123,7 @@ function pintarResumen() {
     const tr = document.createElement("tr");
 
     const tdTitulo = document.createElement("td");
-    tdTitulo.textContent = r.titulo;
+    tdTitulo.textContent = r.nombre;
 
     const tdValor = document.createElement("td");
     tdValor.textContent = r.valor;
@@ -151,7 +145,7 @@ function pintarTareas() {
     tdId.textContent = r.id;
 
     const tdTitulo = document.createElement("td");
-    tdTitulo.textContent = r.titulo;
+    tdTitulo.textContent = r.nombre;
 
     const tdSprint = document.createElement("td");
     tdSprint.textContent = NOMBRE_SPRINT;
@@ -218,12 +212,48 @@ function calcularRestante() {
   txtRestante.textContent = `Tiempo restante: ${dias} días`;
 }
 
+ // Función específica que usa tu compañero para el Sprint
+function mostrarModalSprint(idModal, idCabecera) {
+        // 1. Ocultar todos los modales
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
+
+        document.querySelectorAll(".cabecera-default").forEach(modal =>{
+          modal.style.display="none";
+        })
+
+        // 2. Mostrar el modal seleccionado
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+        
+        // 3. Controlar la cabecera superior
+        const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "flex";
+        }
+
+        const tituloCentral = document.getElementById("tituloSeccionCentral");
+
+        if (idModal === 'modal-product-backlog') {
+            tituloCentral.textContent = "Sprint backlog del proyecto: ";
+            tituloCentral.style.display = "block";
+        } else {
+            // En Product Backlog y otras vistas
+            tituloCentral.style.display = "none";
+            btnIniciar.style.display = "none";
+        }
+    }
+
 /* ============ NAVEGACIÓN ENTRE VISTAS ============ */
 btnVolverFase1.addEventListener("click", () => {
-  pintarRequisitos();
+  cargarHistorias();
   actualizarSeleccion();
   mostrarVista("fase1");
 });
+
 
 btnContinuar.addEventListener("click", () => {
   // sin funcionalidad

@@ -3,16 +3,15 @@ class reunionDAO{
         this.pool = pool; // Conector con Postgres
     }
 
-    async obtenerHistoriasDeIteracion(idSprint) {
+    async obtenerHistoriasDeIteracion() {
         const { rows } = await this.pool.query(
-            `SELECT h.id, h.nombre, h.valor
-             FROM scrumbird.historia_de_usuario h
-             WHERE h.asignado_al_sprint = $1
-             ORDER BY h.id;`,
-            [idSprint]
+            `SELECT id, nombre, valor 
+            FROM scrumbird.historia_de_usuario 
+            ORDER BY id;`
         );
         return rows;
     }
+
 
     async marcarPrioritarias(ids) {
         if (!ids || ids.length === 0) return { rowCount: 0 };
