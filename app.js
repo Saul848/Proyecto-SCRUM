@@ -82,3 +82,12 @@ http.createServer((req, res)=>{
     res.end();
 }).listen(8082);
 
+/**
+ * Rutas de proyectos
+ */
+app.use('/proyectos', require('./routes/proyectosRoutes'));
+
+/**
+ * Rutas de mensajes
+ */
+app.use('/mensajes', require('./routes/mensajesRoutes'));
