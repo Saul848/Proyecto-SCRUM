@@ -70,6 +70,16 @@
       <!-- MODAL 1: PRODUCT BACKLOG -->
       <div id="modal-product-backlog" class="modal-class" style="display: block;">
         <div id="DivContPB">
+          
+          <!-- Barra de filtros -->
+          <div id="contenedorFiltrosPB" class="filtros-pb-container">
+            <input type="text" id="inputFiltroId" class="filtro-input filtro-id" placeholder="Filtrar ID...">
+            <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre" placeholder="Filtrar nombre...">
+            <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
+            <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint" placeholder="Filtrar sprint...">
+            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+          </div>
+
           <div id="DivEncabezados">
             <label id="LabelID">ID</label>
             <label id="LabelNombreHistoria">Historias de usuario</label>
@@ -412,7 +422,7 @@
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
   <script src="../js/reuniones.js" defer></script>
 <script>
-    function mostrarModal(idModal) {
+    function mostrarModal(idModal, idCabecera) {
         // 1. Ocultar todos los modales
         document.querySelectorAll(".modal-class").forEach(modal => {
             modal.style.display = "none";
@@ -427,6 +437,7 @@
         const headerSprint = document.getElementById("cabecera-sprint");
         const tituloCentral = document.getElementById("tituloSeccionCentral");
         const btnIniciar = document.getElementById("btnIniciarConversacion");
+        mostrarCabecera(idCabecera);
 
         if (idModal === 'modal-mensajes') {
             if (tituloCentral) {
@@ -435,8 +446,18 @@
             }
             if (btnIniciar) btnIniciar.style.display = "block";
         } else {
-            if (tituloCentral) tituloCentral.style.display = "none";
-            if (btnIniciar) btnIniciar.style.display = "none";
+            tituloCentral.style.display = "none";
+            btnIniciar.style.display = "none";
+        }
+    }
+
+    function mostrarCabecera(idCabecera){
+      document.querySelectorAll(".cabecera-default").forEach(modal => {
+        modal.style.display = "none";
+      });
+      const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "flex";
         }
     }
 
@@ -452,8 +473,10 @@
 
     
 
+    
+
     // Función específica que usa tu compañero para el Sprint
-   function mostrarModalSprint(idModal, idCabecera) {
+  function mostrarModalSprint(idModal, idCabecera) {
     // 1. Ocultar todos los modales principales
     document.querySelectorAll(".modal-class").forEach(modal => {
         modal.style.display = "none";
@@ -470,10 +493,7 @@
         }
         
         // 3. Controlar la cabecera superior
-        const cabeceraSeleccionada = document.getElementById(idCabecera);
-        if(cabeceraSeleccionada){
-          cabeceraSeleccionada.style.display = "flex";
-        }
+        mostrarCabecera(idCabecera);
 
         const tituloCentral = document.getElementById("tituloSeccionCentral");
 
