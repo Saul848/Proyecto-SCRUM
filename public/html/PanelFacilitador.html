@@ -6,6 +6,9 @@
   <title>Facilitador - Panel Principal</title>
   <link rel="stylesheet" href="../css/PanelFacilitador.css">
   <link rel="stylesheet" href="../css/mensajesFacilitador.css">
+  <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
+  <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
+  <link rel="stylesheet" href="../css/reuniones.css">
 </head>
 <body>
 <!-- Bloque superior -->
@@ -55,7 +58,7 @@
           <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
           <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos', 'cabecera-sprintPB')">Sprint</button></li>
           <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
-          <li><button href="#" id="linkReunirse">Reunirse</button></li>
+          <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones')">Reunirse</button></li>
           <li><button href="#" id="linkGraficas">Graficas</button></li>
           <li><button href="#" id="linkAjustes">Ajustes</button></li>
         </ul>
@@ -66,17 +69,16 @@
       
       <!-- MODAL 1: PRODUCT BACKLOG -->
       <div id="modal-product-backlog" class="modal-class" style="display: block;">
-        <div id="areaPB">
-          <div id="DivContPB">
-            <div id="DivEncabezados">
-              <label id="LabelID">ID</label>
-              <label id="LabelNombreHistoria">Historias de usuario</label>
-              <label id="LabelDescripccion">Descripccion</label>
-              <label id="LabelCriterios">Criterios de acpetacion</label>
-              <label id="LabelValor">Valor</label>
-              <label id="LabelSprintAsginado">Sprint asignado</label>
-              <div class="espacioAcciones"></div>
-            </div>
+        <div id="DivContPB">
+          <div id="DivEncabezados">
+            <label id="LabelID">ID</label>
+            <label id="LabelNombreHistoria">Historias de usuario</label>
+            <label id="LabelDescripccion">Descripccion</label>
+            <label id="LabelCriterios">Criterios de acpetacion</label>
+            <label id="LabelValor">Valor</label>
+            <label id="LabelSprintAsginado">Sprint asignado</label>
+            <div class="espacioAcciones"></div>
+          </div>
 
             <div id="DivHistoria"></div>
 
@@ -211,6 +213,7 @@
           </div>
         </div>
 
+        <!-- TABLERO KANVAN -->
         <div id="historias-sprint">
           <div class="columnas-kanban">
             <h3>Por empezar</h3>
@@ -218,9 +221,20 @@
             <h3>En revisión</h3>
             <h3>Terminado</h3>
           </div>
-          <div id="tabla-historias"></div>
-          <label for="">Responsable asignado:</label>
+
+          <!-- Contenedor general de las 4 columnas (Grid) -->
+          <div id="tabla-historias">
+            <div class="columna-kanban" data-estado="por-empezar"></div>
+            <div class="columna-kanban" data-estado="en-progreso"></div>
+            <div class="columna-kanban" data-estado="en-revision"></div>
+            <div class="columna-kanban" data-estado="terminado"></div>
+          </div>
+
+          <label for="responsableHistoria">Responsable asignado:</label>
+          <input type="text" readonly="readonly" id="responsableHistoria">
         </div>
+
+        <!-- TERMINO tablero KANVAN -->
 
         <div id="botones-inferiores">
           <button>Ver impedimentos actuales</button>
@@ -234,38 +248,195 @@
           </div>
         </div>
       </div>
+
+      <!-- MODAL DETALLES DE HISTORIA -->
+      <div id="modal-detalle-historia-kanban" class="modal-class" style="display: none;">
+        <div class="kanban-detalle-contenido">
+      
+          <!-- Sección 1: Estado actual -->
+          <div class="kanban-detalle-seccion-estado">
+            <button class="kanban-evidencias-btn-volver" onclick="mostrarModal('panel-proyectos')">
+              &lsaquo; Volver a sprint 
+            </button>
+            <span class="kanban-detalle-label-estado">Estado actual de la historia:</span>
+            <span id="kanban-detalle-badge-estado" class="kanban-detalle-badge">En progreso</span>
+          </div>
+      
+          <!-- Sección 2: Ficha de datos principales -->
+          <div class="kanban-detalle-seccion-datos">
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">No de historia</span>
+              <span id="kanban-detalle-no-historia" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">No de Sprint</span>
+              <span id="kanban-detalle-no-sprint" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Puntos de esfuerzo</span>
+              <span id="kanban-detalle-puntos" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Horas estimadas</span>
+              <span id="kanban-detalle-horas" class="kanban-detalle-td">#</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Responsable</span>
+              <span id="kanban-detalle-responsable" class="kanban-detalle-td">Sin asignar</span>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Comentarios</span>
+              <div id="kanban-detalle-comentarios" class="kanban-detalle-td-comentarios">
+                <span class="kanban-detalle-comentario-item">Sin asignar</span>
+              </div>
+            </div>
+            <div class="kanban-detalle-columna-item">
+              <span class="kanban-detalle-th">Evidencias de desarrollo</span>
+              <button id="kanban-detalle-btn-evidencias" class="kanban-detalle-btn-evidencias"
+                onclick="abrirEvidenciasHistoriaSeleccionada()">Ver evidencias</button>
+            </div>
+          </div>
+      
+          <!-- Sección 3: Descripción y Criterios de aceptación -->
+          <div class="kanban-detalle-seccion-inferior">
+            <div class="kanban-detalle-card-inferior">
+              <h4 class="kanban-detalle-subtitulo">Descripción</h4>
+              <div id="kanban-detalle-descripcion" class="kanban-detalle-texto-caja">Lorem ipsum</div>
+            </div>
+            <div class="kanban-detalle-card-inferior">
+              <h4 class="kanban-detalle-subtitulo">Criterios de aceptación</h4>
+              <div id="kanban-detalle-criterios" class="kanban-detalle-texto-caja">Lorem ipsum</div>
+            </div>
+          </div>
+      
+        </div>
+      </div>
+
+      <!-- MODAL EVIDENCIA DE HISTORIA -->
+      <div id="modal-evidencias-historia-kanban" class="modal-class" style="display: none;">
+        <div class="kanban-evidencias-contenido">
+      
+          <!-- Cabecera: Volver y Estado -->
+          <div class="kanban-evidencias-header">
+            <button class="kanban-evidencias-btn-volver" onclick="regresarAlDetalleHistoria()">
+              &lsaquo; Volver a la historia <span id="kanban-evidencias-id-historia-num">#</span>
+            </button>
+            <div class="kanban-evidencias-estado-container">
+              <span class="kanban-evidencias-label-estado">Estado de la historia:</span>
+              <span id="kanban-evidencias-badge-estado" class="kanban-evidencias-badge">En progreso</span>
+            </div>
+          </div>
+      
+          <h2 class="kanban-evidencias-titulo-principal">Evidencias de desarrollo</h2>
+      
+          <!-- Alerta dinámica de permisos o bloqueo -->
+          <div id="kanban-evidencias-alerta" class="kanban-evidencias-alerta info">
+            <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes .png o .jpg y borrar únicamente las que tú
+              subiste.</span>
+          </div>
+      
+          <!-- Cuerpo principal en 2 columnas (Archivos y Vista previa) -->
+          <div class="kanban-evidencias-body-grid">
+      
+            <!-- Columna Izquierda: Listado y Zona de Subida -->
+            <div class="kanban-evidencias-col-izquierda">
+              <div class="kanban-evidencias-sub-header">
+                <h3 id="kanban-evidencias-contador" class="kanban-evidencias-subtitulo">Archivos subidos (0)</h3>
+                <span class="kanban-evidencias-formato-lbl">Solo imágenes .png y .jpg</span>
+              </div>
+      
+              <!-- Zona de carga (Drag & Drop / Input file) -->
+              <div id="kanban-evidencias-zona-carga" class="kanban-evidencias-upload-box">
+                <div class="kanban-evidencias-upload-content">
+                  <i class="icon-upload">&#8648;</i>
+                  <span id="kanban-evidencias-upload-titulo" class="kanban-evidencias-upload-main-text">Subir evidencia</span>
+                  <span id="kanban-evidencias-upload-sub" class="kanban-evidencias-upload-sub-text">Arrastra o elige una
+                    imagen .png o .jpg</span>
+                </div>
+                <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg" style="display: none;"
+                  onchange="manejarSeleccionArchivo(this)">
+              </div>
+      
+              <!-- Contenedor dinámico de la lista de archivos subidos -->
+              <div id="kanban-evidencias-lista-archivos" class="kanban-evidencias-lista-scroll">
+                <!-- Las tarjetas de archivos se inyectan dinámicamente aquí -->
+              </div>
+            </div>
+      
+            <!-- Columna Derecha: Vista previa de la imagen seleccionada -->
+            <div class="kanban-evidencias-col-derecha">
+              <h3 class="kanban-evidencias-subtitulo">Vista previa</h3>
+              <div class="kanban-evidencias-preview-box">
+                <div id="kanban-evidencias-preview-content" class="kanban-evidencias-preview-placeholder">
+                  <div class="preview-icono-default">&#128444;</div>
+                  <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
+                  <span class="preview-sub-text">Aquí se mostrará la imagen a tamaño completo</span>
+                </div>
+              </div>
+            </div>
+      
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 3: REUNIRSE -->
+      <div id="modal-reuniones" class="modal-class" style="display: none;">  
+        <h1 id="titulo-reuniones">Reuniones</h1>
+        <div class="area-fondo">
+            <section class="tarjeta-reunion">
+                <h2>Planificación de la iteración (Sprint Planning)</h2>
+                <p class="detalle">Fecha: 11 Oct · 2-4 h · 2 fases (Qué y Cómo)</p>
+                <p class="estado en-curso">● Estado: En curso · 5/7 conectados</p>
+                <button class="btn-entrar" data-reunion="sprintPlanning">Entrar</button>
+                <button class="btn-editar">Editar</button>
+            </section>
+
+            <section class="tarjeta-reunion">
+                <h2>Reunión diaria Iteración 3 - Día 4</h2>
+                <p class="detalle">Fecha: 12 Oct · 9:00 - 9:15 · 15 min (timebox)</p>
+                <p class="estado programada">● Estado: Programada</p>
+                <button class="btn-entrar" data-reunion="daily">Entrar</button>
+                <button class="btn-editar">Editar</button>
+            </section>
+
+            <button class="btn-agendar">Agendar nueva reunión +</button>
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
   <script src="../js/mensajes.js" defer></script>
+  <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
+  <script src="../js/modalEvidenciaHistoria.js" defer></script>
+  <script src="../js/reuniones.js" defer></script>
 <script>
-    function mostrarModal(idModal, idCabecera) {
+    function mostrarModal(idModal) {
         // 1. Ocultar todos los modales
         document.querySelectorAll(".modal-class").forEach(modal => {
             modal.style.display = "none";
         });
 
-        // 2. Mostrar el modal seleccionado
         const modalSeleccionado = document.getElementById(idModal);
         if (modalSeleccionado) {
             modalSeleccionado.style.display = "block";
         }
 
-        // 3. Controlar la cabecera superior
+        const headerNormal = document.getElementById("BloqueSuperior");
+        const headerSprint = document.getElementById("cabecera-sprint");
         const tituloCentral = document.getElementById("tituloSeccionCentral");
         const btnIniciar = document.getElementById("btnIniciarConversacion");
-        mostrarCabecera(idCabecera);
 
         if (idModal === 'modal-mensajes') {
-            tituloCentral.textContent = "Mensajes";
-            tituloCentral.style.display = "block";
-            btnIniciar.style.display = "block";
+            if (tituloCentral) {
+                tituloCentral.textContent = "Mensajes";
+                tituloCentral.style.display = "block";
+            }
+            if (btnIniciar) btnIniciar.style.display = "block";
         } else {
-            // En Product Backlog y otras vistas
-            tituloCentral.style.display = "none";
-            btnIniciar.style.display = "none";
+            if (tituloCentral) tituloCentral.style.display = "none";
+            if (btnIniciar) btnIniciar.style.display = "none";
         }
     }
 
@@ -281,11 +452,12 @@
 
     
 
-    function mostrarModalSprint(idModal, idCabecera) {
-        // 1. Ocultar todos los modales
-        document.querySelectorAll(".modal-class").forEach(modal => {
-            modal.style.display = "none";
-        });
+    // Función específica que usa tu compañero para el Sprint
+   function mostrarModalSprint(idModal, idCabecera) {
+    // 1. Ocultar todos los modales principales
+    document.querySelectorAll(".modal-class").forEach(modal => {
+        modal.style.display = "none";
+    });
 
         document.querySelectorAll(".cabecera-default").forEach(modal =>{
           modal.style.display="none";
@@ -298,19 +470,17 @@
         }
         
         // 3. Controlar la cabecera superior
-        mostrarCabecera(idCabecera);
+        const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if(cabeceraSeleccionada){
+          cabeceraSeleccionada.style.display = "flex";
+        }
 
         const tituloCentral = document.getElementById("tituloSeccionCentral");
 
-        if (idModal === 'modal-product-backlog') {
-            tituloCentral.textContent = "Sprint backlog del proyecto: ";
-            tituloCentral.style.display = "block";
-        } else {
-            // En Product Backlog y otras vistas
-            tituloCentral.style.display = "none";
-            btnIniciar.style.display = "none";
-        }
-    }
-  </script>
+    if (headerNormal) headerNormal.style.display = "none";
+    if (headerSprint) headerSprint.style.display = "flex";
+}
+    
+</script>
 </body>
 </html>

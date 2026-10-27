@@ -14,115 +14,60 @@ body {
   min-height: 100vh;
 }
 
-
-/*menu lateral*/
-.menu-lateral {
-  width: 220px;
-  background-color: #fff;
-  padding: 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 100vh;
-}
-
-.usuario-activo {
-  background-color: #ff7d22;
-  color: #ffffff;
-  border: none;
-  padding: 12px;
-  font-weight: bold;
-  border-radius: 20px;
-  margin: 0 16px 20px;
-  cursor: pointer;
-}
-
-.menu-lateral nav {
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-lateral nav a {
-  color: #000;
-  text-decoration: none;
-  padding: 12px 24px;
-  transition: background-color 0.2s;
-}
-
-.menu-lateral nav a:hover {
-  background-color: rgba(242, 201, 76, 0.15);
-}
-
-.menu-lateral nav a.activo {
-  background-color: #0d47a140;
-  color: #0d47a1;
-  font-weight: bold;
-}
-
-
 /*general*/
 .area-trabajo {
-  flex: 8;
-  padding: 40px;
-}
-
-.encabezado h1 {
-  font-size: 28px;
-  margin-bottom: 30px;
-  background-color: #ffffff;
-  color: #000;
-  border-radius: 12px;
-  padding: 4px 12px;
-  align-items: flex-start; 
-}
-
-.iteracion {
-  font-size: 16px;
-  color: #c9c2b4;
-  font-weight: normal;
-  margin-left: 10px;
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .area-fondo {
   background-color: #ffffff;
   border-radius: 10px;
   padding: 30px 30px;
+  min-height: 99%;
+  flex: 1;
 }
 
-.fase {
-  max-width: 1100px;
+/*fase 1*/
+.fase-titulo {
+  border-radius: 12px;
+}
+
+.iteracion {
+  font-size: 18px;
+  color:#000;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+.fase-titulo h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.subtitulo {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #000;
 }
 
 .oculto {
   display: none;
 }
 
-.fase-titulo h2 {
-  font-size: 20px;
-  margin-bottom: 20px;
-  color: #000;
-}
-
-.fila-doble {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start; 
-  flex-wrap: wrap; 
-}
-
-.fila-doble .panel {
-  flex: 1; 
-  min-width: 300px; 
-}
-
-.panel {
+.lista-requisitos {
   background-color: #79766f23;
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
+  width: 90%;
 }
 
 .panel h3 {
+  background-color: #ffffff;
   font-size: 16px;
   margin-bottom: 14px;
   color: #000;
@@ -146,6 +91,43 @@ body {
   height: 18px;
   accent-color: #fff;
   cursor: pointer;
+}
+
+.diseño-fondo {
+  background-color: #79766f23;
+  border-radius: 10px;
+  padding: 21px 21px;
+  width: 90%;
+}
+
+.tabla-resumen {
+  background-color: #79766f23;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  width: 99%;
+  border-collapse: collapse;
+}
+
+.tabla-resumen th,
+.tabla-resumen td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #000;
+  font-size: 14px;
+}
+
+.tabla-resumen th {
+  color: #000;
+  font-weight: bold;
+}
+
+.tabla-tareas input[type="number"] {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #3d3526;
+  border-radius: 6px;
+  background-color: #79766f23;
+  color: #000;
 }
 
 .contenedor-dudas {
@@ -199,34 +181,6 @@ body {
   font-size: 14px;
 }
 
-.tabla-tareas {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 16px;
-}
-
-.tabla-tareas th,
-.tabla-tareas td {
-  text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid #000;
-  font-size: 14px;
-}
-
-.tabla-tareas th {
-  color: #000;
-  font-weight: bold;
-}
-
-.tabla-tareas input[type="number"] {
-  width: 60px;
-  padding: 6px;
-  border: 1px solid #3d3526;
-  border-radius: 6px;
-  background-color: #79766f23;
-  color: #000;
-}
-
 .asignado {
   color: #000;
 }
@@ -274,15 +228,37 @@ body {
   background-color: #4a4130;
 }
 
-.btn-continuar {
+.btn-rojo {
+  background-color: #de3b40;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-rojo:hover {
+  background-color: #b52e33;
+}
+
+
+
+.panel .btn-gris {
+  margin-top: 12px;
+  display: inline-block;
+}
+
+.btnContinuar {
   display: block;
   padding: 15px 23px;
 }
 
-.acciones-finales {
+.acciones {
   display: flex;
   gap: 12px;
   margin-top: 10px;
+  padding: 15px;
 }
 
 .btn-autoasignar {

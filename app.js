@@ -45,6 +45,11 @@ app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 app.use('/proyectos', require('./routes/proyectosRoutes'));
 
 /**
+ * Rutas de reuniones
+ */
+app.use('/api/reunion', require('./routes/reunionRoutes'));
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {

@@ -123,8 +123,10 @@ body {
    CONTENEDOR DivHistoria (SCROLLBAR VERTICAL)
    =================================================== */
 #DivHistoria {
-  max-height: 420px; /* Altura optimizada para pantallas de laptop */
-  overflow-y: auto;  /* Permite el scrollbar vertical requerido */
+  max-height: 420px;
+  /* Altura optimizada para pantallas de laptop */
+  overflow-y: auto;
+  /* Permite el scrollbar vertical requerido */
   padding-right: 6px;
   display: flex;
   flex-direction: column;
@@ -264,14 +266,16 @@ body {
    ESTILOS DEL PANEL MODAL
    =================================================== */
 #modalHistoria {
-  display: none; /* Desactivado por defecto */
+  display: none;
+  /* Desactivado por defecto */
   position: fixed;
   z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Fondo oscuro semitransparente */
   justify-content: center;
   align-items: center;
 }
@@ -300,19 +304,22 @@ body {
 }
 
 /* Estilos para las clases solicitadas */
-.entradaInp, .entradaTextA {
+.entradaInp,
+.entradaTextA {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.entradaInp label, .entradaTextA label {
+.entradaInp label,
+.entradaTextA label {
   font-size: 12px;
   font-weight: bold;
   color: #333333;
 }
 
-.entradaInp input, .entradaTextA textarea {
+.entradaInp input,
+.entradaTextA textarea {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -353,7 +360,8 @@ body {
 }
 
 #modalHistoria {
-  display: none; /* Oculto por defecto */
+  display: none;
+  /* Oculto por defecto */
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -367,8 +375,9 @@ body {
 
 /* Esta es la clase que activa/muestra el modal */
 #modalHistoria.activo {
-  display: flex; 
+  display: flex;
 }
+
 /* ========================================================== */
 /* ESTILO MODERNO Y LIMPIO (RESPETANDO FONDO BLANCO Y BOTONES)*/
 /* ========================================================== */
@@ -377,167 +386,182 @@ body {
 
 /* Fuente global DM Sans para toda la pantalla */
 body {
-    font-family: 'DM Sans', sans-serif !important;
+  font-family: 'DM Sans', sans-serif !important;
 }
 
 /* Mantener el bloque superior limpio y con la fuente estilizada */
 #BloqueSuperior {
-    font-family: 'DM Sans', sans-serif !important;
+  font-family: 'DM Sans', sans-serif !important;
 }
 
 /* Menú lateral moderno pero conservando la paleta limpia */
 #panelLateral {
-    border-right: 1px solid #e2e8f0 !important;
-    padding: 20px 10px !important;
+  border-right: 1px solid #e2e8f0 !important;
+  padding: 20px 10px !important;
 }
 
 #labelSeccion {
-    color: #94a3b8 !important;
-    font-size: 11px !important;
-    letter-spacing: 0.5px;
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.5px;
 }
 
 #divIndice a {
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    font-size: 14px !important;
-    transition: background 0.2s, color 0.2s;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  transition: background 0.2s, color 0.2s;
 }
 
 #divIndice a:hover {
-    background-color: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
 }
 
 #divIndice a.active {
-    background-color: #e0f2fe !important;
-    color: #0284c7 !important;
-    font-weight: 700 !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  font-weight: 700 !important;
 }
 
 /* Estilo para los botones principales de acciones (garantiza letras blancas y legibles) */
-#btnCompartirMaterial, #btnAgregarHistoria, #btnModHistoria, #btnGuardarModal, #btnEnviar {
-    font-family: 'DM Sans', sans-serif !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    border-radius: 20px !important;
-    transition: background 0.2s;
+#btnCompartirMaterial,
+#btnAgregarHistoria,
+#btnModHistoria,
+#btnGuardarModal,
+#btnEnviar {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-radius: 20px !important;
+  transition: background 0.2s;
 }
 
-#btnAgregarHistoria, #btnModHistoria, #btnGuardarModal, #btnEnviar {
-    background-color: #0088ff !important;
+#btnAgregarHistoria,
+#btnModHistoria,
+#btnGuardarModal,
+#btnEnviar {
+  background-color: #0088ff !important;
 }
 
-#btnAgregarHistoria:hover, #btnModHistoria:hover, #btnGuardarModal:hover, #btnEnviar:hover {
-    background-color: #0284c7 !important;
+#btnAgregarHistoria:hover,
+#btnModHistoria:hover,
+#btnGuardarModal:hover,
+#btnEnviar:hover {
+  background-color: #0284c7 !important;
 }
+
 /* ========================================================== */
 /* SUAVIZAR LAS FUENTES DEL MENÚ LATERAL (QUITAR NEGRITAS)    */
 /* ========================================================== */
 
 #divIndice a {
-    font-weight: 400 !important; /* Letras normales y limpias por defecto */
+  font-weight: 400 !important;
+  /* Letras normales y limpias por defecto */
 }
 
 #divIndice a.active {
-    font-weight: 600 !important; /* Solo un sutil realce cuando esté seleccionado, sin exagerar */
-}/* ========================================================== */
+  font-weight: 600 !important;
+  /* Solo un sutil realce cuando esté seleccionado, sin exagerar */
+}
+
+/* ========================================================== */
 /* CABECERA DINÁMICA PERFECTA (ALIGNMENT FIX)                 */
 /* ========================================================== */
 
 #BloqueSuperior {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 12px 30px !important;
-    background-color: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0;
-    position: relative;
-    height: 60px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 30px !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  height: 60px;
 }
 
 /* Badge de rol */
 #DivMsjFacilitador {
-    background-color: #ff9431 !important;
-    color: #ffffff !important;
-    padding: 6px 20px !important;
-    border-radius: 20px !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
-    z-index: 2;
+  background-color: #ff9431 !important;
+  color: #ffffff !important;
+  padding: 6px 20px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  z-index: 2;
 }
 
 /* Título de la sección centrado en toda la pantalla */
 #tituloSeccionCentral {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    font-weight: 700;
-    color: #0f172a;
-    z-index: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  z-index: 1;
 }
 
 /* Contenedor derecho (Texto del cliente + Botón si existe) */
 #DivTitulo {
-    margin-left: auto;
-    margin-right: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #334155;
-    z-index: 2;
+  margin-left: auto;
+  margin-right: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  z-index: 2;
 }
 
 #DivTitulo span {
-    color: #0033ff;
-    font-weight: 700;
+  color: #0033ff;
+  font-weight: 700;
 }
 
 /* Botón iniciar conversación */
 .btn-iniciar {
-    background-color: #0088ff !important;
-    color: white !important;
-    border: none !important;
-    padding: 8px 18px !important;
-    border-radius: 20px !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    cursor: pointer;
-    z-index: 2;
-    transition: background 0.2s;
+  background-color: #0088ff !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
 }
 
 .btn-iniciar:hover {
-    background-color: #0284c7 !important;
+  background-color: #0284c7 !important;
 }
 
 /*Estilos de prueba para la barra lateral*/
 
 #panelLateral {
-    list-style: none;
-    width: 18%;
+  list-style: none;
+  width: 18%;
 }
 
 #panelLateral li {
-    padding: 10px 16px;
+  padding: 10px 16px;
 }
 
 #panelLateral button,
 #panelLateral li {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    font-size: 1em;
-    cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
 }
 
 /* clases para los modales ocultos por defecto*/
-.cabecera-default{
-  display : none
+.cabecera-default {
+  display: none
 }
 
-.modal-class{
-  display : none
+.modal-class {
+  display: none
 }
 
 /*Estilos cabecera de spring bacllog"------------------------*/
@@ -550,89 +574,89 @@ body {
 }
 
 .cabecera-default h2 {
-    font-size: 1.2em;
-    margin-right: 8px;
+  font-size: 1.2em;
+  margin-right: 8px;
 }
 
 /* Badge "Facilitador" */
 .badge-rol {
-    background-color: #ff9a3c;
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 0.85em;
-    padding: 8px 18px;
-    border-radius: 20px;
+  background-color: #ff9a3c;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85em;
+  padding: 8px 18px;
+  border-radius: 20px;
 }
 
 /* Base de todos los botones tipo pastilla */
 .btn-pill {
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: 600;
-    font-size: 0.9em;
-    cursor: pointer;
-    color: #ffffff;
-    transition: filter 0.15s ease;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 0.9em;
+  cursor: pointer;
+  color: #ffffff;
+  transition: filter 0.15s ease;
 }
 
 .btn-pill:hover {
-    filter: brightness(0.92);
+  filter: brightness(0.92);
 }
 
 /* Colores específicos */
 .btn-azul {
-    background-color: #2f8fe0;
+  background-color: #2f8fe0;
 }
 
 .btn-verde {
-    background-color: #3fcf6e;
+  background-color: #3fcf6e;
 }
 
 .btn-rojo {
-    background-color: #f24f5c;
+  background-color: #f24f5c;
 }
 
 /* Estilos del area de trabajo tablero de spring backlog*/
 #panel-proyectos {
-    background-color: #ffffff;
-    border: 1px solid #b8d4ec;
-    border-radius: 6px;
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
+  background-color: #ffffff;
+  border: 1px solid #b8d4ec;
+  border-radius: 6px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 #panel-proyectos h2 {
-    font-size: 1.1em;
+  font-size: 1.1em;
 }
 
 #objetivo-iteracion {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 #objetivo-iteracion h2 {
-    display: inline-block;
+  display: inline-block;
 }
 
 /*objjetivo-iteracion*/
 
 /* Truco: convertimos el contenedor en flex para separar h2 y label */
 #objetivo-iteracion {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 #objt-iteracion-box {
-    background-color: #eef3f6;
-    width: 100%;
-    padding: 14px;
-    border-radius: 4px;
-    margin-top: 10px;
-    /* al ser 100% width y el padre ser flex, lo forzamos a su propia línea: */
-    flex-basis: 100%;
+  background-color: #eef3f6;
+  width: 100%;
+  padding: 14px;
+  border-radius: 4px;
+  margin-top: 10px;
+  /* al ser 100% width y el padre ser flex, lo forzamos a su propia línea: */
+  flex-basis: 100%;
 }
 
 /*fechas*/
@@ -661,47 +685,145 @@ body {
   cursor: pointer;
 }
 
-/*columnas kanban*/
+/* TABLERO KANVAN */
+/* Layout general del tablero */
+#historias-sprint {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'DM Sans', sans-serif, Arial;
+}
 
+/* Encabezados de las columnas */
 .columnas-kanban {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  text-align: center;
 }
 
 .columnas-kanban h3 {
-    flex: 1;
-    text-align: center;
-    font-size: 1em;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
+/* Contenedor principal de las 4 columnas del Kanban */
 #tabla-historias {
-    border: 2px solid #2f8fe0;
-    border-radius: 4px;
-    min-height: 220px;
-    display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  height: 420px;
+  /* Altura fija para activar el scroll */
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 2px solid #2b82c9;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
-/* Cuando generes las tarjetas por columna, cada una será algo como: */
+/* Columnas individuales con scroll independiente */
 .columna-kanban {
-    flex: 1;
-    border-right: 1px solid #d8e6f2;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #edf2f7;
+  padding: 10px;
+  border-radius: 6px;
+  max-height: 100%;
+  overflow-y: auto;
+  /* Scroll vertical cuando hay muchas historias */
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
 }
 
-.columna-kanban:last-child {
-    border-right: none;
+/* Personalización de la barra de desplazamiento */
+.columna-kanban::-webkit-scrollbar {
+  width: 6px;
 }
 
-#historias-sprint label {
-    display: inline-block;
-    background-color: #ff9a3c;
-    color: #fff;
-    font-weight: 600;
-    padding: 8px 18px;
-    border-radius: 20px;
-    margin-top: 14px;
+.columna-kanban::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
+
+.columna-kanban.drag-over {
+  background-color: #e2e8f0;
+  outline: 2px dashed #2b82c9;
+}
+
+/* Estilo base de la tarjeta */
+.tarjeta-historia {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  margin-bottom: 8px; /* Espacio entre tarjetas */
+}
+
+/* Tarjeta Prioritaria: Rojo claro / sutil */
+.tarjeta-historia.prioritaria {
+  background-color: #fef2f2; /* Rojo muy tenue */
+  border-color: #fca5a5;    /* Borde rojizo claro */
+}
+
+/* Tarjeta No Prioritaria: Verde leve / sutil */
+.tarjeta-historia.no-prioritaria {
+  background-color: #f0fdf4; /* Verde muy tenue */
+  border-color: #86efac;    /* Borde verdoso claro */
+}
+
+.tarjeta-historia:active {
+  cursor: grabbing;
+}
+
+.tarjeta-historia.dragging {
+  opacity: 0.4;
+}
+
+/* Título de la historia */
+.historia-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* Pie de la tarjeta con Botón de Detalle */
+.tarjeta-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-detalles {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-detalles:hover {
+  background-color: #2b82c9;
+  color: #ffffff;
+  border-color: #2b82c9;
+}
+
+/* TERMINO TABLERO KANVAN */
 
 /* botones inferiores*/
 #botones-inferiores {
@@ -731,16 +853,16 @@ body {
 
 /* div del progreso del sprint */
 #progreso-sprint {
-    text-align: center;
+  text-align: center;
 }
 
 .barra-progreso {
-    width: 220px;
-    height: 10px;
-    background-color: #d9d9d9;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 6px 0;
+  width: 220px;
+  height: 10px;
+  background-color: #d9d9d9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 6px 0;
 }
 
 .barra-progreso-relleno {
@@ -793,5 +915,237 @@ body {
 }
 
 #botones-definicion button:hover {
-    filter: brightness(0.92);
+  filter: brightness(0.92);
+}
+/* ==========================================================
+   ESTILOS DE LA BARRA DE FILTROS
+   ========================================================== */
+.filtros-pb-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.filtro-input {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+.filtro-id {
+    width: 12%;
+}
+
+.filtro-nombre {
+    width: 25%;
+}
+
+.filtro-valor {
+    width: 15%;
+}
+
+.filtro-sprint {
+    width: 20%;
+}
+
+.btn-limpiar-filtros {
+    padding: 6px 12px;
+    background: #eff0e2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+/* ========================================================== */
+/* CORRECCIÓN DE CABECERA SUPERIOR                            */
+/* ========================================================== */
+
+#BloqueSuperior {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0;
+    position: relative;
+    height: 60px;
+}
+
+#DivMsjFacilitador {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    z-index: 2;
+}
+
+#tituloSeccionCentral {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    z-index: 1;
+}
+
+#DivTitulo {
+    margin-left: auto;
+    margin-right: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    z-index: 2;
+}
+
+#DivTitulo span {
+    color: #0033ff;
+    font-weight: 700;
+}
+
+.btn-iniciar {
+    background-color: #0088ff !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 18px !important;
+    border-radius: 20px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.2s;
+}
+
+.btn-iniciar:hover {
+    background-color: #0284c7 !important;
+}
+/* ========================================================== */
+/* RESTAURACIÓN Y DISEÑO LIMPIO DE LA BARRA LATERAL           */
+/* ========================================================== */
+
+#panelLateral {
+    width: 260px !important;
+    min-width: 260px !important;
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    padding: 24px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+
+#divIndice {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+#labelSeccion {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 6px !important;
+    padding-left: 10px !important;
+}
+
+#divIndice a {
+    text-decoration: none !important;
+    color: #334155 !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    transition: background 0.2s, color 0.2s !important;
+    white-space: nowrap !important; /* Evita que los textos como "Product Backlog" se partan en dos líneas */
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#divIndice a:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+#divIndice a.active {
+    background-color: #e0f2fe !important;
+    color: #0284c7 !important;
+    font-weight: 600 !important;
+}
+/* ========================================================== */
+/* CORRECCIÓN DE DISEÑO PARA LA CABECERA DE SPRINT            */
+/* ========================================================== */
+
+#cabecera-sprint {
+    display: none; /* Por defecto oculta */
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Forzar que cuando tome la clase flex se despliegue correctamente */
+#cabecera-sprint[style*="display: flex"] {
+    display: flex !important;
+}
+
+#cabecera-sprint h2 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+}
+
+#cabecera-sprint .badge-rol {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+/* ========================================================== */
+/* CABECERA DE SPRINT CENTRADA Y LIMPIA                       */
+/* ========================================================== */
+
+#cabecera-sprint {
+    display: none;
+    align-items: center !important;
+    justify-content: center !important; /* Centra todo horizontalmente */
+    gap: 16px !important;
+    padding: 12px 30px !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 60px !important;
+}
+
+#cabecera-sprint h2 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding-right: 8px !important;
+}
+
+#cabecera-sprint .badge-rol {
+    background-color: #ff9431 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
 }
