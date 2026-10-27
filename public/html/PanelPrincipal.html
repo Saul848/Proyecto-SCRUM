@@ -21,7 +21,7 @@
     <div id="contenedorPanelLateral">
       <ul id="panelLateral">
         <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
-        <li>Mis proyectos</li>
+        <li><button id="btn-proyectos">Mis proyectos</button></li>
         <li><button id="btn-miembros">Miembros</button></li>
         <li>Configuracion</li>
         <li>Mensajes</li>
@@ -34,7 +34,77 @@
       click en las opciones del menú lateral. No solo encimados unos sobre otros-->>
 
       <!--Aqui van los modales de cada uno-->
+      <!--Modal para ver los proyectos y crear nuevos-->
+      <div id="modal-proyectos" class="modal-class">
+        <div class="top-actions">
+          <span id="span-welcome">Bienvenido Usuario:</span>
+          <span id="span-username"></span>
+          <button class="btn-primary" id="btnAbrirModal">+ Crear nuevo proyecto</button>
+        </div>
+        <main class="content-area">
+          <div id="mis-proyectos" class="panel-proyectos">
+            <h2>Mis Proyectos</h2>
+            <div class="lista-items">
+                <div class="item-card">
+                    <span class="item-nombre">Sistema de gestión de proyectos</span>
+                    <span class="badge badge-azul">Facilitador</span>
+                </div>
+                <div class="item-card">
+                    <span class="item-nombre">Sistema operativo escolar</span>
+                    <span class="badge badge-verde">Desarrollador</span>
+                </div>
+            </div>
+          </div>
 
+          <div id="mis-invitaciones" class="panel-proyectos">
+            <h2>Invitaciones a proyectos</h2>
+            <div class="lista-items">
+                <div class="item-card item-card-invitacion">
+                    <span class="item-nombre">Rediseño web</span>
+                    <span class="badge badge-boton">Ver invitación</span>
+                </div>
+            </div>
+          </div>
+
+          
+          <label id="exito"></label>
+        </main>
+
+        <div id="modalProyecto" class="modal-overlay">
+          <div class="modal-card">
+              <div class="modal-header">
+                  <h3>Crear Nuevo Proyecto</h3>
+                  <button type="button" class="btn-close" id="btnCerrarModal">&times;</button>
+              </div>
+              <form id="formProyecto">
+                  <div class="form-group">
+                      <label for="nombre">Nombre del Proyecto</label>
+                      <input type="text" id="nombre" required placeholder="Ej. Sistema ScrumBird">
+                  </div>
+
+                  <div class="form-group">
+                      <label for="duracion">Duración estimada</label>
+                      <input type="text" id="duracion" placeholder="Ej. 3 meses">
+                  </div>
+
+                  <div class="form-group">
+                      <label>Seleccionar Colaboradores e Invitarlos</label>
+                      <div class="colaboradores-box" id="listaUsuarios">
+                          <p class="loading-text">Cargando usuarios disponibes...</p>
+                      </div>
+                  </div>
+
+                  <div id="mensajeAlerta" class="mensaje"></div>
+
+                  <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSubmit">Guardar e Invitar</button>
+                  </div>
+              </form>
+          </div>
+        </div>
+      </div>
+      
       <!--Modal para visualizar la lista de usuarios de la empresa-->
       <div id="modal-usuarios" class="modal-class">
         <h2>Lista de miembros de la organización</h2>
@@ -96,5 +166,6 @@
 
   
   <script src="../js/usuarios.js"></script>
+  <script src="../js/proyecto.js"></script>
 </body>
 </html>
