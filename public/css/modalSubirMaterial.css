@@ -1,0 +1,153 @@
+/* Importar la fuente de íconos de Google */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* --- CONFIGURACIÓN BASE PARA MATERIAL SYMBOLS --- */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- ESTILO DEL BOTÓN PRINCIPAL EN EL PANEL --- */
+.btn-compartir-material {
+  background-color: #8a63d2;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-compartir-material:hover {
+  background-color: #724eb6;
+  transform: translateY(-1px);
+}
+
+/* --- ESTILOS MEJORADOS Y AMPLIOS PARA EL MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 35px 40px;
+  border-radius: 20px;
+  width: 550px;
+  max-width: 95%;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.modal-content h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modal-content p {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Inputs de formulario */
+.form-group input[type="file"],
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.form-group input[type="file"]:focus,
+.form-group input[type="text"]:focus {
+  border-color: #8a63d2;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(138, 99, 210, 0.15);
+}
+
+/* Acciones y botones del modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-modal-cancelar,
+.btn-modal-submit {
+  padding: 11px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-modal-cancelar {
+  background-color: #e5e7eb;
+  color: #374151;
+  border: none;
+}
+
+.btn-modal-cancelar:hover {
+  background-color: #d1d5db;
+}
+
+.btn-modal-submit {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+}
+
+.btn-modal-submit:hover {
+  background-color: #0066d6;
+  transform: translateY(-1px);
+}
