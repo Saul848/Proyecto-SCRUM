@@ -64,6 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+/**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
 async function obtenerUsuarios() {
     try {
         // Generamos la solicitud
@@ -76,12 +80,11 @@ async function obtenerUsuarios() {
         
         // Obtenemos los datos del JSON
         const datos = await respuesta.json();
-        
         // Convertido a un array de usuarios
         const usuarios = datos.data || [];
         
         // Regresa el arreglo con los datos
-        console.log(usuarios)
+        //console.log(usuarios)
         alert("datos obtenidos");
         return usuarios;
     } catch (error) {

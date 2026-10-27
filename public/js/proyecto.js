@@ -107,7 +107,10 @@ document.getElementById('formProyecto').addEventListener('submit', async (e) => 
     }
 });
 
-
+/**
+ * Función que desactiva todos los modales en el area de trabajo y solo muestra el que se seleccionó
+ * @param {*} idModal 
+ */
 function mostrarModalP(idModal){
     document.querySelectorAll(".modal-class").forEach(modal => {
         modal.style.display = "none";
