@@ -882,3 +882,21 @@ async function cargarDefinicionDeHecho(idProyecto){
 document.addEventListener("DOMContentLoaded", ()=>{
     cargarDefinicionDeHecho(1);
 })
+//------------------------------------------graficas alejandra-------------
+function cargarGrafica(tipo) {
+    const contenedor = document.getElementById("contenedor-grafica-activa");
+    const titulo = document.getElementById("titulo-grafica-activa");
+    
+    // Hacemos visible el contenedor de abajo
+    contenedor.style.display = "block";
+
+    if (tipo === 'product-backlog') {
+        titulo.textContent = "Burndown Chart - Product Backlog (PB-56)";
+        // Aquí después haremos el fetch para traer los datos del Product Backlog
+        console.log("Cargando datos del Product Backlog...");
+    } else if (tipo === 'sprint') {
+        titulo.textContent = "Burndown Chart - Sprint Actual";
+        // Aquí después haremos el fetch para traer los datos del Sprint
+        console.log("Cargando datos del Sprint...");
+    }
+}
