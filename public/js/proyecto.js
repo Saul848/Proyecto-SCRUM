@@ -120,8 +120,71 @@ function mostrarModalP(idModal){
 }
 
 /**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
+async function obtenerProyectosDeUsuario(idUser) {
+    try {
+        // Generamos la solicitud
+        const respuesta = await fetch(`/proyectos/listarProyectosDeUsuario/${idUser}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+        
+        // Obtenemos los datos del JSON
+        const datos = await respuesta.json();
+        console.log("datos :"+ datos);
+        // Convertido a un array de usuarios
+        /*const proyectos = datos.data || [];
+        console.log("proyectos: "+proyectos);
+        
+        // Regresa el arreglo con los datos
+        //console.log(usuarios)*/
+        alert("datos obtenidos");
+        return datos;
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error de conexión");
+        return [];
+    }
+}
+
+/**
  * Método para mostrar el panel de proyectos
  */
-document.getElementById("btn-proyectos").addEventListener('click', ()=>{
+document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
     mostrarModalP("modal-proyectos");
+    const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'))
+    const idUser = usuarioActivo.id;
+    const proyectos = await obtenerProyectosDeUsuario(idUser);
+    console.log("proyectos recibidos:", proyectos);
+    
+    const contenedor = document.querySelector("#mis-proyectos .lista-items");
+    if(proyectos.length === 0) {
+        contenedor.innerHTML = "<p>Sin proyectos aún, ¡prueba a crear uno!</p>";
+    }
+
+    const tarjetasP = proyectos.map(proyecto =>`
+    <button class="item-card" data-id="${proyecto.id}">
+        <span class="item-nombre">${proyecto.nombre}</span>
+        <span class="badge badge-azul">${proyecto.rol}</span>
+    </button>
+    `).join("");
+
+    console.log("filas construidas");
+
+    contenedor.innerHTML = tarjetasP;
+
+    console.log("filas insertadas")
+
+    contenedor.addEventListener('click', (evento)=>{
+        const tarjetaP = evento.target.closest('.item-card');
+
+        if(!tarjetaP) return;
+        console.log(sessionStorage.getItem('usuarioActivo'))
+
+        window.location.href = '/html/PanelFacilitador.html';
+    })
 });
