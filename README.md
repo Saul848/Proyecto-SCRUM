@@ -43,13 +43,17 @@ CREATE TABLE sprint ( id SERIAL PRIMARY KEY, no_iteracion INT NOT NULL, objetivo
 
 -- ========================================== -- 9. TABLA: historia_de_usuario -- ==========================================
 
-CREATE TABLE historia_de_usuario ( id SERIAL PRIMARY KEY, nombre VARCHAR(255) NOT NULL, descripcion VARCHAR(255) NOT NULL, criterios_de_aceptacion VARCHAR(255) NOT NULL, valor INT NOT NULL, prioridad BOOLEAN NOT NULL DEFAULT FALSE, puntos_de_historia INT, factor_de_complejidad DOUBLE PRECISION, coste_estimado INT, id_proyecto INT, asignado_al_sprint INT, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE, FOREIGN KEY (asignado_al_sprint) REFERENCES sprint(id) ON DELETE SET NULL );
+CREATE TABLE historia_de_usuario ( id SERIAL PRIMARY KEY, nombre VARCHAR(255) NOT NULL, descripcion VARCHAR(255) NOT NULL, valor INT NOT NULL, prioridad BOOLEAN NOT NULL DEFAULT FALSE, puntos_de_historia INT, factor_de_complejidad DOUBLE PRECISION, coste_estimado INT, id_proyecto INT, asignado_al_sprint INT, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE, FOREIGN KEY (asignado_al_sprint) REFERENCES sprint(id) ON DELETE SET NULL );
 
--- ========================================== -- 10. TABLA: comentario -- ==========================================
+-- ========================================== -- 10. TABLA: criterios_de_aceptacion -- ==========================================
+CREATE TABLE criterios_de_aceptacion (id SERIAL PRIMARY KEY, criterios_de_aceptacion VARCHAR(255) NOT NULL, id_historia INT NOT NULL, id_proyecto INT NOT NULL, FOREIGN KEY (id_historia) REFERENCES historia_de_usuario(id) ON DELETE CASCADE, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE);
+
+
+-- ========================================== -- 11. TABLA: comentario -- ==========================================
 
 CREATE TABLE comentario ( id SERIAL PRIMARY KEY, emisor INT NOT NULL, id_historia INT NOT NULL, fecha_ultima_modificacion DATE NOT NULL, contenido VARCHAR(255) NOT NULL, id_proyecto INT, FOREIGN KEY (emisor) REFERENCES usuario(id) ON DELETE CASCADE, FOREIGN KEY (id_historia) REFERENCES historia_de_usuario(id) ON DELETE CASCADE, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE );
 
--- ========================================== -- 11. TABLA: trabajando_en_historia -- ==========================================
+-- ========================================== -- 12. TABLA: trabajando_en_historia -- ==========================================
 
 CREATE TABLE scrumbird.trabajando_en_historia ( id SERIAL PRIMARY KEY, responsable INT NOT NULL, historia_asignada INT NOT NULL,
 
@@ -159,7 +163,25 @@ INSERT INTO sprint (no_iteracion, objetivo, fecha_inicio, fecha_fin, id_proyecto
 
 -- 9. TABLA: historia_de_usuario
 
-INSERT INTO historia_de_usuario (nombre, descripcion, criterios_de_aceptacion, valor, prioridad,  puntos_de_historia, factor_de_complejidad, coste_estimado, id_proyecto, asignado_al_sprint) VALUES ('Autenticación', 'Permitir iniciar sesión', 'Validar credenciales correctamente', 10, TRUE, 5, 1.5, 3, 1, 1), ('Splash Screen', 'Mostrar pantalla de carga', 'Duración de 2 segundos sin bloqueos', 5, FALSE,  3, 1.0, 2, 2, 2), ('Exportar PDF', 'Exportar datos a formato PDF', 'Descarga correcta del archivo', 8, TRUE, 8, 2.0, 5, 3, 3);
+INSERT INTO historia_de_usuario (nombre, descripcion, valor, prioridad,  puntos_de_historia, factor_de_complejidad, coste_estimado, id_proyecto, asignado_al_sprint) VALUES ('Autenticación', 'Permitir iniciar sesión', 10, TRUE, 5, 1.5, 3, 1, 1), ('Splash Screen', 'Mostrar pantalla de carga', 5, FALSE,  3, 1.0, 2, 2, 2), ('Exportar PDF', 'Exportar datos a formato PDF', 8, TRUE, 8, 2.0, 5, 3, 3);
+
+-- 10. TABLA: criterios_de_aceptacion (Inserts correspondientes)
+
+INSERT INTO criterios_de_aceptacion (criterios_de_aceptacion, id_historia, id_proyecto) VALUES
+-- HISTORIA 1 (id_historia = 1, id_proyecto = 1): Autenticación
+('Como usuario registrado, cuando introduzca un correo y contraseña válidos, entonces el sistema me permitirá acceder al dashboard principal.', 1, 1),
+('Como usuario, cuando introduzca una contraseña incorrecta, entonces el sistema mostrará un mensaje de error y bloqueará temporalmente el intento tras 3 fallos.', 1, 1),
+('Como usuario, cuando haga clic en "Recordar contraseña", entonces el sistema enviará un enlace de recuperación a mi correo electrónico registrado.', 1, 1),
+-- HISTORIA 2 (id_historia = 2, id_proyecto = 2): Splash Screen
+('Como usuario de la app móvil, cuando abra la aplicación, entonces se mostrará la pantalla de carga (Splash Screen) con el logotipo oficial de ScrumBird.', 2, 2),
+('Como usuario, cuando la aplicación esté cargando los datos iniciales en segundo plano, entonces la pantalla de carga se mantendrá visible exactamente durante 2 segundos sin bloqueos.', 2, 2),
+('Como usuario, cuando finalice el tiempo de carga, entonces la aplicación transicionará de manera fluida hacia la pantalla de inicio de sesión.', 2, 2),
+-- HISTORIA 3 (id_historia = 3, id_proyecto = 3): Exportar PDF
+('Como gestor del proyecto, cuando haga clic en el botón "Exportar a PDF" en el módulo de reportes, entonces el sistema generará un archivo con todas las métricas actuales.', 3, 3),
+('Como usuario, cuando el documento PDF termine de procesarse, entonces se iniciará automáticamente la descarga del archivo en mi dispositivo local.', 3, 3),
+('Como usuario, cuando abra el reporte exportado en PDF, entonces verificaré que la estructura visual y los gráficos se muestren legibles y sin cortes de texto.', 3, 3);
+
+
 
 -- 10. TABLA: comentario
 
