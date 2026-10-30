@@ -197,9 +197,15 @@ body {
   font-size: 12px;
 }
 
+/*Opcciones inferiores*/
 #divOpccionesInferiores {
   display: flex;
   flex-direction: row;
+}
+
+/*Opcciones inferiores*/
+#divOpccionesInferiores button{
+  height: 40px;
 }
 
 /* Botón inferior */
@@ -227,7 +233,7 @@ body {
   margin-top: 15px;
 }
 
-#btnAgregarHistoria {
+#btnAgregarHistoriaAdd{
   background-color: #1e90ff;
   color: #000000;
   border: none;
@@ -238,7 +244,7 @@ body {
   cursor: pointer;
 }
 
-#btnAgregarHistoria:hover {
+#btnAgregarHistoriaAdd:hover {
   background-color: #d0e0e0;
 }
 
@@ -265,44 +271,6 @@ body {
 /* ===================================================
    ESTILOS DEL PANEL MODAL
    =================================================== */
-#modalHistoria {
-  display: none;
-  /* Desactivado por defecto */
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  /* Fondo oscuro semitransparente */
-  justify-content: center;
-  align-items: center;
-}
-
-/* Clase para activar el modal mediante JavaScript */
-#modalHistoria.activo {
-  display: flex;
-}
-
-.modal-contenido {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 10px;
-  width: 450px;
-  max-width: 90%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.modal-contenido h3 {
-  font-size: 16px;
-  color: #000000;
-  margin-bottom: 5px;
-}
-
 /* Estilos para las clases solicitadas */
 .entradaInp,
 .entradaTextA {
@@ -327,8 +295,9 @@ body {
   outline: none;
 }
 
+/*Selector para el textarea de la descripccion*/
 .entradaTextA textarea {
-  resize: vertical;
+  resize: none; /* Evita que cambie de tamaño */
   height: 60px;
 }
 
@@ -359,6 +328,64 @@ body {
   font-weight: bold;
 }
 
+#modalAgregarHistoria {
+  display: none;
+  /* Desactivado por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Fondo oscuro semitransparente */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Clase para activar el modal mediante JavaScript */
+#modalAgregarHistoria.activo {
+  display: flex;
+}
+
+#modalModificarHistoria {
+  display: none;
+  /* Desactivado por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Fondo oscuro semitransparente */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Clase para activar el modal mediante JavaScript */
+#modalModificarHistoria.activo {
+  display: flex;
+}
+
+.modal-contenido {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 450px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-contenido h3 {
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
 #modalHistoria {
   display: none;
   /* Oculto por defecto */
@@ -377,6 +404,91 @@ body {
 #modalHistoria.activo {
   display: flex;
 }
+
+/*Seccion de criterios de aceptacion*/
+.criterio-navegador-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    margin-bottom: 8px;
+  }
+
+  .criterios-inputs-columna {
+    flex-grow: 1;
+    position: relative;
+  }
+
+  /* Ocultar todos los textarea por defecto, mostrar solo el activo */
+  .criterios-inputs-columna textarea {
+    display: none;
+    resize: none; /* Evita que cambie de tamaño */
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+  }
+  .criterios-inputs-columna textarea.active {
+    display: block;
+  }
+  .criterio-control-lateral {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 2px;
+  }
+
+  .btn-flecha {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+  .btn-flecha:hover {
+    background: #ddd;
+    border-radius: 2px;
+  }
+  .criterio-indicador {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 0;
+    color: #333;
+    user-select: none;
+  }
+
+  .btn-agregar-criterio {
+    background-color: #1ea0ff;
+    border: 1px dashed #6c757d;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-style: bold;
+    width: 40%;
+  }
+  .btn-agregar-criterio:hover {
+    background-color: #e2e6ea;
+  }
+  
+  /* Estilo específico para el botón de eliminar */
+  .btn-eliminar-criterio {
+    background-color: #ff0000;
+    border: 1px dashed #6c757d;
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-style: bold;
+    width: 40%;
+  }
+  .btn-eliminar-criterio:hover {
+    background: #e2e6ea;
+  }
 
 /* ========================================================== */
 /* ESTILO MODERNO Y LIMPIO (RESPETANDO FONDO BLANCO Y BOTONES)*/
@@ -1149,8 +1261,5 @@ body {
     font-weight: 700 !important;
     font-size: 13px !important;
 }
-<<<<<<< HEAD:public/css/PanelFacilitador.css
 
 
-=======
->>>>>>> 77cd32ab2dde786563e03d440020ed13afbdee2e:public/css/FacilitadorPB.css

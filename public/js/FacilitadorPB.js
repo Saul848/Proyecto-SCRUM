@@ -1,26 +1,50 @@
+//Botones de apertura de modales
 const btnAgregarHistoria = document.getElementById("btnAgregarHistoria");
 const btnModHistoria = document.getElementById("btnModHistoria");
-const panelAgregarMod = document.getElementById("modalHistoria");
+//Modales Agregar y Modificar
+const modalAgregarHistoria = document.getElementById("modalAgregarHistoria");
+const modalModificarHistoria = document.getElementById("modalModificarHistoria");
+//Seccion de historias
 const divHistoria = document.getElementById("DivHistoria");
-const btnCerrarModal = document.getElementById("btnCerrarModal");
-const btnGuardarHistoria = document.getElementById("btnGuardarModal");
-// Elementos inputs del modal
-const inpTitulo = document.getElementById("inpTitulo");
-const inpDescripccion = document.getElementById("inpDescripccion");
-const inpCriterios = document.getElementById("inpCriterios");
-const inpValor = document.getElementById("inpValor");
-const inpSprintAsig = document.getElementById("inpSprintAsig");
+// Elementos del modal agregar
+const inpAddTitulo = document.getElementById("inpAddTitulo");
+const inpAddDescripccion = document.getElementById("inpAddDescripccion");
+const inpAddValor = document.getElementById("inpAddValor");
+const btnGuardarHistoria = document.getElementById("btnGuardarModalAdd");
+const btnCerrarModalAdd = document.getElementById("btnCerrarModalAdd");
+// Campos criterios de aceptacion
+const containerAdd = document.getElementById("contenedorAdd");
+const btnArribaAdd = document.getElementById("btnArribaAdd");
+const btnAbajoAdd = document.getElementById("btnAbajoAdd");
+const indicadorAdd = document.getElementById("criterioIndicadorAdd");
+const btnAgregarCriterioAdd = document.getElementById("btnAgregarCriterioAdd");
+const btnEliminarCriterioAdd = document.getElementById("btnEliminarCriterioAdd"); // <-- Nuevo
+
+// Elementos inputs del modal modificar
+const inpModTitulo = document.getElementById("inpModTitulo");
+const inpModDescripcion = document.getElementById("inpModDescripcion");
+const inpModCriterios = document.getElementById("inpModCriterios");
+const inpModValor = document.getElementById("inpModValor");
+const btnModificarHistoria = document.getElementById("btnGuardarModalMod");
+const btnCerrarModalMod = document.getElementById("btnCerrarModalMod");
+
+// Campos criterios de aceptacion
+const containerMod = document.getElementById("contenedorMod");
+const btnArribaMod = document.getElementById("btnArribaMod");
+const btnAbajoMod = document.getElementById("btnAbajoMod");
+const indicadorMod = document.getElementById("criterioIndicadorMod");
+const btnAgregarCriterioMod = document.getElementById("btnAgregarCriterioMod");
+const btnEliminarCriterioMod = document.getElementById("btnEliminarCriterioMod"); // <-- Nuevo
 
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
 let patronRangoValor = /^(?:[0-9]{1,3}|[1-3][0-9]{3}|4000)$/; // Patron que permite valores entre 0 y 4000
 
-// Elementos bandera
-let enModificacion = null; // null = oculto, true/false = visible
-
 // Variable global para almacenar las historias obtenidas del servidor
 let datosHistorias = [];
-
+ // Índice actabasado en 0
+let currentIndexAdd = 0;
+let currentIndexMod = 0;
 /**
  * Función para renderizar dinámicamente las historias de usuario en el DOM
  */
@@ -69,80 +93,268 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /**
- * Función para limpiar los campos del modal
+ * Función para limpiar los campos del modal añadir historia
  */
-function limpiarCamposHistoria() {
-    inpTitulo.value = "";
-    inpDescripccion.value = "";
-    inpCriterios.value = "";
-    inpValor.value = "";
-    inpSprintAsig.value = "";
+function limpiarCamposModalAdd() {
+    inpAddTitulo.value = "";
+    inpAddDescripccion.value = "";
+    reiniciarCriteriosAceptacion(containerAdd, indicadorAdd, currentIndexAdd);
+    inpAddValor.value = "";
+}
+
+/**
+ * Función para limpiar los campos del modal modificar historia
+ */
+function limpiarCamposModalMod() {
+    inpModTitulo.value = "";
+    inpModDescripcion.value = "";
+    reiniciarCriteriosAceptacion(containerMod, indicadorMod, currentIndexMod);
+    inpModValor.value = "";
+}
+
+/**
+ * Funcion que reinicia los criterios de aceptacion a un solo textarea limpio
+ * @param {*} containerModal Contenedor de los textarea para criterios en el modal
+ * @param {*} indicadorModal Indicador de criterios en el panel modal
+ * @param {} indiceModal Indice global del modal
+ */
+function reiniciarCriteriosAceptacion(containerModal, indicadorModal, indiceModal){
+    //Reiniciamos la variable global a 0;
+    indiceModal=0;
+    //Obtenemos una lista con todos los textarea en el contenedor del Modal
+    let inpCriterios = containerModal.querySelectorAll("textarea");
+    //Se itera en la lista y se eliminan todos excepto el primero.
+    inpCriterios.forEach((element, index) => {
+        if(index !== 0){
+            element.remove();
+        }
+    });
+    //Se limpia el textArea en la posicion 0 (el primero) y se muestra en pantalla
+    inpCriterios[0].value="";
+    inpCriterios[0].classList.add("active");
+    //Dejamos el indicador de criterio en posicion 1/1
+    indicadorModal.innerText="1/1"
 }
 
 // Listener para el botón "+ Añadir nueva historia"
 btnAgregarHistoria.addEventListener("click", function () {
-    setEnModificacion(false);
+    modalAgregarHistoria.classList.add('activo');// Muestra el modal
 });
 
 // Listener para el botón "# Modificar historia"
 btnModHistoria.addEventListener("click", function () {
-    setEnModificacion(true);
+    modalModificarHistoria.classList.add('activo');// Muestra el modal
 });
 
-// Listener para cerrar el modal
-btnCerrarModal.addEventListener('click', () => {
-    setEnModificacion(null);
-    limpiarCamposHistoria();
+// Listener para cerrar el modal "Agregar historia"
+btnCerrarModalAdd.addEventListener("click", function () {
+    limpiarCamposModalAdd();
+    modalAgregarHistoria.classList.remove('activo');// Oculta el modal
 });
 
-// Listener para guardar el modal
-btnGuardarHistoria.addEventListener('click', () => {
+// Listener para cerrar el modal "Modificar historia"
+btnCerrarModalMod.addEventListener("click", function () {
+    limpiarCamposModalMod();
+    modalModificarHistoria.classList.remove('activo');// Oculta el modal
+});
+
+// Listener para guardar una nueva historia de usuario desde el modal
+btnGuardarHistoria.addEventListener("click", function () {
     agregarHistoriaUsuario();
 });
 
-// Listener para la bandera "enModificacion" oyendo al evento personalizado
-window.addEventListener('modificandoDatos', (evento) => {
-    const estadoActual = evento.detail.activo;
-    if (estadoActual === null) {
-        panelAgregarMod.classList.remove('activo'); // Oculta el modal
-    } else {
-        panelAgregarMod.classList.add('activo');    // Muestra el modal
-    }
+//Funcion que actualiza los elementos para mostrar los criterios de aceptacion en los modales
+/**
+ * Funcion que me permite trabajar con los criterios de evaluacion de un panel modal especificado
+ * @param {DOM} criteriosAcepModal contenedor de criterios de aceptacion de un modal
+ * @param {DOM} indicadorModal indicador del navbar de un panel modal (Para los criterios de aceptacion)
+ * @returns 
+ */
+function actualizarVista(criteriosAcepModal, indicadorModal, indiceModal) {
+    const inputsTA = criteriosAcepModal.querySelectorAll("textarea");
+    if (inputsTA.length === 0) return;
+
+    // Asegurar que el índice esté en rangos válidos
+    if (indiceModal < 0) indiceModal = 0;
+    if (indiceModal >= inputsTA.length) indiceModal = inputsTA.length - 1;
+
+    // Mostrar/ocultar inputs con la clase 'active'
+    inputsTA.forEach((input, index) => {
+        if (index === indiceModal) {
+            input.classList.add("active");
+        } else {
+            input.classList.remove("active");
+        }
+    });
+    // Actualizar indicador (ej: 1/3)
+    indicadorModal.textContent = `${indiceModal + 1}/${inputsTA.length}`;
+}
+
+const parArriba = [btnArribaAdd, btnArribaMod];
+
+// Recorrido que asigna el listener que permite navegar con (flecha arriba) en la seccion de criterios de aceptacion.
+parArriba.forEach(element=>{
+    element.addEventListener("click", (e) => {
+        if(e.currentTarget===btnArribaAdd){
+            if (currentIndexAdd > 0) {
+                currentIndexAdd --;
+                actualizarVista(containerAdd, indicadorAdd, currentIndexAdd)
+                const activeInput = containerAdd.querySelector("textarea.active");
+                if (activeInput) activeInput.focus();
+            }
+        }
+        else if(e.currentTarget===btnArribaMod){
+            if (currentIndexMod > 0) {
+                currentIndexMod --;
+                actualizarVista(containerMod, indicadorMod, currentIndexMod)
+                const activeInput = containerMod.querySelector("textarea.active");
+                if (activeInput) activeInput.focus();
+            }
+        }
+    });
 });
 
-/**
- * Función que cambia la bandera y dispara el evento personalizado
- */
-function setEnModificacion(nuevoValor) {
-    if (enModificacion !== nuevoValor) {
-        enModificacion = nuevoValor;
+const parAbajo = [btnAbajoAdd, btnAbajoMod];
 
-        const evento = new CustomEvent('modificandoDatos', {
-            detail: { activo: enModificacion }
-        });
-        window.dispatchEvent(evento);
-    }
-}
+// Recorrido que asigna el listener que permite navegar con (flecha arriba) en la seccion de criterios de aceptacion.
+parAbajo.forEach(element=>{
+    element.addEventListener("click", (e) => {
+        if(e.currentTarget===btnAbajoAdd){
+            const inputs = containerAdd.querySelectorAll("textarea");
+            if (currentIndexAdd < inputs.length - 1) {
+                currentIndexAdd++;
+                actualizarVista(containerAdd, indicadorAdd, currentIndexAdd);
+                const activeInput = containerAdd.querySelector("textarea.active");
+            if (activeInput) activeInput.focus();
+            }
+        }
+        else if(e.currentTarget===btnAbajoMod){
+            const inputs = containerMod.querySelectorAll("textarea");
+            if (currentIndexMod < inputs.length - 1) {
+                currentIndexMod++;
+                actualizarVista(containerMod, indicadorMod, currentIndexMod);
+                const activeInput = containerMod.querySelector("textarea.active");
+            if (activeInput) activeInput.focus();
+            }
+        }
+    });
+});
+
+const parAgregarCriterio = [btnAgregarCriterioAdd, btnAgregarCriterioMod];
+
+// Recorrido que asigna el listener que permite navegar con (flecha arriba) en la seccion de criterios de aceptacion.
+parAgregarCriterio.forEach(element=>{
+    element.addEventListener("click", (e) => {
+        if(e.currentTarget===btnAgregarCriterioAdd){
+            const totalInputs = containerAdd.querySelectorAll("textarea").length;
+            const nuevoId = `criterioAdd_${totalInputs + 1}`;
+            const nuevoTextA = document.createElement("textarea");
+            nuevoTextA.id = nuevoId;
+            nuevoTextA.placeholder = `Escribe el criterio ${totalInputs + 1}...`;
+            containerAdd.appendChild(nuevoTextA);
+            // Movernos automáticamente al nuevo input recién creado
+            currentIndexAdd = totalInputs;
+            actualizarVista(containerAdd, indicadorAdd, currentIndexAdd);
+            nuevoTextA.focus();
+        }
+        else if(e.currentTarget===btnAgregarCriterioMod){
+            const totalInputs = containerMod.querySelectorAll("textarea").length;
+            const nuevoId = `criterioMod_${totalInputs + 1}`;
+            const nuevoTextA = document.createElement("textarea");
+            nuevoTextA.id = nuevoId;
+            nuevoTextA.placeholder = `Escribe el criterio ${totalInputs + 1}...`;
+            containerMod.appendChild(nuevoTextA);
+            // Movernos automáticamente al nuevo input recién creado
+            currentIndexMod = totalInputs;
+            actualizarVista(containerMod, indicadorMod, currentIndexMod);
+            nuevoTextA.focus();
+        }
+    });
+});
+
+const parEliminarCriterio = [btnEliminarCriterioAdd, btnEliminarCriterioMod];
+
+// Recorrido que asigna el listener que permite eliminar un criterio de aceptacion en la seccion de criterios de aceptacion.
+parEliminarCriterio.forEach(element=>{
+    element.addEventListener("click", (e) => {
+        if(e.currentTarget===btnEliminarCriterioAdd){
+            const inputs = containerAdd.querySelectorAll("textArea");
+            // Opcional: Evitamos eliminar el input si solo queda 1
+            if (inputs.length === 1) {
+            inputs[0].style.border = "2px solid red";
+            return;
+            }   
+            // Eliminar el input activo actual del DOM
+            const inputAEliminar = inputs[currentIndexAdd];
+            inputAEliminar.remove();
+
+            // Reasignar IDs y placeholders a los inputs restantes para mantener orden (criterio_1, criterio_2...)
+            const inputsRestantes = containerAdd.querySelectorAll("textArea");
+            inputsRestantes.forEach((input, index) => {
+            input.id = `criterioAdd_${index + 1}`;
+            input.placeholder = `Escribe el criterio ${index + 1}...`;
+            });
+
+            // Ajustar el índice si estábamos en el último elemento
+            if (currentIndexAdd >= inputsRestantes.length) {
+            currentIndexAdd = inputsRestantes.length - 1;
+            }
+
+            actualizarVista(containerAdd, indicadorAdd, currentIndexAdd);
+            const activeInput = containerAdd.querySelector("textarea.active");
+            if (activeInput) activeInput.focus();
+        }else if(e.currentTarget===btnEliminarCriterioMod){
+            const inputs = containerMod.querySelectorAll("textArea");
+            // Opcional: Evitamos eliminar el input si solo queda 1
+            if (inputs.length === 1) {
+                inputs[0].style.border = "2px solid red";
+            return;
+            }   
+            // Eliminar el input activo actual del DOM
+            const inputAEliminar = inputs[currentIndexMod];
+            inputAEliminar.remove();
+
+            // Reasignar IDs y placeholders a los inputs restantes para mantener orden (criterio_1, criterio_2...)
+            const inputsRestantes = containerMod.querySelectorAll("textArea");
+            inputsRestantes.forEach((input, index) => {
+            input.id = `criterioMod_${index + 1}`;
+            input.placeholder = `Escribe el criterio ${index + 1}...`;
+            });
+
+            // Ajustar el índice si estábamos en el último elemento
+            if (currentIndexMod >= inputsRestantes.length) {
+                currentIndexMod = inputsRestantes.length - 1;
+            }
+            actualizarVista(containerMod, indicadorMod, currentIndexMod);
+            const activeInput = containerMod.querySelector("textarea.active");
+            if (activeInput) activeInput.focus();
+        }
+    });
+});
+
 
 // Opcional: Cerrar el modal si se hace clic fuera de la caja blanca
 window.addEventListener('click', (e) => {
-    if (e.target === panelAgregarMod) {
-        setEnModificacion(null);
-        limpiarCamposHistoria();
+    if (e.target === modalAgregarHistoria) {
+        modalAgregarHistoria.classList.remove('activo');// Oculta el modal
+        limpiarCamposModalAdd();
+    }
+    else if(e.target === modalModificarHistoria){
+        modalModificarHistoria.classList.remove('activo');
+        limpiarCamposModalMod();
     }
 });
 
 function verificarCamposAdd() {
     let verificado = true;
-    let elementosDom = [inpTitulo, inpDescripccion, inpCriterios, inpValor, inpSprintAsig];
-
+    let elementosDom = [inpAddTitulo, inpAddDescripccion, inpAddValor];
     elementosDom.forEach(elemento => {
         if (elemento.value.trim() === "") {
             elemento.style.border = "2px solid red";
             elemento.placeholder = "Error, rellena este campo";
             verificado = false;
         } else {
-            if (elemento === inpTitulo) {
+            if (elemento === inpAddTitulo) {
                 if (!patronNombre.test(elemento.value.trim())) {
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -156,7 +368,7 @@ function verificarCamposAdd() {
                     }
                 }
             }
-            if (elemento === inpDescripccion) {
+            if (elemento === inpAddDescripccion) {
                 if (!patronNombre.test(elemento.value.trim())) {
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -166,17 +378,7 @@ function verificarCamposAdd() {
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if (elemento === inpCriterios) {
-                if (!patronNombre.test(elemento.value.trim())) {
-                    elemento.style.border = "2px solid red";
-                    elemento.value = "";
-                    elemento.placeholder = "Ingrese criterios adecuados";
-                    verificado = false;
-                } else {
-                    elemento.style.border = "2px solid blue";
-                }
-            }
-            if (elemento === inpValor) {
+            if (elemento === inpAddValor) {
                 if (!patronRangoValor.test(elemento.value.trim())) {
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -186,16 +388,34 @@ function verificarCamposAdd() {
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if (elemento === inpSprintAsig) {
-                if (!patronRangoValor.test(elemento.value.trim())) {
-                    elemento.style.border = "2px solid red";
-                    elemento.value = "";
-                    elemento.placeholder = "Ingrese numeros válidos";
-                    verificado = false;
-                } else {
+        }
+    });
+    return verificado;
+}
+
+//Metodo que verifica la seccion de criterios de aceptacion.
+function verificarCriteriosAdd() {
+    let verificado = true;
+    let elementosDom = containerAdd.querySelectorAll('input')
+    elementosDom.forEach((elemento, index) => {
+        if (elemento.value.trim() === "") {
+            elemento.style.border = "2px solid red";
+            elemento.placeholder = "Error, rellena este campo";
+            alert("Tu criterio de aceptacion numero"+(index+1)+"esta vacio")
+            verificado = false;
+        } else {
+            if (!patronNombre.test(elemento.value.trim())) {
+                elemento.style.border = "2px solid red";
+                elemento.value = "";
+                elemento.placeholder = "El nombre no debe llevar numeros o simbolos";
+                verificado = false;
+            } else {
+                if (verificarTituloUnico(elemento)) {
                     elemento.style.border = "2px solid blue";
+                } else {
+                    verificado = false;
                 }
-            }
+            }             
         }
     });
     return verificado;
@@ -281,10 +501,10 @@ async function agregarHistoriaUsuario() {
         return;
     }
 
-    let nombre = inpTitulo.value.trim();
-    let descripcion = inpDescripccion.value.trim();
+    let nombre = inpAddTitulo.value.trim();
+    let descripcion = inpAddDescripccion.value.trim();
     let criterios = inpCriterios.value.trim();
-    let valor = inpValor.value.trim();
+    let valor = inpAddValor.value.trim();
     let sprint = inpSprintAsig.value.trim();
 
     const respuesta = await fetch("/historias", {
@@ -316,9 +536,9 @@ async function agregarHistoriaUsuario() {
         await inicializarBacklog();
         
         // Se limpian los campos de la sección agregar
-        limpiarCamposHistoria();
+        limpiarCamposModalAdd();
         // Se oculta el modal
-        setEnModificacion(null);
+        modalAgregarHistoria.classList.remove('activo');// Oculta el modal
     } else {
         alert(resultado.mensaje || resultado.error || "Error al agregar la historia");
     }

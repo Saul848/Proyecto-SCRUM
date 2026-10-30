@@ -84,6 +84,7 @@
             <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
           </div>
 
+          <!-- Encabezados de historias de usuario -->
           <div id="DivEncabezados">
             <label id="LabelID">ID</label>
             <label id="LabelNombreHistoria">Historias de usuario</label>
@@ -94,8 +95,10 @@
             <div class="espacioAcciones"></div>
           </div>
 
+          <!-- Seccion que contiene los datos de las historias de usuario -->
           <div id="DivHistoria"></div>
 
+          <!-- Section donde aparecen las opcciones -->
             <div id="divOpccionesInferiores">
               <div id="DivBtnCompartirMaterial">
                 <button type="button" class="btn-compartir-material" id="btn-compartir-material">
@@ -109,37 +112,114 @@
               <div id="DivBtnModHistoria">
                 <button id="btnModHistoria"># Modificar historia</button>
               </div>
+          </div>
 
-            <div id="modalHistoria" class="modal">
+              <!-- PANEL MODAL AGREGAR HISTORIAS-->
+              <div id="modalAgregarHistoria" class="modal">
+                <div class="modal-contenido">
+                  <h3>Añadir Historia de Usuario</h3>
+                  
+                  <!-- Campo 1: Título -->
+                  <div class="entradaInp">
+                    <label for="inpAddTitulo">Título de la historia:</label>
+                    <input type="text" id="inpAddTitulo" maxlength="60" placeholder="Escribe el título...">
+                  </div>
+
+                  <!-- Campo 2: Descripción -->
+                  <div class="entradaTextA">
+                    <label for="inpAddDescripccion">Descripción:</label>
+                    <textarea id="inpAddDescripccion" maxlength="200" placeholder="Escribe la descripción..."></textarea>
+                  </div>
+
+                  <!-- Campo 3: Criterios de aceptación -->
+                  <div class="entradaCriteriosContainer">
+                    <label>Criterios de aceptación:</label>
+                    
+                    <div class="criterio-navegador-wrapper">
+                      <!-- Contenedor donde se alternarán los inputs -->
+                      <div id="contenedorAdd" class="criterios-inputs-columna">
+                        <!--<input type="text" id="criterioMod_1" class="criterio-input active" placeholder="Escribe el criterio 1...">-->
+                        <textarea id="criterioAdd_1" maxlength="250" class="criterio-input active" placeholder="Escribe el criterio 1..."></textarea>
+                      </div>
+
+                      <!-- Panel derecho con flechas e indicador -->
+                      <div class="criterio-control-lateral">
+                        <button type="button" id="btnArribaAdd" class="btn-flecha">▲</button>
+                        <span id="criterioIndicadorAdd" class="criterio-indicador">1/1</span>
+                        <button type="button" id="btnAbajoAdd" class="btn-flecha">▼</button>
+                      </div>
+                    </div>
+
+                    <!-- Botón para agregar más inputs de uno en uno -->
+                    <button type="button" id="btnAgregarCriterioAdd" class="btn-agregar-criterio">+ Agregar criterio</button>
+                    <button type="button" id="btnEliminarCriterioAdd" class="btn-eliminar-criterio">- Eliminar criterio</button>
+                  </div>
+
+                  <!-- Campo 4: Valor -->
+                  <div class="entradaInp">
+                    <label for="inpAddValor">Valor:</label>
+                    <input type="number" id="inpAddValor" maxlength="4" placeholder="0 - 4000">
+                  </div>
+
+                  <div class="modal-botones">
+                    <button id="btnGuardarModalAdd">Guardar</button>
+                    <button id="btnCerrarModalAdd">Cancelar</button>
+                  </div>
+                </div>
+            </div>
+
+            <!-- PANEL MODAL MODIFICAR HISTORIAS-->
+            <div id="modalModificarHistoria" class="modal">
               <div class="modal-contenido">
-                <h3>Añadir / Modificar Historia de Usuario</h3>
+                <h3>Modificar Historia de Usuario</h3>
+                
+                <!-- Campo 1: Título -->
                 <div class="entradaInp">
-                  <label for="inpTitulo">Título de la historia:</label>
-                  <input type="text" id="inpTitulo" placeholder="Escribe el título...">
+                  <label for="inpModTitulo">Cambiar título de la historia:</label>
+                  <input type="text" id="inpModTitulo" placeholder="Escribe el título...">
                 </div>
+
+                <!-- Campo 2: Descripción -->
                 <div class="entradaTextA">
-                  <label for="inpDescripccion">Descripción:</label>
-                  <textarea id="inpDescripccion" placeholder="Escribe la descripción..."></textarea>
+                  <label for="inpModDescripcion">Cambiar descripción:</label>
+                  <textarea id="inpModDescripcion" maxlength="200" placeholder="Escribe la descripción..."></textarea>
                 </div>
-                <div class="entradaTextA">
-                  <label for="inpCriterios">Criterios de aceptación:</label>
-                  <textarea id="inpCriterios" placeholder="Escribe los criterios..."></textarea>
-                </div>
+
+                <!-- Campo 3: Criterios de aceptación -->
+                <div class="entradaCriteriosContainer">
+                  <label>Criterios de aceptación:</label>
+                    
+                  <div class="criterio-navegador-wrapper">
+                    <!-- Contenedor donde se alternarán los inputs -->
+                    <div id="contenedorMod" class="criterios-inputs-columna">
+                        <textarea id="criterioMod_1" maxlength="250" class="criterio-input active" placeholder="Escribe el criterio 1..."></textarea>
+                    </div>
+
+                    <!-- Panel derecho con flechas e indicador -->
+                    <div class="criterio-control-lateral">
+                      <button type="button" id="btnArribaMod" class="btn-flecha">▲</button>
+                      <span id="criterioIndicadorMod" class="criterio-indicador">1/1</span>
+                      <button type="button" id="btnAbajoMod" class="btn-flecha">▼</button>
+                    </div>
+                  </div>
+
+                  <!-- Botón para agregar más inputs de uno en uno -->
+                    <button type="button" id="btnAgregarCriterioMod" class="btn-agregar-criterio">+ Agregar criterio</button>
+                    <button type="button" id="btnEliminarCriterioMod" class="btn-eliminar-criterio">- Eliminar criterio</button>
+                  </div>
+
+                <!-- Campo 4: Valor -->
                 <div class="entradaInp">
-                  <label for="inpValor">Valor:</label>
-                  <input type="number" id="inpValor" placeholder="0 - 4000">
+                  <label for="inpModValor">Valor:</label>
+                  <input type="number" id="inpModValor" placeholder="0 - 4000">
                 </div>
-                <div class="entradaInp">
-                  <label for="inpSprintAsig">Sprint asignado:</label>
-                  <input type="text" id="inpSprintAsig" placeholder="Ej. Sprint 1">
-                </div>
+
                 <div class="modal-botones">
-                  <button id="btnGuardarModal">Guardar</button>
-                  <button id="btnCerrarModal">Cancelar</button>
+                  <button id="btnGuardarModalMod">Guardar</button>
+                  <button id="btnCerrarModalMod">Cancelar</button>
                 </div>
               </div>
             </div>
-          </div>
         </div>  <!--Aquí acaba el ContPB-->
         <div id="ContDOD">
           <div id="encabezado-dod">
