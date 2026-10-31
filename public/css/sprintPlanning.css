@@ -9,6 +9,189 @@ body {
   background-color: #79766f23;
 }
 
+/*cabeceras*/
+#planningSuperior {
+  background-color: #ffffff;
+  padding: 15px 30px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+#cabeceraPlanning .cabeceraDefault {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rolPlanning {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1565c0;
+  text-transform: uppercase;
+}
+
+#planningSuperior h1 {
+  font-size: 20px;
+  color: #111;
+}
+
+/* Área de trabajo */
+#area-trabajo {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.area-fondo {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  min-height: 80vh;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.fase-subtitulo h2 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #1565c0;
+  padding-bottom: 8px;
+  display: inline-block;
+}
+
+.panel {
+  margin-bottom: 20px;
+}
+
+.panel h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.diseño-fondo {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+}
+
+/*tablas*/
+.tablaHistorias, .tablaDuracion, #tablaTareas, .tablaAsignacion {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tablaHistorias th, .tablaHistorias td,
+.tablaDuracion th, .tablaDuracion td,
+#tablaTareas th, #tablaTareas td,
+.tablaAsignacion th, .tablaAsignacion td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.tablaHistorias th, .tablaDuracion th, #tablaTareas th, .tablaAsignacion th {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+#tablaTareas input[type="number"] {
+  width: 70px;
+  padding: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #000;
+  text-align: center;
+}
+
+.oculto {
+  display: none !important;
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/*botones*/
+.btn-azul {
+  background-color: #1565c0;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-azul:hover {
+  background-color: #0d47a1;
+}
+
+.btn-rojo {
+  background-color: #de3b40;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-rojo:hover {
+  background-color: #b52e33;
+}
+
+/*panel de solicitudes*/
+.contenido-fase2 {
+  display: flex;
+  gap: 20px;
+}
+
+.contenido-fase2 .panel {
+  flex: 2;
+}
+
+.panel-solicitudes {
+  flex: 1;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.select-desarrollador {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
 .app {
   display: flex;
   min-height: 100vh;

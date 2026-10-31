@@ -234,28 +234,60 @@
 
       <!-- MODAL 3: REUNIRSE -->
       <div id="modal-reuniones" class="modal-class" style="display: none;">  
-        <h1 id="titulo-reuniones">Reuniones</h1>
         <div class="area-fondo">
-            <section class="tarjeta-reunion">
-                <h2>Planificación de la iteración (Sprint Planning)</h2>
-                <p class="detalle">Fecha: 11 Oct · 2-4 h · 2 fases (Qué y Cómo)</p>
-                <p class="estado en-curso">● Estado: En curso · 5/7 conectados</p>
-                <button class="btn-entrar" id="boton-sprintPlanning" onclick="abrirSprintPlanning()">Entrar</button>
-                <button class="btn-editar">Editar</button>
-            </section>
 
-            <section class="tarjeta-reunion">
-                <h2>Reunión diaria Iteración 3 - Día 4</h2>
-                <p class="detalle">Fecha: 12 Oct · 9:00 - 9:15 · 15 min (timebox)</p>
-                <p class="estado programada">● Estado: Programada</p>
-                <button class="btn-entrar" id="boton-daily">Entrar</button>
-                <button class="btn-editar">Editar</button>
-            </section>
-
-            <button class="btn-agendar">Agendar nueva reunión +</button>
         </div>
       </div>
-      <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
+
+      <div id="modalCrearReunion" class="modal-class" style="display: none;">
+        <div class="modal-contenido">
+          
+          <div class="modal-header">
+            <h3>✚ Agendar nueva reunión</h3>
+          </div>
+
+          <div class="modal-body">
+            <div class="entradaInp">
+              <label for="seleccionTipoReunion">Tipo de reunión:</label>
+              <select id="seleccionTipoReunion"></select>
+            </div>
+
+            <div class="entradaInp">
+              <label for="seleccionSprint">Sprint asociado: *</label>
+              <select id="seleccionSprint"></select>
+            </div>
+
+            <div class="entradaInp">
+              <label for="nombreReunion">Nombre de la reunión (Opcional):</label>
+              <input type="text" id="nombreReunion" placeholder="Ej. Planificación del Sprint 2">
+              <small>Se auto-generará si lo dejas vacío.</small>
+            </div>
+
+            <div class="entradaInp">
+              <label for="fechaInicio">Fecha de inicio: *</label>
+              <input type="date" id="fechaInicio">
+            </div>
+
+            <div class="entradaInp">
+              <label for="fechaFin">Fecha de fin: *</label>
+              <input type="date" id="fechaFin">
+            </div>
+
+            <div class="entradaInp">
+              <label>Participantes convocados (Equipo del proyecto): *</label>
+              <div id="listaParticipantesCheck"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button id="btnGuardarReunion" class="btn-azul">Agendar reunión</button>
+            <button id="btnCancelarCreacion" class="btn-rojo">Cancelar</button>
+          </div>
+
+        </div>
+      </div>
+    <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
+    
     </section>
   </main>
 
