@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Guardar usuario en sesión y redirigir
       sessionStorage.setItem('usuarioActivo', JSON.stringify(resultado.data));
+      console.log(resultado.data)
       window.location.href = '/html/PanelPrincipal.html';
     } catch (error) {
       console.error('Error al iniciar sesión:', error);

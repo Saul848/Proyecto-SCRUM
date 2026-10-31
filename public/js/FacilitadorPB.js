@@ -880,5 +880,9 @@ async function cargarDefinicionDeHecho(idProyecto){
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
-    cargarDefinicionDeHecho(1);
+    cargarDefinicionDeHecho(JSON.parse(sessionStorage.getItem('usuarioActivo').id));
+})
+
+document.getElementById("btn-storage").addEventListener('click', ()=>{
+    console.log("presionado" + sessionStorage.getItem('usuarioActivo'))
 })
