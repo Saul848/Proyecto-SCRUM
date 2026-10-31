@@ -21,7 +21,8 @@
 }
 
 .tarjeta-reunion {
-  background-color: #79766f23;
+  background-color: #f4f4f5;
+  border: 1px solid #e4e4e7;
   border-radius: 12px;
   padding: 24px 24px;
   margin-bottom: 20px;
@@ -35,20 +36,23 @@
 }
 
 .detalle {
-  color: #000;
+  color: #52525b;
   font-size: 14px;
   margin-bottom: 8px;
 }
 
 .estado {
   font-size: 14px;
+  font-weight: 500;
   margin-bottom: 16px;
 }
 
-.estado.en-curso { color: #f2c94c; }
-.estado.programada { color: #347bcd; }
+.estado.en-curso { color: #d97706; }
+.estado.programada { color: #2563eb; }
+.estado.finalizada { color: #16a34a; }
 
-.btn-entrar {
+/*botones*/
+.btn-entrar, .btn-agendar, .btn-editar {
   background-color: #1565c0;
   color: #ffffff;
   border: none;
@@ -59,27 +63,161 @@
   transition: background-color 0.2s;
 }
 
-.btn-entrar:hover {
+.btn-entrar:hover, .btn-agendar:hover, .btn-editar:hover {
   background-color: #0d47a1;
 }
 
 .btn-agendar {
-  background-color: #1565c0;
-  color: #ffffff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
   margin-top: 10px;
-  transition: background-color 0.2s;
-}
-
-.btn-agendar:hover {
-  background-color: #0d47a1;
+  padding: 12px 24px;
 }
 
 .btn-editar {
+  margin-left: 12px; 
+}
+
+/*agenda de reuniones*/
+.modal-class {
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.entradaInp {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.entradaInp label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.entradaInp input, .entradaInp select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#modalCrearReunion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+}
+
+#modalCrearReunion[style*="display: block"] {
+  display: flex !important;
+}
+
+.modal-contenido {
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 20px 25px 15px 25px;
+  border-bottom: 1px solid #e4e4e7;
+  background-color: #ffffff;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  color: #111827;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 20px 25px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.entradaInp {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.entradaInp label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.entradaInp input, 
+.entradaInp select {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #000;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.entradaInp input:focus, 
+.entradaInp select:focus {
+  border-color: #1565c0;
+}
+
+.entradaInp small {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+#listaParticipantesCheck {
+  max-height: 110px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+
+.modal-footer {
+  padding: 15px 25px;
+  border-top: 1px solid #e4e4e7;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-azul {
   background-color: #1565c0;
   color: #ffffff;
   border: none;
@@ -87,13 +225,14 @@
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.btn-editar:hover {
-  background-color: #0d47a1;
-}
-
-.btn-editar {
-  margin-left: 12px; 
+.btn-rojo {
+  background-color: #de3b40;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
