@@ -39,7 +39,7 @@ CREATE TABLE mensaje_grupo ( id SERIAL PRIMARY KEY, id_autor INT, id_grupo_desti
 
 -- ========================================== -- 8. TABLA: sprint -- ==========================================
 
-CREATE TABLE sprint ( id SERIAL PRIMARY KEY, no_iteracion INT NOT NULL, objetivo VARCHAR(255) NOT NULL, fecha_inicio DATE NOT NULL, fecha_fin DATE NOT NULL, id_proyecto INT NOT NULL, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE );
+CREATE TABLE sprint ( id SERIAL PRIMARY KEY, no_iteracion INT NOT NULL, objetivo VARCHAR(255), fecha_inicio DATE, fecha_fin DATE, id_proyecto INT NOT NULL, FOREIGN KEY (id_proyecto) REFERENCES proyecto(id) ON DELETE CASCADE );
 
 -- ========================================== -- 9. TABLA: historia_de_usuario -- ==========================================
 
@@ -155,6 +155,7 @@ INSERT INTO mensaje_grupo (id_autor, id_grupo_destino, fecha, mensaje) VALUES (1
 -- 8. TABLA: sprint
 
 INSERT INTO sprint (no_iteracion, objetivo, fecha_inicio, fecha_fin, id_proyecto) VALUES (1, 'Configuración inicial y login', '2026-01-10', '2026-01-24', 1), (1, 'Estructura base de la app móvil', '2026-02-15', '2026-03-01', 2), (1, 'Diseño de base de datos de reportes', '2026-03-01', '2026-03-15', 3);
+INSERT INTO sprint (no_iteracion, objetivo, fecha_inicio, fecha_fin, id_proyecto) VALUES (2, NULL, NULL, NULL, 1),(3, NULL, NULL, NULL, 2),(4, NULL, NULL, NULL, 3);
 
 -- 9. TABLA: historia_de_usuario
 
