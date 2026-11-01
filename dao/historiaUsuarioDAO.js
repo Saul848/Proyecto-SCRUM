@@ -7,12 +7,79 @@ class historiaUsuarioDAO {
         this.pool = pool; //Este pool es el verdadero conector con Postgres, es una clase JavaScript dentro del proyecto
     }
 
-    // No devuelvo la contraseña, porque no quiero que la vean. Solo se usa en el login en este caso
-    async obtenerHistorias() {
+    /**
+     * Funcion que me permite obtener todas las historias de usuario pertenecientes a un proyecto ordenadas por id
+     * @returns ID, Nombre, Descripcion, Valor, AsignadoAlSprint 
+     * cRITERIOS DE ACEPTACION, IdHistoria (IdProyecto)
+     */
+    async obtenerHistorias(idProyecto) {
         const { rows } = await this.pool.query(
-            'SELECT * FROM scrumbird.historia_de_usuario ORDER BY id;'
+            'SELECT id, nombre, descripcion, valor, asignado_al_sprint FROM scrumbird.historia_de_usuario WHERE id_proyecto = $1 ORDER BY id;'
+            , [idProyecto],
+            'SELECT id, numero_de_criterio, criterios_de_aceptacion, '
         );
         return rows;
+    }
+
+/**
+ * Obtiene un arreglo de historias de usuario pertenecientes a un proyecto, donde cada una incluye un arreglo con sus criterios de aceptación.
+ * @param {Object} pool - Pool de conexiones a la base de datos (pg)
+ * @returns {Promise<Array>} Arreglo de historias de usuario con sus criterios anidados
+ */
+    async obtenerHistoriasEnProyecto(idProyecto) {
+        const query = `
+            SELECT 
+                t_historias.id, 
+                t_historias.nombre, 
+                t_historias.descripcion, 
+                t_historias.valor, 
+                t_historias.asignado_al_sprint, 
+                t_criterios.id AS id_criterio, 
+                t_criterios.numero_de_criterio, 
+                t_criterios.criterios_de_aceptacion
+            FROM 
+                historia_de_usuario t_historias, 
+                criterios_de_aceptacion t_criterios
+            WHERE 
+                t_historias.id_proyecto = t_criterios.id_proyecto 
+                AND t_historias.id = t_criterios.id_historia AND
+                t_historias.id_proyecto =$1 AND t_criterios.id_proyecto= $1
+                ;
+        `
+        try {
+            const result = await this.pool.query(query, [idProyecto]);
+
+            // Agrupamos las filas usando un objeto acumulador o Map
+            const mapHistorias = result.rows.reduce((acc, row) => {
+                // Si la historia aún no existe en el acumulador, la creamos con un arreglo vacío
+                if (!acc[row.id]) {
+                    acc[row.id] = {
+                        id: row.id,
+                        nombre: row.nombre,
+                        descripcion: row.descripcion,
+                        valor: row.valor,
+                        asignado_al_sprint: row.asignado_al_sprint,
+                        criterios: [] // Arreglo para los criterios de esta historia
+                    };
+                }
+
+                // Agregamos el criterio actual al arreglo de la historia correspondiente
+                acc[row.id].criterios.push({
+                    id: row.id_criterio,
+                    numero: row.numero_de_criterio,
+                    criterio: row.criterios_de_aceptacion
+                });
+
+                return acc;
+            }, {});
+
+            // Convertimos el objeto acumulador de vuelta a un arreglo plano
+            return Object.values(mapHistorias);
+
+        } catch (error) {
+            console.error('Error en el DAO al agrupar historias con criterios:', error);
+            throw error;
+        }
     }
 
     async agregarHistoria({nombre, descripcion, criterios, valor, sprint }) {

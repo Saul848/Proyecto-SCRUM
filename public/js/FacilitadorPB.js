@@ -8,7 +8,7 @@ const modalModificarHistoria = document.getElementById("modalModificarHistoria")
 const divHistoria = document.getElementById("DivHistoria");
 // Elementos del modal agregar
 const inpAddTitulo = document.getElementById("inpAddTitulo");
-const inpAddDescripccion = document.getElementById("inpAddDescripccion");
+const inpAddDescripcion = document.getElementById("inpAddDescripccion");
 const inpAddValor = document.getElementById("inpAddValor");
 const btnGuardarHistoria = document.getElementById("btnGuardarModalAdd");
 const btnCerrarModalAdd = document.getElementById("btnCerrarModalAdd");
@@ -19,6 +19,9 @@ const btnAbajoAdd = document.getElementById("btnAbajoAdd");
 const indicadorAdd = document.getElementById("criterioIndicadorAdd");
 const btnAgregarCriterioAdd = document.getElementById("btnAgregarCriterioAdd");
 const btnEliminarCriterioAdd = document.getElementById("btnEliminarCriterioAdd"); // <-- Nuevo
+
+//Grupo de elementos Dom con inputs del modal Agregar historia
+const inpModalAdd = [inpAddTitulo, inpAddDescripcion, inpAddValor];
 
 // Elementos inputs del modal modificar
 const inpModTitulo = document.getElementById("inpModTitulo");
@@ -36,6 +39,9 @@ const indicadorMod = document.getElementById("criterioIndicadorMod");
 const btnAgregarCriterioMod = document.getElementById("btnAgregarCriterioMod");
 const btnEliminarCriterioMod = document.getElementById("btnEliminarCriterioMod"); // <-- Nuevo
 
+//Grupo de elementos Dom con inputs del modal Agregar historia
+const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor];
+
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
 let patronRangoValor = /^(?:[0-9]{1,3}|[1-3][0-9]{3}|4000)$/; // Patron que permite valores entre 0 y 4000
@@ -45,6 +51,8 @@ let datosHistorias = [];
  // Índice actabasado en 0
 let currentIndexAdd = 0;
 let currentIndexMod = 0;
+
+
 /**
  * Función para renderizar dinámicamente las historias de usuario en el DOM
  */
@@ -97,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  */
 function limpiarCamposModalAdd() {
     inpAddTitulo.value = "";
-    inpAddDescripccion.value = "";
+    inpAddDescripcion.value = "";
     reiniciarCriteriosAceptacion(containerAdd, indicadorAdd, currentIndexAdd);
     inpAddValor.value = "";
 }
@@ -345,31 +353,32 @@ window.addEventListener('click', (e) => {
     }
 });
 
-function verificarCamposAdd() {
+//Funcion para verificar el contenido de los campos de acuerdo al los patrones
+function verificarCampos(grupoInputs){
     let verificado = true;
-    let elementosDom = [inpAddTitulo, inpAddDescripccion, inpAddValor];
-    elementosDom.forEach(elemento => {
-        if (elemento.value.trim() === "") {
+    
+    grupoInputs.forEach(elemento => {
+        if(elemento.value.trim() === ""){
             elemento.style.border = "2px solid red";
             elemento.placeholder = "Error, rellena este campo";
             verificado = false;
         } else {
-            if (elemento === inpAddTitulo) {
-                if (!patronNombre.test(elemento.value.trim())) {
+            if(elemento === inpAddTitulo||inpModTitulo){
+                if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
                     elemento.placeholder = "El nombre no debe llevar numeros o simbolos";
                     verificado = false;
                 } else {
-                    if (verificarTituloUnico(elemento)) {
+                    if(verificarTituloUnico(elemento)){
                         elemento.style.border = "2px solid blue";
                     } else {
                         verificado = false;
                     }
                 }
             }
-            if (elemento === inpAddDescripccion) {
-                if (!patronNombre.test(elemento.value.trim())) {
+            if(elemento === inpAddDescripcion||inpModDescripcion){
+                if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
                     elemento.placeholder = "Ingrese una descripccion adecuada";
@@ -378,8 +387,8 @@ function verificarCamposAdd() {
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if (elemento === inpAddValor) {
-                if (!patronRangoValor.test(elemento.value.trim())) {
+            if(elemento === inpAddValor||inpModValor){
+                if(!patronRangoValor.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
                     elemento.placeholder = "Ingrese numeros válidos";
@@ -394,49 +403,28 @@ function verificarCamposAdd() {
 }
 
 //Metodo que verifica la seccion de criterios de aceptacion.
-function verificarCriteriosAdd() {
+function verificarCriterios(contenedorCriteriosModal) {
     let verificado = true;
-    let elementosDom = containerAdd.querySelectorAll('input')
-    elementosDom.forEach((elemento, index) => {
+    //Se obtienen todos los textarea del contenedor elegido
+    let criterios = contenedorCriteriosModal.querySelectorAll('textarea')
+    //Se recorren y se verifican si estan vacios
+    criterios.forEach((elemento, index) => {
         if (elemento.value.trim() === "") {
             elemento.style.border = "2px solid red";
             elemento.placeholder = "Error, rellena este campo";
             alert("Tu criterio de aceptacion numero"+(index+1)+"esta vacio")
-            verificado = false;
+            verificado = false;   
         } else {
             if (!patronNombre.test(elemento.value.trim())) {
                 elemento.style.border = "2px solid red";
                 elemento.value = "";
-                elemento.placeholder = "El nombre no debe llevar numeros o simbolos";
+                elemento.placeholder = "El criterio no debe llevar caracteres especiales";
+                alert("Tu criterio de aceptacion numero"+(index+1)+"esta mal redactado")
                 verificado = false;
-            } else {
-                if (verificarTituloUnico(elemento)) {
-                    elemento.style.border = "2px solid blue";
-                } else {
-                    verificado = false;
-                }
-            }             
-        }
-    });
-    return verificado;
-}
-
-/**
- * Funcion para calcular el id
- */
-function calcularId() {
-    if (!datosHistorias || datosHistorias.length === 0) {
-        return 1;
-    } else {
-        let valorMayor = datosHistorias[0].id;
-        for (let n = 1; n < datosHistorias.length; n++) {
-            let sigValor = datosHistorias[n].id;
-            if (valorMayor < sigValor) {
-                valorMayor = sigValor;
             }
-        }
-        return (valorMayor + 1);
-    }
+        }             
+    })
+    return verificado;
 }
 
 /**
@@ -458,15 +446,19 @@ function verificarTituloUnico(inputDom) {
     }
 }
 
+
 /**
  * Obtiene un arreglo de historias desde el servidor
  */
-async function obtenerHistorias() {
+async function obtenerHistorias(idProyecto) {
     const respuesta = await fetch(`/historias`, {
         method: "GET",
         headers: {
             "Accept": "application/json"
-        }
+        },
+        body: JSON.stringify({
+            idProyecto: idProyecto
+        })
     });
     if (!respuesta.ok) {
         alert("Ocurrió un error, datos no obtenidos");
@@ -480,9 +472,11 @@ async function obtenerHistorias() {
 
 function agregarNuevaHistoria() {
     //Se da de alta una bandera, si llega al final del metodo y pasa las verificaciones el empleado es valido.
-    let historiaValida = verificarCamposAdd();
+    let historiaValida = verificarCampos(inpModalAdd);
+    //Mismo caso que arriba
+    let criteriosValidos = verificarCriterios(containerAdd)
     //Se verifican la informacion ingresada en los campos
-    if (historiaValida) {
+    if (historiaValida && criteriosValidos) {
         agregarHistoriaUsuario()
     }
 }
@@ -493,20 +487,18 @@ function agregarNuevaHistoria() {
  * y oculta el modal de creación si el registro es exitoso.
  * @async
  * @function agregarHistoriaUsuario
+ * @param {idProyecto} Integer El id del proyecto donde se agregara la nueva hsitoria de usuario.
  * @returns {Promise<void>} Promesa que se resuelve cuando se completa el proceso de guardado y actualización.
  */
-async function agregarHistoriaUsuario() {
-    // Primero verificamos que los campos cumplan las reglas
-    if (!verificarCamposAdd()) {
-        return;
-    }
-
+async function agregarHistoriaUsuario(idProyecto) {
     let nombre = inpAddTitulo.value.trim();
-    let descripcion = inpAddDescripccion.value.trim();
-    let criterios = inpCriterios.value.trim();
+    let descripcion = inpAddDescripcion.value.trim();
+    let criteriosDom = containerAdd.querySelectorAll('textarea')
+    let criteriosArray= {}
+    criteriosDom.forEach((element) =>{
+        criteriosArray.push({criterio:element.value.trim()})
+    });
     let valor = inpAddValor.value.trim();
-    let sprint = inpSprintAsig.value.trim();
-
     const respuesta = await fetch("/historias", {
         method: "POST",
         headers: {
@@ -515,9 +507,9 @@ async function agregarHistoriaUsuario() {
         body: JSON.stringify({
             nombre: nombre,
             descripcion: descripcion,
-            criterios: criterios,
+            criterios: criteriosArray,
             valor: valor,
-            sprint: sprint
+            idProyecto: idproyecto
         })
     });
 

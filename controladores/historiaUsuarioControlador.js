@@ -13,14 +13,28 @@ class historiaUsuarioControlador {
     constructor(historiaUsuarioDAO) {
         this.dao = historiaUsuarioDAO;
     }
-
-    // GET /historias
+    /**
+     * Funcion que envia al cliente todas las historias de usuarios en la BD, se ejecuta con el verbo GET y la url /historias
+     * @param {*} req 
+     * @param {*} res 
+     */
     async listar(req, res) {
         try {
             const historias = await this.dao.obtenerHistorias();
             res.json({ data: historias });
         } catch (err) {
             this.#error(res, err);
+        }
+    }
+
+    async listarHistoriasPorProyecto(req, res){
+        try {
+            //Se obtiene el id del proyecto en el que se encuentra el usuario
+            const {idProyecto} =req.body
+            if(!idProyecto || !parseInt)
+
+        } catch (error) {
+            
         }
     }
 
