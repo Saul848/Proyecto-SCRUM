@@ -58,7 +58,7 @@ let currentIndexMod = 0;
  */
 async function renderizarHistorias() {
     // 1. Solicitamos los datos al servidor y los guardamos en la variable
-    datosHistorias = await obtenerHistorias(1);
+    datosHistorias = await obtenerHistorias(parseInt(1,10));
 
     // 2. Limpiamos el contenedor antes de inyectar los elementos
     divHistoria.innerHTML = "";
@@ -75,10 +75,32 @@ async function renderizarHistorias() {
         filaHtml.id = `DivFilaHistoria_${historia.id}`;
         filaHtml.className = "DivFilaHistoria";
 
+        // Obtenemos los criterios de la historia o colocamos un mensaje por defecto si está vacío
+        const criterios = historia.criterios && historia.criterios.length > 0 
+            ? historia.criterios 
+            : [{ criterio: "Sin criterios de aceptación" }];
+
+        let criteriosTextAreasHTML = "";
+        criterios.forEach((crit, index) => {
+            const claseActiva = index === 0 ? "active" : "";
+            // Usamos un textarea con la clase específica y readonly para visualización en tabla
+            criteriosTextAreasHTML += `<textarea class="criterio-input-fila ${claseActiva}" readonly placeholder="Criterio...">${crit.criterio || ""}</textarea>`;
+        });
+
         filaHtml.innerHTML = `
             <label class="LabelID">${historia.id}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
             <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
+            
+            <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
+            <div class="criterio-fila-wrapper" data-index="0">
+                <button type="button" class="btn-fila-lateral btn-fila-izq" onclick="cambiarCriterioFila(${historia.id}, -1)" title="Anterior">◀</button>
+                <div class="criterios-fila-columna" id="criteriosContainer_${historia.id}">
+                    ${criteriosTextAreasHTML}
+                </div>
+                <button type="button" class="btn-fila-lateral btn-fila-der" onclick="cambiarCriterioFila(${historia.id}, 1)" title="Siguiente">▶</button>
+            </div>
+
             <label class="LabelValor">${historia.valor || "#"}</label>
             <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
@@ -91,6 +113,42 @@ async function renderizarHistorias() {
         `;
 
         divHistoria.appendChild(filaHtml);
+    });
+}
+
+/**
+ * Función para navegar entre los criterios de aceptación directamente en la tabla de filas
+ * @param {number} historiaId ID de la historia de usuario
+ * @param {number} direccion Dirección del movimiento (-1 para izquierda, 1 para derecha)
+ */
+function cambiarCriterioFila(historiaId, direccion) {
+    const wrapper = document.querySelector(`#DivFilaHistoria_${historiaId} .criterio-fila-wrapper`);
+    const container = document.getElementById(`criteriosContainer_${historiaId}`);
+    if (!container || !wrapper) return;
+
+    const textareas = container.querySelectorAll("textarea");
+    if (textareas.length <= 1) return;
+
+    // Obtenemos el índice actual guardado en el atributo data-index
+    let currentIndex = parseInt(wrapper.getAttribute("data-index") || "0", 10);
+    
+    // Calculamos el nuevo índice
+    currentIndex += direccion;
+
+    // Control de límites para que no rebase el número de criterios existentes
+    if (currentIndex < 0) currentIndex = 0;
+    if (currentIndex >= textareas.length) currentIndex = textareas.length - 1;
+
+    // Guardamos el nuevo índice
+    wrapper.setAttribute("data-index", currentIndex);
+
+    // Activamos únicamente el textarea correspondiente y ocultamos los demás
+    textareas.forEach((ta, idx) => {
+        if (idx === currentIndex) {
+            ta.classList.add("active");
+        } else {
+            ta.classList.remove("active");
+        }
     });
 }
 
@@ -474,7 +532,7 @@ function agregarNuevaHistoria() {
     let criteriosValidos = verificarCriterios(containerAdd)
     //Se verifican la informacion ingresada en los campos
     if (historiaValida && criteriosValidos) {
-        agregarHistoriaUsuario()
+        agregarHistoriaUsuario(1)
     }
 }
 
@@ -506,7 +564,7 @@ async function agregarHistoriaUsuario(idProyecto) {
             descripcion: descripcion,
             criterios: criteriosArray,
             valor: valor,
-            idProyecto: idproyecto
+            idProyecto: idProyecto
         })
     });
 
@@ -915,7 +973,7 @@ const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
  * @returns {Promise<void>} Promesa que se resuelve cuando se han cargado y filtrado las historias.
  */
 async function inicializarBacklog() {
-    todasLasHistorias = await obtenerHistorias();
+    todasLasHistorias = await obtenerHistorias(1);
     aplicarFiltros();
 }
 
@@ -970,11 +1028,32 @@ function renderizarTablaFiltrada(historias) {
         filaHtml.id = `DivFilaHistoria_${historia.id}`;
         filaHtml.className = "DivFilaHistoria";
 
+        // Obtenemos los criterios de la historia o colocamos un mensaje por defecto si está vacío
+        const criterios = historia.criterios && historia.criterios.length > 0 
+            ? historia.criterios 
+            : [{ criterio: "Sin criterios de aceptación" }];
+
+        let criteriosTextAreasHTML = "";
+        criterios.forEach((crit, index) => {
+            const claseActiva = index === 0 ? "active" : "";
+            // Usamos un textarea con la clase específica y readonly para visualización en tabla
+            criteriosTextAreasHTML += `<textarea class="criterio-input-fila ${claseActiva}" readonly placeholder="Criterio...">${crit.criterio || ""}</textarea>`;
+        });
+
         filaHtml.innerHTML = `
             <label class="LabelID">${historia.id}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
             <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
-            <label class="LabelCriterios">${historia.criterios || historia.criterios_de_aceptacion || "#"}</label>
+            
+            <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
+            <div class="criterio-fila-wrapper" data-index="0">
+                <button type="button" class="btn-fila-lateral btn-fila-izq" onclick="cambiarCriterioFila(${historia.id}, -1)" title="Anterior">◀</button>
+                <div class="criterios-fila-columna" id="criteriosContainer_${historia.id}">
+                    ${criteriosTextAreasHTML}
+                </div>
+                <button type="button" class="btn-fila-lateral btn-fila-der" onclick="cambiarCriterioFila(${historia.id}, 1)" title="Siguiente">▶</button>
+            </div>
+
             <label class="LabelValor">${historia.valor || "#"}</label>
             <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             

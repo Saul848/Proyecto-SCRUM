@@ -30,41 +30,42 @@ class historiaUsuarioControlador {
     async listarHistoriasPorProyecto(req, res){
         try {
             //Se obtiene el id del proyecto en el que se encuentra el usuario
-            const idProyecto = parseInt(req.params.idProyecto, 10);
+            const idProyecto = Number(req.params.idProyecto);
+            console.log(req.params)
             //Verificamos que el dato enviado tenga un valor y que sea Entero
-            if(isNaN(idProyecto)){
+            if(Number.isNaN(idProyecto)){
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Error el Proyecto no pudo ser encontrado"
                 })
             }
             const historias = await this.dao.obtenerHistoriasEnProyecto(idProyecto);
-            res.status(201).json({
-                ok:true,
-                mensaje: "Historias del proyecto recuperadas correctamente",
-                data: historias
-            })
+            if (historias){
+                res.status(201).json({
+                    ok:true,
+                    mensaje: "Historias del proyecto recuperadas correctamente",
+                    data: historias
+                })
+            }
+
         } catch (err) {
             this.#error(res, err);
         }
     }
 
     // POST /historias  body: { titulo, descripcion, criterios, valor, sprintAsig }
-    async agregar(req, res) {
-        const { nombre, descripcion, criterios, valor, sprint } = req.body;
+    async agregarHistoria(req, res) {
+        const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
         try {
+            
             const historiaCreada = await this.dao.agregarHistoria(req.body);
-
             // Creacion de carpeta de evidencias
             const idHistoria = historiaCreada.id;
             const proyectoId = historiaCreada.id_proyecto
-
             // 2. Crear físicamente la carpeta de evidencias para esta historia: evidencias/idProyecto/idHistoria
             if (proyectoId && idHistoria) {
                 crearCarpetaHistoria(proyectoId, idHistoria);
             }
-
-
             res.status(201).json(historiaCreada);
         } catch (err) {
             this.#error(res, err);

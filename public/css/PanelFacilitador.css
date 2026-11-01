@@ -115,8 +115,9 @@ body {
   text-align: center;
   font-weight: bold;
   font-size: 13px;
-  padding: 8px 10px;
+  padding: 8px 16px;
   color: #000000;
+  box-sizing: border-box; /* Crucial para que el padding no afecte el ancho de las celdas */
 }
 
 /* ===================================================
@@ -157,22 +158,103 @@ body {
   display: grid;
   grid-template-columns: 50px 1.2fr 1.5fr 1.5fr 0.8fr 1fr 130px 50px;
   align-items: center;
-  padding: 6px 10px;
+  padding: 10px 16px;
+  gap: 6px;
   text-align: center;
+  box-sizing: border-box; /* Crucial para mantener la alineación exacta */
 }
 
 .DivFilaHistoria label {
   color: #a0a0a0;
   font-weight: bold;
   font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
   padding: 0 4px;
 }
 
 .DivFilaHistoria .LabelID {
   color: #000000;
+}
+
+/* ===================================================
+   CRITERIOS DE ACEPTACIÓN EN FILAS PRINCIPALES
+   ================================================   */
+
+/* Contenedor que ocupa exactamente el espacio de la columna en la grilla */
+.criterio-fila-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 60px; /* Altura controlada para alinearse con la fila */
+  box-sizing: border-box;
+}
+
+/* Área de los textarea dentro de la celda */
+.criterios-fila-columna {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Textarea sin capacidad para redimensionarse y adaptados a la fila */
+.criterios-fila-columna textarea.criterio-input-fila {
+  display: none;
+  width: 100%;
+  height: 100%;
+  resize: none !important; /* Sin capacidad para redimensionarse */
+  box-sizing: border-box;
+  padding: 4px 28px; /* Espacio interno para no estorbar con los botones laterales */
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background-color: #f8fafc;
+  color: #334155;
+  outline: none;
+}
+
+.criterios-fila-columna textarea.criterio-input-fila.active {
+  display: block;
+}
+
+/* Botones laterales tan altos como la fila a cada costado */
+.btn-fila-lateral {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background-color: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.2s;
+  color: #475569;
+}
+
+.btn-fila-lateral:hover {
+  background-color: #cbd5e1;
+}
+
+.btn-fila-izq {
+  left: 0;
+  background-origin: padding-box;rder-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.btn-fila-der {
+  right: 0;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 /* Botones dentro de la fila */
