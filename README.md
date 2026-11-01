@@ -232,7 +232,6 @@ RETURNS TABLE (
     prioridad BOOLEAN,
     nombre_responsable VARCHAR(255), 
     descripcion VARCHAR(255), 
-    criterios_de_aceptacion VARCHAR(255), 
     evidencias_servidor VARCHAR(255), 
     comentarios TEXT 
 ) 
@@ -250,7 +249,6 @@ BEGIN
         h.prioridad,
         COALESCE(u.nombre, 'Sin asignar') AS nombre_responsable, 
         h.descripcion, 
-        h.criterios_de_aceptacion, 
         COALESCE(t.evidencias_desarrollo, 'Sin evidencias') AS evidencias_servidor, 
         COALESCE( (SELECT STRING_AGG(c.contenido || ' (Por: ' || us_com.nombre || ' el ' || c.fecha_ultima_modificacion, ' | ') 
         FROM scrumbird.comentario c 
@@ -288,7 +286,6 @@ RETURNS TABLE (
     prioridad BOOLEAN,
     nombre_responsable VARCHAR(255), 
     descripcion VARCHAR(255), 
-    criterios_de_aceptacion VARCHAR(255), 
     evidencias_servidor VARCHAR(255), 
     comentarios TEXT 
 ) 
@@ -306,7 +303,6 @@ BEGIN
         h.prioridad,
         COALESCE(u.nombre, 'Sin asignar') AS nombre_responsable, 
         h.descripcion, 
-        h.criterios_de_aceptacion, 
         COALESCE(t.evidencias_desarrollo, 'Sin evidencias') AS evidencias_servidor, 
         COALESCE( (SELECT STRING_AGG(c.contenido || ' (Por: ' || us_com.nombre || ' el ' || c.fecha_ultima_modificacion, ' | ') 
         FROM scrumbird.comentario c 
