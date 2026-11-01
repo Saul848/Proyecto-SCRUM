@@ -1,4 +1,3 @@
-
 let historiaActualEvidencias = null;
 
 /**
@@ -82,7 +81,7 @@ function aplicarReglasPermisosYEstado(estado) {
     } else {
         alerta.classList.remove("bloqueado");
         alertaTexto.textContent =
-            "Puedes subir imágenes PNG o JPG y borrar las que tú subiste.";
+            "Puedes subir imágenes (PNG, JPG), PDF o ZIP (máx. 5 MB) y borrar las que tú subiste.";
     }
 }
 
@@ -140,7 +139,6 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
             const item = document.createElement("div");
             item.className = "kanban-evidencias-item-archivo";
 
-            // ID provisional: debe sustituirse por el ID real del usuario.
             const esAutor =
                 Number(archivo.id_usuario_subio) ===
                 Number(window.USUARIO_ACTUAL_ID ?? 1);
@@ -169,9 +167,18 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
                 `;
             }
 
+            // Determinar icono según la extensión del archivo
+            const nombreLower = archivo.nombre.toLowerCase();
+            let iconoHtml = "&#128444;"; // Imagen por defecto
+            if (nombreLower.endsWith(".pdf")) {
+                iconoHtml = "&#128196;"; // Documento PDF
+            } else if (nombreLower.endsWith(".zip")) {
+                iconoHtml = "&#128230;"; // Archivo comprimido ZIP
+            }
+
             item.innerHTML = `
                 <div class="kanban-evidencias-item-info">
-                    <span class="kanban-evidencias-item-icono">&#128444;</span>
+                    <span class="kanban-evidencias-item-icono">${iconoHtml}</span>
                     <div class="kanban-evidencias-item-textos">
                         <span class="kanban-evidencias-item-nombre"></span>
                         <span class="kanban-evidencias-item-meta"></span>
@@ -182,7 +189,6 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
                 </div>
             `;
 
-            // Usar textContent para mostrar el nombre sin interpretarlo como HTML.
             item.querySelector(".kanban-evidencias-item-nombre")
                 .textContent = archivo.nombre;
 
@@ -220,25 +226,51 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
 }
 
 /**
- * Muestra la imagen seleccionada en la vista previa.
+ * Muestra la vista previa del archivo (imagen, PDF o aviso para ZIP).
  */
-function mostrarVistaPrevia(urlImagen, nombreArchivo) {
+function mostrarVistaPrevia(urlArchivo, nombreArchivo) {
     const contenedor = document.getElementById(
         "kanban-evidencias-preview-content"
     );
 
     contenedor.innerHTML = "";
 
-    const imagen = document.createElement("img");
-    imagen.src = urlImagen;
-    imagen.alt = nombreArchivo;
-    imagen.className = "preview-imagen-real";
+    const nombreLower = nombreArchivo.toLowerCase();
 
-    const nombre = document.createElement("span");
-    nombre.className = "preview-nombre-archivo";
-    nombre.textContent = nombreArchivo;
+    if (nombreLower.endsWith(".pdf")) {
+        // Vista previa para PDF usando un objeto <embed> o <iframe>
+        const embed = document.createElement("embed");
+        embed.src = urlArchivo;
+        embed.type = "application/pdf";
+        embed.className = "preview-pdf-real"; // Asegúrate de definir estilos si es necesario
 
-    contenedor.append(imagen, nombre);
+        const nombre = document.createElement("span");
+        nombre.className = "preview-nombre-archivo";
+        nombre.textContent = nombreArchivo;
+
+        contenedor.append(embed, nombre);
+    } else if (nombreLower.endsWith(".zip")) {
+        // Vista previa genérica para ZIP (no se puede renderizar directamente)
+        contenedor.innerHTML = `
+            <div class="preview-icono-default">&#128230;</div>
+            <span class="preview-nombre-archivo">${nombreArchivo}</span>
+            <span class="preview-sub-text">
+                Los archivos comprimidos ZIP no tienen vista previa directa. Puedes descargarlos.
+            </span>
+        `;
+    } else {
+        // Vista previa para imágenes (PNG, JPG, JPEG)
+        const imagen = document.createElement("img");
+        imagen.src = urlArchivo;
+        imagen.alt = nombreArchivo;
+        imagen.className = "preview-imagen-real";
+
+        const nombre = document.createElement("span");
+        nombre.className = "preview-nombre-archivo";
+        nombre.textContent = nombreArchivo;
+
+        contenedor.append(imagen, nombre);
+    }
 }
 
 /**
@@ -280,14 +312,30 @@ async function manejarSeleccionArchivo(input) {
         return;
     }
 
-    if (!["image/png", "image/jpeg"].includes(archivo.type)) {
-        alert("Solo se permiten imágenes PNG, JPG o JPEG.");
+    // Tipos permitidos: Imágenes (PNG, JPEG), PDF y ZIP
+    const tiposPermitidos = [
+        "image/png",
+        "image/jpeg",
+        "application/pdf",
+        "application/zip",
+        "application/x-zip-compressed",
+        "multipart/x-zip"
+    ];
+
+    // Validación extra por extensión por si el navegador no detecta bien el MIME type del .zip
+    const nombreLower = archivo.name.toLowerCase();
+    const esZipValido = nombreLower.endsWith(".zip");
+    const esPdfValido = nombreLower.endsWith(".pdf") || archivo.type === "application/pdf";
+    const esImgValida = ["image/png", "image/jpeg"].includes(archivo.type);
+
+    if (!esImgValida && !esPdfValido && !esZipValido) {
+        alert("Solo se permiten imágenes (PNG, JPG), archivos PDF o comprimidos ZIP.");
         input.value = "";
         return;
     }
 
     if (archivo.size > 5 * 1024 * 1024) {
-        alert("La imagen no puede superar los 5 MB.");
+        alert("El archivo no puede superar los 5 MB.");
         input.value = "";
         return;
     }
@@ -323,7 +371,7 @@ async function manejarSeleccionArchivo(input) {
 
     } catch (error) {
         console.error("Error al subir evidencia:", error);
-        alert(error.message || "Error al subir la imagen.");
+        alert(error.message || "Error al subir el archivo.");
     } finally {
         input.value = "";
     }
@@ -367,7 +415,6 @@ async function borrarEvidencia(nombreArchivo) {
     console.log("URL de borrado:", url);
 
     try {
-
         const respuesta = await fetch(url, {
             method: "DELETE"
         });
@@ -380,12 +427,11 @@ async function borrarEvidencia(nombreArchivo) {
             );
         }
 
-        // Limpiar la vista previa si se estaba mostrando la imagen borrada.
-        const imagen = document.querySelector(
-            "#kanban-evidencias-preview-content img"
-        );
+        // Limpiar la vista previa si se estaba mostrando el archivo borrado.
+        const previewContent = document.getElementById("kanban-evidencias-preview-content");
+        const elementoVisual = previewContent.querySelector("img, embed");
 
-        if (imagen && imagen.getAttribute("src") ===
+        if (elementoVisual && elementoVisual.getAttribute("src") ===
             `/evidencias/${idProyecto}/${idHistoria}/${nombreArchivo}`) {
             mostrarVistaPreviaPlaceholder();
         }
@@ -409,7 +455,7 @@ function mostrarVistaPreviaPlaceholder() {
         <div class="preview-icono-default">&#128444;</div>
         <span class="preview-nombre-archivo">Selecciona un archivo</span>
         <span class="preview-sub-text">
-            Aquí se mostrará la imagen a tamaño completo
+            Aquí se mostrará la vista previa del archivo
         </span>
     `;
 }
