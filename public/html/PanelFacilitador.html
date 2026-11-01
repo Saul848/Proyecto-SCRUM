@@ -348,8 +348,7 @@
       
           <!-- Alerta dinámica de permisos o bloqueo -->
           <div id="kanban-evidencias-alerta" class="kanban-evidencias-alerta info">
-            <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes .png o .jpg y borrar únicamente las que tú
-              subiste.</span>
+            <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes (PNG, JPG), PDF o ZIP y borrar únicamente las que tú subiste.</span>
           </div>
       
           <!-- Cuerpo principal en 2 columnas (Archivos y Vista previa) -->
@@ -359,7 +358,7 @@
             <div class="kanban-evidencias-col-izquierda">
               <div class="kanban-evidencias-sub-header">
                 <h3 id="kanban-evidencias-contador" class="kanban-evidencias-subtitulo">Archivos subidos (0)</h3>
-                <span class="kanban-evidencias-formato-lbl">Solo imágenes .png y .jpg</span>
+                <span class="kanban-evidencias-formato-lbl">Imágenes, PDF y ZIP (máx. 5 MB)</span>
               </div>
       
               <!-- Zona de carga (Drag & Drop / Input file) -->
@@ -367,10 +366,9 @@
                 <div class="kanban-evidencias-upload-content">
                   <i class="icon-upload">&#8648;</i>
                   <span id="kanban-evidencias-upload-titulo" class="kanban-evidencias-upload-main-text">Subir evidencia</span>
-                  <span id="kanban-evidencias-upload-sub" class="kanban-evidencias-upload-sub-text">Arrastra o elige una
-                    imagen .png o .jpg</span>
+                  <span id="kanban-evidencias-upload-sub" class="kanban-evidencias-upload-sub-text">Arrastra o elige un archivo (.png, .jpg, .pdf, .zip)</span>
                 </div>
-                <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg" style="display: none;"
+                <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg, .pdf, .zip" style="display: none;"
                   onchange="manejarSeleccionArchivo(this)">
               </div>
       
@@ -380,14 +378,14 @@
               </div>
             </div>
       
-            <!-- Columna Derecha: Vista previa de la imagen seleccionada -->
+            <!-- Columna Derecha: Vista previa del archivo seleccionado -->
             <div class="kanban-evidencias-col-derecha">
               <h3 class="kanban-evidencias-subtitulo">Vista previa</h3>
               <div class="kanban-evidencias-preview-box">
                 <div id="kanban-evidencias-preview-content" class="kanban-evidencias-preview-placeholder">
                   <div class="preview-icono-default">&#128444;</div>
                   <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
-                  <span class="preview-sub-text">Aquí se mostrará la imagen a tamaño completo</span>
+                  <span class="preview-sub-text">Aquí se mostrará la vista previa del archivo</span>
                 </div>
               </div>
             </div>
