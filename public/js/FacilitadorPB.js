@@ -58,7 +58,7 @@ let currentIndexMod = 0;
  */
 async function renderizarHistorias() {
     // 1. Solicitamos los datos al servidor y los guardamos en la variable
-    datosHistorias = await obtenerHistorias();
+    datosHistorias = await obtenerHistorias(1);
 
     // 2. Limpiamos el contenedor antes de inyectar los elementos
     divHistoria.innerHTML = "";
@@ -79,7 +79,6 @@ async function renderizarHistorias() {
             <label class="LabelID">${historia.id}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
             <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
-            <label class="LabelCriterios">${historia.criterios || historia.criterios_de_aceptacion || "#"}</label>
             <label class="LabelValor">${historia.valor || "#"}</label>
             <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
@@ -451,20 +450,18 @@ function verificarTituloUnico(inputDom) {
  * Obtiene un arreglo de historias desde el servidor
  */
 async function obtenerHistorias(idProyecto) {
-    const respuesta = await fetch(`/historias`, {
+    const respuesta = await fetch(`/historias/historiasPB/${idProyecto}`, {
         method: "GET",
         headers: {
             "Accept": "application/json"
-        },
-        body: JSON.stringify({
-            idProyecto: idProyecto
-        })
+        }
     });
+    const datos = await respuesta.json();
     if (!respuesta.ok) {
-        alert("Ocurrió un error, datos no obtenidos");
+        alert(datos.mensaje);
         return [];
     }
-    const datos = await respuesta.json();
+    
     const historias = datos.data || [];
     return historias;
 }

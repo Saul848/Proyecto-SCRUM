@@ -38,8 +38,8 @@ class historiaUsuarioDAO {
                 t_criterios.numero_de_criterio, 
                 t_criterios.criterios_de_aceptacion
             FROM 
-                historia_de_usuario t_historias, 
-                criterios_de_aceptacion t_criterios
+                scrumbird.historia_de_usuario t_historias, 
+                scrumbird.criterios_de_aceptacion t_criterios
             WHERE 
                 t_historias.id_proyecto = t_criterios.id_proyecto 
                 AND t_historias.id = t_criterios.id_historia AND

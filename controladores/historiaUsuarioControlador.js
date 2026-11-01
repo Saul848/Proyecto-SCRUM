@@ -21,7 +21,7 @@ class historiaUsuarioControlador {
     async listar(req, res) {
         try {
             const historias = await this.dao.obtenerHistorias();
-            res.json({ data: historias });
+            res.status(201).json({ data: historias });
         } catch (err) {
             this.#error(res, err);
         }
@@ -30,11 +30,22 @@ class historiaUsuarioControlador {
     async listarHistoriasPorProyecto(req, res){
         try {
             //Se obtiene el id del proyecto en el que se encuentra el usuario
-            const {idProyecto} =req.body
-            if(!idProyecto || !parseInt)
-
-        } catch (error) {
-            
+            const idProyecto = parseInt(req.params.idProyecto, 10);
+            //Verificamos que el dato enviado tenga un valor y que sea Entero
+            if(isNaN(idProyecto)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error el Proyecto no pudo ser encontrado"
+                })
+            }
+            const historias = await this.dao.obtenerHistoriasEnProyecto(idProyecto);
+            res.status(201).json({
+                ok:true,
+                mensaje: "Historias del proyecto recuperadas correctamente",
+                data: historias
+            })
+        } catch (err) {
+            this.#error(res, err);
         }
     }
 

@@ -52,8 +52,14 @@ const subirEvidencia = multer({
 });
 
 
-// "login" va antes de "/:id" para que no se confunda con un id
-router.get('/', (req, res) => controlador.listar(req, res));
+/**
+ * Obtiene todas las historias de usuario existentes en un proyecto
+ */
+router.get('/historiasPB/:idProyecto', (req, res) => controlador.listarHistoriasPorProyecto(req, res));
+/**
+ * Obtiene todas las historias de usuario que estan en un proyec
+ */
+router.post('/historiasPB/:idProyecto', (req, res) => controlador.agregar(req, res));
 
 /**
  * Obtiene todas las historias del sprint actual
@@ -96,10 +102,5 @@ router.delete(
  * @description Actualiza el estado de una historia
  */
 router.put('/estado/:idHistoria/:idProyecto', (req, res) => controlador.actualizarEstadoHistoria(req, res));
-
-
-
-router.post('/', (req, res) => controlador.agregar(req, res));
-
 
 module.exports = router;
