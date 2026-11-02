@@ -38,6 +38,22 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+
+/**
+ * Rutas de proyectos
+ */
+app.use('/proyectos', require('./routes/proyectosRoutes'));
+
+/**
+ * Rutas de reuniones
+ */
+app.use('/api/reunion', require('./routes/reunionRoutes'));
+
+/**
+ * Rutas de mensajes de cliente
+ */
+app.use('/mensajes', require('./routes/MensajesClienteRoutes'));    
+
 /**
  * Carga del certificado autorfirmado para el cifrado
  */
@@ -66,3 +82,12 @@ http.createServer((req, res)=>{
     res.end();
 }).listen(8082);
 
+/**
+ * Rutas de proyectos
+ */
+app.use('/proyectos', require('./routes/proyectosRoutes'));
+
+/**
+ * Rutas de mensajes
+ */
+app.use('/mensajes', require('./routes/mensajesRoutes'));

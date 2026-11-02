@@ -1,99 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fase 1</title>
-    <link rel="stylesheet" href="../css/sprintPlanning.css">
-</head>
-<body>
-    <div class="app">
-        <aside class="menu-lateral">
-            <button class="usuario-activo" id="btnUsuario">Facilitador</button>
-            <nav>
-                <a href="#">Mi equipo</a>
-                <a href="#">Mensajes</a>
-                <a href="#">Product Backlog</a>
-                <a href="#">Sprint</a>
-                <a href="#">Mis tareas</a>
-                <a href="reuniones.html" class="activo">Reunirse</a>
-                <a href="#">Gráficas</a>
-                <a href="#">Ajustes</a>
-            </nav>
-        </aside>
 
-        <main class="area-trabajo">
-            <header class="encabezado">
-                <h1>Sprint Planning</h1>
-            </header>
+<!---->
+<header id="planningSuperior">
+    <div id="cabeceraPlanning">
+        <!--fase 1-inicio/despliegue-->
+        <div id="historiasSprint" class="cabeceraDefault">
+            <span class="rolPlanning" id="rol">Facilitador</span>
+            <h1>Planificación de la iteración</h1>
+        </div>
 
-            <aside class="area-fondo">
-                <section id="fase1" class="fase">
-                    <div class="fase-titulo">
-                        <h2>Fase 1 de 2: ¿QUÉ vamos a entregar?</h2>
-                    </div>
+        <!--lista de tareas y detalles-->
+        <div id="historiasResumen" class="cabeceraDefault">
+            <h1>Tareas a realizar en la iteración</h1>
+        </div>
 
-                    <div class="fila-doble">
-                        <div class="panel">
-                            <h3>Requisitos priorizados</h3>
-                            <ul id="listaRequisitos" class="lista-requisitos">
-                                
-                            </ul>
-                        </div>
+        <!--fase 2 asignación de historias a desarrolladores-->
+        <div id="historiasAsignacion" class="cabeceraDefault">
+            <h1>Asignación de historias</h1>
+        </div>
+    </div>
+</header>
 
-                        <div class="panel">
-                            <h3>Dudas del equipo</h3>
-                            <div id="contenedorDudas" class="contenedor-dudas">
+<section id="area-trabajo">
+    <div class="area-fondo">
 
-                            </div>
+        <!-- Modal Fase 1-historias del sprint-->
+        <div id="vista-fase1" class="vista">
+            <div class="fase-subtitulo">
+                <h2>Fase 1 de 2: ¿QUÉ vamos a entregar?</h2>
+            </div>
 
-                            <div id="zonaNuevaDuda" class="zona-nueva-duda oculto">
-                                <input type="text" id="inputDuda" placeholder="Escribe tu duda...">
-                                <button id="btnNuevaDuda" class="btn-azul">+ Nueva duda</button>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="btnContinuar" class="btn-azul btn-continuar oculto">Continuar a Fase 2: El CÓMO →</button>
-                </section>
+            <div class="panel">
+                <h3>Lista de requisitos priorizados</h3>
+                <div class="diseño-fondo">
+                    <table class="tablaHistorias">
+                        <thead>
+                            <tr>
+                                <th>Historias de usuario</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoHistorias"></tbody>
+                    </table>
+                </div>
+            </div>
 
-                <section id="fase2" class="fase oculto">
-                    <div class="fase-titulo">
-                        <h2>Fase 2 de 2: ¿CÓMO lo vamos a hacer?</h2>
-                    </div>
+            <div class="acciones">
+                <button id="btnContinuar" class="btn-azul">Continuar</button>
+                <button id="btnSalir" class="btn-rojo">Salir</button>
+            </div>
+        </div>
 
-                    <div class="panel">
-                        <h3>Requisitos seleccionados:</h3>
-                        <p id="requisitosSeleccionados" class="texto-seleccion"></p>
-                    </div>
+        <!--Detalles/parte donde se va a calcular el planning poker-->
+        <div id="vistaDetalles" class="oculto">
+            <div>
+                <h2>Detalles:</h2>
+            </div>
 
-                    <div class="panel">
-                        <h3>Lista de tareas de la iteración</h3>
-                        <table class="tabla-tareas">
+            <div>
+                <h3>Duración</h3>
+                <table class="tablaDuracion">
+                    <thead>
+                        <tr>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Tiempo restante</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="date" id="inpFechaInicio"></td>
+                            <td><input type="date" id="inpFechaFin"></td>
+                            <td id="txtRestante">-- días</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <table id="tablaTareas">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Historia</th>
+                            <th id="colPuntos" class="oculto">Puntos de historia</th>
+                            <th id="colFactor" class="oculto">Factor de complejidad</th>
+                            <th id="colEsfuerzo" class="oculto">Esfuerzo estimado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+
+                <button id="btnContinuarPP" class="btn-azul">Continuar a Planning Poker</button>
+                <button id="btnContinuarFase2" class="btn-azul oculto">Continuar a fase 2</button>></button>
+            </div>
+        </div>
+        
+        <div id="vista-fase2" class="oculto">
+            <div class="fase-subtitulo">
+                <h2>Fase 2 de 2: ¿CÓMO lo vamos a hacer?</h2>
+            </div>
+
+            <div class="contenido-fase2">
+                <!-- Tabla de asignación -->
+                <div class="panel">
+                    <h3>Historias de la iteración</h3>
+                    <div class="diseño-fondo">
+                        <table class="tablaAsignacion">
                             <thead>
                                 <tr>
                                     <th>Tarea</th>
-                                    <th>Esfuerzo</th>
+                                    <th>Esfuerzo estimado</th>
                                     <th>Asignado</th>
-                                    <th></th>
                                 </tr>
                             </thead>
-                            <tbody id="cuerpoTareas">
-
-                            </tbody>
+                            <tbody id="cuerpoAsignacion"></tbody>
                         </table>
-                        <button id="btnNuevaTarea" class="btn-azul oculto">+ Nueva Tarea</button>
                     </div>
+                </div>
 
-                    <div class="acciones-finales">
-                        <button id="btnVolver" class="btn-gris">← Volver a Fase 1</button>
-                        <button id="btnConfirmar" class="btn-verde oculto">✓ Confirmar Sprint Backlog</button>
-                        <button id="btnFinalizar" class="btn-azul" data-reunion="reuniones">Finalizar reunión</button>
-                    </div>
-                </section>
-            </aside>
-        </main>
+                <!-- Panel lateral de solicitudes -->
+                <aside class="panel-solicitudes">
+                    <h3>Solicitudes (<span id="numSolicitudes">2</span>)</h3>
+                    <div id="listaSolicitudes"></div>
+                </aside>
+            </div>
+
+            <div class="acciones">
+                <button id="btnVolverFase1" class="btn-azul">← Volver a Fase 1</button>
+                <button id="btnConfirmarSprint" class="btn-azul">Confirmar Sprint Backlog</button>
+            </div>
+        </div>          
     </div>
-
-    <script src="../js/sprintPlanning.js"></script>
-</body>
-</html>
+</section>

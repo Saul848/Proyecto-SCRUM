@@ -64,6 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+/**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
 async function obtenerUsuarios() {
     try {
         // Generamos la solicitud
@@ -76,12 +80,11 @@ async function obtenerUsuarios() {
         
         // Obtenemos los datos del JSON
         const datos = await respuesta.json();
-        
         // Convertido a un array de usuarios
         const usuarios = datos.data || [];
         
         // Regresa el arreglo con los datos
-        console.log(usuarios)
+        //console.log(usuarios)
         alert("datos obtenidos");
         return usuarios;
     } catch (error) {
@@ -99,7 +102,6 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
     //Logica para mostrar el menú al seleccionar la opción
     const usuarios= await obtenerUsuarios();
     const contenedorUsuarios = document.getElementById("contenedor-usuarios");
-    console.log("contenedor obtenido");
 
     if(usuarios.length === 0) {
         contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
@@ -114,7 +116,7 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
     </button>
     `).join("");
     console.log("filas construidas");
-
+    
     contenedorUsuarios.innerHTML = tarjetas;
 
     contenedorUsuarios.addEventListener('click', (evento)=>{
@@ -124,5 +126,20 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
 
         const idUsuario = tarjeta.dataset.id;
         console.log("Click en el usuario con id: ", idUsuario);
+        /**Contenido de cada tarjeta para usuario individual - plantilla: añadir lógica todavía y css */
+        const detalles = `
+            <div id="cont-detalles-usuario" class="modal-overlay">
+                <div>   
+                    <h2>Detalles del usuario: <span id="nombre-usuario"></span>> </h2>
+                    <div id="detalles-usuario">
+
+                    </div>
+                    <h2>Proyectos actuales</h2>
+                    <div id="projects-usuario">
+                    
+                    </div>
+                </div>
+            </div>
+        `
     })
 })

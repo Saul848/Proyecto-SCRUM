@@ -247,3 +247,285 @@ body {
 }
 
 /*Estilos para los paneles de trabajo principales (superior, lateral y area de trabajo) --------------------------------*/
+
+/*Estilos del area de proyectos y crear proyectos*/
+.btn-primary {
+    background-color: #0088ff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background-color: #0077e6;
+}
+
+.content-area {
+    padding: 40px;
+}
+
+.content-area h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+/* VENTANA FLOTANTE (MODAL OVERLAY) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease-in-out;
+    z-index: 9999;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* TARJETA DEL MODAL */
+.modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    transform: translateY(-20px);
+    transition: transform 0.25s ease-in-out;
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.btn-close:hover {
+    color: #0f172a;
+}
+
+/* FORMULARIO */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input[type="text"]:focus {
+    border-color: #0088ff;
+    box-shadow: 0 0 0 3px rgba(0, 136, 255, 0.15);
+}
+
+/* LISTA DE COLABORADORES */
+.colaboradores-box {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #f8fafc;
+}
+
+.collab-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+
+.collab-item .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.collab-item .user-info label {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.collab-item .user-info strong {
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.collab-item .user-info span {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.select-rol {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    background-color: #ffffff;
+    color: #334155;
+    outline: none;
+}
+
+/* MENSAJES Y ALERTAS */
+.mensaje {
+    display: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.mensaje.exito {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.mensaje.error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+/* Contenedor exterior: fondo azulado claro, esquinas redondeadas */
+.panel-proyectos {
+    background-color: #eaf1f3;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.panel-proyectos h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* Lista interna: separa las tarjetas verticalmente */
+.lista-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tarjeta blanca individual */
+.item-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.item-nombre {
+    font-weight: 500;
+    color: #2c2c2c;
+}
+
+/* Variante para invitaciones: borde amarillo como en tu imagen */
+.item-card-invitacion {
+    border: 1px solid #f0d84b;
+}
+
+/* Insignias (badges) de rol -- borrar o reutilizar cuando se hagan las de verdad*/
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-azul {
+    background-color: #bde3f5;
+    color: #0b6fa8;
+}
+
+.badge-verde {
+    background-color: #bdeccb;
+    color: #1f8a3d;
+}
+
+.badge-boton {
+    background-color: #1a73e8;
+    color: #ffffff;
+    cursor: pointer;
+}

@@ -8,7 +8,7 @@
     
 </head>
 <body>
-
+ 
     <!-- Panel de Prueba / Header principal -->
     <div class="main-layout">
         <header class="top-bar">
@@ -79,13 +79,13 @@
         // Cargar usuarios al iniciar
         document.addEventListener("DOMContentLoaded", async () => {
             try {
-                const respuesta = await fetch('/proyectos/usuarios');
+                const respuesta = await fetch('/usuarios');
                 const resultado = await respuesta.json();
                 
                 const contenedor = document.getElementById('listaUsuarios');
-                if (resultado.ok && resultado.data.length > 0) {
+                if (respuesta.ok && resultado.length > 0) {
                     contenedor.innerHTML = '';
-                    resultado.data.forEach(user => {
+                    resultado.forEach(user => {
                         contenedor.innerHTML += `
                             <div class="collab-item">
                                 <div class="user-info">

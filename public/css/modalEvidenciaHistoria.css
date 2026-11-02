@@ -1,0 +1,307 @@
+/* Caja de contenido general */
+.kanban-evidencias-contenido {
+    width: 90%;
+    max-width: 1200px;
+    height: 88vh;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 2.5vh 2.5vw;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+}
+
+/* Cabecera superior */
+.kanban-evidencias-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.kanban-evidencias-btn-volver {
+    background: none;
+    border: none;
+    color: #2563eb;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+}
+
+.kanban-evidencias-btn-volver:hover {
+    text-decoration: underline;
+}
+
+.kanban-evidencias-estado-container {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.kanban-evidencias-label-estado {
+    font-weight: bold;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.kanban-evidencias-badge {
+    background-color: #f2c94c;
+    color: #1e293b;
+    padding: 0.5vh 1.2vw;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.kanban-evidencias-titulo-principal {
+    font-size: 1.6rem;
+    color: #0f172a;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Alerta superior */
+.kanban-evidencias-alerta {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 1.2vh 1.5vw;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.kanban-evidencias-alerta.bloqueado {
+    background-color: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+/* Cuerpo en Grid 2 columnas */
+.kanban-evidencias-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vw;
+    flex: 1;
+    min-height: 0;
+}
+
+.kanban-evidencias-col-izquierda,
+.kanban-evidencias-col-derecha {
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 2vh 1.5vw;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+}
+
+.kanban-evidencias-sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.kanban-evidencias-subtitulo {
+    font-size: 1.1rem;
+    color: #0f172a;
+    margin: 0;
+}
+
+.kanban-evidencias-formato-lbl {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Caja de subida de archivos */
+.kanban-evidencias-upload-box {
+    border: 2px dashed #93c5fd;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 2vh;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.kanban-evidencias-upload-box:hover {
+    background-color: #eff6ff;
+}
+
+.kanban-evidencias-upload-box.bloqueado {
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+}
+
+.kanban-evidencias-upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5vh;
+}
+
+.icon-upload {
+    font-size: 1.5rem;
+    color: #2563eb;
+    font-style: normal;
+}
+
+.kanban-evidencias-upload-main-text {
+    font-weight: bold;
+    color: #2563eb;
+    font-size: 0.95rem;
+}
+
+.kanban-evidencias-upload-sub-text {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Lista scrollable de archivos subidos */
+.kanban-evidencias-lista-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    padding-right: 4px;
+}
+
+/* Tarjeta individual de archivo subido */
+.kanban-evidencias-item-archivo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1vh 1vw;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.kanban-evidencias-item-archivo:hover {
+    border-color: #94a3b8;
+}
+
+.kanban-evidencias-item-archivo.seleccionado {
+    border-color: #2563eb;
+    background-color: #f8fafc;
+}
+
+.kanban-evidencias-item-info {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.kanban-evidencias-item-icono {
+    font-size: 1.5rem;
+}
+
+.kanban-evidencias-item-textos {
+    display: flex;
+    flex-direction: column;
+}
+
+.kanban-evidencias-item-nombre {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.kanban-evidencias-item-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.kanban-evidencias-item-acciones {
+    display: flex;
+    gap: 0.5vw;
+}
+
+/* Botones de acción (Descargar / Borrar) */
+.kanban-btn-accion {
+    padding: 0.5vh 0.8vw;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.kanban-btn-descargar {
+    background-color: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+
+.kanban-btn-descargar:hover {
+    background-color: #e2e8f0;
+}
+
+.kanban-btn-borrar {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fca5a5;
+}
+
+.kanban-btn-borrar:hover {
+    background-color: #fee2e2;
+}
+
+.kanban-lbl-bloqueado {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Caja de vista previa derecha */
+.kanban-evidencias-preview-box {
+    flex: 1;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 1vh;
+}
+
+.kanban-evidencias-preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh;
+    text-align: center;
+    color: #64748b;
+}
+
+.preview-icono-default {
+    font-size: 2.5rem;
+}
+
+.preview-nombre-archivo {
+    font-weight: bold;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.preview-imagen-real {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}

@@ -11,7 +11,7 @@ class ProyectosDAO {
      * @param {Object} proyectoData - Datos del proyecto y arreglo de colaboradores.
      */
     async crearProyectoConColaboradores(proyectoData) {
-        const { nombre, creador, duracion, colaboradores = [] } = proyectoData;
+        const { nombre, creador, duracion, colaboradores = []} = proyectoData;
         
         const client = await this.pool.connect();
         try {
@@ -21,7 +21,7 @@ class ProyectosDAO {
             const queryProyecto = `
                 INSERT INTO scrumbird.proyecto (nombre, creador, fecha_creacion, duracion)
                 VALUES ($1, $2, CURRENT_DATE, $3)
-                RETURNING id, nombre, creador, fecha_creacion, duracion;
+                RETURNING id, nombre, creador, fecha_creacion, duracion, dod;
             `;
             const resProyecto = await client.query(queryProyecto, [nombre, creador, duracion]);
             const nuevoProyecto = resProyecto.rows[0];
@@ -82,6 +82,29 @@ class ProyectosDAO {
             DO UPDATE SET rol = EXCLUDED.rol;
         `;
         await this.pool.query(query, [id_usuario, id_proyecto, rol]);
+    }
+
+    async listarProyectos(){
+        const { rows } = await this.pool.query(
+            'SELECT id, nombre, creador, fecha_creacion, duracion, dod FROM scrumbird.proyecto ORDER BY id;'
+        );
+        return rows;
+    }
+
+    async listarDODProyectoPorId(idProyecto){
+        const { rows } = await this.pool.query(
+            'SELECT dod FROM scrumbird.proyecto WHERE id = $1;',
+            [idProyecto]
+        );
+        return rows;
+    }
+
+    async listarProyectosDeUsuario(idUsuario){
+        const { rows } = await this.pool.query(
+            'SELECT p.*, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1',
+            [idUsuario]
+        );
+        return rows;
     }
 }
 
