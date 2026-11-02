@@ -882,21 +882,209 @@ async function cargarDefinicionDeHecho(idProyecto){
 document.addEventListener("DOMContentLoaded", ()=>{
     cargarDefinicionDeHecho(1);
 })
-//------------------------------------------graficas alejandra-------------
-function cargarGrafica(tipo) {
+
+let miGraficaChart = null; // Variable global para reutilizar el canvas de la gráfica
+
+async function cargarGrafica(tipo) {
     const contenedor = document.getElementById("contenedor-grafica-activa");
     const titulo = document.getElementById("titulo-grafica-activa");
+    const areaTabla = document.getElementById("area-tabla-datos");
+    const areaDibujo = document.getElementById("area-dibujo-grafica");
     
-    // Hacemos visible el contenedor de abajo
     contenedor.style.display = "block";
 
     if (tipo === 'product-backlog') {
         titulo.textContent = "Burndown Chart - Product Backlog (PB-56)";
-        // Aquí después haremos el fetch para traer los datos del Product Backlog
-        console.log("Cargando datos del Product Backlog...");
-    } else if (tipo === 'sprint') {
+        areaTabla.innerHTML = "<p style='color: #666;'>Cargando datos...</p>";
+        areaDibujo.innerHTML = "<canvas id='chartBurndownCanvas'></canvas>";
+
+        try {
+            const respuesta = await fetch('/proyectos/burndown-product-backlog');
+            const resultado = await respuesta.json();
+
+            if (resultado.ok && resultado.data.length > 0) {
+                // 1. Renderizamos la Tabla (igualita al azul de Excel)
+                let htmlTabla = `
+                    <table style="width:100%; border-collapse: collapse; font-size: 13px; text-align: center; border: 1px solid #38bdf8;">
+                        <thead>
+                            <tr style="background-color: #38bdf8; color: white;">
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Sprint</th>
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Horas restantes</th>
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Tareas terminadas</th>
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Tareas declaradas</th>
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Ideales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                resultado.data.forEach(row => {
+                    htmlTabla += `
+                        <tr style="background-color: #e0f2fe;">
+                            <td style="padding: 6px; border: 1px solid #bae6fd; font-weight: bold;">${row.sprint}</td>
+                            <td style="padding: 6px; border: 1px solid #bae6fd;">${row.horas_restantes}</td>
+                            <td style="padding: 6px; border: 1px solid #bae6fd;">${row.tareas_terminadas}</td>
+                            <td style="padding: 6px; border: 1px solid #bae6fd;">${row.tareas_declaradas}</td>
+                            <td style="padding: 6px; border: 1px solid #bae6fd;">${row.ideal}</td>
+                        </tr>
+                    `;
+                });
+
+                htmlTabla += `</tbody></table>`;
+                areaTabla.innerHTML = htmlTabla;
+
+                // 2. Renderizamos el Canvas con Chart.js
+                const labels = resultado.data.map(d => `Sprint ${d.sprint}`);
+                const datosIdeales = resultado.data.map(d => d.ideal);
+                const datosRestantes = resultado.data.map(d => d.horas_restantes);
+                const datosTerminadas = resultado.data.map(d => d.tareas_terminadas);
+                const datosDeclaradas = resultado.data.map(d => d.tareas_declaradas);
+
+                const ctx = document.getElementById('chartBurndownCanvas').getContext('2d');
+                
+                if (miGraficaChart) {
+                    miGraficaChart.destroy(); // Destruir previa si ya existía
+                }
+
+                miGraficaChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Ideales',
+                                data: datosIdeales,
+                                type: 'line',
+                                borderColor: '#0284c7',
+                                backgroundColor: '#0284c7',
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Horas restantes',
+                                data: datosRestantes,
+                                type: 'line',
+                                borderColor: '#16a34a',
+                                backgroundColor: '#16a34a',
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Tareas terminadas',
+                                data: datosTerminadas,
+                                backgroundColor: '#4ade80',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: 'Tareas declaradas',
+                                data: datosDeclaradas,
+                                backgroundColor: '#38bdf8',
+                                stack: 'Stack 0'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'BURNDOWN CHART'
+                            }
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: false, beginAtZero: true }
+                        }
+                    }
+                });
+
+            } else {
+                areaTabla.innerHTML = "<p>No hay sprints registrados.</p>";
+            }
+        } catch (error) {
+            console.error("Error cargando gráfica:", error);
+            areaTabla.innerHTML = "<p style='color:red;'>Error al cargar datos.</p>";
+        }
+    }
+     else if (tipo === 'sprint') {
         titulo.textContent = "Burndown Chart - Sprint Actual";
-        // Aquí después haremos el fetch para traer los datos del Sprint
-        console.log("Cargando datos del Sprint...");
+        areaTabla.innerHTML = "<p style='color: #666;'>Cargando sprint actual...</p>";
+        areaDibujo.innerHTML = "<canvas id='chartSprintCanvas' style='max-height: 230px;'></canvas>";
+
+        try {
+            const respuesta = await fetch('/proyectos/burndown-sprint');
+            const resultado = await respuesta.json();
+
+            if (resultado.ok && resultado.data.length > 0) {
+                // 1. Tabla de datos del Sprint
+                let htmlTabla = `
+                    <table style="width:100%; border-collapse: collapse; font-size: 13px; text-align: center; border: 1px solid #38bdf8;">
+                        <thead>
+                            <tr style="background-color: #38bdf8; color: white;">
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Sprint</th>
+                                <th style="padding: 8px; border: 1px solid #7dd3fc;">Horas Restantes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                resultado.data.forEach(row => {
+                    htmlTabla += `
+                        <tr style="background-color: #e0f2fe;">
+                            <td style="padding: 6px; border: 1px solid #bae6fd; font-weight: bold;">Sprint ${row.sprint}</td>
+                            <td style="padding: 6px; border: 1px solid #bae6fd;">${row.horas_restantes}</td>
+                        </tr>
+                    `;
+                });
+
+                htmlTabla += `</tbody></table>`;
+                areaTabla.innerHTML = htmlTabla;
+
+                // 2. Gráfica con Chart.js para el Sprint
+                const labels = resultado.data.map(d => `Sprint ${d.sprint}`);
+                const datosRestantes = resultado.data.map(d => d.horas_restantes);
+
+                const ctx = document.getElementById('chartSprintCanvas').getContext('2d');
+                
+                if (miGraficaChart) {
+                    miGraficaChart.destroy();
+                }
+
+                miGraficaChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Horas Restantes (Sprint)',
+                            data: datosRestantes,
+                            borderColor: '#e11d48',
+                            backgroundColor: '#e11d48',
+                            borderWidth: 2,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'BURNDOWN SPRINT ACTUAL'
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+            } else {
+                areaTabla.innerHTML = "<p>No hay datos para el sprint actual.</p>";
+            }
+        } catch (error) {
+            console.error("Error cargando gráfica de sprint:", error);
+            areaTabla.innerHTML = "<p style='color:red;'>Error al cargar datos del sprint.</p>";
+        }
     }
 }
