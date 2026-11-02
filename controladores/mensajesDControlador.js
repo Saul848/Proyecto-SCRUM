@@ -44,4 +44,4 @@ class mensajesDControlador {
     }
 }
 
-module.exports = mensajesDControlador;s
+module.exports = mensajesDControlador;

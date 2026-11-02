@@ -8,9 +8,9 @@ const inputMensaje = document.getElementById("inputMensaje");
 const btnEnviarMensaje = document.getElementById("btnEnviarMensaje");
 const tituloCanalActual = document.getElementById("tituloCanalActual");
 
-// ID de grupo activo por defecto (ej. Grupo 1: Dudas de requerimientos)
+// ID de grupo activo por defecto 
 let idGrupoActual = 1;
-// ID del usuario logueado actual (puedes adaptarlo según tu sesión)
+// ID del usuario logueado actual 
 const idUsuarioActual = 1; 
 
 /**
