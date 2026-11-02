@@ -184,30 +184,17 @@ class historiaUsuarioControlador {
      */
     async borrarEvidenciaHistoria(req, res) {
         try {
-
             const { idProyecto, idHistoria, nombreArchivo } = req.params;
 
+            // Validación de seguridad: evitar nombres inválidos o rutas manipuladas y permitir PNG, JPG, PDF y ZIP
             if (
                 !nombreArchivo ||
                 nombreArchivo !== path.basename(nombreArchivo) ||
-                !/\.(png|jpe?g)$/i.test(nombreArchivo)
+                !/\.(png|jpe?g|pdf|zip)$/i.test(nombreArchivo)
             ) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: "Nombre de archivo no válido."
-                });
-            }
-
-
-            // Evitar nombres de archivo inválidos o rutas manipuladas.
-            if (
-                !nombreArchivo ||
-                nombreArchivo !== path.basename(nombreArchivo) ||
-                !/\.(png|jpe?g)$/i.test(nombreArchivo)
-            ) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: "Nombre de archivo no válido."
+                    mensaje: "Nombre o formato de archivo no válido."
                 });
             }
 

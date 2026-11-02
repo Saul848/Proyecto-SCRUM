@@ -107,9 +107,9 @@ class ProyectosControlador {
 
     async listarProyectos(req, res) {
         try {
-        res.json(await this.dao.listar());
+            res.json(await this.dao.listarProyectos());
         } catch (err) {
-        this.#error(res, err);
+            this.#error(res, err);
         }
     }
 
@@ -123,6 +123,15 @@ class ProyectosControlador {
         } catch (error) {
             console.error(error)
             res.status(500).json({error: "Error al obtener el DOD"});
+        }
+    }
+
+    async listarProyectosDeUsuario(req, res){
+        try {
+            const{id} = req.params;
+            res.json(await this.dao.listarProyectosDeUsuario(id));
+        } catch (err) {
+            this.#error(res, err);
         }
     }
 

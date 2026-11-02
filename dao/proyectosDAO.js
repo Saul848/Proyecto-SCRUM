@@ -91,10 +91,18 @@ class ProyectosDAO {
         return rows;
     }
 
-    async listarDODProyectoPorId(id){
+    async listarDODProyectoPorId(idProyecto){
         const { rows } = await this.pool.query(
             'SELECT dod FROM scrumbird.proyecto WHERE id = $1;',
-            [id]
+            [idProyecto]
+        );
+        return rows;
+    }
+
+    async listarProyectosDeUsuario(idUsuario){
+        const { rows } = await this.pool.query(
+            'SELECT p.*, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1',
+            [idUsuario]
         );
         return rows;
     }
