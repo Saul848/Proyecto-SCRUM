@@ -135,14 +135,13 @@ async function obtenerProyectosDeUsuario(idUser) {
         
         // Obtenemos los datos del JSON
         const datos = await respuesta.json();
-        console.log("datos :"+ datos);
+        console.log("datos obtenidos - proyectos")
         // Convertido a un array de usuarios
         /*const proyectos = datos.data || [];
         console.log("proyectos: "+proyectos);
         
         // Regresa el arreglo con los datos
         //console.log(usuarios)*/
-        alert("datos obtenidos");
         return datos;
     } catch (error) {
         console.error("Error en la petición:", error);
@@ -184,7 +183,18 @@ document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
 
         if(!tarjetaP) return;
         console.log(sessionStorage.getItem('usuarioActivo'))
+        
+        const idProyecto = tarjetaP.dataset.id;
+        const rolUsuario = tarjetaP.dataset.rol;
 
         window.location.href = '/html/PanelFacilitador.html';
+        sessionStorage.setItem('proyectoActivo', idProyecto);
+        sessionStorage.setItem('proyectoActivo', rolUsuario);
+
+        const paneles = {
+            "Developer": "PanelDesarrollador.html",
+            "Scrum Master":"PanelFacilitador.html",
+            "Product Owner":"PanelCliente.html"
+        }
     })
 });
