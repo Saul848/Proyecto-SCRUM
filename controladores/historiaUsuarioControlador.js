@@ -57,7 +57,36 @@ class historiaUsuarioControlador {
     async agregarHistoria(req, res) {
         const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
         try {
-            
+            // Se verifica que ninguno de los datos este vacio
+            if (!nombre || !descripcion || !criterios || !valor || !idProyecto) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Todos los datos del formulario son obligatorios"
+                });
+            }
+            // Se verifica que el arreglo de criterios tenga almenos un criterio de aceptacion
+            if (criterios.length <= 0 ) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "No se han registrado criterios de aceptacion para la historia"
+                })
+            }
+            // Se verifica que el valor sea un numero
+            if (!Number.isNaN(valor)) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor enviado para la historia no es numerico"
+                })       
+            }
+            // Se verifica que el valor este dentro del rango estimado
+            if(valor < 0 || valor > 4000){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
+            })
+            }
+
+        //Fase de insercion
             const historiaCreada = await this.dao.agregarHistoria(req.body);
             // Creacion de carpeta de evidencias
             const idHistoria = historiaCreada.id;
