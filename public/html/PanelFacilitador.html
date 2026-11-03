@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="../css/sprintPlanning.css">
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <script>
+    // Forzamos la variable global para este archivo
+    const ROL_ACTUAL = "facilitador";
+  </script>
   <link rel="stylesheet" href="../css/registroTiempos.css">
   <link rel="stylesheet" href="../css/planningPokerFacilitador.css">
 
@@ -108,8 +112,8 @@
             <div id="divOpccionesInferiores">
               <div id="DivBtnCompartirMaterial">
                 <button type="button" class="btn-compartir-material" id="btn-compartir-material">
-                <span class="material-symbols-outlined">upload_file</span>
-                Compartir material adicional
+                  <span class="material-symbols-outlined">upload_file</span>
+                  Compartir material adicional
                 </button>
               </div>
               <div id="DivBtnAgregarHistoria">
@@ -624,6 +628,54 @@
       </div> <!--Aqui acaba el modal de registro de tiempos-->
     </section>
   </main>
+  <!-- MODAL AISLADO PARA MATERIAL ADICIONAL GENERAL -->
+  <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
+    <div class="modal-content">
+   
+      <!-- Cabecera: Botón Volver y Estado -->
+      <div class="modal-header">
+        <button class="btn-modal-cancelar kanban-evidencias-btn-volver" type="button" onclick="cerrarMiModalGeneral(event)">
+          &lsaquo; Volver al tablero
+        </button>
+        <span id="kanban-evidencias-badge-estado" class="badge-estado general-badge">General</span>
+      </div>
+   
+      <!-- Alerta informativa -->
+      <div class="alerta-info">
+        <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes (.png, .jpg), archivos PDF y archivos ZIP.</span>
+      </div>
+   
+      <!-- Zona de carga de archivos -->
+      <div id="kanban-evidencias-zona-carga" class="zona-carga" onclick="document.getElementById('kanban-evidencias-input-file').click();">
+        <p><strong>Subir material o evidencia</strong></p>
+        <p>Haz clic para elegir un archivo (PNG, JPG, PDF, ZIP)</p>
+        <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg, .pdf, .zip" onchange="manejarSeleccionArchivo(this)">
+      </div>
+   
+      <!-- Sección de lista de archivos -->
+      <div class="seccion-lista-archivos">
+        <h4 id="kanban-evidencias-contador">Archivos subidos (0)</h4>
+        <div id="kanban-evidencias-lista-archivos" class="lista-archivos">
+          <div class="sin-archivos">No hay evidencias subidas aún.</div>
+        </div>
+      </div>
+   
+      <!-- Sección de vista previa -->
+      <div class="seccion-preview">
+        <h4>Vista previa</h4>
+        <div id="kanban-evidencias-preview-content" class="preview-content">
+          <span class="preview-icono-default">&#128444;</span>
+          <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
+        </div>
+      </div>
+   
+      <!-- Acciones de cierre abajo -->
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>

@@ -622,6 +622,7 @@ body {
 
 /* Estilo para los botones principales de acciones (garantiza letras blancas y legibles) */
 #btnCompartirMaterial,
+#btn-compartir-material,
 #btnAgregarHistoria,
 #btnModHistoria,
 #btnGuardarModal,
