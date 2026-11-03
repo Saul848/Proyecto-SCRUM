@@ -367,3 +367,39 @@ body {
 .btn-ver-material:active {
     transform: scale(0.98);
 }
+.dev-seccion-label {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+.dev-menu-lista {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dev-menu-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #334155;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dev-menu-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.dev-menu-btn.activo {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    font-weight: 700;
+}

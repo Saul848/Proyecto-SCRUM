@@ -40,20 +40,38 @@ const subirEvidencia = multer({
     },
     fileFilter: (req, file, cb) => {
         const extension = path.extname(file.originalname).toLowerCase();
-        const extensionesPermitidas = ['.png', '.jpg', '.jpeg'];
+        const extensionesPermitidas = ['.png', '.jpg', '.jpeg', '.pdf', '.zip'];
+        
+        const mimetypesPermitidos = [
+            'image/png',
+            'image/jpeg',
+            'application/pdf',
+            'application/zip',
+            'application/x-zip-compressed',
+            'multipart/x-zip'
+        ];
 
-        if (extensionesPermitidas.includes(extension) &&
-            ['image/png', 'image/jpeg'].includes(file.mimetype)) {
+        if (extensionesPermitidas.includes(extension) && mimetypesPermitidos.includes(file.mimetype)) {
             return cb(null, true);
         }
 
-        cb(new Error('Solo se permiten imágenes PNG y JPG.'));
+        cb(new Error('Solo se permiten imágenes (PNG, JPG), archivos PDF y ZIP.'));
     }
 });
 
 
+
+/**
+ * Obtiene todas las historias de usuario existentes en un proyecto
+ */
+router.get('/historiasPB/:idProyecto', (req, res) => controlador.listarHistoriasPorProyecto(req, res));
+
+
+router.post('/historiasPB', (req, res) => controlador.agregarHistoria(req, res));
+
 // "login" va antes de "/:id" para que no se confunda con un id
 router.get('/', (req, res) => controlador.listar(req, res));
+
 
 /**
  * Obtiene todas las historias del sprint actual
@@ -96,10 +114,5 @@ router.delete(
  * @description Actualiza el estado de una historia
  */
 router.put('/estado/:idHistoria/:idProyecto', (req, res) => controlador.actualizarEstadoHistoria(req, res));
-
-
-
-router.post('/', (req, res) => controlador.agregar(req, res));
-
 
 module.exports = router;

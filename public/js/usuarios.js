@@ -85,7 +85,7 @@ async function obtenerUsuarios() {
         
         // Regresa el arreglo con los datos
         //console.log(usuarios)
-        alert("datos obtenidos");
+        console.log("datos obtenidos");
         return usuarios;
     } catch (error) {
         console.error("Error en la petición:", error);
