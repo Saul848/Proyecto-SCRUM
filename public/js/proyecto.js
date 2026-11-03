@@ -158,6 +158,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
     const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'))
     const idUser = usuarioActivo.id;
     const proyectos = await obtenerProyectosDeUsuario(idUser);
+    console.log(proyectos);
     console.log("proyectos recibidos:", proyectos);
     
     const contenedor = document.querySelector("#mis-proyectos .lista-items");
@@ -166,7 +167,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
     }
 
     const tarjetasP = proyectos.map(proyecto =>`
-    <button class="item-card" data-id="${proyecto.id}">
+    <button class="item-card" data-id="${proyecto.id}" data-rol="${proyecto.rol}">
         <span class="item-nombre">${proyecto.nombre}</span>
         <span class="badge badge-azul">${proyecto.rol}</span>
     </button>
@@ -185,9 +186,10 @@ document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
         console.log(sessionStorage.getItem('usuarioActivo'))
         
         const idProyecto = tarjetaP.dataset.id;
+        console.log("id: " + idProyecto);
         const rolUsuario = tarjetaP.dataset.rol;
+        console.log("roL: "+rolUsuario);
 
-        window.location.href = '/html/PanelFacilitador.html';
         sessionStorage.setItem('proyectoActivo', idProyecto);
         sessionStorage.setItem('proyectoActivo', rolUsuario);
 
@@ -196,5 +198,12 @@ document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
             "Scrum Master":"PanelFacilitador.html",
             "Product Owner":"PanelCliente.html"
         }
+        const pagina = paneles[rolUsuario];
+        if(!pagina){
+            console.error("rol no reconocido", rolUsuario);
+            return;
+        }
+        window.location.href = `/html/${pagina}?idProyecto=${idProyecto}`;
+        //window.location.href = `/html/${pagina}?idProyecto=${idProyecto}`;
     })
 });

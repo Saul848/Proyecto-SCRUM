@@ -52,7 +52,13 @@ app.use('/api/reunion', require('./routes/reunionRoutes'));
 /**
  * Rutas de mensajes de cliente
  */
-app.use('/mensajes', require('./routes/MensajesClienteRoutes'));    
+app.use('/mensajes', require('./routes/MensajesClienteRoutes'));
+
+
+/**
+ * Rutas de registro de tiempos de usuarios
+ */
+app.use('/registro-tiempos', require('./routes/registroTiemposRoutes'));
 
 /**
  * Carga del certificado autorfirmado para el cifrado
