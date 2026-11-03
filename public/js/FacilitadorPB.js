@@ -687,6 +687,7 @@ async function cargarKanvan(){
     }
 
     inicializarTablero();
+    inicializarBuscadorKanban();
 }
 
 let tarjetaArrastrada = null;
@@ -943,6 +944,38 @@ async function actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
         alert("Error de conexión al guardar los cambios.");
         return false;
     }
+}
+
+/**
+ * Inicializa el comportamiento de búsqueda en tiempo real para el tablero Kanban.
+ * Escucha los eventos de entrada del usuario en el input de búsqueda y filtra
+ * de forma dinámica las tarjetas visibles según el título o contenido coincidente.
+ * 
+ * @function inicializarBuscadorKanban
+ * @returns {void} No retorna ningún valor.
+ */
+function inicializarBuscadorKanban() {
+    const inputBusqueda = document.getElementById("inputBusquedaKanban");
+    
+    if (!inputBusqueda) return;
+
+    inputBusqueda.addEventListener("input", (e) => {
+        const textoBusqueda = e.target.value.toLowerCase().trim();
+        const tarjetas = document.querySelectorAll(".tarjeta-historia");
+
+        tarjetas.forEach(tarjeta => {
+            const tituloElemento = tarjeta.querySelector(".historia-titulo");
+            const textoTitulo = tituloElemento ? tituloElemento.textContent.toLowerCase() : "";
+            const contenidoCompleto = tarjeta.textContent.toLowerCase();
+
+            // Si el título o el contenido incluyen lo que escribió el usuario, se muestra; si no, se oculta
+            if (textoTitulo.includes(textoBusqueda) || contenidoCompleto.includes(textoBusqueda)) {
+                tarjeta.style.display = ""; 
+            } else {
+                tarjeta.style.display = "none"; 
+            }
+        });
+    });
 }
 
 // Inicializar al cargar el DOM
