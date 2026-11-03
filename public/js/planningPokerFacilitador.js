@@ -61,8 +61,8 @@ function inicializarPlanningPokerFacilitador(contenedor) {
     );
 
     // Identidad del usuario que ha iniciado sesión.
-    const nombreFacilitador =
-        sessionStorage.getItem("nombreUsuario") || "Facilitador";
+    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 0, name: "Facilitador Pruebas" };
+    const nombreFacilitador = usuarioActual.nombre;
 
     // Inicialización de eventos de los botones.
     btnMostrarCartas?.addEventListener("click", revelarCartas);
@@ -127,7 +127,7 @@ function inicializarPlanningPokerFacilitador(contenedor) {
      * Solicita avanzar a la siguiente historia del Sprint.
      */
     function saltarHistoria() {
-        if (!window.confirm("¿Deseas saltar esta historia?")) {
+        if (!window.confirm("¿Deseas saltar esta historia. Sin asignar puntos?")) {
             return;
         }
 
@@ -297,22 +297,140 @@ function inicializarPlanningPokerFacilitador(contenedor) {
         }
     }
 
+    // Referencias a las secciones principales del DOM
+    const cardProcessVoting = contenedor.querySelector("#card-pp-processVoting");
+    const cardResultsVoting = contenedor.querySelector("#card-pp-resultsVoting");
+    const cardResultStatistics = contenedor.querySelector("#card-pp-resultStatistics");
+    const cardResultActions = contenedor.querySelector("#card-pp-resultActions");
+
+    // Ocultar resultados y estadísticas al iniciar o repetir votación
+    function reiniciarVistaVotacion() {
+        if (cardProcessVoting) cardProcessVoting.style.display = "block";
+        if (cardResultsVoting) cardResultsVoting.style.display = "none";
+        if (cardResultStatistics) cardResultStatistics.style.display = "none";
+        if (cardResultActions) cardResultActions.style.display = "none";
+        
+        // Limpiar tabla estadística si existe
+        const tabla = contenedor.querySelector("#statistics-cont-table table");
+        if (tabla) {
+            const rowData = tabla.querySelectorAll("tr:last-child td");
+            rowData.forEach(td => td.textContent = "0");
+        }
+        if (recomendacionVotacion) {
+            recomendacionVotacion.textContent = "Espera a que el facilitador abra la discusión o cierre la votacion.";
+        }
+    }
+
+    // Renderizar tarjetas en curso (Votando...)
+    function renderizarTarjetasVotando(participants = [], votes = {}) {
+        if (cardProcessVoting) cardProcessVoting.style.display = "block";
+        if (cardResultsVoting) cardResultsVoting.style.display = "none";
+        if (cardResultStatistics) cardResultStatistics.style.display = "none";
+        if (cardResultActions) cardResultActions.style.display = "none";
+
+        const seccionTarjetas = contenedor.querySelector("#pV-cards-section-cards");
+        if (!seccionTarjetas) return;
+        seccionTarjetas.innerHTML = "";
+
+        if (participants.length === 0) {
+            seccionTarjetas.innerHTML = "<p>Esperando desarrolladores...</p>";
+            return;
+        }
+
+        participants.forEach(p => {
+            const yaVoto = votes[p.id] && votes[p.id].hasVoted;
+            const cardDiv = document.createElement("div");
+            cardDiv.className = "card-voting-hidden";
+            cardDiv.innerHTML = `
+                <div class="card-voting-hidden-visual ${yaVoto ? 'voted' : 'unvoted'}"></div>
+                <div class="card-voting-hidden-info">
+                    <p class="text-info-planning-poker">${p.name}</p>
+                    <p class="text-info-planning-poker" style="font-size: 11px; color: gray;">
+                        ${yaVoto ? 'Voto registrado' : 'Aún no vota'}
+                    </p>
+                </div>
+            `;
+            seccionTarjetas.appendChild(cardDiv);
+        });
+    }
+
+    // Renderizar tarjetas reveladas, estadísticas y tabla
+    function renderizarResultados(data) {
+        if (cardProcessVoting) cardProcessVoting.style.display = "none";
+        if (cardResultsVoting) cardResultsVoting.style.display = "block";
+        if (cardResultStatistics) cardResultStatistics.style.display = "block";
+        if (cardResultActions) cardResultActions.style.display = "block";
+
+        if (promedioVotacion) promedioVotacion.textContent = data.average ?? "—";
+        if (informacionPromedio) {
+            informacionPromedio.textContent = `Promedio de ${data.numericVotesCount} participantes que votaron con numero`;
+        }
+
+        // Renderizar cartas reveladas
+        const seccionResultadosCards = contenedor.querySelector("#rV-cards-section-cards");
+        if (seccionResultadosCards) {
+            seccionResultadosCards.innerHTML = "";
+            data.participants.forEach(p => {
+                const votoObj = data.votes[p.id];
+                let valorVoto = votoObj ? votoObj.vote : "-";
+                if (valorVoto === "UNKNOWN") valorVoto = "?";
+                if (valorVoto === "BREAK") valorVoto = "☕";
+                const fueVotado = votoObj && votoObj.hasVoted;
+
+                const cardDiv = document.createElement("div");
+                cardDiv.className = "card-voting-revealed";
+                cardDiv.innerHTML = `
+                    <div class="card-voting-revealed-visual ${fueVotado ? 'voted' : 'unvoted'}">
+                        <p class="text-info-result-vote">${valorVoto}</p>
+                    </div>
+                    <div class="card-voting-revealed-info">
+                        <p class="text-info-planning-poker">${p.name}</p>
+                    </div>
+                `;
+                seccionResultadosCards.appendChild(cardDiv);
+            });
+        }
+
+        // Llenar tabla estadística dinámicamente según los headers de la tabla HTML
+        const tablaEstadistica = contenedor.querySelector("#statistics-cont-table table");
+        if (tablaEstadistica && data.voteCounts) {
+            const headers = tablaEstadistica.querySelectorAll("tr:first-child th");
+            const rowData = tablaEstadistica.querySelectorAll("tr:last-child td");
+            
+            headers.forEach((th, index) => {
+                const key = th.textContent.trim();
+                if (rowData[index]) {
+                    rowData[index].textContent = data.voteCounts[key] || 0;
+                }
+            });
+        }
+
+        // Actualizar recomendación analizada
+        if (recomendacionVotacion && data.recommendation) {
+            recomendacionVotacion.textContent = data.recommendation;
+        }
+    }
+
     /**
      * Permite al código que integra este panel actualizar la interfaz.
      * Estas funciones no realizan peticiones al servidor por sí solas.
      */
+    // Expón estas funciones en el objeto contenedor para que el puente las invoque
     contenedor.planningPokerFacilitador = {
         actualizarHistoria,
         actualizarEstadoVotacion,
         actualizarResultados,
         actualizarRecomendacion,
-        mostrarMensaje
+        mostrarMensaje,
+        renderizarTarjetasVotando,
+        renderizarResultados,
+        reiniciarVistaVotacion
     };
 
     // El facilitador administra la sesión, pero no vota.
     console.log("Controles de Planning Poker del facilitador inicializados.");
 }
 
-export {
-    inicializarPlanningPokerFacilitador
-}
+
+window.inicializarPlanningPokerFacilitador =
+    inicializarPlanningPokerFacilitador;

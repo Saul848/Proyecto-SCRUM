@@ -151,59 +151,106 @@ async function obtenerProyectosDeUsuario(idUser) {
 }
 
 /**
- * Método para mostrar el panel de proyectos
+ * Convierte los roles del proyecto a los nombres
+ * utilizados en las páginas de esta implementación.
  */
-document.getElementById("btn-proyectos").addEventListener('click', async ()=>{
+function convertirRol(rol) {
+    const roles = {
+        "Scrum Master": "facilitador",
+        "Developer": "desarrollador",
+        "Product Owner": "cliente"
+    };
+
+    return roles[rol] || rol;
+}
+
+/**
+ * Método para mostrar el panel de proyectos.
+ */
+document.getElementById("btn-proyectos").addEventListener('click', async () => {
     mostrarModalP("modal-proyectos");
-    const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'))
+
+    const usuarioActivo = JSON.parse(
+        sessionStorage.getItem('usuarioActivo')
+    );
+
     const idUser = usuarioActivo.id;
+
     const proyectos = await obtenerProyectosDeUsuario(idUser);
-    console.log(proyectos);
-    console.log("proyectos recibidos:", proyectos);
-    
-    const contenedor = document.querySelector("#mis-proyectos .lista-items");
-    if(proyectos.length === 0) {
-        contenedor.innerHTML = "<p>Sin proyectos aún, ¡prueba a crear uno!</p>";
+
+    console.log("Proyectos recibidos:", proyectos);
+
+    const contenedor = document.querySelector(
+        "#mis-proyectos .lista-items"
+    );
+
+    if (proyectos.length === 0) {
+        contenedor.innerHTML =
+            "<p>Sin proyectos aún, ¡prueba a crear uno!</p>";
+        return;
     }
 
-    const tarjetasP = proyectos.map(proyecto =>`
-    <button class="item-card" data-id="${proyecto.id}" data-rol="${proyecto.rol}">
-        <span class="item-nombre">${proyecto.nombre}</span>
-        <span class="badge badge-azul">${proyecto.rol}</span>
-    </button>
+    const tarjetasP = proyectos.map(proyecto => `
+        <button class="item-card" data-id="${proyecto.id}">
+            <span class="item-nombre">${proyecto.nombre}</span>
+            <span class="badge badge-azul">${proyecto.rol}</span>
+        </button>
     `).join("");
-
-    console.log("filas construidas");
 
     contenedor.innerHTML = tarjetasP;
 
-    console.log("filas insertadas")
-
-    contenedor.addEventListener('click', (evento)=>{
+    // Evitar agregar el mismo evento repetidamente.
+    contenedor.onclick = (evento) => {
         const tarjetaP = evento.target.closest('.item-card');
 
-        if(!tarjetaP) return;
-        console.log(sessionStorage.getItem('usuarioActivo'))
-        
-        const idProyecto = tarjetaP.dataset.id;
-        console.log("id: " + idProyecto);
-        const rolUsuario = tarjetaP.dataset.rol;
-        console.log("roL: "+rolUsuario);
+        if (!tarjetaP) return;
 
-        sessionStorage.setItem('proyectoActivo', idProyecto);
-        sessionStorage.setItem('proyectoActivo', rolUsuario);
+        const idProyecto = Number(tarjetaP.dataset.id);
 
-        const paneles = {
-            "Developer": "PanelDesarrollador.html",
-            "Scrum Master":"PanelFacilitador.html",
-            "Product Owner":"PanelCliente.html"
-        }
-        const pagina = paneles[rolUsuario];
-        if(!pagina){
-            console.error("rol no reconocido", rolUsuario);
+        // Encontrar el proyecto seleccionado.
+        const proyectoSeleccionado = proyectos.find(
+            proyecto => Number(proyecto.id) === idProyecto
+        );
+
+        if (!proyectoSeleccionado) {
+            console.error("No se encontró el proyecto seleccionado.");
             return;
         }
-        window.location.href = `/html/${pagina}?idProyecto=${idProyecto}`;
-        //window.location.href = `/html/${pagina}?idProyecto=${idProyecto}`;
-    })
+
+        // Convertir el rol a los nombres de esta implementación.
+        const rolOriginal = proyectoSeleccionado.rol;
+        const rolConvertido = convertirRol(rolOriginal);
+
+        // Guardar el proyecto y el rol en la sesión.
+        sessionStorage.setItem('proyectoActivo', JSON.stringify({
+            id: proyectoSeleccionado.id,
+            nombre: proyectoSeleccionado.nombre,
+            rolOriginal: rolOriginal,
+            rol: rolConvertido
+        }));
+
+        console.log(
+            "Proyecto activo:",
+            JSON.parse(sessionStorage.getItem('proyectoActivo'))
+        );
+
+        // Redirigir según el rol.//MODIFICAR A LOS PANELS PROPIOS DE CADA ROL
+        switch (rolConvertido) {
+            case "facilitador":
+                window.location.href = '/html/PanelFacilitador.html';
+                break;
+
+            case "desarrollador":
+                window.location.href = '/html/desarrolladorBoton.html';
+                break;
+
+            case "cliente":
+                window.location.href = '/html/PanelFacilitador.html';
+                break;
+
+            default:
+                console.error("Rol no reconocido:", rolOriginal);
+                alert("No se reconoce tu rol en este proyecto.");
+        }
+    };
 });

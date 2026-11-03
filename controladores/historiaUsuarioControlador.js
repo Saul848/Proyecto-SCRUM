@@ -13,34 +13,92 @@ class historiaUsuarioControlador {
     constructor(historiaUsuarioDAO) {
         this.dao = historiaUsuarioDAO;
     }
-
-    // GET /historias
+    /**
+     * Funcion que envia al cliente todas las historias de usuarios en la BD, se ejecuta con el verbo GET y la url /historias
+     * @param {*} req 
+     * @param {*} res 
+     */
     async listar(req, res) {
         try {
             const historias = await this.dao.obtenerHistorias();
-            res.json({ data: historias });
+            res.status(201).json({ data: historias });
+        } catch (err) {
+            this.#error(res, err);
+        }
+    }
+
+    async listarHistoriasPorProyecto(req, res){
+        try {
+            //Se obtiene el id del proyecto en el que se encuentra el usuario
+            const idProyecto = Number(req.params.idProyecto);
+            console.log(req.params)
+            //Verificamos que el dato enviado tenga un valor y que sea Entero
+            if(Number.isNaN(idProyecto)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error el Proyecto no pudo ser encontrado"
+                })
+            }
+            const historias = await this.dao.obtenerHistoriasEnProyecto(idProyecto);
+            if (historias){
+                res.status(201).json({
+                    ok:true,
+                    mensaje: "Historias del proyecto recuperadas correctamente",
+                    data: historias
+                })
+            }
+
         } catch (err) {
             this.#error(res, err);
         }
     }
 
     // POST /historias  body: { titulo, descripcion, criterios, valor, sprintAsig }
-    async agregar(req, res) {
-        const { nombre, descripcion, criterios, valor, sprint } = req.body;
+    async agregarHistoria(req, res) {
+        const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
         try {
-            const historiaCreada = await this.dao.agregarHistoria(req.body);
+            // Se verifica que ninguno de los datos este vacio
+            if (!nombre || !descripcion || !criterios || valor === undefined || valor === null || !idProyecto) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Todos los datos del formulario son obligatorios"
+                });
+            }
+            // Se verifica que el arreglo de criterios tenga almenos un criterio de aceptacion
+            if (criterios.length <= 0 ) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "No se han registrado criterios de aceptacion para la historia"
+                })
+            }
+            // Se verifica que el valor sea un numero
+            if (isNaN(valor) || typeof valor !== 'number') {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor enviado para la historia no es numerico"
+                })       
+            }
+            // Se verifica que el valor este dentro del rango estimado
+            if(valor < 0 || valor > 4000){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
+            })
+            }
 
+        //Fase de insercion
+            const historiaCreada = await this.dao.agregarHistoria(req.body);
             // Creacion de carpeta de evidencias
             const idHistoria = historiaCreada.id;
             const proyectoId = historiaCreada.id_proyecto
-
             // 2. Crear físicamente la carpeta de evidencias para esta historia: evidencias/idProyecto/idHistoria
             if (proyectoId && idHistoria) {
                 crearCarpetaHistoria(proyectoId, idHistoria);
             }
-
-
-            res.status(201).json(historiaCreada);
+            res.status(201).json({
+                ok:true,
+                mensaje:"Historia agregada correctamente"
+            });
         } catch (err) {
             this.#error(res, err);
         }
