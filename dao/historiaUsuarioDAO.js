@@ -118,7 +118,7 @@ class historiaUsuarioDAO {
                 VALUES ($1, $2, $3, $4)
                 RETURNING id;
              `;
-            resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, idProyecto]);
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, idProyecto]);
             const idGenerado = resultadoHistoria.rows[0].id;
 
             const insercionCriterio = `INSERT INTO scrumbird.criterios_de_aceptacion (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)

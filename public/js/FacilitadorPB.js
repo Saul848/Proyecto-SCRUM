@@ -225,7 +225,7 @@ btnCerrarModalMod.addEventListener("click", function () {
 
 // Listener para guardar una nueva historia de usuario desde el modal
 btnGuardarHistoria.addEventListener("click", function () {
-    agregarHistoriaUsuario();
+    agregarNuevaHistoria();
 });
 
 //Funcion que actualiza los elementos para mostrar los criterios de aceptacion en los modales
@@ -420,7 +420,7 @@ function verificarCampos(grupoInputs){
             elemento.placeholder = "Error, rellena este campo";
             verificado = false;
         } else {
-            if(elemento === inpAddTitulo||inpModTitulo){
+            if(elemento === inpAddTitulo || elemento === inpModTitulo){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -434,7 +434,7 @@ function verificarCampos(grupoInputs){
                     }
                 }
             }
-            if(elemento === inpAddDescripcion||inpModDescripcion){
+            if(elemento === inpAddDescripcion || elemento === inpModDescripcion){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -444,7 +444,7 @@ function verificarCampos(grupoInputs){
                     elemento.style.border = "2px solid blue";
                 }
             }
-            if(elemento === inpAddValor||inpModValor){
+            if(elemento === inpAddValor || elemento ===inpModValor){
                 if(!patronRangoValor.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
                     elemento.value = "";
@@ -549,12 +549,12 @@ async function agregarHistoriaUsuario(idProyecto) {
     let nombre = inpAddTitulo.value.trim();
     let descripcion = inpAddDescripcion.value.trim();
     let criteriosDom = containerAdd.querySelectorAll('textarea')
-    let criteriosArray= {}
+    let criteriosArray= []
     criteriosDom.forEach((element) =>{
         criteriosArray.push({criterio:element.value.trim()})
     });
-    let valor = inpAddValor.value.trim();
-    const respuesta = await fetch("/historias", {
+    let valor = parseInt(inpAddValor.value.trim(), 10);
+    const respuesta = await fetch("/historias/historiasPB", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -570,7 +570,7 @@ async function agregarHistoriaUsuario(idProyecto) {
 
     const resultado = await respuesta.json();
 
-    if (resultado.ok || respuesta.status === 201) {
+    if (resultado.success || respuesta.status === 201) {
         alert(resultado.mensaje || "Historia agregada correctamente");
         
         // Limpiamos los campos de los filtros para que la nueva historia se vea inmediatamente

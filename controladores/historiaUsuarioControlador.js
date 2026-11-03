@@ -58,7 +58,7 @@ class historiaUsuarioControlador {
         const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
-            if (!nombre || !descripcion || !criterios || !valor || !idProyecto) {
+            if (!nombre || !descripcion || !criterios || valor === undefined || valor === null || !idProyecto) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Todos los datos del formulario son obligatorios"
@@ -72,7 +72,7 @@ class historiaUsuarioControlador {
                 })
             }
             // Se verifica que el valor sea un numero
-            if (!Number.isNaN(valor)) {
+            if (isNaN(valor) || typeof valor !== 'number') {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "El valor enviado para la historia no es numerico"
@@ -95,7 +95,10 @@ class historiaUsuarioControlador {
             if (proyectoId && idHistoria) {
                 crearCarpetaHistoria(proyectoId, idHistoria);
             }
-            res.status(201).json(historiaCreada);
+            res.status(201).json({
+                ok:true,
+                mensaje:"Historia agregada correctamente"
+            });
         } catch (err) {
             this.#error(res, err);
         }

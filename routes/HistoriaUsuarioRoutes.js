@@ -58,7 +58,7 @@ const subirEvidencia = multer({
 router.get('/historiasPB/:idProyecto', (req, res) => controlador.listarHistoriasPorProyecto(req, res));
 
 
-router.post('/historiasPB/:idProyecto', (req, res) => controlador.listarHistoriasPorProyecto(req, res));
+router.post('/historiasPB', (req, res) => controlador.agregarHistoria(req, res));
 
 /**
  * Obtiene todas las historias de usuario que estan en un proyec
