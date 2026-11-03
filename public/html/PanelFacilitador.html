@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../css/sprintPlanning.css">
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link rel="stylesheet" href="../css/registroTiempos.css">
   <link rel="stylesheet" href="../css/planningPokerFacilitador.css">
 
   <!-- Carga la librería cliente de Socket.IO -->
@@ -69,7 +70,7 @@
           <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button></li>
           <li><button href="#" id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">Graficas</button></li>
           <li><button href="#" id="linkAjustes">Ajustes</button></li>
-          <li><button href="#" id="btn-storage">Prueba sessionStorage</button></li>
+          <li><button href="#" id="linkTiempos" onclick="mostrarModal('modal-tiempos', 'cabecera-springPlanning')">Registro de tiempos</button></li>
         </ul>
     </section>
 
@@ -554,55 +555,73 @@
       </div>
       <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
 
-<!-- Sección de Gráficas -->
-<div id="modal-graficas" class="modal-class" style="display: none;">
-    <div class="chat-header">
-        <h3>Gráficas y Métricas del Proyecto</h3>
-    </div>
+      <!-- Sección de Gráficas -->
+      <div id="modal-graficas" class="modal-class" style="display: none;">
+          <div class="chat-header">
+              <h3>Gráficas y Métricas del Proyecto</h3>
+          </div>
 
-    <!-- Opciones de Gráficas -->
-    <div style="padding: 20px;">
-        <p style="color: #666; margin-bottom: 20px;">Selecciona qué gráfica deseas visualizar:</p>
-        
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            
-            <!-- Opción 1: Burndown Chart del Product Backlog (PB-56) -->
-            <div class="tarjeta-grafica" onclick="cargarGrafica('product-backlog')" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; width: 260px; cursor: pointer; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;">
-                <div style="font-size: 24px; color: #2563eb; margin-bottom: 10px;">📊</div>
-                <h4 style="margin: 0 0 8px 0; color: #333;">Burndown Chart (Product Backlog)</h4>
-                <p style="margin: 0; font-size: 13px; color: #777;">Monitorea el avance total de las historias y estimaciones del proyecto.</p>
-            </div>
+          <!-- Opciones de Gráficas -->
+          <div style="padding: 20px;">
+              <p style="color: #666; margin-bottom: 20px;">Selecciona qué gráfica deseas visualizar:</p>
+              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                  <!-- Opción 1: Burndown Chart del Product Backlog (PB-56) -->
+                  <div class="tarjeta-grafica" onclick="cargarGrafica('product-backlog')" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; width: 260px; cursor: pointer; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;">
+                      <div style="font-size: 24px; color: #2563eb; margin-bottom: 10px;">📊</div>
+                      <h4 style="margin: 0 0 8px 0; color: #333;">Burndown Chart (Product Backlog)</h4>
+                      <p style="margin: 0; font-size: 13px; color: #777;">Monitorea el avance total de las historias y estimaciones del proyecto.</p>
+                  </div>
+                  <!-- Opción 2: Burndown Chart del Sprint -->
+                  <div class="tarjeta-grafica" onclick="cargarGrafica('sprint')" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; width: 260px; cursor: pointer; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;">
+                      <div style="font-size: 24px; color: #ff8c00; margin-bottom: 10px;">📉</div>
+                      <h4 style="margin: 0 0 8px 0; color: #333;">Burndown Chart (Sprint)</h4>
+                      <p style="margin: 0; font-size: 13px; color: #777;">Monitorea las horas restantes vs. el tiempo del sprint actual.</p>
+                  </div>
+              </div>
+          <!-- Área de Gráficas y Métricas: Tabla y Gráfica lado a lado con diseño compacto -->
+          <div id="contenedor-grafica-activa" style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
+              <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica</h4>
+              
+              <!-- Contenedor principal en fila (lado a lado) -->
+              <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+                  
+                  <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
+                  <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
+                      <!-- Tabla estilo Excel se inyectará aquí -->
+                  </div>
+                  
+                  <!-- Área de dibujo de la gráfica (Lado derecho, tamaño compacto y controlado) -->
+                  <div id="area-dibujo-grafica" style="flex: 1; min-width: 300px; max-width: 450px; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; height: 260px;">
+                      <canvas id="chartBurndownCanvas" style="max-height: 230px;"></canvas>
+                  </div>
+              </div>
+          </div>
+          </div>
+      </div>
 
-            <!-- Opción 2: Burndown Chart del Sprint -->
-            <div class="tarjeta-grafica" onclick="cargarGrafica('sprint')" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; width: 260px; cursor: pointer; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;">
-                <div style="font-size: 24px; color: #ff8c00; margin-bottom: 10px;">📉</div>
-                <h4 style="margin: 0 0 8px 0; color: #333;">Burndown Chart (Sprint)</h4>
-                <p style="margin: 0; font-size: 13px; color: #777;">Monitorea las horas restantes vs. el tiempo del sprint actual.</p>
-            </div>
+      <!-- MODAL PARA registro de tiempos -->
+      <div class="modal-class" id="modal-tiempos">
+        <div id="contenedor-registro-tiempos">
+          <button id="btn-registro-tiempos">Iniciar registro de tiempos +</button>
 
+          <table id="tabla-tiempos">
+              <thead>
+                  <tr>
+                      <th>Fecha</th>
+                      <th>Actividad a realizar</th>
+                      <th>Hora inicial</th>
+                      <th>Hora final</th>
+                      <th>Tiempo total</th>
+                      <th>Qué hice</th>
+                      <th>Qué haré después</th>
+                  </tr>
+              </thead>
+              <tbody id="cuerpo-tabla-tiempos">
+                  <!-- Las filas se insertan aquí -->
+              </tbody>
+          </table>
         </div>
-
-<!-- Área de Gráficas y Métricas: Tabla y Gráfica lado a lado con diseño compacto -->
-<div id="contenedor-grafica-activa" style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
-    <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica</h4>
-    
-    <!-- Contenedor principal en fila (lado a lado) -->
-    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-        
-        <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
-        <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
-            <!-- Tabla estilo Excel se inyectará aquí -->
-        </div>
-        
-        <!-- Área de dibujo de la gráfica (Lado derecho, tamaño compacto y controlado) -->
-        <div id="area-dibujo-grafica" style="flex: 1; min-width: 300px; max-width: 450px; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; height: 260px;">
-            <canvas id="chartBurndownCanvas" style="max-height: 230px;"></canvas>
-        </div>
-
-    </div>
-</div>
-    </div>
-</div>
+      </div> <!--Aqui acaba el modal de registro de tiempos-->
     </section>
   </main>
 
@@ -617,6 +636,7 @@
   <script src="../js/mensajesF.js" defer></script>
   <script src="../js/planningPokerFacilitador.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../js/registroTiempos.js"></script>
 <script>
     // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
   function mostrarModal(idModal, idCabecera) {
