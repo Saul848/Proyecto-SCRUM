@@ -108,7 +108,7 @@ async function renderizarHistorias() {
                 <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
             </div>
             <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}">🗑️</button>
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${parseInt(1,10)})">🗑️</button>
             </div>
         `;
 
@@ -595,7 +595,7 @@ async function agregarHistoriaUsuario(idProyecto) {
  * Funcion que realiza la solicitud delete para eliminar una historia
  */
 async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
-    const respuesta = await fetch(`/historias/${idHistoria}/${idProyecto}`, {
+    const respuesta = await fetch(`/historias/historiasPB/${idHistoria}/${idProyecto}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json"

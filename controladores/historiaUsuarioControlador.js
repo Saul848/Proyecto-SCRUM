@@ -118,11 +118,11 @@ class historiaUsuarioControlador {
 
     /**
      * Funcion para eliminar historias de la BD
-     * @param {*} req 
-     * @param {*} res 
+     * @param {*} req Request Params con el id de la historia y del proyecto
+     * @param {*} res Codigo de respuesta
      * @returns 
      */
-    async eliminarHistoriaC(req, res) {
+    async eliminarHistoriaEnProyecto(req, res) {
         try {
             const { idHistoria, idProyecto } = req.params;
             //Si mi id no tiene valor o si no es un entero regreso la respuesta correspondiente
@@ -140,10 +140,10 @@ class historiaUsuarioControlador {
                 })
             }
             //Verificamos si la historia existe en la base de datos
-            const historiaExistente = await this.dao.obtenerHistoriaPorId(idHistoria, idProyecto);
+            const historiaExistente = await this.dao.obtenerHistoriaEnProyecto(idHistoria, idProyecto);
             if(historiaExistente && historiaExistente.id === id){
                 //Eliminamos la historia de la base de datos y verificamos su respuesta
-                const historiaEliminada = await this.dao.eliminarHistoriaDao(id);
+                const historiaEliminada = await this.dao.eliminarHistoriaEnProyecto(idHistoria, idProyecto);
                 //Si la historia fue eliminada con exito enviamos la respuesta correspondiente
                 if(historiaEliminada.ok){
                     return res.status(201).json({
@@ -168,8 +168,6 @@ class historiaUsuarioControlador {
             this.#error(res, err);
         }
     }
-
-
 
     /**
      * Endpoint / GET /historias/kanban

@@ -99,6 +99,20 @@ class historiaUsuarioDAO {
     }
 
     /**
+     * Funcion que permite obtener una historia de un proyecto en especifico de la BD
+     * @param {idHistoria} Int Id de la historia del proyecto
+     * @param {idProyecto} Int 
+     * @returns 
+     */
+    async obtenerHistoriaEnProyecto(idHistoria, idProyecto) {
+        const { rows } = await this.pool.query(
+            'SELECT * FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_Proyecto = $2;',
+            [idHistoria, idProyecto]
+        );
+        return rows [0] || null;
+    }
+
+    /**
      * Funcion para guardar una nueva historia de usuario con criterios de aceptacion en el sistema mediante una transaccion
      * @param {nombre} String Nombre de la historia de usuario
      * @param {descripcion} String Descripcion de la historia de usuario 
@@ -147,7 +161,7 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto a modificar 
      * @returns Mensaje ok
      */
-    async eliminarHistoriaDao({idHistoria, idProyecto}) {
+    async eliminarHistoriaEnProyecto({idHistoria, idProyecto}) {
         try{
             const { rows } = await this.pool.query(
                 `DELETE FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_proyecto = $2;
