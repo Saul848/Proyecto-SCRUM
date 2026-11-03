@@ -1,128 +1,197 @@
 /**
- * Módulo de cliente para la gestión del chat del desarrollador (PB-11)
- * @module mensajesDesarrollador
+ * Inicializa la lógica del chat y la mensajería en la vista del desarrollador.
+ * Valida la sesión activa, maneja la carga de mensajes en canales y chats directos,
+ * y gestiona los eventos de envío y cambio de conversaciones.
+ * 
+ * @function inicializarChatDesarrollador
+ * @returns {void} No retorna ningún valor.
  */
-
-const contenedorMensajes = document.getElementById("contenedorMensajes");
-const inputMensaje = document.getElementById("inputMensaje");
-const btnEnviarMensaje = document.getElementById("btnEnviarMensaje");
-const tituloCanalActual = document.getElementById("tituloCanalActual");
-
-// ID de grupo activo por defecto 
-let idGrupoActual = 1;
-// ID del usuario logueado actual 
-const idUsuarioActual = 1; 
-
-/**
- * Obtiene y renderiza los mensajes del grupo seleccionado desde el servidor.
- * @async
- * @param {number} idGrupo - Identificador único del grupo.
- * @param {string} nombreGrupo - Nombre del canal o grupo seleccionado.
- */
-async function cargarMensajesGrupo(idGrupo, nombreGrupo) {
-    idGrupoActual = idGrupo;
-    tituloCanalActual.textContent = nombreGrupo;
-
-    try {
-        const respuesta = await fetch(`/mensajes/grupo/${idGrupo}`);
-        const resultado = await respuesta.json();
-
-        if (resultado.ok) {
-            renderizarMensajes(resultado.data);
-        }
-    } catch (err) {
-        console.error("Error al cargar los mensajes del grupo:", err);
-    }
+document.addEventListener('DOMContentLoaded', () => {
+// 1. Validar identidad del usuario activo
+const sesion = sessionStorage.getItem('usuarioActivo');
+if (!sesion) {
+    window.location.href = '/html/login.html';
+    return;
 }
+const usuarioActivo = JSON.parse(sesion);
+
+// 2. Elementos del DOM
+const feed = document.getElementById('messages-feed');
+const inputMensaje = document.getElementById('mensaje-input');
+const btnEnviar = document.getElementById('btn-enviar');
+const itemsCanales = document.querySelectorAll('.channel-item');
+const tituloCanal = document.getElementById('canal-titulo');
+
+const contactoFacilitador = document.getElementById('contacto-facilitador') || document.querySelector('.direct-contact-item');
+
+let canalActualId = 1;
+let tipoChatActual = 'canal'; 
+let idDestinoActual = 2; 
 
 /**
- * Pinta las burbujas de mensajes en el contenedor de chat.
- * @param {Array<Object>} mensajes - Lista de objetos de mensajes obtenidos de la base de datos.
+ * Carga de forma asíncrona los mensajes del canal actual o del chat privado directo.
+ * Actualiza el DOM limpiando y renderizando el feed de mensajes.
+ * 
+ * @async
+ * @function cargarMensajes
+ * @returns {Promise<void>}
  */
-function renderizarMensajes(mensajes) {
-    contenedorMensajes.innerHTML = "";
+async function cargarMensajes() {
+    try {
+    let url = '';
+    if (tipoChatActual === 'canal') {
+        url = `/mensajes/${canalActualId}`;
+    } else {
+        url = `/mensajes/directos/${usuarioActivo.id}/${idDestinoActual}`;
+    }
 
-    if (mensajes.length === 0) {
-        contenedorMensajes.innerHTML = `<p style="text-align: center; color: #94a3b8; 
-        font-size: 13px;">No hay mensajes en este canal todavía. ¡Sé el primero en escribir!</p>`;
+    const res = await fetch(url);
+    const resultado = await res.json();
+
+    if (!res.ok || !resultado.ok) {
+        console.error('Error al cargar mensajes:', resultado.error);
         return;
     }
 
-    mensajes.forEach((msg) => {
-        const esMio = msg.id_autor === idUsuarioActual;
-        const burbujaHtml = document.createElement("div");
-        burbujaHtml.className = `burbuja ${esMio ? "enviada" : "recibida"}`;
+    feed.innerHTML = '';
 
-        burbujaHtml.innerHTML = `
-            <span class="remitente">${esMio ? "Tú (desarrollador)" : 
-            (msg.autor_nombre || "Integrante")}</span>
-            ${msg.mensaje}
-        `;
-        contenedorMensajes.appendChild(burbujaHtml);
+    if (resultado.data.length === 0) {
+        feed.innerHTML = `<p style="text-align:center; color:#888; font-size:0.85rem; margin-top:20px;">No hay mensajes ${tipoChatActual === 'canal' ? 'en este canal' : 'en este chat privado'}. ¡Comienza la charla técnica!</p>`;
+        return;
+    }
+
+    resultado.data.forEach(msg => {
+        const autorId = msg.id_usuario || msg.id_autor;
+        const esMio = autorId === usuarioActivo.id;
+        agregarBurbujaAlFeed(msg.nombre_usuario || msg.username, msg.contenido, esMio);
     });
 
-    // Auto-scroll hacia el mensaje más reciente
-    contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
-}
-
-/**
- * Envía un nuevo mensaje al servidor mediante una petición POST.
- * @async
- */
-async function enviarMensaje() {
-    const textoMensaje = inputMensaje.value.trim();
-
-    if (textoMensaje === "") return;
-
-    try {
-        const respuesta = await fetch("/mensajes/grupo", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                idAutor: idUsuarioActual,
-                idGrupoDestino: idGrupoActual,
-                mensaje: textoMensaje
-            })
-        });
-
-        const resultado = await respuesta.json();
-
-        if (resultado.ok) {
-            inputMensaje.value = "";
-            // Recargamos los mensajes para ver el nuevo chat reflejado
-            await cargarMensajesGrupo(idGrupoActual, tituloCanalActual.textContent);
-        } else {
-            alert(resultado.error || "No se pudo enviar el mensaje");
-        }
+    desplazarAlFondo();
     } catch (err) {
-        console.error("Error al enviar el mensaje:", err);
+    console.error('Error de conexión al cargar mensajes:', err);
     }
 }
 
 /**
- * Cambia de canal activo al hacer clic sobre la lista lateral.
- * @param {number} idGrupo 
- * @param {string} nombre 
+ * Crea y añade una burbuja de mensaje visual en el feed de la interfaz de chat.
+ * 
+ * @function agregarBurbujaAlFeed
+ * @param {string} remitente - Nombre de la persona que envió el mensaje.
+ * @param {string} texto - Contenido textual del mensaje.
+ * @param {boolean} esMio - Indica si el mensaje fue enviado por el usuario activo.
+ * @returns {void}
  */
-function seleccionarCanal(idGrupo, nombre) {
-    // Remover clase activo de todos y agregársela al seleccionado
-    document.querySelectorAll(".elemento-item").forEach(el => el.classList.remove("activo"));
-    event.currentTarget.classList.add("activo");
-    
-    cargarMensajesGrupo(idGrupo, nombre);
+function agregarBurbujaAlFeed(remitente, texto, esMio) {
+    const bloque = document.createElement('div');
+    bloque.classList.add('message-block', esMio ? 'outgoing' : 'incoming');
+
+    const nombre = document.createElement('span');
+    nombre.classList.add('sender-name');
+    nombre.textContent = esMio ? 'Tú (Desarrollador)' : remitente;
+
+    const burbuja = document.createElement('div');
+    burbuja.classList.add('bubble', esMio ? 'bubble-outgoing' : 'bubble-incoming');
+    burbuja.textContent = texto;
+
+    bloque.appendChild(nombre);
+    bloque.appendChild(burbuja);
+    feed.appendChild(bloque);
 }
 
-// Event Listeners
-btnEnviarMensaje.addEventListener("click", enviarMensaje);
-inputMensaje.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        enviarMensaje();
+/**
+ * Desplaza automáticamente el contenedor de mensajes hacia el fondo para mostrar el chat más reciente.
+ * 
+ * @function desplazarAlFondo
+ * @returns {void}
+ */
+function desplazarAlFondo() {
+    feed.scrollTop = feed.scrollHeight;
+}
+
+/**
+ * Envía un mensaje nuevo (ya sea a un canal o mensaje directo) mediante una petición POST al servidor.
+ * 
+ * @async
+ * @function enviarMensaje
+ * @returns {Promise<void>}
+ */
+async function enviarMensaje() {
+    const contenido = inputMensaje.value.trim();
+    if (!contenido) return;
+
+    try {
+    let url = '';
+    let bodyData = {};
+
+    if (tipoChatActual === 'canal') {
+        url = '/mensajes';
+        bodyData = {
+        idCanal: canalActualId,
+        idUsuario: usuarioActivo.id,
+        contenido: contenido
+        };
+    } else {
+        url = '/mensajes/directos';
+        bodyData = {
+        idAutor: usuarioActivo.id,
+        idUsuarioDestino: idDestinoActual,
+        contenido: contenido
+        };
+    }
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyData)
+    });
+
+    const resultado = await res.json();
+
+    if (!res.ok || !resultado.ok) {
+        alert(resultado.error || 'Error al enviar el mensaje');
+        return;
+    }
+
+    agregarBurbujaAlFeed(usuarioActivo.nombre, contenido, true);
+    inputMensaje.value = '';
+    desplazarAlFondo();
+    } catch (err) {
+    console.error('Error al enviar mensaje:', err);
+    alert('No se pudo enviar el mensaje.');
+    }
+}
+
+btnEnviar.addEventListener('click', enviarMensaje);
+inputMensaje.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+    e.preventDefault();
+    enviarMensaje();
     }
 });
 
-// Carga inicial al montar el componente
-document.addEventListener("DOMContentLoaded", () => {
-    cargarMensajesGrupo(idGrupoActual, "Desarrolladores, Scrum Master");
+itemsCanales.forEach((item, index) => {
+    item.addEventListener('click', () => {
+    tipoChatActual = 'canal';
+    itemsCanales.forEach(c => c.classList.remove('active'));
+    if (contactoFacilitador) contactoFacilitador.classList.remove('active');
+    
+    item.classList.add('active');
+    canalActualId = index + 1;
+    tituloCanal.textContent = item.querySelector('.channel-name')?.textContent || 'Canal de Desarrollo';
+
+    cargarMensajes();
+    });
+});
+
+if (contactoFacilitador) {
+    contactoFacilitador.addEventListener('click', () => {
+    tipoChatActual = 'directo';
+    itemsCanales.forEach(c => c.classList.remove('active'));
+    contactoFacilitador.classList.add('active');
+    tituloCanal.textContent = 'Chat privado con Facilitador';
+    cargarMensajes();
+    });
+}
+
+cargarMensajes();
 });
