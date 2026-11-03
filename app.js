@@ -113,3 +113,7 @@ app.use('/proyectos', require('./routes/proyectosRoutes'));
  */
 app.use('/mensajes', require('./routes/mensajesRoutes'));
 
+/**
+ * Ruta de mensajes de desarrollador
+ */
+app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
