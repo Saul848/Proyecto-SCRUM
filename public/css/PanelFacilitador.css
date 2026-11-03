@@ -425,6 +425,7 @@ body {
 
 /* Estilo para los botones principales de acciones (garantiza letras blancas y legibles) */
 #btnCompartirMaterial,
+#btn-compartir-material,
 #btnAgregarHistoria,
 #btnModHistoria,
 #btnGuardarModal,
@@ -1149,8 +1150,3 @@ body {
     font-weight: 700 !important;
     font-size: 13px !important;
 }
-<<<<<<< HEAD:public/css/PanelFacilitador.css
-
-
-=======
->>>>>>> 77cd32ab2dde786563e03d440020ed13afbdee2e:public/css/FacilitadorPB.css

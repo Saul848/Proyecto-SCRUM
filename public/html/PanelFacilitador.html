@@ -12,7 +12,10 @@
   <link rel="stylesheet" href="../css/sprintPlanning.css">
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-
+  <script>
+    // Forzamos la variable global para este archivo
+    const ROL_ACTUAL = "facilitador";
+  </script>
 </head>
 <body>
 <!-- Bloque superior -->
@@ -100,8 +103,8 @@
             <div id="divOpccionesInferiores">
               <div id="DivBtnCompartirMaterial">
                 <button type="button" class="btn-compartir-material" id="btn-compartir-material">
-                <span class="material-symbols-outlined">upload_file</span>
-                Compartir material adicional
+                  <span class="material-symbols-outlined">upload_file</span>
+                  Compartir material adicional
                 </button>
               </div>
               <div id="DivBtnAgregarHistoria">
@@ -328,150 +331,7 @@
       
         </div>
       </div>
-
-      <!-- MODAL EVIDENCIA DE HISTORIA -->
-      <div id="modal-evidencias-historia-kanban" class="modal-class" style="display: none;">
-        <div class="kanban-evidencias-contenido">
       
-          <!-- Cabecera: Volver y Estado -->
-          <div class="kanban-evidencias-header">
-            <button class="kanban-evidencias-btn-volver" onclick="regresarAlDetalleHistoria()">
-              &lsaquo; Volver a la historia <span id="kanban-evidencias-id-historia-num">#</span>
-            </button>
-            <div class="kanban-evidencias-estado-container">
-              <span class="kanban-evidencias-label-estado">Estado de la historia:</span>
-              <span id="kanban-evidencias-badge-estado" class="kanban-evidencias-badge">En progreso</span>
-            </div>
-          </div>
-      
-          <h2 class="kanban-evidencias-titulo-principal">Evidencias de desarrollo</h2>
-      
-          <!-- Alerta dinámica de permisos o bloqueo -->
-          <div id="kanban-evidencias-alerta" class="kanban-evidencias-alerta info">
-            <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes .png o .jpg y borrar únicamente las que tú
-              subiste.</span>
-          </div>
-      
-          <!-- Cuerpo principal en 2 columnas (Archivos y Vista previa) -->
-          <div class="kanban-evidencias-body-grid">
-      
-            <!-- Columna Izquierda: Listado y Zona de Subida -->
-            <div class="kanban-evidencias-col-izquierda">
-              <div class="kanban-evidencias-sub-header">
-                <h3 id="kanban-evidencias-contador" class="kanban-evidencias-subtitulo">Archivos subidos (0)</h3>
-                <span class="kanban-evidencias-formato-lbl">Solo imágenes .png y .jpg</span>
-              </div>
-      
-              <!-- Zona de carga (Drag & Drop / Input file) -->
-              <div id="kanban-evidencias-zona-carga" class="kanban-evidencias-upload-box">
-                <div class="kanban-evidencias-upload-content">
-                  <i class="icon-upload">&#8648;</i>
-                  <span id="kanban-evidencias-upload-titulo" class="kanban-evidencias-upload-main-text">Subir evidencia</span>
-                  <span id="kanban-evidencias-upload-sub" class="kanban-evidencias-upload-sub-text">Arrastra o elige una
-                    imagen .png o .jpg</span>
-                </div>
-                <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg" style="display: none;"
-                  onchange="manejarSeleccionArchivo(this)">
-              </div>
-      
-              <!-- Contenedor dinámico de la lista de archivos subidos -->
-              <div id="kanban-evidencias-lista-archivos" class="kanban-evidencias-lista-scroll">
-                <!-- Las tarjetas de archivos se inyectan dinámicamente aquí -->
-              </div>
-            </div>
-      
-            <!-- Columna Derecha: Vista previa de la imagen seleccionada -->
-            <div class="kanban-evidencias-col-derecha">
-              <h3 class="kanban-evidencias-subtitulo">Vista previa</h3>
-              <div class="kanban-evidencias-preview-box">
-                <div id="kanban-evidencias-preview-content" class="kanban-evidencias-preview-placeholder">
-                  <div class="preview-icono-default">&#128444;</div>
-                  <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
-                  <span class="preview-sub-text">Aquí se mostrará la imagen a tamaño completo</span>
-                </div>
-              </div>
-            </div>
-      
-          </div>
-        </div>
-      </div>
-      <!-- MODAL PARA SUBIR MATERIAL ADICIONAL -->
-      <div id="modal-material" class="modal-overlay" style="display: none;">
-      <div class="modal-content">
-      <h3>Subir Material Adicional</h3>
-      <p>Selecciona un archivo (PDF, imagen, etc.) para compartirlo con el equipo.</p>
-    
-      <form id="form-subir-material" enctype="multipart/form-data">
-        <div class="form-group">
-          <label for="archivo-input">Archivo:</label>
-          <input type="file" id="archivo-input" name="archivo" required />
-        </div>
-
-        <div class="form-group">
-          <label for="descripcion-material">Descripción o Título:</label>
-          <input type="text" id="descripcion-material" name="descripcion" placeholder="Ej. Guía de requerimientos v2" />
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" id="btn-cancelar-modal" class="btn-modal-cancelar">Cancelar</button>
-          <button type="submit" class="btn-modal-submit">Subir Archivo</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-      
-
-      <!-- MODAL 3: REUNIRSE -->
-      <div id="modalCrearReunion" class="modal-class" style="display: none;">
-        <div class="modal-contenido">
-          
-          <div class="modal-header">
-            <h3>✚ Agendar nueva reunión</h3>
-          </div>
-
-          <div class="modal-body">
-            <div class="entradaInp">
-              <label for="seleccionTipoReunion">Tipo de reunión:</label>
-              <select id="seleccionTipoReunion"></select>
-            </div>
-
-            <div class="entradaInp">
-              <label for="seleccionSprint">Sprint asociado: *</label>
-              <select id="seleccionSprint"></select>
-            </div>
-
-            <div class="entradaInp">
-              <label for="nombreReunion">Nombre de la reunión (Opcional):</label>
-              <input type="text" id="nombreReunion" placeholder="Ej. Planificación del Sprint 2">
-              <small>Se auto-generará si lo dejas vacío.</small>
-            </div>
-
-            <div class="entradaInp">
-              <label for="fechaInicio">Fecha de inicio: *</label>
-              <input type="date" id="fechaInicio">
-            </div>
-
-            <div class="entradaInp">
-              <label for="fechaFin">Fecha de fin: *</label>
-              <input type="date" id="fechaFin">
-            </div>
-
-            <div class="entradaInp">
-              <label>Participantes convocados (Equipo del proyecto): *</label>
-              <div id="listaParticipantesCheck"></div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button id="btnGuardarReunion" class="btn-azul">Agendar reunión</button>
-            <button id="btnCancelarCreacion" class="btn-rojo">Cancelar</button>
-          </div>
-
-        </div>
-      </div>
-      <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
-
 <!-- Sección de Gráficas -->
 <div id="modal-graficas" class="modal-class" style="display: none;">
     <div class="chat-header">
@@ -518,6 +378,54 @@
 </div>
     </section>
   </main>
+  <!-- MODAL AISLADO PARA MATERIAL ADICIONAL GENERAL -->
+  <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
+    <div class="modal-content">
+   
+      <!-- Cabecera: Botón Volver y Estado -->
+      <div class="modal-header">
+        <button class="btn-modal-cancelar kanban-evidencias-btn-volver" type="button" onclick="cerrarMiModalGeneral(event)">
+          &lsaquo; Volver al tablero
+        </button>
+        <span id="kanban-evidencias-badge-estado" class="badge-estado general-badge">General</span>
+      </div>
+   
+      <!-- Alerta informativa -->
+      <div class="alerta-info">
+        <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes (.png, .jpg), archivos PDF y archivos ZIP.</span>
+      </div>
+   
+      <!-- Zona de carga de archivos -->
+      <div id="kanban-evidencias-zona-carga" class="zona-carga" onclick="document.getElementById('kanban-evidencias-input-file').click();">
+        <p><strong>Subir material o evidencia</strong></p>
+        <p>Haz clic para elegir un archivo (PNG, JPG, PDF, ZIP)</p>
+        <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg, .pdf, .zip" onchange="manejarSeleccionArchivo(this)">
+      </div>
+   
+      <!-- Sección de lista de archivos -->
+      <div class="seccion-lista-archivos">
+        <h4 id="kanban-evidencias-contador">Archivos subidos (0)</h4>
+        <div id="kanban-evidencias-lista-archivos" class="lista-archivos">
+          <div class="sin-archivos">No hay evidencias subidas aún.</div>
+        </div>
+      </div>
+   
+      <!-- Sección de vista previa -->
+      <div class="seccion-preview">
+        <h4>Vista previa</h4>
+        <div id="kanban-evidencias-preview-content" class="preview-content">
+          <span class="preview-icono-default">&#128444;</span>
+          <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
+        </div>
+      </div>
+   
+      <!-- Acciones de cierre abajo -->
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
