@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desarrollador - Panel de Mensajes</title>
+    <link rel="stylesheet" href="../css/PanelDesarrollador.css">
+    <link rel="stylesheet" href="../css/mensajesDesarrollador.css">
+    
+</head>
+<body>
+    <!-- Bloque Superior de la vista -->
+    <header class="dev-header">
+        <div class="dev-badge-rol">
+            Desarrollador
+        </div>
+    <h1 class="dev-titulo-central">Mensajes</h1>
+
+    <button class="dev-btn-iniciar">Iniciar una conversación</button>
+    </header>
+    
+    <!-- Bloque Inferior -->
+    <main class="dev-main-container">
+        
+        <!-- Panel Lateral de Navegación -->
+        <aside class="dev-sidebar-menu">
+        <div class="dev-indice-wrapper">
+            <span class="dev-seccion-label">❖ Seccion</span>
+            <ul class="dev-menu-lista">
+            <li><button class="dev-menu-btn">Mi equipo</button></li>
+            <li><button class="dev-menu-btn activo">Mensajes</button></li>
+            <li><button class="dev-menu-btn">Product Backlog</button></li>
+            <li><button class="dev-menu-btn">Sprint</button></li>
+            <li><button class="dev-menu-btn">Mis tareas</button></li>
+            <li><button class="dev-menu-btn">Reunirse</button></li>
+            <li><button class="dev-menu-btn">Graficas</button></li>
+            <li><button class="dev-menu-btn">Ajustes</button></li>
+            </ul>
+        </div>
+        </aside>
+            
+    <!-- MODAL MODULAR DE MENSAJES DESARROLLADOR -->
+    <div id="modal-mensajes-desarrollador" class="modal-class">
+    <div class="main-container-chat">
+        
+        <!-- Panel Izquierdo: Canales y Contactos -->
+        <aside class="sidebar-mensajes">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar tema o mensaje...">
+            </div>
+
+            <div>
+                <p class="menu-seccion">Canales</p>
+                <div class="lista-elementos" id="listaCanalesDesarrollador">
+                    <div class="elemento-item activo" onclick="seleccionarCanal(1, 'Desarrolladores, Scrum Master')">
+                        #Dudas de requerimientos 
+                        <span class="badge-nuevo">4 nuevos</span>
+                    </div>
+                    <div class="elemento-item" onclick="seleccionarCanal(2, 'Aprobaciones y entregas')">
+                        #Aprobaciones y entregas
+                    </div>
+                    <div class="elemento-item" onclick="seleccionarCanal(3, 'General del proyecto')">
+                        #General del proyecto 
+                        <span class="badge-nuevo">2 nuevos</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="dev-grupo-seccion">
+                    <p class="dev-menu-titulo">Contacto directo</p>
+                    <div class="dev-lista-elementos" id="listaContactosDirectos">
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sección Derecha: Chat Activo -->
+        <section class="chat-area">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <h3 id="tituloCanalActual">Desarrolladores, Scrum Master</h3>
+                    <span class="sub-info-chat">4 participantes · <span class="en-linea">🟢 2 en línea</span></span>
+                </div>
+                <button class="btn-detalles">Ver detalles</button>
+            </div>
+
+            <!-- Historial de mensajes -->
+            <div class="chat-mensajes" id="contenedorMensajes">
+                <div class="burbuja recibida">
+                    <span class="remitente">Facilitador Scrum Master</span>
+                    Buenas tardes
+                </div>
+                <div class="burbuja recibida">
+                    <span class="remitente">Facilitador Scrum Master</span>
+                    Hola, quería saber cómo van con el proyecto, tienen algún detalle que quieran revisar?
+                </div>
+                <div class="burbuja enviada">
+                    <span class="remitente">Tú (desarrollador)</span>
+                    Buenas tardes, por el momento todo está corriendo de forma correcta, sin dudas de por medio
+                </div>
+            </div>
+
+            <!-- Caja de texto para enviar -->
+            <div class="chat-input-box">
+                <input type="text" id="inputMensaje" placeholder="Escribe tu mensaje...">
+                <button id="btnEnviarMensaje">➤</button>
+            </div>
+        </section>
+    </div>
+    </div>
+    </main>
+
+    <script src="../js/mensajesDesarrollador.js"></script>
+</body>
+</html>

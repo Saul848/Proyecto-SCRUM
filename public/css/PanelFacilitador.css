@@ -6,15 +6,17 @@
 }
 
 body {
-  background-color: #1e1e1e;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  /* Centrar y limitar el ancho máximo para pantallas de laptop grandes */
-  max-width: 1440px;
-  margin-left: auto;
-  margin-right: auto;
+    background-color: #1e1e1e;
+    padding: 15px;
+    /* Quitamos el display flex del body para que fluya de forma natural con scroll vertical */
+    min-height: 100%; 
+    height: auto;
+    overflow-y: auto; /* Permite el scroll vertical en toda la página */
+    
+    /* Centrar y limitar el ancho máximo para pantallas de laptop grandes */
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ===================================================
