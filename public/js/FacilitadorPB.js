@@ -879,6 +879,154 @@ async function cargarDefinicionDeHecho(idProyecto){
     }
 }
 
+//////////////////////////////////////////////////////////////
+// Carga dinámica del modal de planning poker para facilitador
+//////////////////////////////////////////////////////////////
+
+let planningPokerCargando = false;
+let planningPokerJS = null;
+
+async function abrirPlanningPokerParaFacilitador() {
+    const sprintId = 1;
+    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, name: "Facilitador Pruebas" };
+    const listaHistoriasDesdeVista = null;
+    const role = 'facilitador'; 
+
+    const zonaDeTrabajo = document.getElementById("zonaDeTrabajo");
+    if (!zonaDeTrabajo) return;
+
+    if (planningPokerCargando) return;
+    planningPokerCargando = true;
+
+    try {
+        // 1. Cargar HTML del modal si no existe
+        if (!document.getElementById("modal-planning-poker-facilitador")) {
+            const respuesta = await fetch("./planningPokerFacilitador.html");
+            const html = await respuesta.text();
+            zonaDeTrabajo.insertAdjacentHTML("beforeend", html);
+        }
+
+        // 2. Cargar el JS del facilitador si no existe
+        if (!planningPokerJS) {
+            planningPokerJS = new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = "../js/planningPokerFacilitador.js";
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        await planningPokerJS;
+
+        // 3. Inicializar componentes visuales
+        const contenedor = document.getElementById("cont-planning-poker");
+        window.inicializarPlanningPokerFacilitador(contenedor);
+        mostrarModal("modal-planning-poker-facilitador");
+
+        // 4. INICIALIZAR SOCKET.IO
+        const socket = io(); 
+
+        const historiasDePrueba = [
+            { id: 1, titulo: "Autenticación", descripcion: "Permitir iniciar sesión" },
+            { id: 2, titulo: "Splash Screen", descripcion: "Mostrar pantalla de carga" },
+            { id: 3, titulo: "Exportar PDF", descripcion: "Exportar datos a formato PDF" },
+            { id: 4, titulo: "Generar PB", descripcion: "LOREM" },
+            { id: 5, titulo: "Colocar Musica a la aplicacion", descripcion: "Musica relajante para el cliente" },
+            { id: 6, titulo: "Prueba", descripcion: "Lorem" },
+            { id: 7, titulo: "Registro de Usuarios", descripcion: "Permitir registrar nuevos usuarios en el sistema" }
+        ];
+
+        socket.emit("join-planning-session", {
+            sprintId: sprintId ?? 1,
+            user: usuarioActual,
+            role: role ?? "facilitador",
+            stories: listaHistoriasDesdeVista ?? historiasDePrueba
+        });
+
+        // 5. Escuchar eventos del servidor
+        socket.on("sync-session-state", (data) => {
+            actualizarUIHistoria(contenedor, data);
+            contenedor.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+        });
+
+        socket.on("load-next-story", (data) => {
+            actualizarUIHistoria(contenedor, data);
+            contenedor.planningPokerFacilitador?.reiniciarVistaVotacion();
+            if (data.participants && data.votes) {
+                contenedor.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+            }
+        });
+
+        // Escuchar reseteo al repetir votación
+        socket.on("vote-reset", (data) => {
+            contenedor.planningPokerFacilitador?.reiniciarVistaVotacion();
+            if (data.participants && data.votes) {
+                contenedor.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+            }
+        });
+
+        socket.on("vote-progress", (data) => {
+            contenedor.planningPokerFacilitador?.actualizarEstadoVotacion({
+                votados: data.totalVoted,
+                total: data.totalParticipants,
+                titulo: "¡Votando!"
+            });
+            contenedor.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+        });
+
+        socket.on("cards-revealed", (data) => {
+            contenedor.planningPokerFacilitador?.renderizarResultados(data);
+        });
+
+        // Redireccion a reuniones al finalizar la sesion, o carga de modal, ETC.
+        socket.on("session-finished", () => {
+            alert("¡Se han terminado todas las historias del Planning Poker!");
+            const modal = document.getElementById("modal-planning-poker-facilitador");
+            if (modal) modal.style.display = "none";
+            socket.disconnect();
+            
+            // REDIRECCIÓN A TU PANTALLA DE REUNIONES O VISTA PRINCIPAL O MODAL
+            window.location.href = "./reuniones.html"; // Cambia la ruta según proyecto
+        });
+
+        // 6. Enviar acciones del facilitador al servidor
+        contenedor.addEventListener("planning-poker:accion", (evento) => {
+            const { accion, ...datos } = evento.detail;
+
+            if (accion === "revelar-cartas") {
+                socket.emit("reveal-cards", { sprintId });
+            } else if (accion === "repetir-votacion") {
+                socket.emit("repeat-vote", { sprintId });
+            } else if (accion === "saltar-historia") {
+                socket.emit("skip-story", { sprintId });
+            } else if (accion === "confirmar-estimacion") {
+                socket.emit("next-story", { sprintId, finalPoints: datos.estimacion });
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al iniciar Planning Poker:", error);
+        planningPokerJS = null;
+    } finally {
+        planningPokerCargando = false;
+    }
+}
+
+function actualizarUIHistoria(contenedor, data) {
+    if (contenedor && contenedor.planningPokerFacilitador) {
+        contenedor.planningPokerFacilitador.actualizarHistoria({
+            titulo: data.currentStory.titulo,
+            descripcion: data.currentStory.descripcion,
+            numero: data.storyIndex + 1,
+            total: data.totalStories,
+            sprint: "Sprint Actual"
+        });
+    }
+}
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
 document.addEventListener("DOMContentLoaded", ()=>{
     cargarDefinicionDeHecho(JSON.parse(sessionStorage.getItem('usuarioActivo').id));
 })
