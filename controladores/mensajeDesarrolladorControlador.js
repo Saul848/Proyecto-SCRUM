@@ -1,4 +1,4 @@
-const MensajeDesarrolladorDAO = require('../dao/MensajeDesarrolladorDAO');
+const MensajeDesarrolladorDAO = require('../dao/mensajesDesarrolladorDAO');
 
 /**
  * Controlador para manejar las peticiones HTTP relativas a los mensajes del desarrollador.
