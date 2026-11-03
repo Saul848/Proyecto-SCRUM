@@ -141,6 +141,29 @@ class historiaUsuarioDAO {
         }
     }
 
+    /**
+     * Funcion que elimina una historia de usuario en el servidor utilizando su id
+     * @param {idHistoria} Int Id de la historia a eliminar
+     * @param {idProyecto} Int Id del proyecto a modificar 
+     * @returns Mensaje ok
+     */
+    async eliminarHistoriaDao({idHistoria, idProyecto}) {
+        try{
+            const { rows } = await this.pool.query(
+                `DELETE FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_proyecto = $2;
+                `,
+                [idHistoria, idProyecto]
+            );
+            return {
+                ok:true,
+                eliminado:true
+            };
+        }catch(error){
+            console.error("Error al borrar la historia de usuario en BD", error);
+            throw error;
+        }
+    }
+
 
     /**
      * Obtiene el detalle completo de todas las historias de usuario de un proyecto y sprint 

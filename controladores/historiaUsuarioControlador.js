@@ -27,6 +27,13 @@ class historiaUsuarioControlador {
         }
     }
 
+    /**
+     * Funcion que procesa la solicitud para obtener las historias de usuario de un proyecto
+     * con la informacion para mostrarlas en un proyecto.
+     * @param {*} req Request Param id del proyecto en forma de numero
+     * @param {*} res respuesta con estado ok, mensaje y datos de las historias
+     * @returns
+     */
     async listarHistoriasPorProyecto(req, res){
         try {
             //Se obtiene el id del proyecto en el que se encuentra el usuario
@@ -53,7 +60,12 @@ class historiaUsuarioControlador {
         }
     }
 
-    // POST /historias  body: { titulo, descripcion, criterios, valor, sprintAsig }
+    /**
+     * Metodo que procesa la solicitud para agregar una nueva histora
+     * @param {*} req Body con la informacion basica para agregar una nueva historia de usuario
+     * @param {*} res estado ok y mensaje
+     * @returns
+     */
     async agregarHistoria(req, res) {
         const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
         try {
@@ -103,6 +115,61 @@ class historiaUsuarioControlador {
             this.#error(res, err);
         }
     }
+
+    /**
+     * Funcion para eliminar historias de la BD
+     * @param {*} req 
+     * @param {*} res 
+     * @returns 
+     */
+    async eliminarHistoriaC(req, res) {
+        try {
+            const { idHistoria, idProyecto } = req.params;
+            //Si mi id no tiene valor o si no es un entero regreso la respuesta correspondiente
+            if(!idHistoria || !Number.isInteger(idHistoria)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error el id de la historia no es valido"
+                })
+            }
+            //Si mi idProyecto no tiene valor o si no es un entero regreso la respuesta correspondiente
+            if(!idProyecto || !Number.isInteger(idProyecto)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error no puedo encontrarse el proyecto de la historia a eliminar"
+                })
+            }
+            //Verificamos si la historia existe en la base de datos
+            const historiaExistente = await this.dao.obtenerHistoriaPorId(idHistoria, idProyecto);
+            if(historiaExistente && historiaExistente.id === id){
+                //Eliminamos la historia de la base de datos y verificamos su respuesta
+                const historiaEliminada = await this.dao.eliminarHistoriaDao(id);
+                //Si la historia fue eliminada con exito enviamos la respuesta correspondiente
+                if(historiaEliminada.ok){
+                    return res.status(201).json({
+                        ok: true,
+                        mensaje: "Historia eliminada correctamente"
+                    })
+                //Si la historia no pudo ser eliminada se envia el mensaje correspondiente
+                }else{
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: "La historia no pudo ser eliminada"
+                    })
+                }
+            //Si la historia no existe se envia el mensaje correspondiente
+            }else{
+                return res.status(404).json({
+                    ok:false,
+                    mensaje: "La historia no existe en la BD"
+                })
+            }
+        } catch (error) {
+            this.#error(res, err);
+        }
+    }
+
+
 
     /**
      * Endpoint / GET /historias/kanban

@@ -591,6 +591,29 @@ async function agregarHistoriaUsuario(idProyecto) {
     }
 }
 
+/**
+ * Funcion que realiza la solicitud delete para eliminar una historia
+ */
+async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
+    const respuesta = await fetch(`/historias/${idHistoria}/${idProyecto}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    const resultado = await respuesta.json();
+    
+    if(resultado.ok || respuesta.status === 201){
+        alert(resultado.mensaje || "Historia eliminada correctamente");
+        
+        // Volvemos a inicializar el backlog para actualizar la lista, incluyendo la nueva historia
+        await inicializarBacklog();
+    } else {
+        alert(resultado.mensaje || resultado.error || "Error al eliminar la historia");
+    }
+}
+
+
 function cargar_cabecera_inicial() {
     document.getElementById("cabecera-mensajes").style.display = "block";
 }
