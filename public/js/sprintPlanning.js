@@ -1,22 +1,72 @@
-const urlParams = new URLSearchParams(window.location.search);
-const rol = (urlParams.get("usuario") || "facilitador").toLowerCase();
-const esFacilitador = rol === "facilitador";
+if (typeof window.requisitos === 'undefined') window.requisitos = [];
+if (typeof window.ID_PROYECTO === 'undefined') window.ID_PROYECTO = 1;
+if (typeof window.ID_SPRINT === 'undefined') window.ID_SPRINT = 1;
+if (typeof window.ID_REUNION === 'undefined') window.ID_REUNION = 1;
 
-const ID_SPRINT = Number(urlParams.get("sprint")) || 1;
-const ID_REUNION = Number(urlParams.get("reunion")) || 1;
-const ID_PROYECTO = Number(urlParams.get("proyecto")) || 1;
+function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const rol = (urlParams.get("usuario") || "facilitador").toLowerCase();
 
-let requisitos = []; // Almacenará las historias del sprint
+  window.ID_PROYECTO = Number(idProyectoParam) || Number(urlParams.get("proyecto")) || 1;
+  window.ID_SPRINT = Number(idSprintParam) || Number(sessionStorage.getItem("ID_SPRINT_ACTIVO")) || 1;
+  window.ID_REUNION = Number(idReunionParam) || Number(sessionStorage.getItem("ID_REUNION_ACTIVA")) || 1;
+  
+  const btnContinuar = document.getElementById("btnContinuar");
+  const btnContinuarPP = document.getElementById("btnContinuarPP");
+  const btnContinuarFase2 = document.getElementById("btnContinuarFase2");
+  const btnVolverFase1 = document.getElementById("btnVolverFase1");
+  const btnConfirmarSprint = document.getElementById("btnConfirmarSprint");
+  const btnSalir = document.getElementById("btnSalir");
+  const inpFechaInicio = document.getElementById("inpFechaInicio");
+  const inpFechaFin = document.getElementById("inpFechaFin");
 
-const btnContinuar = document.getElementById("btnContinuar");
-const btnContinuarPP = document.getElementById("btnContinuarPP");
-const btnContinuarFase2 = document.getElementById("btnContinuarFase2");
-const btnVolverFase1 = document.getElementById("btnVolverFase1");
-const btnConfirmarSprint = document.getElementById("btnConfirmarSprint");
-const btnSalir = document.getElementById("btnSalir");
-const inpFechaInicio = document.getElementById("inpFechaInicio");
-const inpFechaFin = document.getElementById("inpFechaFin");
-const txtRestante = document.getElementById("txtRestante");
+  if (btnContinuar) {
+    btnContinuar.onclick = () => mostrarVista("vistaDetalles");
+  }
+
+  if (btnContinuarPP) {
+    btnContinuarPP.onclick = () => mostrarVista("vista-fase2");
+  }
+
+  if (btnVolverFase1) {
+    btnVolverFase1.onclick = () => mostrarVista("vista-fase1");
+  }
+
+  if (btnSalir) {
+    btnSalir.onclick = () => {
+      if (!confirm("¿Salir de la reunión?")) return;
+      // Regresar al panel principal de reuniones sin recargar la página
+      document.getElementById("vista-sprintPlanning").style.display = "none";
+      document.getElementById("modal-reuniones").style.display = "block";
+    };
+  }
+
+  if (btnConfirmarSprint) {
+    btnConfirmarSprint.onclick = async () => {
+      try {
+        await fetch(`/reuniones/${ID_REUNION}/finalizar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sprint: ID_SPRINT })
+        });
+
+        alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
+        document.getElementById("vista-sprintPlanning").style.display = "none";
+        document.getElementById("modal-reuniones").style.display = "block";
+      } catch (err) {
+        console.error("Error al confirmar el sprint:", err);
+        alert("Ocurrió un error al finalizar la reunión.");
+      }
+    };
+  }
+
+  if (inpFechaInicio) inpFechaInicio.onchange = calcularRestante;
+  if (inpFechaFin) inpFechaFin.onchange = calcularRestante;
+
+  // Ejecutamos la carga inicial
+  cargarHistoriasSprint();
+  mostrarVista("vista-fase1");
+}
 
 //se cargan las historias del sprint
 async function cargarHistoriasSprint() {
@@ -50,26 +100,31 @@ async function cargarHistoriasSprint() {
 function ocultarTodasCabeceras() {
   ["historiasSprint", "historiasResumen", "historiasAsignacion"].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = "none";
+    if (el) {
+      el.classList.add("oculto");
+    }
   });
 }
 
 function mostrarCabecera(id) {
   ocultarTodasCabeceras();
   const el = document.getElementById(id);
-  if (el) el.style.display = "flex";
+  if (el) {
+    el.classList.remove("oculto");
+  }
 }
 
 function mostrarVista(idVista) {
-  document.querySelectorAll(".vista, #vistaDetalles, #vista-fase2").forEach(v => {
-    v.classList.add("oculto");
-    v.style.display = "none";
+  ["vista-fase1", "vistaDetalles", "vista-fase2"].forEach(vId => {
+    const vista = document.getElementById(vId);
+    if (vista) {
+      vista.style.setProperty("display", "none", "important");
+    }
   });
 
   const vistaActiva = document.getElementById(idVista);
   if (vistaActiva) {
-    vistaActiva.classList.remove("oculto");
-    vistaActiva.style.display = "block";
+    vistaActiva.style.setProperty("display", "block", "important");
   }
 
   switch (idVista) {
@@ -89,15 +144,20 @@ function mostrarVista(idVista) {
 //tabla de detalles y calculo de esfuerzo
 function poblarTablaDetalles() {
   const cuerpoTabla = document.getElementById("cuerpoTabla");
+  if (!cuerpoTabla) return;
   
   // Hacemos visibles las columnas de estimación
-  document.getElementById("colPuntos").classList.remove("oculto");
-  document.getElementById("colFactor").classList.remove("oculto");
-  document.getElementById("colEsfuerzo").classList.remove("oculto");
+  const colPuntos = document.getElementById("colPuntos");
+  const colFactor = document.getElementById("colFactor");
+  const colEsfuerzo = document.getElementById("colEsfuerzo");
+
+  if (colPuntos) colPuntos.classList.remove("oculto");
+  if (colFactor) colFactor.classList.remove("oculto");
+  if (colEsfuerzo) colEsfuerzo.classList.remove("oculto");
 
   cuerpoTabla.innerHTML = requisitos.map(h => {
-    const puntosIniciales = h.puntos_de_historia || 5; //valor por defecto para pruebas si viene vacío
-    const factorComplejidad = h.factor_complejidad || ""; 
+    const puntosIniciales = h.puntos_de_historia || 5; 
+    const factorComplejidad = h.factor_complejidad || "";
     
     return `
       <tr data-id="${h.id}">
@@ -138,37 +198,11 @@ function calcularEsfuerzoTotal() {
   console.log("Esfuerzo Total Calculado:", esfuerzoAcumulado);
 }
 
-//navegación entre botones
-if (btnContinuar) {
-  btnContinuar.addEventListener("click", () => {
-    mostrarVista("vistaDetalles");
-  });
-}
-
-if (btnContinuarPP) {
-  btnContinuarPP.addEventListener("click", () => {
-    //botón para avanzar hacia la fase 2 tras revisar o simular el planning poker
-    mostrarVista("vista-fase2");
-  });
-}
-
-if (btnVolverFase1) {
-  btnVolverFase1.addEventListener("click", () => {
-    mostrarVista("vista-fase1");
-  });
-}
-
-if (btnSalir) {
-  btnSalir.addEventListener("click", () => {
-    if (!confirm("¿Salir de la reunión?")) return;
-    window.location.href = `FacilitadorPB.html?proyecto=${ID_PROYECTO}`;
-  });
-}
-
 //fase 2 - asignación de historias
 function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
-  
+  if (!cuerpoAsignacion) return;
+
   cuerpoAsignacion.innerHTML = requisitos.map(h => `
     <tr>
       <td>${h.nombre}</td>
@@ -185,43 +219,21 @@ function cargarAsignacionFase2() {
   `).join('');
 }
 
-if (btnConfirmarSprint) {
-  btnConfirmarSprint.addEventListener("click", async () => {
-    try {
-      //petición para finalizar la reunión en la BD y registrar el resumen
-      await fetch(`/reuniones/${ID_REUNION}/finalizar`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sprint: ID_SPRINT })
-      });
-
-      alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
-      window.location.href = `FacilitadorPB.html?proyecto=${ID_PROYECTO}`;
-    } catch (err) {
-      console.error("Error al confirmar el sprint:", err);
-      alert("Ocurrió un error al finalizar la reunión.");
-    }
-  });
-}
-
-//calculo de duración
 function calcularRestante() {
+  const inpFechaInicio = document.getElementById("inpFechaInicio");
+  const inpFechaFin = document.getElementById("inpFechaFin");
+  const txtRestante = document.getElementById("txtRestante");
+
+  if (!inpFechaInicio || !inpFechaFin || !txtRestante) return;
+
   const ini = inpFechaInicio.value;
   const fin = inpFechaFin.value;
 
   if (!ini || !fin) {
-    if (txtRestante) txtRestante.textContent = "Tiempo restante: -- días";
+    txtRestante.textContent = "Tiempo restante: -- días";
     return;
   }
 
   const dias = Math.ceil((new Date(fin) - new Date(ini)) / 86400000);
-  if (txtRestante) {
-    txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
-  }
+  txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
 }
-
-if (inpFechaInicio) inpFechaInicio.addEventListener("change", calcularRestante);
-if (inpFechaFin) inpFechaFin.addEventListener("change", calcularRestante)
-
-cargarHistoriasSprint();
-mostrarVista("vista-fase1");

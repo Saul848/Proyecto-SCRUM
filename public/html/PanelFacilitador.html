@@ -420,9 +420,13 @@
     </div>
   </div>
 
-      
-
       <!-- MODAL 3: REUNIRSE -->
+      <div id="modal-reuniones" class="modal-class" style="display: none;">
+        <div class="area-fondo" style="padding: 20px;">
+          <!-- Las tarjetas de reuniones y el botón de agendar se inyectarán aquí automáticamente -->
+        </div>
+      </div>
+
       <div id="modalCrearReunion" class="modal-class" style="display: none;">
         <div class="modal-contenido">
           
@@ -437,8 +441,11 @@
             </div>
 
             <div class="entradaInp">
-              <label for="seleccionSprint">Sprint asociado: *</label>
-              <select id="seleccionSprint"></select>
+              <label>Sprint asociado: *</label>
+              <div id="contenedorSprintsCards" style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px;">
+                
+              </div>
+              <input type="hidden" id="inputSprintSeleccionado" value="">
             </div>
 
             <div class="entradaInp">
@@ -556,6 +563,12 @@
         if (tituloCentral) tituloCentral.style.display = "none";
         if (btnIniciar) btnIniciar.style.display = "none";
       }
+
+      if (idModal === 'modal-reuniones') {
+        if (typeof cargarReuniones === 'function') {
+          cargarReuniones();
+        }
+    }
   }
 
     // Función específica que usa tu compañero para el Sprint
