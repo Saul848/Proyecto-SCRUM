@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="../css/sprintPlanning.css">
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link rel="stylesheet" href="../css/planningPokerFacilitador.css">
+
+  <!-- Carga la librería cliente de Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
 
 </head>
 <body>
@@ -33,7 +37,7 @@
         <div class="cabecera-default" id="cabecera-sprintPB">
         <span class="badge-rol">Facilitador</span>
         <h2>Sprint backlog</h2>
-        <button class="btn-pill btn-azul">Planning poker</button>
+        <button class="btn-pill btn-azul" onclick="abrirPlanningPokerParaFacilitador()">Planning poker</button>
         <button class="btn-pill btn-azul">Generar reporte</button>
         <button class="btn-pill btn-verde">Modificar sprint actual</button>
         <button class="btn-pill btn-rojo">Cerrar sprint</button>
@@ -526,6 +530,7 @@
   <script src="../js/sprintPlanning.js" defer></script>
   <script src="../js/modalSubirMaterial.js" defer></script>
   <script src="../js/mensajesF.js" defer></script>
+  <script src="../js/planningPokerFacilitador.js" defer></script>
 <script>
     // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
   function mostrarModal(idModal, idCabecera) {
