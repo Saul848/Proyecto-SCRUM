@@ -21,7 +21,9 @@ function crearReunionControlador(pool) {
             const { idProyecto } = req.params;
             const sprints = await reunionDAO.obtenerSprintsPorProyecto(idProyecto);
             const participantes = await reunionDAO.obtenerParticipantesPorProyecto(idProyecto);
-            res.json({ ok: true, data: { sprints, participantes } });
+            const tiposReunion = await reunionDAO.obtenerTiposReunion();
+
+            res.json({ ok: true, data: { sprints, participantes, tiposReunion } });
         } catch (err) {
             console.error('ERROR AL OBTENER DATOS FORMULARIO:', err.message);
             res.status(500).json({ ok: false, error: err.message });
@@ -64,7 +66,29 @@ function crearReunionControlador(pool) {
         }
     };
 
-    return { obtenerReuniones, obtenerDatosFormulario, guardarReunion, cambiarEstadoEnCurso };
+    const obtenerHistoriasSprint = async (req, res) => {
+        try {
+            const { idSprint } = req.params;
+            const historias = await reunionDAO.obtenerHistoriasPorSprint(idSprint);
+            res.json({ ok: true, data: historias });
+        } catch (err) {
+            console.error('ERROR AL OBTENER HISTORIAS DEL SPRINT:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
+    const cambiarEstadoFinalizada = async (req, res) => {
+    try {
+        const { idReunion } = req.params;
+        await reunionDAO.finalizarReunion(idReunion);
+        res.json({ ok: true, mensaje: 'Reunión finalizada correctamente' });
+    } catch (err) {
+        console.error('ERROR AL FINALIZAR REUNIÓN:', err.message);
+        res.status(500).json({ ok: false, error: err.message });
+    }
+};
+
+    return { obtenerReuniones, obtenerDatosFormulario, guardarReunion, cambiarEstadoEnCurso, obtenerHistoriasSprint, cambiarEstadoFinalizada };
 }
 
 module.exports = crearReunionControlador;

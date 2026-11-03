@@ -47,7 +47,7 @@ app.use('/proyectos', require('./routes/proyectosRoutes'));
 /**
  * Rutas de reuniones
  */
-app.use('/api/reunion', require('./routes/reunionRoutes'));
+app.use('/reuniones', require('./routes/reunionRoutes'));
 
 /**
  * Rutas de mensajes de cliente
@@ -113,3 +113,7 @@ app.use('/proyectos', require('./routes/proyectosRoutes'));
  */
 app.use('/mensajes', require('./routes/mensajesRoutes'));
 
+/**
+ * Ruta de mensajes de desarrollador
+ */
+app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));

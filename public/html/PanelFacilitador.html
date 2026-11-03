@@ -321,6 +321,13 @@
 
         <!-- TABLERO KANVAN -->
         <div id="historias-sprint">
+          <!-- Campo de búsqueda para la PB-24 -->
+          <div class="kanban-search-container" style="margin-bottom: 15px;">
+            <input type="text" id="inputBusquedaKanban" 
+            placeholder="🔍 Buscar historias por título o palabra clave..." 
+            style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1;"
+            autocomplete="off">
+          </div>
           <div class="columnas-kanban">
             <h3>Por empezar</h3>
             <h3>En progreso</h3>
@@ -507,9 +514,13 @@
     </div>
   </div>
 
-      
-
       <!-- MODAL 3: REUNIRSE -->
+      <div id="modal-reuniones" class="modal-class" style="display: none;">
+        <div class="area-fondo" style="padding: 20px;">
+          <!-- Las tarjetas de reuniones y el botón de agendar se inyectarán aquí automáticamente -->
+        </div>
+      </div>
+
       <div id="modalCrearReunion" class="modal-class" style="display: none;">
         <div class="modal-contenido">
           
@@ -524,8 +535,11 @@
             </div>
 
             <div class="entradaInp">
-              <label for="seleccionSprint">Sprint asociado: *</label>
-              <select id="seleccionSprint"></select>
+              <label>Sprint asociado: *</label>
+              <div id="contenedorSprintsCards" style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px;">
+                
+              </div>
+              <input type="hidden" id="inputSprintSeleccionado" value="">
             </div>
 
             <div class="entradaInp">
@@ -717,6 +731,12 @@
         if (tituloCentral) tituloCentral.style.display = "none";
         if (btnIniciar) btnIniciar.style.display = "none";
       }
+
+      if (idModal === 'modal-reuniones') {
+        if (typeof cargarReuniones === 'function') {
+          cargarReuniones();
+        }
+    }
   }
 
     // Función específica que usa tu compañero para el Sprint
