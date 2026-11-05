@@ -171,7 +171,7 @@ body {
 }
 
 /* ===== Contenedor general bajo la barra superior ===== */
-#contenedorMenuSuperior ~ * {
+#contenedor-principal {
     display: flex;
     flex: 1;
 }

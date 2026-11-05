@@ -25,6 +25,7 @@
         <li><button id="btn-miembros">Miembros</button></li>
         <li>Configuracion</li>
         <li>Mensajes</li>
+        <li><button id="btnSessionStorage" onclick="consoleSessionStorage()">sessionStorage</button></li>
       </ul>
     </div>
     
@@ -113,5 +114,14 @@
   
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
+  <script>
+    function consoleSessionStorage(){
+      console.log("recuperando sessionStorage")
+      console.log(sessionStorage.getItem('usuarioActivo'));
+
+      const idUsuario = JSON.parse(sessionStorage.getItem('usuarioActivo')).id;
+      console.log("El id del usuario recuperado del sessionStorage es: " + idUsuario);
+    }
+  </script>
 </body>
 </html>
