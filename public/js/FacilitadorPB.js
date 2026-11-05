@@ -98,7 +98,7 @@ async function renderizarHistorias() {
         });
 
         filaHtml.innerHTML = `
-            <label class="LabelID">${historia.numeroDeHistoria ?? historia.id}</label>
+            <label class="LabelID">${historia.numeroDeHistoria || "#"}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
             <label class="LabelDescripccion">${historia.descripcion || "#"}</label>
             
