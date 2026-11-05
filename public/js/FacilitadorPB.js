@@ -52,6 +52,15 @@ let datosHistorias = [];
 let currentIndexAdd = 0;
 let currentIndexMod = 0;
 
+//Obtener la informacion del proyecto actual como un objeto
+let proyectoObjGlobal = null
+const proyectoActual= sessionStorage.getItem('proyectoActivo');
+//Si se obtuvo el dato entonces parsearlo
+if (proyectoActual){
+    proyectoObjGlobal = JSON.parse(proyectoActual);
+}else{
+    console.log('No hay ningún proyecto activo en la sesión.');
+}
 
 /**
  * Función para renderizar dinámicamente las historias de usuario en el DOM
@@ -59,6 +68,7 @@ let currentIndexMod = 0;
 async function renderizarHistorias() {
     // 1. Solicitamos los datos al servidor y los guardamos en la variable
     datosHistorias = await obtenerHistorias(parseInt(1,10));
+    console.log("Datos recibidos del servidor:", datosHistorias); // <-- Revisa la consola del navegador (F12)
 
     // 2. Limpiamos el contenedor antes de inyectar los elementos
     divHistoria.innerHTML = "";
@@ -88,9 +98,9 @@ async function renderizarHistorias() {
         });
 
         filaHtml.innerHTML = `
-            <label class="LabelID">${historia.id}</label>
+            <label class="LabelID">${historia.numeroDeHistoria ?? historia.id}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
-            <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
+            <label class="LabelDescripccion">${historia.descripcion || "#"}</label>
             
             <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
             <div class="criterio-fila-wrapper" data-index="0">

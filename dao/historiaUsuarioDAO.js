@@ -30,7 +30,8 @@ class historiaUsuarioDAO {
         //Se prepara la consulta
         const query = `
             SELECT 
-                t_historias.id, 
+                t_historias.id,
+                t_historias.numero_de_historia, 
                 t_historias.nombre, 
                 t_historias.descripcion, 
                 t_historias.valor, 
@@ -45,7 +46,10 @@ class historiaUsuarioDAO {
                 ON t_historias.id = t_criterios.id_historia 
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
             WHERE 
-                t_historias.id_proyecto = $1;
+                t_historias.id_proyecto = $1
+            ORDER BY 
+                t_historias.numero_de_historia ASC, 
+                t_criterios.numero_de_criterio ASC;
         `
         /**
          * Como se observa arriba se utiliza la Palabra LEFT JOIN , esto
@@ -70,6 +74,7 @@ class historiaUsuarioDAO {
                 if (!acc[row.id]) {
                     acc[row.id] = {
                         id: row.id,
+                        numeroDeHistoria: row.numero_de_historia,
                         nombre: row.nombre,
                         descripcion: row.descripcion,
                         valor: row.valor,
