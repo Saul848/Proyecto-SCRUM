@@ -349,4 +349,39 @@ function seleccionarSprintCard(idSprint, elementoCard) {
   elementoCard.style.background = "#eff6ff";
 }
 
-//cargarReuniones();
+// Listener para detectar el retorno automático desde Planning Poker y abrir la vista de detalles
+document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const seccion = urlParams.get("seccion");
+  const idSprint = Number(urlParams.get("sprint")) || Number(sessionStorage.getItem("ID_SPRINT_ACTIVO")) || 1;
+  const idReunion = Number(urlParams.get("reunion")) || Number(sessionStorage.getItem("ID_REUNION_ACTIVA")) || 1;
+
+  if (seccion === "reuniones") {
+    // 1. Mostrar la cabecera superior correspondiente a Reuniones
+    if (typeof mostrarCabecera === "function") {
+      mostrarCabecera("cabecera-springPlanning");
+    }
+
+    // 2. Ocultar todos los demás modales activos en el panel
+    document.querySelectorAll(".modal-class").forEach(modal => {
+      modal.style.display = "none";
+    });
+
+    // 3. Buscar el contenedor de sprint planning y cargar su contenido
+    const contenedorPlanning = document.getElementById("vista-sprintPlanning");
+    if (contenedorPlanning) {
+      fetch('sprintPlanning.html')
+        .then(res => res.text())
+        .then(html => {
+          contenedorPlanning.innerHTML = html;
+          contenedorPlanning.style.display = "block";
+
+          // 4. Inicializar la lógica de sprint planning (que ya detecta "?vista=detalles" por URL)
+          if (typeof inicializarSprintPlanning === 'function') {
+            inicializarSprintPlanning(idSprint, idReunion, ID_PROYECTO);
+          }
+        })
+        .catch(err => console.error("Error al cargar sprintPlanning.html al retornar:", err));
+    }
+  }
+});
