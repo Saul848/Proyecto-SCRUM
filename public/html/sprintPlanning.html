@@ -1,92 +1,134 @@
 
-    <div class="app">
-        <main class="area-trabajo">
-            <div class="area-fondo">
-                <!-- Fase 1 (selección) -->
-                <div id="vista-fase1" class="vista">
-                    <div class="fase-titulo">
-                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
-                        <p class="subtitulo">Fase 1 de 2: ¿QUÉ vamos a entregar?</p>
-                    </div>
+<!---->
+<header id="planningSuperior">
+    <div id="cabeceraPlanning">
+        <!--fase 1-inicio/despliegue-->
+        <div id="historiasSprint" class="cabeceraDefault">
+            <span class="rolPlanning" id="rol">Facilitador</span>
+            <h1>Planificación de la iteración</h1>
+        </div>
 
-                    <div class="panel">
-                        <h3>Lista de requisitos priorizados</h3>
-                        <ul id="listaRequisitos" class="lista-requisitos"></ul>
-                    </div>
+        <!--lista de tareas y detalles-->
+        <div id="historiasResumen" class="cabeceraDefault">
+            <h1>Tareas a realizar en la iteración</h1>
+        </div>
 
-                    <div class="acciones">
-                        <button id="btnTerminarSeleccion" class="btn-azul" disabled>Terminar selección</button>
-                    </div>
+        <!--fase 2 asignación de historias a desarrolladores-->
+        <div id="historiasAsignacion" class="cabeceraDefault">
+            <h1>Asignación de historias</h1>
+        </div>
+    </div>
+</header>
+
+<section id="area-trabajo">
+    <div class="area-fondo">
+
+        <!-- Modal Fase 1-historias del sprint-->
+        <div id="vista-fase1" class="vista">
+            <div class="fase-subtitulo">
+                <h2>Fase 1 de 2: ¿QUÉ vamos a entregar?</h2>
+            </div>
+
+            <div class="panel">
+                <h3>Lista de requisitos priorizados</h3>
+                <div class="diseño-fondo">
+                    <table class="tablaHistorias">
+                        <thead>
+                            <tr>
+                                <th>Historias de usuario</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoHistorias"></tbody>
+                    </table>
                 </div>
+            </div>
 
-                <!-- Resumen Fase 1 -->
-                <div id="vista-resumen" class="vista oculto">
-                    <div class="fase-titulo">
-                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
-                        <p class="subtitulo">Fase 1 de 2: ¿QUÉ vamos a entregar?</p>
-                    </div>
+            <div class="acciones">
+                <button id="btnContinuar" class="btn-azul">Continuar</button>
+                <button id="btnSalir" class="btn-rojo">Salir</button>
+            </div>
+        </div>
 
-                    <div class="panel">
-                        <h3>Lista de requisitos priorizada</h3>
-                        <div class="diseño-fondo">
-                            <table id="tablaResumen" class="tabla-resumen">
-                                <thead>
-                                    <tr>
-                                        <th>Historias de usuario</th>
-                                        <th>Valor</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cuerpoResumen"></tbody>
-                            </table>
-                            <button id="btnVolverFase1" class="btn-gris">← Volver a Fase 1</button>
-                        </div>
-                        
-                    </div>
+        <!--Detalles/parte donde se va a calcular el planning poker-->
+        <div id="vistaDetalles" class="oculto">
+            <div>
+                <h2>Detalles:</h2>
+            </div>
 
-                    <div class="acciones">
-                        <button id="btnContinuar" class="btn-azul">Continuar</button>
-                        <button id="btnSalir" class="btn-rojo">Salir</button>
-                    </div>
-                </div>
+            <div>
+                <h3>Duración</h3>
+                <table class="tablaDuracion">
+                    <thead>
+                        <tr>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Tiempo restante</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="date" id="inpFechaInicio"></td>
+                            <td><input type="date" id="inpFechaFin"></td>
+                            <td id="txtRestante">-- días</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <!-- Fase 2 (asignación) -->
-                <section id="vista-fase2" class="vista oculto">
-                    <div class="fase-titulo">
-                        <h2>Planificación de la iteración <span class="iteracion">Iteración 1</span></h2>
-                        <p class="subtitulo">Fase 2 de 2: ¿CÓMO lo vamos a hacer?</p>
-                    </div>
+            <div>
+                <table id="tablaTareas">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Historia</th>
+                            <th id="colPuntos" class="oculto">Puntos de historia</th>
+                            <th id="colFactor" class="oculto">Factor de complejidad</th>
+                            <th id="colEsfuerzo" class="oculto">Esfuerzo estimado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
 
-                    <div class="panel">
-                        <h3>Duración</h3>
-                        <div class="fila-duracion">
-                            <label>Inicio: <input type="date" id="inpFechaInicio"></label>
-                            <label>Fin: <input type="date" id="inpFechaFin"></label>
-                            <span id="txtRestante" class="texto-restante">Tiempo restante: -- días</span>
-                        </div>
-                    </div>
+                <button id="btnContinuarPP" class="btn-azul">Continuar a Planning Poker</button>
+                <button id="btnContinuarFase2" class="btn-azul oculto">Continuar a fase 2</button>></button>
+            </div>
+        </div>
+        
+        <div id="vista-fase2" class="oculto">
+            <div class="fase-subtitulo">
+                <h2>Fase 2 de 2: ¿CÓMO lo vamos a hacer?</h2>
+            </div>
 
-                    <div class="panel">
-                        <h3>Lista de tareas de la iteración</h3>
-                        <table class="tabla-tareas">
+            <div class="contenido-fase2">
+                <!-- Tabla de asignación -->
+                <div class="panel">
+                    <h3>Historias de la iteración</h3>
+                    <div class="diseño-fondo">
+                        <table class="tablaAsignacion">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
-                                    <th>Título</th>
-                                    <th>Sprint asignado</th>
-                                    <th>Responsable</th>
-                                    <th>Esfuerzo</th>
-                                    <th></th>
+                                    <th>Tarea</th>
+                                    <th>Esfuerzo estimado</th>
+                                    <th>Asignado</th>
                                 </tr>
                             </thead>
-                            <tbody id="cuerpoTareas"></tbody>
+                            <tbody id="cuerpoAsignacion"></tbody>
                         </table>
                     </div>
+                </div>
 
-                    <div class="acciones">
-                        <button id="btnVolverResumen" class="btn-gris">← Volver a Fase 1</button>
-                        <button id="btnConfirmarSprint" class="btn-verde">✓ Confirmar Sprint Backlog</button>
-                    </div>
-                </section>    
+                <!-- Panel lateral de solicitudes -->
+                <aside class="panel-solicitudes">
+                    <h3>Solicitudes (<span id="numSolicitudes">2</span>)</h3>
+                    <div id="listaSolicitudes"></div>
+                </aside>
             </div>
-        </main>    
+
+            <div class="acciones">
+                <button id="btnVolverFase1" class="btn-azul">← Volver a Fase 1</button>
+                <button id="btnConfirmarSprint" class="btn-azul">Confirmar Sprint Backlog</button>
+            </div>
+        </div>          
     </div>
+</section>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Desarrollador</title>
+    <link rel="stylesheet" href="../css/planningPokerDesarrollador.css">
+
+    <!-- Carga la librería cliente de Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <section>
+        <button onclick="abrirPlanningPokerParaDesarrollador()">Planning Poker Desarrollador</button>
+    </section>
+
+    <!-- Section zonaDeTrabajo -->
+    <section id="zonaDeTrabajo">
+
+    </section>
+
+    <!-- Script puente del desarrollador -->
+    <script src="../js/desarrolladorBoton.js" defer></script>
+    
+    <script>
+        // Función general para alternar modales
+        function mostrarModal(idModal) {
+            document.querySelectorAll(".modal-class").forEach(modal => {
+                modal.style.display = "none";
+            });
+
+            const modalSeleccionado = document.getElementById(idModal);
+            if (modalSeleccionado) {
+                modalSeleccionado.style.display = "block";
+            }
+        }
+    </script>
+</body>
+
+</html>

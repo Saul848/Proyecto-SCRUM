@@ -40,16 +40,25 @@ const subirEvidencia = multer({
     },
     fileFilter: (req, file, cb) => {
         const extension = path.extname(file.originalname).toLowerCase();
-        const extensionesPermitidas = ['.png', '.jpg', '.jpeg'];
+        const extensionesPermitidas = ['.png', '.jpg', '.jpeg', '.pdf', '.zip'];
+        
+        const mimetypesPermitidos = [
+            'image/png',
+            'image/jpeg',
+            'application/pdf',
+            'application/zip',
+            'application/x-zip-compressed',
+            'multipart/x-zip'
+        ];
 
-        if (extensionesPermitidas.includes(extension) &&
-            ['image/png', 'image/jpeg'].includes(file.mimetype)) {
+        if (extensionesPermitidas.includes(extension) && mimetypesPermitidos.includes(file.mimetype)) {
             return cb(null, true);
         }
 
-        cb(new Error('Solo se permiten imágenes PNG y JPG.'));
+        cb(new Error('Solo se permiten imágenes (PNG, JPG), archivos PDF y ZIP.'));
     }
 });
+
 
 
 /**
@@ -68,9 +77,13 @@ router.post('/historiasPB', (req, res) => controlador.agregarHistoria(req, res))
 router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
 
 /**
- * Obtiene todas las historias de usuario que estan en un proyec
+ * Elimina una historia de usuario de un proyecto mediante sus respectivos ids
  */
-router.post('/historiasPB/:idProyecto', (req, res) => controlador.agregar(req, res));
+router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
+
+// "login" va antes de "/:id" para que no se confunda con un id
+router.get('/', (req, res) => controlador.listar(req, res));
+
 
 /**
  * Obtiene todas las historias del sprint actual

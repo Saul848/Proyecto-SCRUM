@@ -1,310 +1,227 @@
-const params = new URLSearchParams(window.location.search);
-const rol = (params.get("usuario") || "facilitador").toLowerCase();
+const urlParams = new URLSearchParams(window.location.search);
+const rol = (urlParams.get("usuario") || "facilitador").toLowerCase();
 const esFacilitador = rol === "facilitador";
-const ID_SPRINT = 1;
-const NOMBRE_SPRINT = "Sprint-1";
 
+const ID_SPRINT = Number(urlParams.get("sprint")) || 1;
+const ID_REUNION = Number(urlParams.get("reunion")) || 1;
+const ID_PROYECTO = Number(urlParams.get("proyecto")) || 1;
 
-const btnUsuario = document.getElementById("btnUsuario");
-if (btnUsuario) {
-  btnUsuario.textContent = rol.charAt(0).toUpperCase() + rol.slice(1);
-}
+let requisitos = []; // Almacenará las historias del sprint
 
-let requisitos = []; // Se llenará desde la BD
-
-
-const desarrolladores = ["Desarrollador 1", "Desarrollador 2", "Desarrollador 3"];
-
-let seleccionados = [];   // ids marcados en fase 1
-
-/* ============ REFERENCIAS ============ */
-const vistas = {
-  fase1:   document.getElementById("vista-fase1"),
-  resumen: document.getElementById("vista-resumen"),
-  fase2:   document.getElementById("vista-fase2")
-};
-
-const btnTerminarSeleccion = document.getElementById("btnTerminarSeleccion");
-const btnVolverFase1 = document.getElementById("btnVolverFase1");
 const btnContinuar = document.getElementById("btnContinuar");
-const btnVolverResumen = document.getElementById("btnVolverResumen");
+const btnContinuarPP = document.getElementById("btnContinuarPP");
+const btnContinuarFase2 = document.getElementById("btnContinuarFase2");
+const btnVolverFase1 = document.getElementById("btnVolverFase1");
 const btnConfirmarSprint = document.getElementById("btnConfirmarSprint");
 const btnSalir = document.getElementById("btnSalir");
 const inpFechaInicio = document.getElementById("inpFechaInicio");
 const inpFechaFin = document.getElementById("inpFechaFin");
 const txtRestante = document.getElementById("txtRestante");
 
-
-/* ============ CARGAR HISTORIAS DESDE LA BD ============ */
-async function cargarHistorias() {
+//se cargan las historias del sprint
+async function cargarHistoriasSprint() {
   try {
-      const respuesta = await fetch('/reuniones/1/historias', {
-          headers: { "Accept": "application/json" }
-      });
-      const datos = await respuesta.json();
-      requisitos = datos.data || [];
+    const respuesta = await fetch(`/reuniones/sprint/${ID_SPRINT}/historias`, {
+      headers: { "Accept": "application/json" }
+    });
+    const datos = await respuesta.json();
+    requisitos = datos.data || [];
 
-      const lista = document.getElementById('listaRequisitos');
-      lista.innerHTML = requisitos.length
-          ? requisitos.map(h => `
-              <li>
-                  <label>
-                      <input type="checkbox" value="${h.id}">
-                      ${h.nombre} — Valor: ${h.valor}
-                  </label>
-              </li>
-          `).join('')
-          : '<li>No hay historias de usuario.</li>';
+    //lista de requisitos
+    const cuerpoHistorias = document.getElementById('cuerpoHistorias');
+    cuerpoHistorias.innerHTML = requisitos.length > 0
+      ? requisitos.map(h => `
+          <tr>
+            <td><strong>${h.nombre}</strong><br><small>${h.descripcion || ''}</small></td>
+            <td>${h.valor || 0}</td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="2" style="text-align: center;">No hay historias asignadas a este sprint.</td></tr>';
+
+    //se agrega también en la tabla de detalles
+    poblarTablaDetalles();
+
   } catch (err) {
-      console.error('Error al cargar historias:', err);
+    console.error('Error al cargar historias:', err);
   }
 }
 
-
-
-
-
-function mostrarVista(nombre) {
-  Object.values(vistas).forEach(v => v.classList.add("oculto"));
-  vistas[nombre].classList.remove("oculto");
-}
-
-function requisitosSeleccionados() {
-  return requisitos.filter(r => seleccionados.includes(r.id));
-}
-
-/* ============ VISTA 1 ============ */
-
-btnTerminarSeleccion.addEventListener("click", async () => {
-    if (seleccionados.length === 0) return;
-
-    try {
-        const res = await fetch('/reuniones/seleccion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: seleccionados.map(Number) })
-        });
-        const { ok } = await res.json();
-        if (!ok) throw new Error('Error al guardar selección');
-
-        pintarResumen();
-        mostrarVista("resumen");
-    } catch (err) {
-        console.error('No se pudo guardar la selección:', err);
-        alert('Ocurrió un error al guardar la selección.');
-    }
-});
-
-
-
-function actualizarSeleccion() {
-  seleccionados = Array.from(
-    document.querySelectorAll("#listaRequisitos input[type=checkbox]:checked")
-  ).map(c => Number(c.value));
-
-  if (btnTerminarSeleccion) {
-    btnTerminarSeleccion.disabled = seleccionados.length === 0 || !esFacilitador;
-  }
-}
-
-document.getElementById("listaRequisitos").addEventListener("change", (e) => {
-  if (e.target.matches("input[type=checkbox]")) {
-    actualizarSeleccion();
-  }
-});
-
-
-/* ============ VISTA 2 (resumen) ============ */
-function pintarResumen() {
-  const tbody = document.getElementById("cuerpoResumen");
-  tbody.innerHTML = "";
-
-  requisitosSeleccionados().forEach(r => {
-    const tr = document.createElement("tr");
-
-    const tdTitulo = document.createElement("td");
-    tdTitulo.textContent = r.nombre;
-
-    const tdValor = document.createElement("td");
-    tdValor.textContent = r.valor;
-
-    tr.append(tdTitulo, tdValor);
-    tbody.appendChild(tr);
+//cabeceras
+function ocultarTodasCabeceras() {
+  ["historiasSprint", "historiasResumen", "historiasAsignacion"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
   });
 }
 
-/* ============ VISTA 3 (fase 2) ============ */
-function pintarTareas() {
-  const tbody = document.getElementById("cuerpoTareas");
-  tbody.innerHTML = "";
+function mostrarCabecera(id) {
+  ocultarTodasCabeceras();
+  const el = document.getElementById(id);
+  if (el) el.style.display = "flex";
+}
 
-  requisitosSeleccionados().forEach(r => {
-    const tr = document.createElement("tr");
+function mostrarVista(idVista) {
+  document.querySelectorAll(".vista, #vistaDetalles, #vista-fase2").forEach(v => {
+    v.classList.add("oculto");
+    v.style.display = "none";
+  });
 
-    const tdId = document.createElement("td");
-    tdId.textContent = r.id;
+  const vistaActiva = document.getElementById(idVista);
+  if (vistaActiva) {
+    vistaActiva.classList.remove("oculto");
+    vistaActiva.style.display = "block";
+  }
 
-    const tdTitulo = document.createElement("td");
-    tdTitulo.textContent = r.nombre;
+  switch (idVista) {
+    case "vista-fase1":
+      mostrarCabecera("historiasSprint");
+      break;
+    case "vistaDetalles":
+      mostrarCabecera("historiasResumen");
+      break;
+    case "vista-fase2":
+      mostrarCabecera("historiasAsignacion");
+      cargarAsignacionFase2();
+      break;
+  }
+}
 
-    const tdSprint = document.createElement("td");
-    tdSprint.textContent = NOMBRE_SPRINT;
+//tabla de detalles y calculo de esfuerzo
+function poblarTablaDetalles() {
+  const cuerpoTabla = document.getElementById("cuerpoTabla");
+  
+  // Hacemos visibles las columnas de estimación
+  document.getElementById("colPuntos").classList.remove("oculto");
+  document.getElementById("colFactor").classList.remove("oculto");
+  document.getElementById("colEsfuerzo").classList.remove("oculto");
 
-  const tdResp = document.createElement("td");
-    tdResp.className = "celda-responsable";
-    if (esFacilitador) {
-      const sel = document.createElement("select");
-      sel.className = "sel-responsable";
-      sel.innerHTML =
-        '<option value="">—</option>' +
-        desarrolladores.map(d => `<option value="${d}">${d}</option>`).join("");
-      tdResp.appendChild(sel);
-    } else {
-      tdResp.textContent = "—";
-    }
+  cuerpoTabla.innerHTML = requisitos.map(h => {
+    const puntosIniciales = h.puntos_de_historia || 5; //valor por defecto para pruebas si viene vacío
+    const factorComplejidad = h.factor_complejidad || ""; 
     
-    const tdEsfuerzo = document.createElement("td");
-    const inp = document.createElement("input");
-    inp.type = "number";
-    inp.className = "inp-esfuerzo";
-    inp.min = "0";
-    inp.value = "0";
-    inp.disabled = !esFacilitador;
-    tdEsfuerzo.appendChild(inp);
+    return `
+      <tr data-id="${h.id}">
+        <td>PB-${h.id}</td>
+        <td>${h.nombre}</td>
+        <td><input type="number" class="inp-puntos" value="${puntosIniciales}" style="width: 60px;" onchange="calcularEsfuerzoTotal()"></td>
+        <td><input type="number" step="0.1" class="inp-factor" value="${factorComplejidad}" placeholder="Ej. 0.2" style="width: 70px;" onchange="calcularEsfuerzoTotal()"></td>
+        <td class="lbl-esfuerzo">${puntosIniciales}</td>
+      </tr>
+    `;
+  }).join('');
 
-    const tdAccion = document.createElement("td");
-    if (esFacilitador) {
-      const btn = document.createElement("button");
-      btn.className = "btn-azul btn-asignar";
-      btn.textContent = "Asignar";
-      btn.addEventListener("click", () => {
-        const sel = tr.querySelector(".sel-responsable");
-        if (!sel.value) {
-          alert("Selecciona un desarrollador antes de asignar.");
-          return;
-        }
-        tdResp.textContent = sel.value;
-        tdAccion.textContent = "✓";
-      });
-      tdAccion.appendChild(btn);
+  calcularEsfuerzoTotal();
+}
+
+//calculo - Estimación inicial * (1 + Factor)
+function calcularEsfuerzoTotal() {
+  const filas = document.querySelectorAll("#cuerpoTabla tr");
+  let esfuerzoAcumulado = 0;
+
+  filas.forEach(tr => {
+    const inpPuntos = tr.querySelector(".inp-puntos");
+    const inpFactor = tr.querySelector(".inp-factor");
+    const lblEsfuerzo = tr.querySelector(".lbl-esfuerzo");
+
+    if (inpPuntos && inpFactor && lblEsfuerzo) {
+      const puntos = Number(inpPuntos.value) || 0;
+      const factor = Number(inpFactor.value) || 0;
+
+      //si hay factor, se ajusta; si no, pasa igual que la estimación inicial
+      const esfuerzoAjustado = factor > 0 ? Math.round(puntos * (1 + factor)) : puntos;
+      
+      lblEsfuerzo.textContent = esfuerzoAjustado;
+      esfuerzoAcumulado += esfuerzoAjustado;
     }
+  });
+  //se muestra el esfuerzo total
+  console.log("Esfuerzo Total Calculado:", esfuerzoAcumulado);
+}
 
-    tr.append(tdId, tdTitulo, tdSprint, tdResp, tdEsfuerzo, tdAccion);
-    tbody.appendChild(tr);
+//navegación entre botones
+if (btnContinuar) {
+  btnContinuar.addEventListener("click", () => {
+    mostrarVista("vistaDetalles");
   });
 }
 
+if (btnContinuarPP) {
+  btnContinuarPP.addEventListener("click", () => {
+    //botón para avanzar hacia la fase 2 tras revisar o simular el planning poker
+    mostrarVista("vista-fase2");
+  });
+}
+
+if (btnVolverFase1) {
+  btnVolverFase1.addEventListener("click", () => {
+    mostrarVista("vista-fase1");
+  });
+}
+
+if (btnSalir) {
+  btnSalir.addEventListener("click", () => {
+    if (!confirm("¿Salir de la reunión?")) return;
+    window.location.href = `FacilitadorPB.html?proyecto=${ID_PROYECTO}`;
+  });
+}
+
+//fase 2 - asignación de historias
+function cargarAsignacionFase2() {
+  const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
+  
+  cuerpoAsignacion.innerHTML = requisitos.map(h => `
+    <tr>
+      <td>${h.nombre}</td>
+      <td>Calculado</td>
+      <td>
+        <select class="select-desarrollador" data-id="${h.id}">
+          <option value="">-- Seleccionar --</option>
+          <option value="Desarrollador 1">Desarrollador 1</option>
+          <option value="Desarrollador 2">Desarrollador 2</option>
+          <option value="Desarrollador 3">Desarrollador 3</option>
+        </select>
+      </td>
+    </tr>
+  `).join('');
+}
+
+if (btnConfirmarSprint) {
+  btnConfirmarSprint.addEventListener("click", async () => {
+    try {
+      //petición para finalizar la reunión en la BD y registrar el resumen
+      await fetch(`/reuniones/${ID_REUNION}/finalizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sprint: ID_SPRINT })
+      });
+
+      alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
+      window.location.href = `FacilitadorPB.html?proyecto=${ID_PROYECTO}`;
+    } catch (err) {
+      console.error("Error al confirmar el sprint:", err);
+      alert("Ocurrió un error al finalizar la reunión.");
+    }
+  });
+}
+
+//calculo de duración
 function calcularRestante() {
   const ini = inpFechaInicio.value;
   const fin = inpFechaFin.value;
 
   if (!ini || !fin) {
-    txtRestante.textContent = "Tiempo restante: -- días";
+    if (txtRestante) txtRestante.textContent = "Tiempo restante: -- días";
     return;
   }
 
   const dias = Math.ceil((new Date(fin) - new Date(ini)) / 86400000);
-
-  if (dias < 0) {
-    txtRestante.textContent = "⚠ La fecha fin es anterior al inicio";
-    return;
+  if (txtRestante) {
+    txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
   }
-  txtRestante.textContent = `Tiempo restante: ${dias} días`;
 }
 
- // Función específica que usa tu compañero para el Sprint
-function mostrarModalSprint(idModal, idCabecera) {
-        // 1. Ocultar todos los modales
-        document.querySelectorAll(".modal-class").forEach(modal => {
-            modal.style.display = "none";
-        });
+if (inpFechaInicio) inpFechaInicio.addEventListener("change", calcularRestante);
+if (inpFechaFin) inpFechaFin.addEventListener("change", calcularRestante)
 
-        document.querySelectorAll(".cabecera-default").forEach(modal =>{
-          modal.style.display="none";
-        })
-
-        // 2. Mostrar el modal seleccionado
-        const modalSeleccionado = document.getElementById(idModal);
-        if (modalSeleccionado) {
-            modalSeleccionado.style.display = "block";
-        }
-        
-        // 3. Controlar la cabecera superior
-        const cabeceraSeleccionada = document.getElementById(idCabecera);
-        if(cabeceraSeleccionada){
-          cabeceraSeleccionada.style.display = "flex";
-        }
-
-        const tituloCentral = document.getElementById("tituloSeccionCentral");
-
-        if (idModal === 'modal-product-backlog') {
-            tituloCentral.textContent = "Sprint backlog del proyecto: ";
-            tituloCentral.style.display = "block";
-        } else {
-            // En Product Backlog y otras vistas
-            tituloCentral.style.display = "none";
-            btnIniciar.style.display = "none";
-        }
-    }
-
-/* ============ NAVEGACIÓN ENTRE VISTAS ============ */
-btnVolverFase1.addEventListener("click", () => {
-  cargarHistorias();
-  actualizarSeleccion();
-  mostrarVista("fase1");
-});
-
-
-btnContinuar.addEventListener("click", () => {
-  // sin funcionalidad
-  console.log("Continuar a Fase 2");
-});
-
-btnVolverResumen.addEventListener("click", () => {
-  pintarResumen();
-  mostrarVista("resumen");
-});
-
-btnSalir.addEventListener("click", () => {
-  if (!confirm("¿Salir de la reunión? Se perderá lo no confirmado.")) return;
-  window.location.href = "FacilitadorPB.html";
-});
-
-btnConfirmarSprint.addEventListener("click", () => {
-  const filas = Array.from(document.querySelectorAll("#cuerpoTareas tr"));
-
-  const asignaciones = filas.map(tr => ({
-    id: tr.children[0].textContent,
-    sprint: tr.children[2].textContent,
-    responsable: tr.children[3].textContent.trim(),
-    esfuerzo: Number(tr.querySelector(".inp-esfuerzo").value) || 0
-  }));
-
-  const sinAsignar = asignaciones.filter(a => a.responsable === "—" || a.responsable === "");
-  if (sinAsignar.length > 0) {
-    alert(`Faltan ${sinAsignar.length} historia(s) por asignar responsable.`);
-    return;
-  }
-
-  const esfuerzoTotal = asignaciones.reduce((s, a) => s + a.esfuerzo, 0);
-
-  // Aquí después: accesoDao.guardarSprintBacklog(...)
-  console.log("Sprint Backlog confirmado:", {
-    sprint: ID_SPRINT,
-    historias: asignaciones,
-    esfuerzoTotal
-  });
-
-  alert(`Sprint Backlog confirmado.\nEsfuerzo total: ${esfuerzoTotal} puntos.`);
-  window.location.href = "FacilitadorPB.html";
-});
-
-inpFechaInicio.addEventListener("change", calcularRestante);
-inpFechaFin.addEventListener("change", calcularRestante);
-
-/* ============================================================
-   Init
-   ============================================================ */
-cargarHistorias();
-mostrarVista("fase1");
-actualizarSeleccion();
+cargarHistoriasSprint();
+mostrarVista("vista-fase1");

@@ -256,6 +256,27 @@ class historiaUsuarioDAO {
         }
     }
 
+    /**
+     * Actualiza los puntos de una historia de usuario en la base de datos
+     * 
+     * @async
+     * @function actualizarPuntosHistoria
+     * @param {number} idHistoria - Identificador único de la historia de usuario a actualizar.
+     * @param {number} puntos - Puntos para asignar a la historia.
+     * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
+     * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
+     */
+    async actualizarPuntosHistoria(idHistoria, puntos) {
+        try {
+            const query = 'UPDATE scrumbird.historia_de_usuario SET puntos_de_historia = $2 WHERE id = $1;';
+            await this.pool.query(query, [idHistoria, puntos]);
+            return { success: true, message: "Puntos asignados correctamente" };
+        } catch (error) {
+            console.error("Error al actualizar los puntos de la historia:", error);
+            throw error;
+        }
+    }
+
 
 }
 
