@@ -12,7 +12,6 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   window.ID_REUNION = Number(idReunionParam) || Number(sessionStorage.getItem("ID_REUNION_ACTIVA")) || 1;
   
   const btnContinuar = document.getElementById("btnContinuar");
-  const btnContinuarPP = document.getElementById("btnContinuarPP");
   const btnContinuarFase2 = document.getElementById("btnContinuarFase2");
   const btnVolverFase1 = document.getElementById("btnVolverFase1");
   const btnConfirmarSprint = document.getElementById("btnConfirmarSprint");
@@ -21,11 +20,47 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   const inpFechaFin = document.getElementById("inpFechaFin");
 
   if (btnContinuar) {
-    btnContinuar.onclick = () => mostrarVista("vistaDetalles");
-  }
+    btnContinuar.addEventListener("click", async () => {
+      try {
+        //se carga el html planningPokerFacilitador
+        const respuesta = await fetch('planningPokerFacilitador.html');
+        if (!respuesta.ok) throw new Error("No se pudo cargar planningPokerFacilitador.html");
 
-  if (btnContinuarPP) {
-    btnContinuarPP.onclick = () => mostrarVista("vista-fase2");
+        const htmlPlanning = await respuesta.text();
+
+        //se muestra la interfaz en el área de trabajo 
+        const areaTrabajo = document.querySelector("#area-trabajo");
+        if (areaTrabajo) {
+          areaTrabajo.innerHTML = htmlPlanning;
+
+          const modalPP = document.getElementById("modal-planning-poker-facilitador");
+          if (modalPP) {
+            modalPP.style.display = "block";
+          }
+
+          //boton para dirigirnos a la vista de detalles
+          const btnVolverSprint = document.getElementById("btn-pp-volverSprint");
+          if (btnVolverSprint) {
+            btnVolverSprint.addEventListener("click", () => {
+              window.location.href = `panelFacilitador.html?sprint=${ID_SPRINT}&reunion=${ID_REUNION}&proyecto=${ID_PROYECTO}&seccion=reuniones&vista=detalles`;
+            });
+          }
+
+          const btnPracticaDetalles = document.getElementById("btn-pp-practicaDetalles");
+          if (btnPracticaDetalles) {
+            btnPracticaDetalles.addEventListener("click", () => {
+              window.location.href = `panelFacilitador.html?sprint=${ID_SPRINT}&reunion=${ID_REUNION}&proyecto=${ID_PROYECTO}&seccion=reuniones&vista=detalles`;
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error al cargar el Planning Poker:", err);
+        mostrarVista("vistaDetalles");
+      }
+    });
+  }
+  if (btnContinuarFase2) {
+    btnContinuarFase2.onclick = () => mostrarVista("vista-fase2");
   }
 
   if (btnVolverFase1) {
@@ -65,7 +100,12 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
 
   // Ejecutamos la carga inicial
   cargarHistoriasSprint();
-  mostrarVista("vista-fase1");
+  const vistaParam = urlParams.get("vista");
+  if (vistaParam === "detalles") {
+    mostrarVista("vistaDetalles");
+  } else {
+    mostrarVista("vista-fase1");
+  }
 }
 
 //se cargan las historias del sprint
@@ -79,15 +119,16 @@ async function cargarHistoriasSprint() {
 
     //lista de requisitos
     const cuerpoHistorias = document.getElementById('cuerpoHistorias');
-    cuerpoHistorias.innerHTML = requisitos.length > 0
-      ? requisitos.map(h => `
-          <tr>
-            <td><strong>${h.nombre}</strong><br><small>${h.descripcion || ''}</small></td>
-            <td>${h.valor || 0}</td>
-          </tr>
-        `).join('')
-      : '<tr><td colspan="2" style="text-align: center;">No hay historias asignadas a este sprint.</td></tr>';
-
+    if (cuerpoHistorias) {
+      cuerpoHistorias.innerHTML = requisitos.length > 0
+        ? requisitos.map(h => `
+            <tr>
+              <td><strong>${h.nombre}</strong><br><small>${h.descripcion || ''}</small></td>
+              <td>${h.valor || 0}</td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="2" style="text-align: center;">No hay historias asignadas a este sprint.</td></tr>';
+    }
     //se agrega también en la tabla de detalles
     poblarTablaDetalles();
 
@@ -145,15 +186,6 @@ function mostrarVista(idVista) {
 function poblarTablaDetalles() {
   const cuerpoTabla = document.getElementById("cuerpoTabla");
   if (!cuerpoTabla) return;
-  
-  // Hacemos visibles las columnas de estimación
-  const colPuntos = document.getElementById("colPuntos");
-  const colFactor = document.getElementById("colFactor");
-  const colEsfuerzo = document.getElementById("colEsfuerzo");
-
-  if (colPuntos) colPuntos.classList.remove("oculto");
-  if (colFactor) colFactor.classList.remove("oculto");
-  if (colEsfuerzo) colEsfuerzo.classList.remove("oculto");
 
   cuerpoTabla.innerHTML = requisitos.map(h => {
     const puntosIniciales = h.puntos_de_historia || 5; 
@@ -194,8 +226,6 @@ function calcularEsfuerzoTotal() {
       esfuerzoAcumulado += esfuerzoAjustado;
     }
   });
-  //se muestra el esfuerzo total
-  console.log("Esfuerzo Total Calculado:", esfuerzoAcumulado);
 }
 
 //fase 2 - asignación de historias
