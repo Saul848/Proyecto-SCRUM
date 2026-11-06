@@ -641,12 +641,24 @@
           </table>
         </div>
       </div> <!--Aqui acaba el modal de registro de tiempos-->
+
+      <!--Modal para listar los miembros de un equipo-->
+      <div id="modal-usuariosF" class="modal-class">
+        <h2>Lista de miembros del equipo</h2>
+        <div id="contenedor-blanco">
+          <div id="contenedor-azul">
+            <h3>Miembros</h3>
+            <div id="contenedor-usuarios">
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
   <!-- MODAL AISLADO PARA MATERIAL ADICIONAL GENERAL -->
   <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
     <div class="modal-content">
-   
+  
       <!-- Cabecera: Botón Volver y Estado -->
       <div class="modal-header">
         <button class="btn-modal-cancelar kanban-evidencias-btn-volver" type="button" onclick="cerrarMiModalGeneral(event)">
@@ -654,19 +666,19 @@
         </button>
         <span id="kanban-evidencias-badge-estado" class="badge-estado general-badge">General</span>
       </div>
-   
+  
       <!-- Alerta informativa -->
       <div class="alerta-info">
         <span id="kanban-evidencias-alerta-texto">Puedes subir imágenes (.png, .jpg), archivos PDF y archivos ZIP.</span>
       </div>
-   
+  
       <!-- Zona de carga de archivos -->
       <div id="kanban-evidencias-zona-carga" class="zona-carga" onclick="document.getElementById('kanban-evidencias-input-file').click();">
         <p><strong>Subir material o evidencia</strong></p>
         <p>Haz clic para elegir un archivo (PNG, JPG, PDF, ZIP)</p>
         <input type="file" id="kanban-evidencias-input-file" accept=".png, .jpg, .jpeg, .pdf, .zip" onchange="manejarSeleccionArchivo(this)">
       </div>
-   
+  
       <!-- Sección de lista de archivos -->
       <div class="seccion-lista-archivos">
         <h4 id="kanban-evidencias-contador">Archivos subidos (0)</h4>
@@ -674,7 +686,7 @@
           <div class="sin-archivos">No hay evidencias subidas aún.</div>
         </div>
       </div>
-   
+  
       <!-- Sección de vista previa -->
       <div class="seccion-preview">
         <h4>Vista previa</h4>
@@ -683,7 +695,7 @@
           <span id="kanban-evidencias-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
         </div>
       </div>
-   
+  
       <!-- Acciones de cierre abajo -->
       <div class="modal-actions">
         <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">Cerrar</button>
@@ -704,83 +716,6 @@
   <script src="../js/planningPokerFacilitador.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/registroTiempos.js"></script>
-  <script>
-    // Función general para las demás secciones (Mensajes, Product Backlog, etc.)
-  function mostrarModal(idModal, idCabecera) {
-    document.querySelectorAll(".modal-class").forEach(modal => {
-      modal.style.display = "none";
-    });
-
-    const modalSeleccionado = document.getElementById(idModal);
-    if (modalSeleccionado) {
-      modalSeleccionado.style.display = "block";
-    }
-
-    const headerNormal = document.getElementById("BloqueSuperior");
-    const headerSprint = document.getElementById("cabecera-sprint");
-    const tituloCentral = document.getElementById("tituloSeccionCentral");
-    const btnIniciar = document.getElementById("btnIniciarConversacion");
-    mostrarCabecera(idCabecera);
-
-    if (idModal === 'modal-mensajes') {
-      if (tituloCentral) {
-        tituloCentral.textContent = "Mensajes";
-        tituloCentral.style.display = "block";
-      }
-    if (btnIniciar) btnIniciar.style.display = "block";
-      } else {
-        if (tituloCentral) tituloCentral.style.display = "none";
-        if (btnIniciar) btnIniciar.style.display = "none";
-      }
-
-      if (idModal === 'modal-reuniones') {
-        if (typeof cargarReuniones === 'function') {
-          cargarReuniones();
-        }
-    }
-  }
-
-    // Función específica que usa tu compañero para el Sprint
-  function mostrarModalSprint(idModal, idCabecera) {
-  // 1. Ocultar todos los modales principales
-  document.querySelectorAll(".modal-class").forEach(modal => {
-    modal.style.display = "none";
-  });
-
-  // 2. Mostrar el modal correspondiente
-  const modalSeleccionado = document.getElementById(idModal);
-  if (modalSeleccionado) {
-    modalSeleccionado.style.display = "block";
-  }
-
-  // 3. OCULTAR la cabecera principal y MOSTRAR la cabecera de sprint
-  mostrarCabecera(idCabecera);
-  }
-
-  function mostrarCabecera(idCabecera){
-    document.querySelectorAll(".cabecera-default").forEach(modal => {
-      modal.style.display = "none";
-    });
-    const cabeceraSeleccionada = document.getElementById(idCabecera);
-    if(cabeceraSeleccionada){
-      cabeceraSeleccionada.style.display = "flex";
-    }
-  }
-
-  function consoleSessionStorage(){
-      console.log("recuperando sessionStorage")
-      console.log("USUARIO------------")
-      console.log(sessionStorage.getItem('usuarioActivo'));
-      console.log("USUARIO------------")
-      console.log("------------")
-      console.log("Proyecto------------")
-      console.log(sessionStorage.getItem('proyectoActivo'));
-      console.log("Proyecto------------")
-      console.log("------------")
-
-      const nombreProyecto = JSON.parse(sessionStorage.getItem('proyectoActivo')).nombre;
-      console.log("nombre recuperado: " + nombreProyecto)
-    }
-  </script>
+  <script src="../js/PanelFacilitador.js"></script>
 </body>
 </html>

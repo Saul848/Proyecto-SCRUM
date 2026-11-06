@@ -143,3 +143,92 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
         `
     })
 })
+
+
+//En construccion el script para las tarjetas de usuarios dentro de un proyecto
+/**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
+/*
+async function obtenerUsuariosEquipo(id_proyecto) {
+    try {
+        let id_p = id_proyecto;
+        // Generamos la solicitud
+        const respuesta = await fetch('/scrumbird/listarEquipo/${id_p}', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ nombre, id, nombreP })
+        });
+        
+        // Obtenemos los datos del JSON
+        const datos = await respuesta.json();
+        // Convertido a un array de usuarios
+        const usuarios = datos.data || [];
+        
+        // Regresa el arreglo con los datos
+        //console.log(usuarios)
+        console.log("datos obtenidos");
+        return usuarios;
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error de conexión");
+        return [];
+    }
+}
+*/
+
+/**
+ * Construcción de la lista de usuarios en el panel de miembros
+ */
+/*
+document.getElementById("btn-miembrosF").addEventListener('click', async ()=>{
+    mostrarModal("modal-usuarios");
+    //Logica para mostrar el menú al seleccionar la opción
+    const usuarios= await obtenerUsuarios();
+    const contenedorUsuarios = document.getElementById("contenedor-usuarios");
+
+    if(usuarios.length === 0) {
+        contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
+    }
+
+    const tarjetas = usuarios.map(usuario =>`
+    <button class="tarjeta-usuario" data-id="${usuario.id}">
+        <span>${usuario.id}</span>
+        <span>${usuario.nombre}</span>
+        <span>${usuario.correo_electronico}</span>
+        <span>${usuario.nombre_de_usuario}</span>
+    </button>
+    `).join("");
+    console.log("filas construidas");
+    
+    contenedorUsuarios.innerHTML = tarjetas;
+
+    contenedorUsuarios.addEventListener('click', (evento)=>{
+        const tarjeta= evento.target.closest('.tarjeta-usuario');
+
+        if(!tarjeta) return;
+
+        const idUsuario = tarjeta.dataset.id;
+        console.log("Click en el usuario con id: ", idUsuario);
+        //Contenido de cada tarjeta para usuario individual - plantilla: añadir lógica todavía y css 
+        const detalles = `
+            <div id="cont-detalles-usuario" class="modal-overlay">
+                <div>   
+                    <h2>Detalles del usuario: <span id="nombre-usuario"></span>> </h2>
+                    <div id="detalles-usuario">
+
+                    </div>
+                    <h2>Proyectos actuales</h2>
+                    <div id="projects-usuario">
+                    
+                    </div>
+                </div>
+            </div>
+        `
+    })
+})
+*/

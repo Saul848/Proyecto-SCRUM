@@ -42,6 +42,19 @@ class UsuariosControlador {
         }
     }
 
+    // GET /usuarios/:id
+    async listarPorEquipo(req, res) {
+        const id_equipo = this.#idValido(req.params.id_equipo);
+        if (!id_equipo) return res.status(400).json({ error: 'id inválido' });
+        try {
+        const usuario = await this.dao.obtenerPorEquipo(id_equipo);
+        if (!usuario) return res.status(404).json({ error: 'Usuarios no encontrados en proyecto' });
+        res.json(usuario);
+        } catch (err) {
+        this.#error(res, err);
+        }
+    }
+
     // POST /usuarios   body: { nombre, username, email, passwd }
     /**
      * Procesa la petición POST para registrar un nuevo usuario.

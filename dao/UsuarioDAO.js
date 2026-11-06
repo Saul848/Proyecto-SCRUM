@@ -94,6 +94,14 @@ class UsuarioDAO {
         );
         return rows[0] || null;
     }
+
+    async listarPorEquipo(id_equipo) {
+        const { rows } = await this.pool.query(
+            'SELECT U.nombre, U.id, P.nombre FROM scrumbird.trabajando_en_proyecto TEP, scrumbird.proyecto P, scrumbird.usuario U WHERE P.id=$1 AND TEP.id_proyecto=P.id AND TEP.id_usuario=U.id',
+            [id_equipo]
+        );
+        return rows[0] || null;
+    }
 }
 
 module.exports = UsuarioDAO;
