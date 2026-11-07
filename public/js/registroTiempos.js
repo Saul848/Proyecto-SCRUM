@@ -22,11 +22,11 @@ function formatearIntervalo(intervalo) {
     return `${h}:${m}:${s}`;
 }
 
-async function crearRegistroTiempo(actividad, idUsuario) {
+async function crearRegistroTiempo(actividad, idUsuario, idProyecto) {
     const respuesta = await fetch('/registro-tiempos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actividad, idUsuario })
+        body: JSON.stringify({ actividad, idUsuario, idProyecto })
     });
     const resultado = await respuesta.json();
 
@@ -64,9 +64,9 @@ function agregarFilaATabla(registro) {
     cuerpoTabla.appendChild(fila);
 }
 
-async function listarRegistros(idUsuario) {
+async function listarRegistros(idUsuario, idProyecto) {
     try {
-        const respuesta = await fetch(`/registro-tiempos/usuario/${idUsuario}`, {
+        const respuesta = await fetch(`/registro-tiempos/usuario/${idUsuario}/${idProyecto}`, {
             method: 'GET',
             headers: { "Accept": "application/json" }
         });
@@ -94,8 +94,13 @@ async function listarRegistros(idUsuario) {
 
 btnRegistro.addEventListener('click', async () => {
     const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
-
+    const proyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo'));
     if (!usuarioActivo) {
+        console.error("No hay usuario activo en sessionStorage.");
+        return;
+    }
+
+    if (!proyectoActivo) {
         console.error("No hay usuario activo en sessionStorage.");
         return;
     }
@@ -106,7 +111,7 @@ btnRegistro.addEventListener('click', async () => {
         if (!actividad) return;
 
         try {
-            const registro = await crearRegistroTiempo(actividad, usuarioActivo.id);
+            const registro = await crearRegistroTiempo(actividad, usuarioActivo.id, proyectoActivo.id);
             idRegistroActual = registro.id_registro;
 
             cronometroActivo = true;
@@ -139,6 +144,7 @@ btnRegistro.addEventListener('click', async () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
+    const proyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo'));
     console.log(usuarioActivo);
 
     if (!usuarioActivo) {
@@ -146,5 +152,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    listarRegistros(usuarioActivo.id);
+    listarRegistros(usuarioActivo.id, proyectoActivo.idProyecto);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
+    const proyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+    if (!usuarioActivo) {
+        console.error("No hay usuario activo en sessionStorage.");
+        return;
+    }
+
+    if (!proyectoActivo) {
+        console.error("No hay proyecto activo en sessionStorage.");
+        return;
+    }
+
+    listarRegistros(usuarioActivo.id, proyectoActivo.id);
 });

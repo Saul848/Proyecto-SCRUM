@@ -5,16 +5,16 @@ class RegistroTiemposControlador {
 
     async crear(req, res) {
         try {
-            const { actividad, idUsuario } = req.body;
+            const { actividad, idUsuario, idProyecto } = req.body;
 
-            if (!actividad || !idUsuario) {
+            if (!actividad || !idUsuario || !idProyecto) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: "La actividad y el id de usuario son obligatorios."
+                    mensaje: "La actividad, el id de usuario y el id de proyecto son obligatorios."
                 });
             }
 
-            const registro = await this.dao.crear({ actividad, idUsuario });
+            const registro = await this.dao.crear({ actividad, idUsuario, idProyecto });
             res.status(201).json({ ok: true, data: registro });
         } catch (err) {
             console.error("Error al crear el registro de tiempo:", err.message);
@@ -42,8 +42,8 @@ class RegistroTiemposControlador {
 
     async listarPorUsuario(req, res) {
         try {
-            const { idUsuario } = req.params;
-            const registros = await this.dao.listarPorUsuario(idUsuario);
+            const { idUsuario, id_proyecto } = req.params;
+            const registros = await this.dao.listarPorUsuario(idUsuario, id_proyecto);
             res.status(200).json({ ok: true, data: registros });
         } catch (err) {
             console.error("Error al listar los registros de tiempo:", err.message);
