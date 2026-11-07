@@ -95,5 +95,28 @@ router.get('/burndown-sprint', async (req, res) => {
         res.status(500).json({ ok: false, mensaje: error.message });
     }
 });
+/**
+ * Ruta para obtener los contactos del proyecto actual (excluyendo al usuario logueado)
+ */
+router.get('/contactos-proyecto/:idProyecto/:idUsuarioActual', async (req, res) => {
+    // Forzamos que sean números enteros con parseInt para evitar conflictos en PostgreSQL
+    const idProyecto = parseInt(req.params.idProyecto, 10);
+    const idUsuarioActual = parseInt(req.params.idUsuarioActual, 10);
 
+    try {
+        const query = `
+            SELECT u.id, u.nombre, u.nombre_de_usuario, pu.rol
+            FROM scrumbird.trabajando_en_proyecto pu
+            JOIN scrumbird.usuario u ON pu.id_usuario = u.id
+            WHERE pu.id_proyecto = $1 AND u.id != $2;
+        `;
+        
+        const { rows } = await pool.query(query, [idProyecto, idUsuarioActual]);
+        res.json({ ok: true, contactos: rows });
+        
+    } catch (error) {
+        console.error("Error al obtener contactos del equipo:", error);
+        res.status(500).json({ ok: false, mensaje: error.message });
+    }
+});
 module.exports = router;
