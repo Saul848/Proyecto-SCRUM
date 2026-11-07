@@ -20,103 +20,48 @@ router.get('/invitacion/responder', (req, res) => controlador.responderInvitacio
 /**
  * Endpoint para obtener los datos del Burndown Chart del Product Backlog (PB-56)
  */
-router.get('/burndown-product-backlog', async (req, res) => {
-    try {
-        const query = `
-            WITH total_puntos AS (
-                SELECT COALESCE(SUM(puntos_de_historia), 0) AS total 
-                FROM scrumbird.historia_de_usuario
-            ),
-            sprints_info AS (
-                SELECT 
-                    s.no_iteracion AS sprint,
-                    COALESCE(COUNT(h.id), 0) AS tareas_declaradas,
-                    COALESCE(SUM(CASE WHEN th.estado = 'Completada' THEN 1 ELSE 0 END), 0) AS tareas_terminadas,
-                    COALESCE(SUM(h.puntos_de_historia), 0) AS puntos_sprint
-                FROM scrumbird.sprint s
-                LEFT JOIN scrumbird.historia_de_usuario h ON h.asignado_al_sprint = s.id
-                LEFT JOIN scrumbird.trabajando_en_historia th ON th.historia_asignada = h.id
-                GROUP BY s.no_iteracion
-                ORDER BY s.no_iteracion ASC
-            )
-            SELECT 
-                sprint,
-                puntos_sprint AS horas_restantes,
-                tareas_terminadas,
-                tareas_declaradas,
-                (SELECT total FROM total_puntos) AS total_inicial
-            FROM sprints_info;
-        `;
+router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
+  const idProyecto = Number(req.params.idProyecto);
 
-        const { rows } = await pool.query(query);
+  if (!Number.isInteger(idProyecto) || idProyecto <= 0) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "Proyecto inválido."
+    });
+  }
 
-        // Si hay datos, calculamos la línea Ideal en JS de forma exacta
-        const numSprints = rows.length || 1;
-        const totalInicial = rows.length > 0 ? parseFloat(rows[0].total_inicial) : 0;
-        const decrementoIdeal = totalInicial / (numSprints > 1 ? numSprints - 1 : 1);
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        s.id AS id_sprint,
+        s.no_iteracion,
+        TO_CHAR(s.fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio,
+        TO_CHAR(s.fecha_fin, 'YYYY-MM-DD') AS fecha_fin,
+        COUNT(h.id)::integer AS historias_planificadas,
+        COALESCE(SUM(h.horas_calculadas), 0) AS total_horas
+      FROM scrumbird.sprint s
+      LEFT JOIN scrumbird.historia_de_usuario h
+        ON h.asignado_al_sprint = s.id
+       AND h.id_proyecto = s.id_proyecto
+      WHERE s.id_proyecto = $1
+      GROUP BY s.id, s.no_iteracion
+      ORDER BY s.no_iteracion, s.id;
+    `, [idProyecto]);
 
-        let acumuladoRestante = totalInicial;
-        const dataProcesada = rows.map((row, index) => {
-            const ideal = Math.max(0, Math.round((totalInicial - (index * decrementoIdeal)) * 10) / 10);
-            return {
-                sprint: row.sprint,
-                horas_restantes: row.horas_restantes,
-                tareas_terminadas: row.tareas_terminadas,
-                tareas_declaradas: row.tareas_declaradas,
-                ideal: ideal
-            };
-        });
+    res.json({
+      ok: true,
+      datos: rows.map(fila => ({
+        ...fila,
+        total_horas: Number(fila.total_horas)
+      }))
+    });
+  } catch (error) {
+    console.error("Error consultando burndown:", error);
 
-        res.json({ ok: true, data: dataProcesada });
-    } catch (error) {
-        console.error("Error al obtener datos del burndown:", error);
-        res.status(500).json({ ok: false, mensaje: error.message });
-    }
-});
-/**
- * Endpoint para obtener los datos del Burndown Chart del Sprint Actual
- */
-
-router.get('/burndown-sprint', async (req, res) => {
-    try {
-        const query = `
-            SELECT 
-                s.no_iteracion AS sprint,
-                COALESCE(SUM(h.puntos_de_historia), 0) AS horas_restantes
-            FROM scrumbird.sprint s
-            LEFT JOIN scrumbird.historia_de_usuario h ON h.asignado_al_sprint = s.id
-            GROUP BY s.no_iteracion
-            ORDER BY s.no_iteracion ASC;
-        `;
-        const { rows } = await pool.query(query);
-        res.json({ ok: true, data: rows });
-    } catch (error) {
-        console.error("Error al obtener datos del burndown de sprint:", error);
-        res.status(500).json({ ok: false, mensaje: error.message });
-    }
-});
-/**
- * Ruta para obtener los contactos del proyecto actual (excluyendo al usuario logueado)
- */
-router.get('/contactos-proyecto/:idProyecto/:idUsuarioActual', async (req, res) => {
-    // Forzamos que sean números enteros con parseInt para evitar conflictos en PostgreSQL
-    const idProyecto = parseInt(req.params.idProyecto, 10);
-    const idUsuarioActual = parseInt(req.params.idUsuarioActual, 10);
-
-    try {
-        const query = `
-            SELECT u.id, u.nombre, u.nombre_de_usuario, pu.rol
-            FROM scrumbird.trabajando_en_proyecto pu
-            JOIN scrumbird.usuario u ON pu.id_usuario = u.id
-            WHERE pu.id_proyecto = $1 AND u.id != $2;
-        `;
-        
-        const { rows } = await pool.query(query, [idProyecto, idUsuarioActual]);
-        res.json({ ok: true, contactos: rows });
-        
-    } catch (error) {
-        console.error("Error al obtener contactos del equipo:", error);
-        res.status(500).json({ ok: false, mensaje: error.message });
-    }
+    res.status(500).json({
+      ok: false,
+      mensaje: "No se pudieron obtener los datos."
+    });
+  }
 });
 module.exports = router;
