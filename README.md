@@ -143,6 +143,15 @@ DROP TABLE resumen_reunion; CREATE TABLE resumen_reunion ( id_reunion INT PRIMAR
 
 CREATE TABLE scrumbird.registro_tiempos (id_registro SERIAL PRIMARY KEY, hora_inicio TIMESTAMP NOT NULL, hora_final TIMESTAMP, tiempo_total INTERVAL, actividad TEXT, hecho TEXT, pendiente TEXT, id_usuario INTEGER NOT NULL REFERENCES scrumbird.usuario(id));
 
+-- ========================================== -- 18. TABLA: modulos -- ==========================================
+CREATE TABLE scrumbird.modulos ( id SERIAL PRIMARY KEY, nombre VARCHAR(100) NOT NULL, numero_modulo INTEGER NOT NULL, numero_secciones INTEGER DEFAULT 0, objetivo TEXT);
+
+-- ========================================== -- 19. TABLA: secciones -- ==========================================
+CREATE TABLE scrumbird.secciones ( id SERIAL PRIMARY KEY, nombre VARCHAR(100) NOT NULL, numero_seccion INTEGER NOT NULL, numero_paginas INTEGER NOT NULL, id_modulo INTEGER NOT NULL REFERENCES scrumbird.modulos(id) );
+
+-- ========================================== -- 20. TABLA: progreso_capacitacion -- ==========================================
+CREATE TABLE scrumbird.progreso_capacitacion ( id_usuario INTEGER PRIMARY KEY REFERENCES scrumbird.usuario(id), modulo_actual INTEGER NOT NULL REFERENCES scrumbird.modulos(id), seccion_actual INTEGER NOT NULL REFERENCES scrumbird.secciones(id), guia_terminada BOOLEAN NOT NULL DEFAULT FALSE );
+
 -- ==========================================
 -- INSERTAR DATOS DE PRUEBA Los ID SERIAL se generan automáticamente
 -- ==========================================
@@ -262,7 +271,7 @@ INSERT INTO trabajando_en_historia (responsable, historia_asignada, estado, evid
 
 SELECT * FROM scrumbird.usuario; SELECT * FROM scrumbird.grupo; SELECT * FROM scrumbird.proyecto; SELECT * FROM scrumbird.trabajando_en_proyecto; SELECT * FROM scrumbird.mensaje; SELECT * FROM scrumbird.esta_en_grupo; SELECT * FROM scrumbird.mensaje_grupo; SELECT * FROM scrumbird.sprint; SELECT * FROM scrumbird.historia_de_usuario; SELECT * FROM scrumbird.criterios_de_aceptacion; SELECT * FROM scrumbird.comentario; SELECT * FROM scrumbird.trabajando_en_historia;
 
--- ========================================== -- PROCEDIMIENTOS ALMACENADOS (Deben actualizarse) -- ==========================================
+-- ========================================== -- PROCEDIMIENTOS ALMACENADOS (Deben actualizarse) -- ===============================
 
 -- Obtiene el detalle completo de todas las historias de usuario asociadas -- a un proyecto y sprint específicos. -- Diseñada para el rol de facilitador, -- incluye el estado actual, datos de esfuerzo, horas estimadas, -- responsable, criterios de aceptación, -- enlaces a evidencias en el servidor y un listado consolidado de comentarios 
 CREATE OR REPLACE FUNCTION scrumbird.sp_obtener_todas_historias_detalle( p_id_proyecto INT, p_id_sprint INT ) RETURNS TABLE ( historia_id INT, titulo VARCHAR(255), estado_actual VARCHAR(100), no_historia INT, no_sprint INT, puntos_de_esfuerzo INT, horas_estimadas INT, nombre_responsable VARCHAR(255), descripcion VARCHAR(255), criterios_de_aceptacion VARCHAR(255), evidencias_servidor VARCHAR(255), comentarios TEXT ) AS $$ BEGIN RETURN QUERY SELECT h.id AS historia_id, h.nombre AS titulo, COALESCE(t.estado, 'Sin asignar') AS estado_actual, h.id AS no_historia, COALESCE(s.no_iteracion, 0) AS no_sprint, h.puntos_de_historia AS puntos_de_esfuerzo, h.coste_estimado AS horas_estimadas, COALESCE(u.nombre, 'Sin asignar') AS nombre_responsable, h.descripcion, h.criterios_de_aceptacion, COALESCE(t.evidencias_desarrollo, 'Sin evidencias') AS evidencias_servidor, COALESCE( (SELECT STRING_AGG(c.contenido || ' (Por: ' || us_com.nombre || ' el ' || c.fecha_ultima_modificacion, ' | ') FROM scrumbird.comentario c JOIN scrumbird.usuario us_com ON c.emisor = us_com.id WHERE c.id_historia = h.id), 'Sin comentarios' ) AS comentarios FROM scrumbird.historia_de_usuario h LEFT JOIN scrumbird.sprint s ON h.asignado_al_sprint = s.id LEFT JOIN scrumbird.trabajando_en_historia t ON h.id = t.historia_asignada LEFT JOIN scrumbird.usuario u ON t.responsable = u.id WHERE h.id_proyecto = p_id_proyecto AND (h.asignado_al_sprint = p_id_sprint OR p_id_sprint IS NULL); END; $$ LANGUAGE plpgsql;
@@ -284,6 +293,49 @@ IF NOT FOUND THEN
     RAISE EXCEPTION 'No se encontró un registro activo para la historia con ID % en el proyecto %', p_id_historia, p_id_proyecto;
 END IF;
 END; $$;
+
+========================================= Triggers ================================================
+--Triger para actualizar el numero de secciones ------------------
+CREATE OR REPLACE FUNCTION scrumbird.actualizar_numero_secciones()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE scrumbird.modulos
+        SET numero_secciones = (SELECT COUNT(*) FROM scrumbird.secciones WHERE id_modulo = NEW.id_modulo)
+        WHERE id = NEW.id_modulo;
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE scrumbird.modulos
+        SET numero_secciones = (SELECT COUNT(*) FROM scrumbird.secciones WHERE id_modulo = OLD.id_modulo)
+        WHERE id = OLD.id_modulo;
+        RETURN OLD;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_actualizar_numero_secciones
+AFTER INSERT OR DELETE ON scrumbird.secciones
+FOR EACH ROW EXECUTE FUNCTION scrumbird.actualizar_numero_secciones();
+
+
+
+--Trigger para crear una tabla de progreso de capacitación al crear un usuario ---------------
+CREATE OR REPLACE FUNCTION scrumbird.crear_progreso_inicial()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO scrumbird.progreso_capacitacion (id_usuario, modulo_actual, seccion_actual)
+    VALUES (
+        NEW.id,
+        (SELECT id FROM scrumbird.modulos WHERE numero_modulo = 1),
+        (SELECT id FROM scrumbird.secciones WHERE numero_seccion = 1 AND id_modulo = (SELECT id FROM scrumbird.modulos WHERE numero_modulo = 1))
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_crear_progreso_inicial
+AFTER INSERT ON scrumbird.usuario
+FOR EACH ROW EXECUTE FUNCTION scrumbird.crear_progreso_inicial();
 
 ============================================================== Fin Tercera version ==============================================================
 
