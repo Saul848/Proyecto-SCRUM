@@ -1347,5 +1347,25 @@ body {
     font-weight: 700 !important;
     font-size: 13px !important;
 }
+/* Permitir desplazamiento dentro del área de trabajo */
+#BloqueInferior {
+  min-height: 0;
+}
 
+#zonaDeTrabajo {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Mantener la gráfica dentro de su contenedor */
+#area-dibujo-grafica {
+  position: relative;
+  height: 320px;
+  min-width: 0;
+  width: 100%;
+}
+
+#chartBurndownCanvas {
+  max-height: none;
+}
 
