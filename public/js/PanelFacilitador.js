@@ -32,33 +32,21 @@ function mostrarModal(idModal, idCabecera) {
     }
 }
 
-// Función específica que usa tu compañero para el Sprint
-async function mostrarModalSprint(idModal, idCabecera) {
-  // 1. Aquí dentro SÍ puedes usar await sin problemas
-  await asegurarModalSprintCargado();
+    // Función específica que usa tu compañero para el Sprint
+function mostrarModalSprint(idModal, idCabecera) {
+  // 1. Ocultar todos los modales principales
+    document.querySelectorAll(".modal-class").forEach(modal => {
+        modal.style.display = "none";
+    });
 
-  // 2. Ocultar todos los modales principales
-  document.querySelectorAll(".modal-class").forEach(modal => {
-      modal.style.display = "none";
-  });
-
-  // 3. Mostrar el modal correspondiente
-  const modalSeleccionado = document.getElementById(idModal);
-  if (modalSeleccionado) {
-      modalSeleccionado.style.display = "block";
-  }
-
-  // 4. Mostrar la cabecera
-  mostrarCabecera(idCabecera);
-
-  // 5. Cargar el Kanban
-  if (typeof cargarKanvan === "function") {
-      cargarKanvan();
-  }
-
-  if (typeof aplicarPermisosInterfaz === "function") {
-    aplicarPermisosInterfaz();
+  // 2. Mostrar el modal correspondiente
+    const modalSeleccionado = document.getElementById(idModal);
+    if (modalSeleccionado) {
+        modalSeleccionado.style.display = "block";
     }
+
+  // 3. OCULTAR la cabecera principal y MOSTRAR la cabecera de sprint
+    mostrarCabecera(idCabecera);
 }
 
 function mostrarCabecera(idCabecera){
