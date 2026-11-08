@@ -135,6 +135,27 @@ class ProyectosControlador {
         }
     }
 
+
+    /**
+     * Obtiene el contenido de todos los sprints de un proyecto determinado
+     * @param {*} req Peticion HTTP
+     * @param {*} res Respuesta HTTP
+     */
+    async listarSprintsProyecto(req, res) {
+        try {
+            const{idProyecto} = req.params;
+
+            const sprints = await this.dao.listarSprintsProyecto(idProyecto);
+
+            res.status(200).json({ ok: true, data: sprints });
+
+        } catch (err) {
+            console.error("Error al listar sprints:", err.message);
+            res.status(500).json({ ok: false, mensaje: "Error al obtener la lista de sprints" });
+        }
+        
+    }
+
     /** Métodos privados*/
     #error(res, err) {
         if (err.code === '23505') { // violación de unicidad en PostgreSQL

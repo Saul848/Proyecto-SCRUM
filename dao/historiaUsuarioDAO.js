@@ -181,7 +181,6 @@ class historiaUsuarioDAO {
      * @throws {Error} Lanza un error si falla la consulta en la base de datos.
      */
     async obtenerHistoriasPorDesarrollador(idProyecto, idSprint, idDesarrollador) {
-        console.log("en dao");
         try {
             // Llamada al procedimiento almacenado del desarrollador
             const query = 'SELECT * FROM scrumbird.sp_obtener_historias_por_desarrollador($1, $2, $3);';
@@ -217,22 +216,22 @@ class historiaUsuarioDAO {
     }
 
     /**
-     * Actualiza los puntos de una historia de usuario en la base de datos
+     * Actualiza las horas_estimadas de una historia de usuario en la base de datos
      * 
      * @async
      * @function actualizarPuntosHistoria
      * @param {number} idHistoria - Identificador único de la historia de usuario a actualizar.
-     * @param {number} puntos - Puntos para asignar a la historia.
+     * @param {number} horas_estimadas - Horas estimadas para asignar a la historia.
      * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
      * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
      */
-    async actualizarPuntosHistoria(idHistoria, puntos) {
+    async actualizarPuntosHistoria(idHistoria, horas_estimadas) {
         try {
-            const query = 'UPDATE scrumbird.historia_de_usuario SET puntos_de_historia = $2 WHERE id = $1;';
-            await this.pool.query(query, [idHistoria, puntos]);
-            return { success: true, message: "Puntos asignados correctamente" };
+            const query = 'UPDATE scrumbird.historia_de_usuario SET horas_estimadas = $2 WHERE id = $1;';
+            await this.pool.query(query, [idHistoria, horas_estimadas]);
+            return { success: true, message: "Horas asignadas correctamente" };
         } catch (error) {
-            console.error("Error al actualizar los puntos de la historia:", error);
+            console.error("Error al actualizar las horas estimadas de la historia:", error);
             throw error;
         }
     }

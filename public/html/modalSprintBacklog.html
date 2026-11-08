@@ -1,17 +1,23 @@
-<!--Modal 3 Tablero canvan-->
+<!--Modal 3 Sprint Backlog-->
 <div id="sprint-backlog" class="modal-class">
     <div id="objetivo-iteracion">
         <h2>Objetivo actual de la iteración</h2>
-        <label for="">No. iteración #</label>
-        <div id="objt-iteracion-box">Aqui va a ir el objetivo de la iteración actual</div>
+        <div class="selector-iteracion-wrapper">
+            <label for="select-no-iteracion">No. iteración #</label>
+            <select id="select-no-iteracion">
+                <!-- Se llenará dinámicamente con JavaScript -->
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div id="objt-iteracion-box">No hay información disponible para el objetivo de esta iteración.</div>
     </div>
 
     <!-- Contenedor de duración con clase para control de rol -->
     <div id="duracion-iteracion">
         <h2>Duración</h2>
         <div id="fechas">
-            <label for="">fecha inicio:</label>
-            <label for="">fecha final:</label>
+            <label id="lbl-fecha-inicio">Fecha inicio: No disponible</label>
+            <label id="lbl-fecha-final">Fecha final: No disponible</label>
             <!-- Añadido ID o clase para ocultarlo -->
             <button id="boton-cambiar-duracion" class="ocultable-rol">cambiar duración</button>
         </div>
@@ -49,13 +55,15 @@
         <!-- Añadidos IDs para identificarlos fácilmente -->
         <button id="btn-ver-impedimentos" class="ocultable-rol">Ver impedimentos actuales</button>
         <button id="btn-ver-historial" class="ocultable-rol">Ver historial de cambios</button>
-        
+    
         <div id="progreso-sprint">
             <span>Progreso del sprint</span>
             <div class="barra-progreso">
-                <div class="barra-progreso-relleno" style="width: 50%;"></div>
+                <!-- ID añadido para que JS pueda cambiar el ancho -->
+                <div id="barra-progreso-relleno" class="barra-progreso-relleno" style="width: 0%;"></div>
             </div>
-            <span>50%</span>
+            <!-- ID añadido para que JS actualice el texto numérico -->
+            <span id="texto-porcentaje-progreso">0%</span>
         </div>
     </div>
 </div>

@@ -40,6 +40,28 @@
   flex-basis: 100%;
 }
 
+/* Estilo para el selector de iteración */
+.selector-iteracion-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#select-no-iteracion {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+#select-no-iteracion:focus {
+  outline: none;
+  border-color: #2b82c9;
+}
+
 /*fechas*/
 #duracion-iteracion h2 {
   text-align: center;
@@ -205,3 +227,44 @@
 }
 
 /* TERMINO TABLERO KANVAN */
+
+/* Resaltado suave para el input del responsable asignado */
+#responsableHistoria {
+  background-color: #f0fdf4; /* Un verde muy tenue y limpio (estilo sutil) */
+  border: 1px solid #bbf7d0;  /* Borde verde claro a juego */
+  color: #166534;            /* Texto en un tono verde oscuro legible */
+  font-weight: 600;          /* Texto seminegritas para que destaque mejor */
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Contenedor general del bloque de progreso */
+#progreso-sprint {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* La pista o riel gris de la barra de progreso */
+.barra-progreso {
+  width: 100%;
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* El relleno que crece dinámicamente según las historias terminadas */
+.barra-progreso-relleno {
+  height: 100%;
+  background-color: #2b82c9; /* Color azul corporativo de tu tablero */
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.4s ease-in-out; /* Animación fluida al cambiar el porcentaje */
+}
