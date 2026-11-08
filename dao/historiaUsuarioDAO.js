@@ -10,15 +10,16 @@ class historiaUsuarioDAO {
     /**
      * Funcion que me permite obtener todas las historias de usuario pertenecientes a un proyecto ordenadas por id
      * @returns ID, Nombre, Descripcion, Valor, AsignadoAlSprint 
-     * cRITERIOS DE ACEPTACION, IdHistoria (IdProyecto)
      */
     async obtenerHistorias(idProyecto) {
-        const { rows } = await this.pool.query(
-            'SELECT id, nombre, descripcion, valor, asignado_al_sprint FROM scrumbird.historia_de_usuario WHERE id_proyecto = $1 ORDER BY id;'
-            , [idProyecto],
-            'SELECT id, numero_de_criterio, criterios_de_aceptacion, '
-        );
-        return rows;
+        try {
+            const query = 'SELECT id, nombre, descripcion, valor, asignado_al_sprint FROM scrumbird.historia_de_usuario WHERE id_proyecto = $1 ORDER BY id;';
+            const { rows } = await this.pool.query(query, [idProyecto]);
+            return rows;
+        } catch (error) {
+            console.error("Error al obtener las historias del proyecto:", error);
+            throw error;
+        }
     }
 
 /**
@@ -180,6 +181,7 @@ class historiaUsuarioDAO {
      * @throws {Error} Lanza un error si falla la consulta en la base de datos.
      */
     async obtenerHistoriasPorDesarrollador(idProyecto, idSprint, idDesarrollador) {
+        console.log("en dao");
         try {
             // Llamada al procedimiento almacenado del desarrollador
             const query = 'SELECT * FROM scrumbird.sp_obtener_historias_por_desarrollador($1, $2, $3);';

@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="../css/modalSubirMaterial.css">
     <link rel="stylesheet" href="../css/mensajesDesarrollador.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
+    <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
+    <link rel="stylesheet" href="../css/modalSprintBacklog.css">
+
     <title>Desarrollador - Panel Principal</title>
-    <script>
+    <!-- <script>
         const ROL_ACTUAL = "desarrollador";
-    </script>
+    </script> -->
 </head>
 <body>
     <!-- Bloque superior -->
@@ -55,7 +59,7 @@
           <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
           <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes-desarrollador', 'cabecera-mensajes')">Mensajes</button></li>
           <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
-          <li><button href="#" id="linkSprint">Sprint</button></li>
+          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">Sprint Backlog</button></li>
           <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
           <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button></li>
           <li><button href="#" id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">Graficas</button></li>
@@ -231,8 +235,12 @@
     </div>
   </div>
 
+  <script src="../js/PanelDesarrollador.js"></script>
   <script src="../js/ProductBacklogDesarrollador.js"></script> 
   <script src="../js/modalSubirMaterial.js"></script>
   <script src="../js/mensajesDesarrollador.js"></script>
+  <script src="../js/modalSprintBacklog.js" defer></script>
+  <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
+  <script src="../js/modalEvidenciaHistoria.js" defer></script>
 </body>
 </html>

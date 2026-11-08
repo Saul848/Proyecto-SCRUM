@@ -1,0 +1,207 @@
+/* Estilos del area de trabajo tablero de spring backlog*/
+#sprint-backlog {
+  background-color: #ffffff;
+  border: 1px solid #b8d4ec;
+  border-radius: 6px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#sprint-backlog h2 {
+  font-size: 1.1em;
+}
+
+#objetivo-iteracion {
+  margin-bottom: 20px;
+}
+
+#objetivo-iteracion h2 {
+  display: inline-block;
+}
+
+/*objjetivo-iteracion*/
+
+/* Truco: convertimos el contenedor en flex para separar h2 y label */
+#objetivo-iteracion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#objt-iteracion-box {
+  background-color: #eef3f6;
+  width: 100%;
+  padding: 14px;
+  border-radius: 4px;
+  margin-top: 10px;
+  /* al ser 100% width y el padre ser flex, lo forzamos a su propia línea: */
+  flex-basis: 100%;
+}
+
+/*fechas*/
+#duracion-iteracion h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#fechas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #eef3f6;
+  padding: 14px 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+#fechas button {
+  background-color: #2f8fe0;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* TABLERO KANVAN */
+/* Layout general del tablero */
+#historias-sprint {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'DM Sans', sans-serif, Arial;
+}
+
+/* Encabezados de las columnas */
+.columnas-kanban {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  text-align: center;
+}
+
+.columnas-kanban h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Contenedor principal de las 4 columnas del Kanban */
+#tabla-historias {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  height: 420px;
+  /* Altura fija para activar el scroll */
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 2px solid #2b82c9;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Columnas individuales con scroll independiente */
+.columna-kanban {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #edf2f7;
+  padding: 10px;
+  border-radius: 6px;
+  max-height: 100%;
+  overflow-y: auto;
+  /* Scroll vertical cuando hay muchas historias */
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+/* Personalización de la barra de desplazamiento */
+.columna-kanban::-webkit-scrollbar {
+  width: 6px;
+}
+
+.columna-kanban::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+.columna-kanban.drag-over {
+  background-color: #e2e8f0;
+  outline: 2px dashed #2b82c9;
+}
+
+/* Estilo base de la tarjeta */
+.tarjeta-historia {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  margin-bottom: 8px; /* Espacio entre tarjetas */
+}
+
+/* Tarjeta Prioritaria: Rojo claro / sutil */
+.tarjeta-historia.prioritaria {
+  background-color: #fef2f2; /* Rojo muy tenue */
+  border-color: #fca5a5;    /* Borde rojizo claro */
+}
+
+/* Tarjeta No Prioritaria: Verde leve / sutil */
+.tarjeta-historia.no-prioritaria {
+  background-color: #f0fdf4; /* Verde muy tenue */
+  border-color: #86efac;    /* Borde verdoso claro */
+}
+
+.tarjeta-historia:active {
+  cursor: grabbing;
+}
+
+.tarjeta-historia.dragging {
+  opacity: 0.4;
+}
+
+/* Título de la historia */
+.historia-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* Pie de la tarjeta con Botón de Detalle */
+.tarjeta-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-detalles {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-detalles:hover {
+  background-color: #2b82c9;
+  color: #ffffff;
+  border-color: #2b82c9;
+}
+
+/* TERMINO TABLERO KANVAN */
