@@ -145,32 +145,28 @@ if (tipo !== "product-backlog") return;
     ];
     */
 
-    // PRUEBA: horas avanzadas durante cada sprint.
-        // Ejemplo: avanzamos 6 horas en el primero y 9 en el segundo.
-        const avancesPrueba = [6, 9];
-
-        let pendientes = totalInicial;
-
-        const restantes = [
-        totalInicial,
-        ...sprints.map((sprint, indice) => {
-            const avance = avancesPrueba[indice] ?? 0;
-
-            pendientes = Math.max(0, pendientes - avance);
-
-            return Number(pendientes.toFixed(2));
-        })
-        ];
+  const restantes = [
+  totalInicial,
+  ...sprints.map(sprint =>
+    sprint.horas_restantes == null
+      ? null
+      : Math.round(Number(sprint.horas_restantes))
+  )
+];
 
     const planificadas = [
       0,
       ...sprints.map(s => Number(s.historias_planificadas))
     ];
 
-    const terminadas = [
-      0,
-      ...sprints.map(() => null)
-    ];
+   const terminadas = [
+  0,
+  ...sprints.map(sprint =>
+    sprint.historias_terminadas == null
+      ? null
+      : Number(sprint.historias_terminadas)
+  )
+];
 
     // Tabla junto a la gráfica.
     const tabla = document.createElement("table");
@@ -222,9 +218,9 @@ if (tipo !== "product-backlog") return;
     });
 
     const aviso = document.createElement("p");
-    aviso.textContent =
-  "Simulación: se descuentan avances de prueba de 6 y 9 horas. " +
-  "No representan avances reales registrados.";
+    aviso.textContent = sprints.some(sprint => sprint.es_prueba)
+  ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones consultadas desde la BD.";
     areaDatos.replaceChildren(tabla, aviso);
 
     new Chart(canvas, {
@@ -422,7 +418,7 @@ async function cargarBurndownSprint() {
       aviso
     );
 
-    function pintarSprint() {
+    async function pintarSprint() {
       Chart.getChart(canvas)?.destroy();
 
       try {
@@ -493,34 +489,67 @@ const ideales = etiquetas.map((_, indice) =>
 );
 
         /*
-         * AVANCES DE PRUEBA POR DÍA.
-         * Día 1: 1 hora; día 2: 0.5; día 3: 0...
-         * Puedes cambiar estos valores.
+         * AVANCES DE PRUEBA POR DÍA.   
          * Los días sin valor se simulan con avance cero.
          */
-       const avancesPrueba = [1, 1, 0, 2, 1, 0, 1];
+       const respuestaMediciones = await fetch(
+  `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
+);
 
-        let pendientes = totalInicial;
+if (!respuestaMediciones.ok) {
+  throw new Error(
+    `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
+  );
+}
 
-        const restantes = [totalInicial];
-        const avancesAplicados = [0];
+const resultadoMediciones = await respuestaMediciones.json();
 
-        for (let indice = 0; indice < cantidadDias; indice++) {
-          const solicitado = avancesPrueba[indice] ?? 0;
+if (
+  !resultadoMediciones.ok ||
+  !Array.isArray(resultadoMediciones.datos)
+) {
+  throw new Error("Las mediciones diarias no tienen el formato esperado.");
+}
 
-          // No descontar más horas de las que quedan.
-          const aplicado = Math.min(
-            pendientes,
-            Math.max(0, solicitado)
-          );
+// Si se cambió el selector mientras cargaba, ignorar esta respuesta.
+if (selector.value !== String(sprint.id_sprint)) return;
 
-          pendientes = Number(
-            (pendientes - aplicado).toFixed(2)
-          );
+const mediciones = resultadoMediciones.datos;
 
-          avancesAplicados.push(aplicado);
-          restantes.push(pendientes);
-        }
+const porFecha = new Map(
+  mediciones.map(medicion => [
+    medicion.fecha,
+    Number(medicion.horas_restantes)
+  ])
+);
+
+const restantes = [totalInicial];
+const avancesAplicados = [0];
+
+for (let indice = 0; indice < cantidadDias; indice++) {
+  const fechaISO = new Date(
+    inicio + indice * milisegundosDia
+  ).toISOString().slice(0, 10);
+
+  const pendiente = porFecha.has(fechaISO)
+    ? porFecha.get(fechaISO)
+    : null;
+
+  const anterior = restantes[restantes.length - 1];
+
+  // Solo calcular la reducción si ambos puntos tienen medición.
+  const reduccion =
+    pendiente !== null && anterior !== null
+      ? anterior - pendiente
+      : null;
+
+  restantes.push(pendiente);
+  avancesAplicados.push(reduccion);
+}
+
+aviso.textContent = mediciones.some(m => m.es_prueba)
+  ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones diarias consultadas desde la BD.";
 
         titulo.textContent =
           `Burndown del Sprint ${sprint.no_iteracion}`;
@@ -539,7 +568,7 @@ const ideales = etiquetas.map((_, indice) =>
         [
           "Día",
           "Fecha",
-          "Avance simulado (h)",
+          "Reducción de pendientes (h)",
           "Horas restantes",
           "Ideal"
         ].forEach(texto => {
@@ -563,11 +592,13 @@ const ideales = etiquetas.map((_, indice) =>
             const celda = fila.insertCell();
 
             celda.textContent =
-              typeof valor === "number"
-                ? valor.toLocaleString("es-MX", {
-                    maximumFractionDigits: 2
-                  })
-                : valor;
+                valor === null
+                    ? "Sin registro"
+                    : typeof valor === "number"
+                    ? valor.toLocaleString("es-MX", {
+                        maximumFractionDigits: 0
+                        })
+                    : valor;
           });
         });
 
@@ -586,13 +617,14 @@ const ideales = etiquetas.map((_, indice) =>
             labels: etiquetas,
             datasets: [
               {
-                label: "Horas restantes (simulación)",
+                label: "Horas restantes",
                 data: restantes,
                 borderColor: "#22c55e",
                 backgroundColor: "#22c55e",
                 pointRadius: 3,
                 tension: 0,
-                fill: false
+                fill: false,
+                spanGaps: false
               },
               {
                 label: "Ideal",
