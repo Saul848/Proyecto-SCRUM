@@ -66,7 +66,7 @@
       <div id="divIndice">
         <span>❖ Seccion</span>
         <ul id="panelLateral">
-          <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
+          <li><button href="#" id="linkMiEquipo" onclick="mostrarModal('modal-usuariosF', 'cabecera-graficas')">Mi equipo</button></li>
           <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">Mensajes</button></li>
           <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
           <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('panel-proyectos', 'cabecera-sprintPB')">Sprint</button></li>
@@ -644,14 +644,14 @@
       <!--Modal para listar los miembros de un equipo-->
       <div id="modal-usuariosF" class="modal-class">
         <h2>Lista de miembros del equipo</h2>
-        <div id="contenedor-blanco">
-          <div id="contenedor-azul">
+        <div id="contenedor-blancoF">
+          <div id="contenedor-azulF">
             <h3>Miembros</h3>
-            <div id="contenedor-usuarios">
+            <div id="contenedor-usuariosF">
             </div>
           </div>
         </div>
-      </div>
+      </div><!--Aqui acaba el modal de miembros del equipo-->
     </section>
   </main>
   <!-- MODAL AISLADO PARA MATERIAL ADICIONAL GENERAL -->
@@ -715,6 +715,5 @@
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
   <script src="../js/mensajesF.js" defer></script>
-
 </body>
 </html>
