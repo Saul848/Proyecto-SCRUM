@@ -1,302 +1,610 @@
-// ==========================================
-// GESTIÓN DEL MODAL DE MATERIAL ADICIONAL / EVIDENCIAS
-// ==========================================
-window.historiaActualEvidencias = null; // Variable global para el material general
-
-// Escuchar el clic en el botón de compartir material adicional
-document.addEventListener("click", async (event) => {
-    const btnCompartir = event.target.closest("#btn-compartir-material");
-    
-    if (btnCompartir) {
-        console.log("¡Click detectado! Intentando abrir modal...");
-
-        const idProyectoGeneral = 1; 
-        const idHistoriaGeneral = 0; // ID 0 para material general (PB-26)
-
-        window.historiaActualEvidencias = {
-            id_proyecto: idProyectoGeneral,
-            historia_id: idHistoriaGeneral,
-            estado: "En progreso"
-        };
-
-        const modalEvidencias = document.getElementById("mi-modal-evidencias-general");
-        if (modalEvidencias) {
-            modalEvidencias.setAttribute("style", "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.5) !important; justify-content: center !important; align-items: center !important; z-index: 999999 !important;");
-            console.log("¡Modal forzado a mostrarse en pantalla!");
-        } else {
-            console.error("¡ERROR! No se encontró el elemento con ID 'mi-modal-evidencias-general' en el HTML.");
-            return; 
-        }
-
-        // Textos informativos y visuales
-        const badgeEstado = document.getElementById("kanban-evidencias-badge-estado");
-        if (badgeEstado) {
-            badgeEstado.textContent = "General";
-            badgeEstado.className = "badge-estado general-badge";
-        }
-
-        if (typeof aplicarReglasPermisosYEstado === "function") {
-            aplicarReglasPermisosYEstado("En progreso");
-        }
-
-        if (typeof cargarArchivosEvidencias === "function") {
-            await cargarArchivosEvidencias(idProyectoGeneral, idHistoriaGeneral);
-        }
-    }
-});
 
 /**
- * Función exclusiva para cerrar tu modal y ocultarlo limpiamente
+ * MATERIAL ADICIONAL GENERAL DEL PROYECTO
+ *
+ * Facilitador:
+ * - Subir materiales
+ * - Consultar materiales
+ * - Descargar materiales
+ * - Eliminar materiales
+ *
+ * Desarrollador:
+ * - Consultar materiales
+ * - Descargar materiales
  */
-function cerrarMiModalGeneral(e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
+
+(() => {
+    "use strict";
+
+    let proyectoMaterialActual = null;
+    let solicitudListado = 0;
+
+    const FORMATOS_PERMITIDOS = [
+        ".png", ".jpg", ".jpeg", ".pdf", ".zip"
+    ];
+
+    const TAMANO_MAXIMO = 5 * 1024 * 1024;
+
+    // Buscar elementos exclusivamente dentro de nuestro modal.
+    function elementoMaterial(id) {
+        const modal = document.getElementById(
+            "mi-modal-evidencias-general"
+        );
+
+        return modal?.querySelector(`[id="${id}"]`) ?? null;
     }
 
-    const modalEvidencias = document.getElementById("mi-modal-evidencias-general");
-    if (modalEvidencias) {
-        modalEvidencias.setAttribute("style", "display: none !important;");
+    // Obtener el proyecto seleccionado.
+    function obtenerProyectoActivo() {
+        try {
+            return JSON.parse(
+                sessionStorage.getItem("proyectoActivo")
+            );
+        } catch (error) {
+            console.error(
+                "Error al leer el proyecto:",
+                error
+            );
+            return null;
+        }
     }
 
-    window.historiaActualEvidencias = null;
-}
-/**
- * Configurar permisos y visibilidad según el rol (Facilitador vs Desarrollador)
- */
-window.aplicarReglasPermisosYEstado = function() {
-    const zonaCarga = document.getElementById("kanban-evidencias-zona-carga");
-    const alertaTexto = document.getElementById("kanban-evidencias-alerta-texto");
+    // Obtener el rol del usuario en el proyecto.
+    function obtenerRolMaterial() {
+        const proyecto = proyectoMaterialActual ||
+            obtenerProyectoActivo();
 
-    // Verificamos de forma segura si la variable global ya existe; si no, asignamos el rol por defecto de esta vista
-    if (typeof ROL_ACTUAL === 'undefined') {
-        var ROL_ACTUAL = window.location.href.includes('Facilitador') ? "facilitador" : "desarrollador";
-    }
+        const rol = String(
+            proyecto?.rol || proyecto?.rolOriginal || ""
+        ).toLowerCase().trim();
 
-    const rolActual = ROL_ACTUAL.toLowerCase().trim();
-    console.log("Rol detectado:", rolActual);
-
-    if (rolActual === "desarrollador") {
-        if (zonaCarga) zonaCarga.style.setProperty("display", "none", "important");
-        if (alertaTexto) alertaTexto.textContent = "Material compartido por el facilitador para consulta y descarga.";
-    } else {
-        // Como estás en el panel de facilitador, forzamos que se muestre la zona de carga
-        if (zonaCarga) zonaCarga.style.setProperty("display", "block", "important");
-        if (alertaTexto) alertaTexto.textContent = "Puedes subir imágenes PNG, JPG, PDF o ZIP y borrar las que tú subiste.";
-    }
-}
-
-/**
- * Cargar y listar los archivos subidos
- */
-async function cargarArchivosEvidencias(idProyecto, idHistoria) {
-    const lista = document.getElementById("kanban-evidencias-lista-archivos");
-    if (!lista) return;
-
-    lista.innerHTML = "<p>Cargando evidencias...</p>";
-
-    try {
-        const respuesta = await fetch(`/historias/evidencias/${idProyecto}/${idHistoria}`);
-        if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
-
-        const resultado = await respuesta.json();
-        if (!resultado.ok) throw new Error(resultado.mensaje || "No se pudieron cargar las evidencias.");
-
-        const archivos = resultado.data || [];
-        const contador = document.getElementById("kanban-evidencias-contador");
-        if (contador) {
-            contador.textContent = `Archivos subidos (${archivos.length})`;
+        if (rol === "scrum master") {
+            return "facilitador";
         }
 
-        lista.innerHTML = "";
+        if (rol === "developer") {
+            return "desarrollador";
+        }
 
-        if (archivos.length === 0) {
-            lista.innerHTML = "<div class='sin-archivos'>No hay evidencias subidas aún.</div>";
+        if (rol === "product owner") {
+            return "cliente";
+        }
+
+        return rol;
+    }
+
+    // Abrir modal de material adicional.
+    async function abrirModalMaterialGeneral() {
+        const proyecto = obtenerProyectoActivo();
+
+        if (!proyecto || !proyecto.id) {
+            alert("Primero debes seleccionar un proyecto.");
             return;
         }
 
-        archivos.forEach(archivo => {
-            const item = document.createElement("div");
-            item.className = "kanban-evidencias-item-archivo";
+        const modal = document.getElementById(
+            "mi-modal-evidencias-general"
+        );
 
-            const esAutor = Number(archivo.id_usuario_subio) === Number(window.USUARIO_ACTUAL_ID ?? 1);
+        if (!modal) {
+            console.error(
+                "No se encontró el modal de material general."
+            );
+            return;
+        }
 
-            let botones = `
-                <button type="button" class="btn-modal-cancelar kanban-btn-descargar">Descargar</button>
-            `;
+        proyectoMaterialActual = proyecto;
 
-            if ((ROL_ACTUAL === "desarrollador" || ROL_ACTUAL === "facilitador") && esAutor) {
-                botones += `
-                    <button type="button" class="btn-modal-cancelar kanban-btn-borrar" style="background:#fee2e2; color:#dc2626;">Borrar</button>
-                `;
+        modal.style.setProperty(
+            "display", "flex", "important"
+        );
+
+        modal.style.setProperty(
+            "position", "fixed", "important"
+        );
+
+        modal.style.setProperty(
+            "inset", "0", "important"
+        );
+
+        modal.style.setProperty(
+            "z-index", "999999", "important"
+        );
+
+        const badge = elementoMaterial(
+            "material-general-badge-estado"
+        );
+
+        if (badge) {
+            badge.textContent = "General";
+            badge.className = "badge-estado general-badge";
+        }
+
+        // Restablecer la vista previa.
+        limpiarVistaPreviaMaterial();
+
+        // Configurar permisos y consultar materiales.
+        aplicarPermisosMaterialGeneral();
+
+        await cargarMaterialGeneral();
+    }
+
+    // Cerrar modal.
+    function cerrarModalMaterialGeneral(evento) {
+        if (evento) {
+            evento.preventDefault();
+            evento.stopPropagation();
+        }
+
+        const modal = document.getElementById(
+            "mi-modal-evidencias-general"
+        );
+
+        if (modal) {
+            modal.style.setProperty(
+                "display", "none", "important"
+            );
+        }
+
+        // Invalidar consultas anteriores.
+        solicitudListado++;
+
+        proyectoMaterialActual = null;
+    }
+
+    // Mostrar opciones según el rol del proyecto.
+    function aplicarPermisosMaterialGeneral() {
+        const rol = obtenerRolMaterial();
+
+        const zonaCarga = elementoMaterial(
+            "material-general-zona-carga"
+        );
+
+        const alerta = elementoMaterial(
+            "material-general-alerta-texto"
+        );
+
+        const input = elementoMaterial(
+            "material-general-input-file"
+        );
+
+        const esFacilitador = rol === "facilitador";
+
+        if (zonaCarga) {
+            zonaCarga.style.setProperty(
+                "display",
+                esFacilitador ? "block" : "none",
+                "important"
+            );
+        }
+
+        if (input) {
+            input.disabled = !esFacilitador;
+        }
+
+        if (alerta) {
+            alerta.textContent = esFacilitador
+                ? "Puedes subir archivos PNG, JPG, PDF o ZIP de hasta 5 MB."
+                : "Material compartido para consulta y descarga.";
+        }
+    }
+
+    // Consultar y mostrar materiales del proyecto.
+    async function cargarMaterialGeneral() {
+        if (!proyectoMaterialActual) return;
+
+        const idProyecto = proyectoMaterialActual.id;
+        const numeroSolicitud = ++solicitudListado;
+
+        const lista = elementoMaterial(
+            "material-general-lista-archivos"
+        );
+
+        const contador = elementoMaterial(
+            "material-general-contador"
+        );
+
+        if (!lista) {
+            console.error(
+                "No se encontró la lista de material general."
+            );
+            return;
+        }
+
+        lista.textContent = "Cargando materiales...";
+
+        if (contador) {
+            contador.textContent = "Cargando archivos...";
+        }
+
+        try {
+            const respuesta = await fetch(
+                `/material-general/${idProyecto}`
+            );
+
+            const resultado = await respuesta.json();
+
+            // Evitar que una consulta anterior cambie el modal.
+            if (
+                numeroSolicitud !== solicitudListado ||
+                !proyectoMaterialActual ||
+                String(proyectoMaterialActual.id) !== String(idProyecto)
+            ) {
+                return;
             }
 
-            item.innerHTML = `
-                <div class="kanban-evidencias-item-info" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                    <span>📄</span>
-                    <div>
-                        <strong class="kanban-evidencias-item-nombre" style="font-size:13px; color:#1e293b;"></strong>
-                        <br>
-                        <small class="kanban-evidencias-item-meta" style="font-size:11px; color:#64748b;"></small>
-                    </div>
-                </div>
-                <div class="kanban-evidencias-item-acciones" style="display:flex; gap:5px; margin-bottom:10px;">
-                    ${botones}
-                </div>
-            `;
+            if (!respuesta.ok || !resultado.ok) {
+                throw new Error(
+                    resultado.mensaje ||
+                    "No se pudieron consultar los materiales."
+                );
+            }
 
-            item.querySelector(".kanban-evidencias-item-nombre").textContent = archivo.nombre;
-            item.querySelector(".kanban-evidencias-item-meta").textContent = `Subida por ${archivo.nombre_usuario ?? "Usuario"} · ${archivo.fecha ?? ""}`;
+            const archivos = Array.isArray(resultado.data)
+                ? resultado.data
+                : [];
 
-            item.querySelector(".kanban-evidencias-item-info").addEventListener("click", () => {
-                mostrarVistaPrevia(archivo.url, archivo.nombre);
-            });
+            console.log(
+                "Materiales del proyecto:",
+                idProyecto,
+                archivos
+            );
 
-            item.querySelector(".kanban-btn-descargar").addEventListener("click", () => {
-                descargarEvidencia(archivo.url, archivo.nombre);
-            });
+            if (contador) {
+                contador.textContent =
+                    `Archivos subidos (${archivos.length})`;
+            }
 
-            const botonBorrar = item.querySelector(".kanban-btn-borrar");
-            if (botonBorrar) {
-                botonBorrar.addEventListener("click", () => {
-                    borrarEvidencia(archivo.nombre);
+            lista.innerHTML = "";
+
+            if (archivos.length === 0) {
+                const mensaje = document.createElement("div");
+                mensaje.className = "sin-archivos";
+                mensaje.textContent =
+                    "No hay materiales subidos todavía.";
+
+                lista.appendChild(mensaje);
+                return;
+            }
+
+            const esFacilitador =
+                obtenerRolMaterial() === "facilitador";
+
+            archivos.forEach(archivo => {
+                const item = document.createElement("div");
+                item.className =
+                    "kanban-evidencias-item-archivo";
+
+                // Información del archivo.
+                const informacion = document.createElement("div");
+                informacion.className =
+                    "kanban-evidencias-item-info";
+
+                informacion.style.cursor = "pointer";
+
+                const nombre = document.createElement("strong");
+                nombre.className =
+                    "kanban-evidencias-item-nombre";
+
+                nombre.textContent = archivo.nombre;
+
+                informacion.appendChild(nombre);
+
+                // Contenedor de botones.
+                const acciones = document.createElement("div");
+                acciones.className =
+                    "kanban-evidencias-item-acciones";
+
+                // Botón descargar.
+                const btnDescargar =
+                    document.createElement("button");
+
+                btnDescargar.type = "button";
+                btnDescargar.className =
+                    "btn-modal-cancelar kanban-btn-descargar";
+
+                btnDescargar.textContent = "Descargar";
+
+                btnDescargar.addEventListener("click", () => {
+                    descargarMaterialGeneral(
+                        archivo.url,
+                        archivo.nombre
+                    );
                 });
+
+                acciones.appendChild(btnDescargar);
+
+                // Solo el facilitador puede borrar.
+                if (esFacilitador) {
+                    const btnBorrar =
+                        document.createElement("button");
+
+                    btnBorrar.type = "button";
+                    btnBorrar.className =
+                        "btn-modal-cancelar kanban-btn-borrar";
+
+                    btnBorrar.textContent = "Borrar";
+                    btnBorrar.style.background = "#fee2e2";
+                    btnBorrar.style.color = "#dc2626";
+
+                    btnBorrar.addEventListener("click", () => {
+                        eliminarMaterialGeneral(
+                            archivo.nombre
+                        );
+                    });
+
+                    acciones.appendChild(btnBorrar);
+                }
+
+                // Seleccionar archivo para vista previa.
+                informacion.addEventListener("click", () => {
+                    mostrarVistaPreviaMaterial(
+                        archivo.url,
+                        archivo.nombre
+                    );
+                });
+
+                item.append(informacion, acciones);
+                lista.appendChild(item);
+            });
+
+        } catch (error) {
+            if (numeroSolicitud !== solicitudListado) {
+                return;
             }
 
-            lista.appendChild(item);
-        });
+            console.error(
+                "Error al cargar materiales:",
+                error
+            );
 
-    } catch (error) {
-        console.error("Error al cargar evidencias:", error);
-        lista.innerHTML = "<p style='color:#dc2626; text-align:center;'>Error al cargar los archivos.</p>";
-    }
-}
+            lista.textContent = error.message;
 
-/**
- * Vista previa de archivos
- */
-function mostrarVistaPrevia(urlArchivo, nombreArchivo) {
-    const contenedor = document.getElementById("kanban-evidencias-preview-content");
-    if (!contenedor) return;
-
-    contenedor.innerHTML = "";
-    const extension = nombreArchivo.substring(nombreArchivo.lastIndexOf('.')).toLowerCase();
-
-    if (['.png', '.jpg', '.jpeg'].includes(extension)) {
-        const imagen = document.createElement("img");
-        imagen.src = urlArchivo;
-        imagen.alt = nombreArchivo;
-        imagen.style.maxWidth = "100%";
-        imagen.style.maxHeight = "120px";
-        imagen.style.borderRadius = "4px";
-        contenedor.appendChild(imagen);
-    } else if (extension === '.pdf') {
-        const iconoPdf = document.createElement("div");
-        iconoPdf.className = "preview-icono-default";
-        iconoPdf.innerHTML = "📄";
-        
-        const btnVerPdf = document.createElement("a");
-        btnVerPdf.href = urlArchivo;
-        btnVerPdf.target = "_blank";
-        btnVerPdf.className = "btn-modal-cancelar";
-        btnVerPdf.style.marginTop = "5px";
-        btnVerPdf.style.textDecoration = "none";
-        btnVerPdf.textContent = "Ver PDF";
-        contenedor.append(iconoPdf, btnVerPdf);
-    } else if (extension === '.zip') {
-        const iconoZip = document.createElement("div");
-        iconoZip.className = "preview-icono-default";
-        iconoZip.innerHTML = "📦";
-        
-        const btnDescargarZip = document.createElement("a");
-        btnDescargarZip.href = urlArchivo;
-        btnDescargarZip.download = nombreArchivo;
-        btnDescargarZip.className = "btn-modal-cancelar";
-        btnDescargarZip.style.marginTop = "5px";
-        btnDescargarZip.style.textDecoration = "none";
-        btnDescargarZip.textContent = "Descargar ZIP";
-        contenedor.append(iconoZip, btnDescargarZip);
+            if (contador) {
+                contador.textContent =
+                    "Materiales no disponibles";
+            }
+        }
     }
 
-    const nombre = document.createElement("span");
-    nombre.className = "preview-nombre-archivo";
-    nombre.textContent = nombreArchivo;
-    contenedor.appendChild(nombre);
-}
+    // Limpiar la vista previa.
+    function limpiarVistaPreviaMaterial() {
+        const contenedor = elementoMaterial(
+            "material-general-preview-content"
+        );
 
-/**
- * Descargar archivo
- */
-function descargarEvidencia(url, nombre) {
-    let urlCompleta = url;
-    if (!url.startsWith('http')) {
-        const base = window.location.origin;
-        urlCompleta = url.startsWith('/') ? base + url : base + '/' + url;
+        if (!contenedor) return;
+
+        contenedor.innerHTML = "";
+
+        const icono = document.createElement("span");
+        icono.className = "preview-icono-default";
+        icono.textContent = "🖼️";
+
+        const nombre = document.createElement("span");
+        nombre.className = "preview-nombre-archivo";
+        nombre.textContent = "Selecciona un archivo";
+
+        contenedor.append(icono, nombre);
     }
 
-    const enlace = document.createElement("a");
-    enlace.href = urlCompleta;
-    enlace.download = nombre || 'evidencia';
-    enlace.setAttribute('target', '_blank');
-    document.body.appendChild(enlace);
-    enlace.click();
-    enlace.remove();
-}
+    // Mostrar vista previa del material seleccionado.
+    function mostrarVistaPreviaMaterial(url, nombreArchivo) {
+        const contenedor = elementoMaterial(
+            "material-general-preview-content"
+        );
 
-/**
- * Subir archivo
- */
-async function manejarSeleccionArchivo(input) {
-    const archivo = input.files[0];
-    if (!archivo) return;
+        if (!contenedor) return;
 
-    const idProyecto = window.historiaActualEvidencias?.id_proyecto ?? 1;
-    const idHistoria = window.historiaActualEvidencias?.historia_id ?? 0;
+        contenedor.innerHTML = "";
 
-    const datos = new FormData();
-    datos.append("archivo", archivo);
+        const extension = nombreArchivo
+            .substring(nombreArchivo.lastIndexOf("."))
+            .toLowerCase();
 
-    try {
-        const respuesta = await fetch(`/historias/evidencias/${idProyecto}/${idHistoria}`, {
-            method: "POST",
-            body: datos
-        });
+        if ([".png", ".jpg", ".jpeg"].includes(extension)) {
+            const imagen = document.createElement("img");
 
-        const resultado = await respuesta.json();
-        if (!respuesta.ok) throw new Error(resultado.mensaje || "No se pudo subir el archivo.");
+            imagen.src = url;
+            imagen.alt = nombreArchivo;
+            imagen.className = "preview-imagen-real";
+            imagen.style.maxWidth = "100%";
+            imagen.style.maxHeight = "180px";
+            imagen.style.objectFit = "contain";
 
-        alert("Archivo subido correctamente.");
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
-    } catch (error) {
-        console.error("Error al subir el archivo:", error);
-        alert(error.message || "Error al subir el archivo.");
-    } finally {
-        input.value = "";
+            contenedor.appendChild(imagen);
+
+        } else if (extension === ".pdf") {
+            const enlace = document.createElement("a");
+
+            enlace.href = url;
+            enlace.target = "_blank";
+            enlace.rel = "noopener noreferrer";
+            enlace.textContent = "Abrir PDF";
+            enlace.className = "btn-modal-cancelar";
+
+            contenedor.appendChild(enlace);
+
+        } else if (extension === ".zip") {
+            const texto = document.createElement("p");
+
+            texto.textContent =
+                "Los archivos ZIP no tienen vista previa. Puedes descargarlos.";
+
+            contenedor.appendChild(texto);
+        }
+
+        const nombre = document.createElement("span");
+        nombre.className = "preview-nombre-archivo";
+        nombre.textContent = nombreArchivo;
+
+        contenedor.appendChild(nombre);
     }
-}
 
-/**
- * Borrar archivo
- */
-async function borrarEvidencia(nombreArchivo) {
-    if (!confirm(`¿Deseas borrar la evidencia "${nombreArchivo}"?`)) return;
+    // Descargar material.
+    function descargarMaterialGeneral(url, nombre) {
+        const enlace = document.createElement("a");
 
-    const idProyecto = window.historiaActualEvidencias?.id_proyecto ?? 1;
-    const idHistoria = window.historiaActualEvidencias?.historia_id ?? 0;
-    const nombreCodificado = encodeURIComponent(nombreArchivo);
+        enlace.href = url;
+        enlace.download = nombre;
 
-    try {
-        const respuesta = await fetch(`/historias/evidencias/${idProyecto}/${idHistoria}/${nombreCodificado}`, {
-            method: "DELETE"
-        });
-
-        const resultado = await respuesta.json();
-        if (!respuesta.ok) throw new Error(resultado.mensaje || "No se pudo borrar la evidencia.");
-
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
-        alert("Evidencia borrada correctamente.");
-    } catch (error) {
-        console.error("Error al borrar evidencia:", error);
-        alert(error.message || "Error al borrar la evidencia.");
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
     }
-}
+
+    // Subir material adicional.
+    async function subirMaterialGeneral(input) {
+        const archivo = input.files?.[0];
+
+        if (!archivo) return;
+
+        if (!proyectoMaterialActual) {
+            alert("No hay un proyecto seleccionado.");
+            input.value = "";
+            return;
+        }
+
+        if (obtenerRolMaterial() !== "facilitador") {
+            alert("Solo el facilitador puede subir materiales.");
+            input.value = "";
+            return;
+        }
+
+        const extension = archivo.name
+            .substring(archivo.name.lastIndexOf("."))
+            .toLowerCase();
+
+        if (!FORMATOS_PERMITIDOS.includes(extension)) {
+            alert("Solo se permiten archivos PNG, JPG, PDF y ZIP.");
+            input.value = "";
+            return;
+        }
+
+        if (archivo.size > TAMANO_MAXIMO) {
+            alert("El archivo no debe superar los 5 MB.");
+            input.value = "";
+            return;
+        }
+
+        const idProyecto = proyectoMaterialActual.id;
+
+        const datos = new FormData();
+        datos.append("archivo", archivo);
+
+        try {
+            const respuesta = await fetch(
+                `/material-general/${idProyecto}`,
+                {
+                    method: "POST",
+                    body: datos
+                }
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok || !resultado.ok) {
+                throw new Error(
+                    resultado.mensaje ||
+                    "No se pudo subir el material."
+                );
+            }
+
+            alert("Material subido correctamente.");
+
+            // Actualizar el listado después de subir.
+            if (
+                proyectoMaterialActual &&
+                String(proyectoMaterialActual.id) === String(idProyecto)
+            ) {
+                await cargarMaterialGeneral();
+            }
+
+        } catch (error) {
+            console.error(
+                "Error al subir material:",
+                error
+            );
+
+            alert(error.message);
+
+        } finally {
+            input.value = "";
+        }
+    }
+
+    // Eliminar material adicional.
+    async function eliminarMaterialGeneral(nombreArchivo) {
+        if (!proyectoMaterialActual) return;
+
+        if (obtenerRolMaterial() !== "facilitador") {
+            alert("No tienes permiso para eliminar materiales.");
+            return;
+        }
+
+        if (!confirm(
+            `¿Deseas eliminar el material "${nombreArchivo}"?`
+        )) {
+            return;
+        }
+
+        const idProyecto = proyectoMaterialActual.id;
+
+        try {
+            const respuesta = await fetch(
+                `/material-general/${idProyecto}/` +
+                encodeURIComponent(nombreArchivo),
+                {
+                    method: "DELETE"
+                }
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok || !resultado.ok) {
+                throw new Error(
+                    resultado.mensaje ||
+                    "No se pudo eliminar el material."
+                );
+            }
+
+            alert("Material eliminado correctamente.");
+
+            // Limpiar vista previa.
+            limpiarVistaPreviaMaterial();
+
+            // Actualizar lista.
+            if (
+                proyectoMaterialActual &&
+                String(proyectoMaterialActual.id) === String(idProyecto)
+            ) {
+                await cargarMaterialGeneral();
+            }
+
+        } catch (error) {
+            console.error(
+                "Error al eliminar material:",
+                error
+            );
+
+            alert(error.message);
+        }
+    }
+
+    // Abrir modal al hacer clic en Compartir material.
+    document.addEventListener("click", evento => {
+        const boton = evento.target.closest(
+            "#btn-compartir-material"
+        );
+
+        if (boton) {
+            abrirModalMaterialGeneral();
+        }
+    });
+
+    // Funciones que utiliza nuestro HTML.
+    window.cerrarMiModalGeneral = cerrarModalMaterialGeneral;
+    window.subirMaterialGeneral = subirMaterialGeneral;
+
+})();
+

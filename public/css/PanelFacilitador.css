@@ -1139,5 +1139,103 @@ body {
     font-weight: 700 !important;
     font-size: 13px !important;
 }
+/* Permitir desplazamiento dentro del área de trabajo */
+#BloqueInferior {
+  min-height: 0;
+}
 
+#zonaDeTrabajo {
+  min-height: 0;
+  overflow-y: auto;
+}
 
+/* Mantener la gráfica dentro de su contenedor */
+#area-dibujo-grafica {
+  position: relative;
+  height: 320px;
+  min-width: 0;
+  width: 100%;
+}
+
+#chartBurndownCanvas {
+  max-height: none;
+}
+
+/*Estilos del modal de usuarios miembros de un equipo*/
+/* ===== Modal: miembros del equipo ===== */
+#modal-usuariosF {
+    padding: 24px;
+    background-color: #eef3f6;
+}
+
+#modal-usuariosF h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+/* Contenedor exterior */
+#contenedor-blancoF {
+    background-color: #eef3f6;
+    border: 2px solid #4a90d9;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Contenedor interior */
+#contenedor-azulF {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#contenedor-azulF h3 {
+    font-size: 1.15em;
+    margin-bottom: 4px;
+}
+
+/* Lista de tarjetas */
+#contenedor-usuariosF {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Tarjeta de cada miembro (botón) */
+#contenedor-usuariosF .tarjeta-usuario {
+    all: unset;                  /* quita el estilo nativo del button */
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 18px 24px;
+    background-color: #ffffff;
+    border: 1px solid #b5b5b5;
+    border-radius: 12px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#contenedor-usuariosF .tarjeta-usuario:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+#contenedor-usuariosF .tarjeta-usuario:focus-visible {
+    outline: 2px solid #2f8fe0;
+    outline-offset: 2px;
+}
+
+#contenedor-usuariosF .tarjeta-usuario span {
+    text-align: left;
+}
+
+/* Mensaje cuando no hay miembros */
+#contenedor-usuariosF p {
+    text-align: center;
+    color: #666;
+    padding: 16px;
+}

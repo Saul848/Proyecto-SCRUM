@@ -86,3 +86,76 @@ function consoleSessionStorage(){
     console.log("nombre recuperado: " + nombreProyecto)
 }
 
+
+//En construccion el script para las tarjetas de usuarios dentro de un proyecto
+/**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
+async function obtenerUsuariosPorEquipo(id_proyecto) {
+    console.log("sessionStorage proyectoActivo:", sessionStorage.getItem('proyectoActivo'));
+    console.log("id enviado:", id_proyecto);
+    try {
+        const respuesta = await fetch(`/usuarios/scrumbird/${id_proyecto}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+        
+        // Obtenemos los datos del JSON
+        const datos = await respuesta.json();
+        // Convertido a un array de usuarios
+        const usuarios = datos.data || [];
+        
+        // Regresa el arreglo con los datos
+        //console.log(usuarios)
+        console.log("respuesta cruda:", datos);
+        return usuarios;
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error de conexión");
+        return [];
+    }
+}
+
+
+/**
+ * Construcción de la lista de usuarios en el panel de miembros
+ */
+document.addEventListener("DOMContentLoaded", async ()=>{
+    //Lógica para solo listar los usuarios del panel Facilitador
+    const contFacilitador = document.getElementById("modal-usuariosF");
+    console.log('revisando lista del equipo')
+    if (!contFacilitador) return; // esta página no tiene la tabla, no hacemos nada
+
+    console.log('Listando miembros del equipo')
+    const idP = JSON.parse(sessionStorage.getItem('proyectoActivo')).id;
+    //Logica para mostrar el menú al seleccionar la opción
+    const usuarios= await obtenerUsuariosPorEquipo(idP);
+    const contenedorUsuarios = document.getElementById("contenedor-usuariosF");
+
+    console.log("Longitud de usuarios: "+ usuarios.length)
+    if(usuarios.length === 0) {
+        contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
+        return;
+    }
+    console.log(usuarios)
+    const tarjetas = usuarios.map(usuario =>`
+    <button class="tarjeta-usuario" data-id="${usuario.id}">
+        <span>${usuario.id}</span>
+        <span>${usuario.u_nombre}</span>
+    </button>
+    `).join("");
+    
+    contenedorUsuarios.innerHTML = tarjetas;
+
+    contenedorUsuarios.addEventListener('click', (evento)=>{
+        const tarjeta= evento.target.closest('.tarjeta-usuario');
+
+        if(!tarjeta) return;
+
+        const idUsuario = tarjeta.dataset.id;
+        console.log("Click en el usuario con id: ", idUsuario);
+    })
+})

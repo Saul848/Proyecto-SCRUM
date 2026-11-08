@@ -34,24 +34,28 @@ class UsuariosControlador {
         const id = this.#idValido(req.params.id);
         if (!id) return res.status(400).json({ error: 'id inválido' });
         try {
-        const usuario = await this.dao.obtenerPorId(id);
-        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-        res.json(usuario);
+            const usuario = await this.dao.obtenerPorId(id);
+            if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+            res.json(usuario);
         } catch (err) {
-        this.#error(res, err);
+            this.#error(res, err);
         }
     }
 
-    // GET /usuarios/:id
-    async listarPorEquipo(req, res) {
-        const id_equipo = this.#idValido(req.params.id_equipo);
-        if (!id_equipo) return res.status(400).json({ error: 'id inválido' });
+    // GET /usuarios/:idProyecto
+    /**
+     * Método que lista todos los usuarios de un proyecto especifico
+     * @param {*} req 
+     * @param {*} res 
+     */
+    async listarUsuariosPorEquipo(req, res){
         try {
-        const usuario = await this.dao.obtenerPorEquipo(id_equipo);
-        if (!usuario) return res.status(404).json({ error: 'Usuarios no encontrados en proyecto' });
-        res.json(usuario);
+            console.log("params:", req.params, "body:", req.body);
+            const id_proyecto = this.#idValido(req.params.idProyecto);
+            const usuarios = await this.dao.listarUsuariosPorEquipo(id_proyecto)
+            res.json({ data: usuarios });
         } catch (err) {
-        this.#error(res, err);
+            this.#error(res, err);
         }
     }
 
