@@ -38,6 +38,10 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+/**
+ * Rutas de material adicional general.
+ */
+app.use('/material-general', require('./routes/materialGeneralRoutes'));
 
 /**
  * Rutas de proyectos
@@ -103,10 +107,7 @@ http.createServer((req, res) => {
     res.end();
 }).listen(8082);
 
-/**
- * Rutas de proyectos
- */
-app.use('/proyectos', require('./routes/proyectosRoutes'));
+
 
 /**
  * Rutas de mensajes
