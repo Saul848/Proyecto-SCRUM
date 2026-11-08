@@ -38,6 +38,15 @@
     const tablaHistorias = document.getElementById(
         "dev-pb-lista-historias"
     );
+    // Historias del proyecto activo.
+let todasLasHistorias = [];
+
+// Elementos de filtrado.
+const inputFiltroId = document.getElementById("inputFiltroId");
+const inputFiltroNombre = document.getElementById("inputFiltroNombre");
+const inputFiltroValor = document.getElementById("inputFiltroValor");
+const inputFiltroSprint = document.getElementById("inputFiltroSprint");
+const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 
     // Obtener el proyecto que seleccionó el usuario.
     function obtenerProyectoActivo() {
@@ -199,6 +208,45 @@
             tablaHistorias.appendChild(fila);
         });
     }
+    // Aplicar filtros a las historias del proyecto activo.
+function aplicarFiltrosDesarrollador() {
+
+    const filtroId = inputFiltroId?.value.trim().toLowerCase() || "";
+    const filtroNombre = inputFiltroNombre?.value.trim().toLowerCase() || "";
+    const filtroValor = inputFiltroValor?.value.trim().toLowerCase() || "";
+    const filtroSprint = inputFiltroSprint?.value.trim().toLowerCase() || "";
+
+    const historiasFiltradas = todasLasHistorias.filter(historia => {
+
+        const id = String(
+            historia.id ?? historia.historia_id ?? ""
+        ).toLowerCase();
+
+        const nombre = String(
+            historia.nombre ?? historia.titulo ?? ""
+        ).toLowerCase();
+
+        const valor = String(
+            historia.valor ?? ""
+        ).toLowerCase();
+
+        const sprint = String(
+            historia.sprint ??
+            historia.sprintAsig ??
+            historia.asignado_al_sprint ??
+            ""
+        ).toLowerCase();
+
+        return (
+            id.includes(filtroId) &&
+            nombre.includes(filtroNombre) &&
+            valor.includes(filtroValor) &&
+            sprint.includes(filtroSprint)
+        );
+    });
+
+    mostrarHistorias(historiasFiltradas);
+}
 
     // Consultar y cargar las historias del proyecto.
     async function cargarProductBacklog() {
@@ -223,7 +271,8 @@
                 historias
             );
 
-            mostrarHistorias(historias);
+            todasLasHistorias = historias;
+            aplicarFiltrosDesarrollador();
 
         } catch (error) {
             console.error(
@@ -290,5 +339,39 @@
         "click",
         abrirMensajes
     );
+    // ==========================================
+// EVENTOS DE LOS FILTROS DEL PRODUCT BACKLOG
+// ==========================================
+
+// Filtrar automáticamente mientras se escribe.
+[
+    inputFiltroId,
+    inputFiltroNombre,
+    inputFiltroValor,
+    inputFiltroSprint
+].forEach(input => {
+    input?.addEventListener(
+        "input",
+        aplicarFiltrosDesarrollador
+    );
+});
+
+// Limpiar todos los filtros.
+btnLimpiarFiltros?.addEventListener("click", () => {
+
+    [
+        inputFiltroId,
+        inputFiltroNombre,
+        inputFiltroValor,
+        inputFiltroSprint
+    ].forEach(input => {
+        if (input) {
+            input.value = "";
+        }
+    });
+
+    // Mostrar nuevamente todas las historias.
+    aplicarFiltrosDesarrollador();
+});
 
 })();
