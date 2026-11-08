@@ -10,6 +10,7 @@ const controlador = new UsuariosControlador(new UsuarioDAO(pool));
 router.post('/login', (req, res) => controlador.login(req, res));
 router.get('/', (req, res) => controlador.listar(req, res));
 router.get('/scrumbird', (req, res) => controlador.listar2(req, res));
+router.get('/scrumbird/:idProyecto', (req, res) => controlador.listarUsuariosPorEquipo(req, res));
 router.post('/', (req, res) => controlador.crear(req, res));
 router.get('/:id', (req, res) => controlador.obtener(req, res));
 router.put('/:id', (req, res) => controlador.actualizar(req, res));

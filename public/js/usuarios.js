@@ -57,18 +57,12 @@ async function registrarUsuario(evento) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const formRegistro = document.getElementById("form-registro");
-    if (formRegistro) {
-        formRegistro.addEventListener("submit", registrarUsuario);
-    }
-});
-
 /**
  * Función para recuperar los usuarios desde el controlador
  * @returns 
  */
 async function obtenerUsuarios() {
+    
     try {
         // Generamos la solicitud
         const respuesta = await fetch(`/usuarios/scrumbird`, {
@@ -85,7 +79,7 @@ async function obtenerUsuarios() {
         
         // Regresa el arreglo con los datos
         //console.log(usuarios)
-        alert("datos obtenidos");
+        console.log("datos obtenidos");
         return usuarios;
     } catch (error) {
         console.error("Error en la petición:", error);
@@ -105,6 +99,7 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
 
     if(usuarios.length === 0) {
         contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
+        return;
     }
 
     const tarjetas = usuarios.map(usuario =>`
@@ -143,3 +138,4 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
         `
     })
 })
+
