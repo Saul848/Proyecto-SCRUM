@@ -29,7 +29,7 @@ async function asegurarModalCargadoEvidenciaHistoria() {
 /**
  * Abre el modal de evidencias de una historia.
  */
-async function abrirModalEvidencias(historiaId) {
+async function abrirModalEvidenciasHistoria(historiaId) {
     // Asegurar que el HTML exista antes de intentar rellenarlo
     await asegurarModalCargadoEvidenciaHistoria();
 
@@ -54,19 +54,19 @@ async function abrirModalEvidencias(historiaId) {
         "kanban-evidencias-badge-estado"
     ).textContent = estado;
 
-    aplicarReglasPermisosYEstado(estado);
+    aplicarReglasPermisosYEstadoHistoria(estado);
     mostrarModal("modal-evidencias-historia-kanban");
 
     const idProyecto = proyectoActualKanban.id;
     const idHistoria = historia.historia_id;
 
-    await cargarArchivosEvidencias(idProyecto, idHistoria);
+    await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 }
 
 /**
  * Configura la interfaz según el rol y el estado.
  */
-function aplicarReglasPermisosYEstado(estado) {
+function aplicarReglasPermisosYEstadoHistoria(estado) {
     const esTerminada = ["terminado", "terminada"].includes(String(estado).toLowerCase());
     const puedeSubir = ROL_ACTUAL === "desarrollador" && !esTerminada;
 
@@ -95,7 +95,7 @@ function aplicarReglasPermisosYEstado(estado) {
 /**
  * Obtiene y dibuja las evidencias de una historia.
  */
-async function cargarArchivosEvidencias(idProyecto, idHistoria) {
+async function cargarArchivosEvidenciasHistoria(idProyecto, idHistoria) {
     const lista = document.getElementById(
         "kanban-evidencias-lista-archivos"
     );
@@ -207,19 +207,19 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
 
             item.querySelector(".kanban-evidencias-item-info")
                 .addEventListener("click", () => {
-                    mostrarVistaPrevia(archivo.url, archivo.nombre);
+                    mostrarVistaPreviaHistoria(archivo.url, archivo.nombre);
                 });
 
             item.querySelector(".kanban-btn-descargar")
                 .addEventListener("click", () => {
-                    descargarEvidencia(archivo.url, archivo.nombre);
+                    descargarEvidenciaHistoria(archivo.url, archivo.nombre);
                 });
 
             const botonBorrar = item.querySelector(".kanban-btn-borrar");
 
             if (botonBorrar) {
                 botonBorrar.addEventListener("click", () => {
-                    borrarEvidencia(archivo.nombre);
+                    borrarEvidenciaHistoria(archivo.nombre);
                 });
             }
 
@@ -233,71 +233,104 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
     }
 }
 
+
 /**
  * Muestra la vista previa del archivo (imagen, PDF o aviso para ZIP).
  */
-function mostrarVistaPrevia(urlArchivo, nombreArchivo) {
+function mostrarVistaPreviaHistoria(urlArchivo, nombreArchivo) {
     const contenedor = document.getElementById(
         "kanban-evidencias-preview-content"
     );
 
+    if (!contenedor) return;
+
     contenedor.innerHTML = "";
 
-    const nombreLower = nombreArchivo.toLowerCase();
+    const extension = nombreArchivo
+        .substring(nombreArchivo.lastIndexOf('.'))
+        .toLowerCase();
 
-    if (nombreLower.endsWith(".pdf")) {
-        // Vista previa para PDF usando un objeto <embed> o <iframe>
-        const embed = document.createElement("embed");
-        embed.src = urlArchivo;
-        embed.type = "application/pdf";
-        embed.className = "preview-pdf-real"; // Asegúrate de definir estilos si es necesario
-
-        const nombre = document.createElement("span");
-        nombre.className = "preview-nombre-archivo";
-        nombre.textContent = nombreArchivo;
-
-        contenedor.append(embed, nombre);
-    } else if (nombreLower.endsWith(".zip")) {
-        // Vista previa genérica para ZIP (no se puede renderizar directamente)
-        contenedor.innerHTML = `
-            <div class="preview-icono-default">&#128230;</div>
-            <span class="preview-nombre-archivo">${nombreArchivo}</span>
-            <span class="preview-sub-text">
-                Los archivos comprimidos ZIP no tienen vista previa directa. Puedes descargarlos.
-            </span>
-        `;
-    } else {
-        // Vista previa para imágenes (PNG, JPG, JPEG)
+    if (['.png', '.jpg', '.jpeg'].includes(extension)) {
+        // Vista previa para imágenes
         const imagen = document.createElement("img");
         imagen.src = urlArchivo;
         imagen.alt = nombreArchivo;
         imagen.className = "preview-imagen-real";
 
-        const nombre = document.createElement("span");
-        nombre.className = "preview-nombre-archivo";
-        nombre.textContent = nombreArchivo;
+        contenedor.appendChild(imagen);
 
-        contenedor.append(imagen, nombre);
+    } else if (extension === '.pdf') {
+        // Icono y botón para abrir PDF
+        const iconoPdf = document.createElement("div");
+        iconoPdf.className = "preview-icono-default";
+        iconoPdf.textContent = "📄";
+
+        const btnVerPdf = document.createElement("a");
+        btnVerPdf.href = urlArchivo;
+        btnVerPdf.target = "_blank";
+        btnVerPdf.rel = "noopener noreferrer";
+        btnVerPdf.className = "btn-modal-cancelar";
+        btnVerPdf.style.marginTop = "5px";
+        btnVerPdf.style.textDecoration = "none";
+        btnVerPdf.textContent = "Ver PDF";
+
+        contenedor.append(iconoPdf, btnVerPdf);
+
+    } else if (extension === '.zip') {
+        // Icono y botón para descargar ZIP
+        const iconoZip = document.createElement("div");
+        iconoZip.className = "preview-icono-default";
+        iconoZip.textContent = "📦";
+
+        const btnDescargarZip = document.createElement("a");
+        btnDescargarZip.href = urlArchivo;
+        btnDescargarZip.download = nombreArchivo;
+        btnDescargarZip.className = "btn-modal-cancelar";
+        btnDescargarZip.style.marginTop = "5px";
+        btnDescargarZip.style.textDecoration = "none";
+        btnDescargarZip.textContent = "Descargar ZIP";
+
+        contenedor.append(iconoZip, btnDescargarZip);
     }
+
+    // Nombre del archivo
+    const nombre = document.createElement("span");
+    nombre.className = "preview-nombre-archivo";
+    nombre.textContent = nombreArchivo;
+
+    contenedor.appendChild(nombre);
 }
 
 /**
  * Descarga una evidencia.
  */
-function descargarEvidencia(url, nombre) {
+function descargarEvidenciaHistoria(url, nombre) {
+    let urlCompleta = url;
+
+    // Completar URL si es una ruta relativa
+    if (!url.startsWith('http')) {
+        const base = window.location.origin;
+        urlCompleta = url.startsWith('/')
+            ? base + url
+            : base + '/' + url;
+    }
+
     const enlace = document.createElement("a");
-    enlace.href = url;
-    enlace.download = nombre;
+    enlace.href = urlCompleta;
+    enlace.download = nombre || 'evidencia';
+    enlace.setAttribute('target', '_blank');
+    enlace.rel = "noopener noreferrer";
 
     document.body.appendChild(enlace);
     enlace.click();
     enlace.remove();
 }
 
+
 /**
  * Sube una evidencia al servidor.
  */
-async function manejarSeleccionArchivo(input) {
+async function manejarSeleccionArchivoHistoria(input) {
     const archivo = input.files[0];
 
     if (!archivo || !historiaActualEvidencias) return;
@@ -375,7 +408,7 @@ async function manejarSeleccionArchivo(input) {
 
         alert("Evidencia subida correctamente.");
 
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
+        await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 
     } catch (error) {
         console.error("Error al subir evidencia:", error);
@@ -388,7 +421,7 @@ async function manejarSeleccionArchivo(input) {
 /**
  * Borra una evidencia por su nombre.
  */
-async function borrarEvidencia(nombreArchivo) {
+async function borrarEvidenciaHistoria(nombreArchivo) {
     if (!historiaActualEvidencias) return;
 
     const estado = String(
@@ -441,10 +474,10 @@ async function borrarEvidencia(nombreArchivo) {
 
         if (elementoVisual && elementoVisual.getAttribute("src") ===
             `/evidencias/${idProyecto}/${idHistoria}/${nombreArchivo}`) {
-            mostrarVistaPreviaPlaceholder();
+            mostrarVistaPreviaPlaceholderHistoria();
         }
 
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
+        await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 
         alert("Evidencia borrada correctamente.");
 
@@ -454,7 +487,7 @@ async function borrarEvidencia(nombreArchivo) {
     }
 }
 
-function mostrarVistaPreviaPlaceholder() {
+function mostrarVistaPreviaPlaceholderHistoria() {
     const contenedor = document.getElementById(
         "kanban-evidencias-preview-content"
     );

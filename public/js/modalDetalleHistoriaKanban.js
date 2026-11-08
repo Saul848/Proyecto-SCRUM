@@ -100,5 +100,5 @@ async function abrirEvidenciasHistoriaSeleccionada() {
         historiaSeleccionadaKanban.historia_id ??
         historiaSeleccionadaKanban.id;
 
-    await abrirModalEvidencias(historiaId);
+    await abrirModalEvidenciasHistoria(historiaId);
 }
