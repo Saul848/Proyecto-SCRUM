@@ -8,16 +8,9 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="../css/PanelDesarrollador.css">
     <link rel="stylesheet" href="../css/mensajesDesarrollador.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
-    <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
-    <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
-    <link rel="stylesheet" href="../css/modalSprintBacklog.css">
     <link rel="stylesheet" href="../css/productBacklogDesarrollador.css">
     <link rel="stylesheet" href="../css/modalSubirMaterial.css">
-    <title>Desarrollador - Panel Principal</title>
-    <!-- <script>
-        const ROL_ACTUAL = "desarrollador";
-    </script> -->
+    <link rel="stylesheet"  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 </head>
 
 <body>
@@ -270,66 +263,6 @@
 
             </div>
 
-    </div>
-  </header>
-    
-  <!-- Bloque inferior -->
-  <main id="BloqueInferior">
-    
-    <!-- Section panelLateral -->
-    <section id="panelLateral">
-      <div id="divIndice">
-        <span>❖ Seccion</span>
-        <ul id="listaPanelLateral">
-          <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
-          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes-desarrollador', 'cabecera-mensajes')">Mensajes</button></li>
-          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
-          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">Sprint Backlog</button></li>
-          <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
-          <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button></li>
-          <li><button href="#" id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">Graficas</button></li>
-          <li><button href="#" id="linkAjustes">Ajustes</button></li>
-          <li><button href="#" id="btn-storage">Prueba sessionStorage</button></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Section zonaDeTrabajo -->
-    <section id="zonaDeTrabajo">
-
-      <!-- MODAL / VISTA 1: PRODUCT BACKLOG (DESARROLLADOR) -->
-      <div id="modal-product-backlog" class="modal-class" style="display: block;">
-        <div id="DivContPB">
-          
-          <!-- Barra de filtros -->
-          <div id="contenedorFiltrosPB" class="filtros-pb-container">
-            <input type="text" id="inputFiltroId" class="filtro-input filtro-id" placeholder="Filtrar ID...">
-            <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre" placeholder="Filtrar nombre...">
-            <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
-            <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint" placeholder="Filtrar sprint...">
-            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
-          </div>
-
-          <div id="DivEncabezados">
-            <label id="LabelID">ID</label>
-            <label id="LabelNombreHistoria">Historias de usuario</label>
-            <label id="LabelDescripccion">Descripccion</label>
-            <label id="LabelCriterios">Criterios de acpetacion</label>
-            <label id="LabelValor">Valor</label>
-            <label id="LabelSprintAsginado">Sprint asignado</label>
-            <div class="espacioAcciones"></div>
-          </div>
-
-          <div id="DivHistoria"></div>
-
-            <div id="divOpccionesInferiores">
-            <!-- Botón ajustado para el Desarrollador (PB-54) -->
-           <div id="DivBtnVerMaterial">
-           <button type="button" class="btn-ver-material" id="btn-ver-material">
-           <span class="material-symbols-outlined">visibility</span>
-            Ver material adicional
-          </button>
-         </div>
         </div>
 
 
@@ -582,12 +515,16 @@
 
     </div>
 
-  <script src="../js/PanelDesarrollador.js"></script>
-  <script src="../js/ProductBacklogDesarrollador.js"></script> 
-  <script src="../js/modalSubirMaterial.js"></script>
-  <script src="../js/mensajesDesarrollador.js"></script>
-  <script src="../js/modalSprintBacklog.js" defer></script>
-  <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
-  <script src="../js/modalEvidenciaHistoria.js" defer></script>
+
+    <!-- ============================= -->
+    <!-- ARCHIVOS JAVASCRIPT -->
+    <!-- ============================= -->
+
+    <script src="../js/mensajesDesarrollador.js"></script>
+
+    <script src="../js/ProductBacklogDesarrollador.js"></script>
+
+    <script src="../js/modalSubirMaterial.js"></script>
+
 </body>
 </html>

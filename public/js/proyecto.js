@@ -241,7 +241,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
                 break;
 
             case "desarrollador":
-                window.location.href = '/html/PanelDesarrollador.html';
+                window.location.href = '/html/desarrolladorBoton.html';
                 break;
 
             case "cliente":
