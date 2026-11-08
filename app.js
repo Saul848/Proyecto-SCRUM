@@ -38,6 +38,10 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+/**
+ * Rutas de material adicional general.
+ */
+app.use('/material-general', require('./routes/materialGeneralRoutes'));
 
 /**
  * Rutas de proyectos
@@ -69,23 +73,35 @@ const opciones = {
  */
 const PORT = 8443;
 
-https.createServer(opciones, app).listen(PORT, ()=>{
-    console.log("HTTPS en https://localhost:8443")
-})
+/**
+ * 1. Creamos el servidor HTTPS primero (guardándolo en una constante)
+ */
+const server = https.createServer(opciones, app);
+
+/**
+ * 2. IMPORTANTE: Inicializamos y acoplamos Socket.IO al servidor HTTPS
+ * (Asegúrate de importar tu archivo de sockets que hicimos antes)
+ */
+const setupPlanningPokerSockets = require('./controladores/planningPokerServer.js'); // Ajusta la ruta a tu archivo de sockets
+setupPlanningPokerSockets(server);
+
+/**
+ * 3. Ponemos a escuchar el servidor HTTPS en el puerto 8443
+ */
+server.listen(PORT, () => {
+    console.log("HTTPS en https://localhost:8443");
+});
 
 /**
  * Toda petición http es redirigida hacia https
  */
-http.createServer((req, res)=>{
+http.createServer((req, res) => {
     const host = (req.headers.host || "localhost").split(":")[0];
-    res.writeHead(301, {Location:`https://${host}:8443${req.url}`});
+    res.writeHead(301, { Location: `https://${host}:8443${req.url}` });
     res.end();
 }).listen(8082);
 
-/**
- * Rutas de proyectos
- */
-app.use('/proyectos', require('./routes/proyectosRoutes'));
+
 
 /**
  * Rutas de mensajes

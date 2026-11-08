@@ -1,0 +1,94 @@
+
+/* PRODUCT BACKLOG DEL DESARROLLADOR */
+
+.dev-product-backlog {
+    flex: 1;
+    min-width: 0;
+    padding: 25px;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+.dev-pb-encabezado h2 {
+    color: #10213c;
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.dev-pb-encabezado p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.dev-pb-tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.dev-pb-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+    font-size: 13px;
+}
+
+.dev-pb-tabla thead {
+    background: #eaf3f8;
+}
+
+.dev-pb-tabla th {
+    padding: 15px 12px;
+    color: #10213c;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid #dbe4ec;
+}
+
+.dev-pb-tabla td {
+    padding: 15px 12px;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.dev-pb-tabla tbody tr:hover {
+    background: #f8fafc;
+}
+
+.dev-pb-tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dev-pb-criterios {
+    margin: 0;
+    padding-left: 17px;
+}
+
+.dev-pb-criterios li {
+    margin-bottom: 5px;
+}
+
+.dev-pb-acciones {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.dev-pb-btn-material {
+    background: #008cff;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dev-pb-btn-material:hover {
+    background: #0071d1;
+}
