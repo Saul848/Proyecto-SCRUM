@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    listarRegistros(usuarioActivo.id, proyectoActivo.idProyecto);
+    listarRegistros(usuarioActivo.id, proyectoActivo.id);
 });
 
 document.addEventListener("DOMContentLoaded", () => {

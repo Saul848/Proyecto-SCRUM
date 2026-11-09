@@ -81,6 +81,7 @@
           <li><button href="#" id="linkTiempos" onclick="mostrarModal('modal-tiempos', 'cabecera-springPlanning')">Registro de tiempos</button></li>
           <li><button href="#" id="btnSessionProyectoUsuario" onclick="consoleSessionStorage()">sessionStorage</button></li>
         </ul>
+      </div>
     </section>
 
     <!-- Section zonaDeTrabajo -->
@@ -431,37 +432,33 @@
           <!-- Área de Gráficas y Métricas: Tabla y Gráfica lado a lado con diseño compacto -->
           <div id="contenedor-grafica-activa"
             style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
-            <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">
-              Vista de Gráfica</h4>
-
+            <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica</h4>
             <!-- Contenedor principal en fila (lado a lado) -->
             <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-
               <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
               <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
                 <!-- Tabla estilo Excel se inyectará aquí -->
               </div>
-          <!-- Área de Gráficas y Métricas: Tabla y Gráfica lado a lado con diseño compacto -->
-          <div id="contenedor-grafica-activa" style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
-              <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica</h4>
-              
-              <!-- Contenedor principal en fila (lado a lado) -->
+            </div> <!-- cierra el contenedor flex de las tarjetas -->
+            <!-- Área de Gráficas y Métricas -->
+            <div id="contenedor-grafica-activa"
+              style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
+              <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">
+                Vista de Gráfica</h4>
+
               <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-                  
-                  <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
-                  <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
-                      <!-- Tabla estilo Excel se inyectará aquí -->
-                  </div>
-                  
-                  <!-- Área de dibujo de la gráfica (Lado derecho, tamaño compacto y controlado) -->
-                 <div id="area-dibujo-grafica"
-                    style="position: relative; flex: 1; min-width: 900px; max-width: 450px; height: 260px;">
+                <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
+                  <!-- Tabla estilo Excel se inyectará aquí -->
+                </div>
+
+                <div id="area-dibujo-grafica"
+                  style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
                   <canvas id="chartBurndownCanvas"></canvas>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </div>   <!-- cierra el flex tabla/gráfica -->
+            </div>     <!-- cierra contenedor-grafica-activa -->
+          </div>       <!-- cierra el div con padding: 20px -->
+        </div>         <!-- cierra modal-graficas -->
       </div>
 
       <!-- MODAL PARA registro de tiempos -->
