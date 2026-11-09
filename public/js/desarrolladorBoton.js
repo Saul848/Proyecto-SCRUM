@@ -7,7 +7,7 @@ let planningPokerJS = null;
 
 async function abrirPlanningPokerParaDesarrollador() {
     const sprintId = 1;
-    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 2, name: "Desarrollador Pruebas" };
+    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo"));
     const role = "desarrollador";
 
     const zonaDeTrabajo = document.getElementById("zonaDeTrabajo");
