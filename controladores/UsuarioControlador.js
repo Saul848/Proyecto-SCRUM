@@ -125,9 +125,9 @@ class UsuariosControlador {
         const id = this.#idValido(req.params.id);
         if (!id) return res.status(400).json({ error: 'id inválido' });
         try {
-        const ok = await this.dao.eliminar(id);
-        if (!ok) return res.status(404).json({ error: 'Usuario no encontrado' });
-        res.status(204).end();
+            const ok = await this.dao.eliminar(id);
+            if (!ok) return res.status(404).json({ error: 'Usuario no encontrado' });
+            res.status(204).end();
         } catch (err) {
         this.#error(res, err);
         }

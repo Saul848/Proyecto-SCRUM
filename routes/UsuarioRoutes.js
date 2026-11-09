@@ -17,4 +17,4 @@ router.put('/:id', (req, res) => controlador.actualizar(req, res));
 router.put('/:id/passwd', (req, res) => controlador.cambiarPasswd(req, res));
 router.delete('/:id', (req, res) => controlador.eliminar(req, res));
 
-module.exports = router;
+module.exports = router; 

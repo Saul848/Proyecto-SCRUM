@@ -20,7 +20,6 @@ class UsuarioDAO {
         const { rows } = await this.pool.query(
             'SELECT id, nombre, correo_electronico, nombre_de_usuario FROM scrumbird.usuario ORDER BY id;'
         );
-        console.log(rows);
         return rows;
     }
 
