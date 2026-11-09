@@ -30,6 +30,23 @@ function setupAsignacionTareasSockets(server) {
             io.to(`sprint-${sprintId}`).emit("abrir-planning-poker-cliente");
         });
 
+        socket.on("disparar-volver-detalles", (data) => {
+        // Reenvía la señal a todos los usuarios conectados en la sala de ese sprint
+        io.to(`sprint-${data.sprintId}`).emit("volver-detalles-cliente");
+        });
+
+        socket.on("disparar-fase-2", (data) => {
+        io.to(`sprint-${data.sprintId}`).emit("fase-2-cliente");
+        });
+
+        socket.on("disparar-fase-1", (data) => {
+        io.to(`sprint-${data.sprintId}`).emit("fase-1-cliente");
+        });
+
+        socket.on("disparar-confirmar-sprint", (data) => {
+        io.to(`sprint-${data.sprintId}`).emit("confirmar-sprint-cliente", data);
+        });
+
         socket.on("disconnect", () => {
             console.log(`Desconectado de asignación de tareas: ${socket.id}`);
         });
