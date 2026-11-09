@@ -1,5 +1,7 @@
 const params = new URLSearchParams(window.location.search);
-const ID_PROYECTO = Number(params.get("proyecto")) || 1;
+const proyectoGuardado = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+const ID_PROYECTO = proyectoGuardado?.id || Number(params.get("proyecto")) || 1;
 
 let cacheReuniones = [];
 let vistaActualReuniones = 'activas';
@@ -28,6 +30,11 @@ function renderizarSeccionReuniones() {
   const contenedorReuniones = document.querySelector("#modal-reuniones .area-fondo");
   if (!contenedorReuniones) return;
 
+  //detecta si el usuario actual es desarrollador
+  const esDesarrollador = (typeof ROL_ACTUAL !== 'undefined' && ROL_ACTUAL === 'desarrollador') || 
+                          window.location.pathname.toLowerCase().includes('desarrollador') ||
+                          sessionStorage.getItem('rol') === 'desarrollador';
+
   // Filtramos según el estado
   const actasFinalizadas = cacheReuniones.filter(r => r.estado && r.estado.toLowerCase() === 'finalizada');
   const actasActivas = cacheReuniones.filter(r => !r.estado || r.estado.toLowerCase() !== 'finalizada');
@@ -46,7 +53,10 @@ function renderizarSeccionReuniones() {
     </div>
   `;
 
-  const btnAgendarHTML = `<button class="btn-agendar" id="btnAbrirModalAgendar" style="margin-top: 20px;">Agendar nueva reunión +</button>`;
+  //el boton se muestra si es facilitador
+  const btnAgendarHTML = !esDesarrollador 
+    ? `<button class="btn-agendar" id="btnAbrirModalAgendar" style="margin-top: 20px;">Agendar nueva reunión +</button>` 
+    : '';
 
   if (listaAMostrar.length === 0) {
     contenedorReuniones.innerHTML = `
@@ -63,7 +73,11 @@ function renderizarSeccionReuniones() {
     const esFinalizada = r.estado && r.estado.toLowerCase() === 'finalizada';
 
     if (esFinalizada) {
-      // Diseño basado en tu prototipo para reuniones finalizadas
+      // Botón de eliminar solo visible para facilitadores
+      const btnEliminarHTML = !esDesarrollador 
+        ? `<button onclick="eliminarReunion(${r.id})" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 13px;">[Eliminar X]</button>` 
+        : '';
+
       return `
         <section class="tarjeta-reunion" data-id="${r.id}" style="background: #f8fafc; border-left: 5px solid #3b82f6; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -78,7 +92,11 @@ function renderizarSeccionReuniones() {
         </section>
       `;
     } else {
-      // Diseño estándar para activas
+      // Botón de editar solo visible si no es desarrollador
+      const btnEditarHTML = !esDesarrollador 
+        ? `<button class="btn-editar" onclick="editarReunion(${r.id})">Editar</button>` 
+        : '';
+
       return `
         <section class="tarjeta-reunion" data-id="${r.id}" style="background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <h2>${r.nombre}</h2>
@@ -106,7 +124,9 @@ function renderizarSeccionReuniones() {
     </div>
   `;
 
-  configurarModalAgendar();
+  if (!esDesarrollador) {
+    configurarModalAgendar();
+  }
 }
 
 //cambia entre activas o finalizadas
@@ -115,8 +135,8 @@ function cambiarVistaReuniones(vista) {
   renderizarSeccionReuniones();
 }
 
-//despliega panel lateral de detalles con las historias 
-async function verDetallesReunion(idReunion, idSprint, nombre, fecha, estado) {
+//despliega panel lateral de detalles con las historias
+async function verDetallesReunion(idSprint, nombre, fecha, estado) {
   const panelLateral = document.getElementById("panelDetallesReunionLateral");
   if (!panelLateral) return;
 
@@ -130,7 +150,10 @@ async function verDetallesReunion(idReunion, idSprint, nombre, fecha, estado) {
     const historias = resJson.data || [];
 
     historiasHTML = historias.length > 0 
-      ? historias.map(h => `<div style="font-size: 13px; margin-bottom: 4px; color: #333;">• <strong>PB-${h.id}</strong> ${h.nombre}</div>`).join('')
+      ? historias.map(h => {
+          const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+          return `<div style="font-size: 13px; margin-bottom: 4px; color: #333;">• <strong>PB-${numMostrar}</strong> ${h.nombre}</div>`;
+        }).join('')
       : '<span style="font-size: 13px; color: #666;">Sin historias registradas</span>';
   } catch (e) {
     historiasHTML = '<span style="font-size: 13px; color: red;">Error al cargar historias</span>';

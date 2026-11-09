@@ -10,15 +10,16 @@ class historiaUsuarioDAO {
     /**
      * Funcion que me permite obtener todas las historias de usuario pertenecientes a un proyecto ordenadas por id
      * @returns ID, Nombre, Descripcion, Valor, AsignadoAlSprint 
-     * cRITERIOS DE ACEPTACION, IdHistoria (IdProyecto)
      */
     async obtenerHistorias(idProyecto) {
-        const { rows } = await this.pool.query(
-            'SELECT id, nombre, descripcion, valor, asignado_al_sprint FROM scrumbird.historia_de_usuario WHERE id_proyecto = $1 ORDER BY id;'
-            , [idProyecto],
-            'SELECT id, numero_de_criterio, criterios_de_aceptacion, '
-        );
-        return rows;
+        try {
+            const query = 'SELECT id, nombre, descripcion, valor, asignado_al_sprint FROM scrumbird.historia_de_usuario WHERE id_proyecto = $1 ORDER BY id;';
+            const { rows } = await this.pool.query(query, [idProyecto]);
+            return rows;
+        } catch (error) {
+            console.error("Error al obtener las historias del proyecto:", error);
+            throw error;
+        }
     }
 
 /**
@@ -215,22 +216,22 @@ class historiaUsuarioDAO {
     }
 
     /**
-     * Actualiza los puntos de una historia de usuario en la base de datos
+     * Actualiza las horas_estimadas de una historia de usuario en la base de datos
      * 
      * @async
      * @function actualizarPuntosHistoria
      * @param {number} idHistoria - Identificador único de la historia de usuario a actualizar.
-     * @param {number} puntos - Puntos para asignar a la historia.
+     * @param {number} horas_estimadas - Horas estimadas para asignar a la historia.
      * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
      * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
      */
-    async actualizarPuntosHistoria(idHistoria, puntos) {
+    async actualizarPuntosHistoria(idHistoria, horas_estimadas) {
         try {
-            const query = 'UPDATE scrumbird.historia_de_usuario SET puntos_de_historia = $2 WHERE id = $1;';
-            await this.pool.query(query, [idHistoria, puntos]);
-            return { success: true, message: "Puntos asignados correctamente" };
+            const query = 'UPDATE scrumbird.historia_de_usuario SET horas_estimadas = $2 WHERE id = $1;';
+            await this.pool.query(query, [idHistoria, horas_estimadas]);
+            return { success: true, message: "Horas asignadas correctamente" };
         } catch (error) {
-            console.error("Error al actualizar los puntos de la historia:", error);
+            console.error("Error al actualizar las horas estimadas de la historia:", error);
             throw error;
         }
     }
