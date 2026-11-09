@@ -79,11 +79,18 @@ class reunionDAO{
 
     async obtenerHistoriasPorSprint(idSprint) {
         const { rows } = await this.pool.query(
-            `SELECT id, nombre, descripcion, valor, 
-            puntos_de_historia, factor_de_complejidad, 
-            coste_estimado, asignado_al_sprint AS id_sprint 
+            `SELECT id, 
+                    numero_de_historia AS "numeroDeHistoria", 
+                    nombre, 
+                    descripcion, 
+                    valor, 
+                    horas_estimadas, 
+                    factor_de_complejidad, 
+                    horas_calculadas,
+                    asignado_al_sprint AS id_sprint 
              FROM scrumbird.historia_de_usuario 
-             WHERE asignado_al_sprint = $1::integer;`,
+             WHERE asignado_al_sprint = $1::integer
+             ORDER BY numero_de_historia ASC;`,
             [idSprint]
         );
         return rows;

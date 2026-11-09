@@ -1308,7 +1308,7 @@ async function abrirPlanningPokerParaFacilitador() {
             socket.disconnect();
             
             // REDIRECCIÓN A TU PANTALLA DE REUNIONES O VISTA PRINCIPAL O MODAL
-            window.location.href = "./reuniones.html"; // Cambia la ruta según proyecto
+            window.location.href = `panelFacilitador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
         });
 
         // 6. Enviar acciones del facilitador al servidor

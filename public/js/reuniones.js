@@ -1,5 +1,7 @@
 const params = new URLSearchParams(window.location.search);
-const ID_PROYECTO = Number(params.get("proyecto")) || 1;
+const proyectoGuardado = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+const ID_PROYECTO = proyectoGuardado?.id || Number(params.get("proyecto")) || 1;
 
 let cacheReuniones = [];
 let vistaActualReuniones = 'activas';
@@ -115,8 +117,8 @@ function cambiarVistaReuniones(vista) {
   renderizarSeccionReuniones();
 }
 
-//despliega panel lateral de detalles con las historias 
-async function verDetallesReunion(idReunion, idSprint, nombre, fecha, estado) {
+//despliega panel lateral de detalles con las historias
+async function verDetallesReunion(idSprint, nombre, fecha, estado) {
   const panelLateral = document.getElementById("panelDetallesReunionLateral");
   if (!panelLateral) return;
 
@@ -130,7 +132,10 @@ async function verDetallesReunion(idReunion, idSprint, nombre, fecha, estado) {
     const historias = resJson.data || [];
 
     historiasHTML = historias.length > 0 
-      ? historias.map(h => `<div style="font-size: 13px; margin-bottom: 4px; color: #333;">• <strong>PB-${h.id}</strong> ${h.nombre}</div>`).join('')
+      ? historias.map(h => {
+          const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+          return `<div style="font-size: 13px; margin-bottom: 4px; color: #333;">• <strong>PB-${numMostrar}</strong> ${h.nombre}</div>`;
+        }).join('')
       : '<span style="font-size: 13px; color: #666;">Sin historias registradas</span>';
   } catch (e) {
     historiasHTML = '<span style="font-size: 13px; color: red;">Error al cargar historias</span>';
