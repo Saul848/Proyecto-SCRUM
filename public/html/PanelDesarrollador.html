@@ -14,10 +14,15 @@
     <link rel="stylesheet" href="../css/modalSprintBacklog.css">
     <link rel="stylesheet" href="../css/productBacklogDesarrollador.css">
     <link rel="stylesheet" href="../css/modalSubirMaterial.css">
+    <link rel="stylesheet" href="../css/sprintPlanning.css">
+    <link rel="stylesheet" href="../css/reuniones.css">
     <title>Desarrollador - Panel Principal</title>
     <!-- <script>
         const ROL_ACTUAL = "desarrollador";
-    </script> -->
+    </script>
+
+    <!-- Carga la librería cliente de Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -582,6 +587,16 @@
 
     </div>
 
+  <!-- MODAL: REUNIRSE (Desarrollador) -->
+  <div id="modal-reuniones" class="modal-class" style="display: none;">
+    <div class="area-fondo" style="padding: 20px;">
+      <!--las tarjetas de reuniones se inyectarán aquí automáticamente -->
+    </div>
+  </div>
+  <!-- Contenedor dinámico para la vista de Sprint Planning -->
+  <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
+
+  <!-- Scripts por separado --> 
   <script src="../js/PanelDesarrollador.js"></script>
   <script src="../js/ProductBacklogDesarrollador.js"></script> 
   <script src="../js/modalSubirMaterial.js"></script>
@@ -589,5 +604,42 @@
   <script src="../js/modalSprintBacklog.js" defer></script>
   <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
+  <script src="../js/reuniones.js" defer></script>
+  <script src="../js/sprintPlanning.js" defer></script>
+  
+  <script>
+  // Función para alternar los modales en el panel del desarrollador
+    function mostrarModal(idModal, idCabecera) {
+      document.querySelectorAll(".modal-class").forEach(modal => {
+        modal.style.display = "none";
+      });
+
+      const modalSeleccionado = document.getElementById(idModal);
+      if (modalSeleccionado) {
+        modalSeleccionado.style.display = "block";
+      }
+
+      if (idCabecera) {
+        mostrarCabecera(idCabecera);
+      }
+
+      // Si abren el módulo de reuniones, cargamos automáticamente la lista
+      if (idModal === 'modal-reuniones') {
+        if (typeof cargarReuniones === 'function') {
+          cargarReuniones();
+        }
+      }
+    }
+
+    function mostrarCabecera(idCabecera) {
+      document.querySelectorAll(".cabecera-default").forEach(cabecera => {
+        cabecera.style.display = "none";
+      });
+      const cabeceraSeleccionada = document.getElementById(idCabecera);
+      if (cabeceraSeleccionada) {
+        cabeceraSeleccionada.style.display = "flex";
+      }
+    }
+  </script>
 </body>
 </html>

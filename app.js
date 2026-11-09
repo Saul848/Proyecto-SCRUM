@@ -91,6 +91,9 @@ const server = https.createServer(opciones, app);
 const setupPlanningPokerSockets = require('./controladores/planningPokerServer.js'); // Ajusta la ruta a tu archivo de sockets
 setupPlanningPokerSockets(server);
 
+const setupAsignacionTareasSockets = require('./controladores/asignacionTareasServer.js'); // (Ajusta la ruta según donde hayas guardado tu archivo)
+setupAsignacionTareasSockets(server);
+
 /**
  * 3. Ponemos a escuchar el servidor HTTPS en el puerto 8443
  */
