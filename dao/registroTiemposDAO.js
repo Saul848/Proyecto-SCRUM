@@ -3,12 +3,12 @@ class RegistroTiemposDAO {
         this.pool = pool;
     }
 
-    async crear({ actividad, idUsuario }) {
+    async crear({ actividad, idUsuario, idProyecto }) {
         const { rows } = await this.pool.query(
-            `INSERT INTO scrumbird.registro_tiempos (hora_inicio, actividad, id_usuario)
-            VALUES (NOW(), $1, $2)
+            `INSERT INTO scrumbird.registro_tiempos (hora_inicio, actividad, id_usuario, id_proyecto)
+            VALUES (NOW(), $1, $2, $3)
              RETURNING *;`,
-            [actividad, idUsuario]
+            [actividad, idUsuario, idProyecto]
         );
         return rows[0];
     }
@@ -27,13 +27,26 @@ class RegistroTiemposDAO {
         return rows[0];
     }
 
-    async listarPorUsuario(idUsuario) {
-        const { rows } = await this.pool.query(
-            `SELECT * FROM scrumbird.registro_tiempos
-            WHERE id_usuario = $1
-            ORDER BY hora_inicio DESC;`,
-            [idUsuario]
-        );
+    /**
+     * Método para recuperar la lista de registros de tiempos de un usuario especifico.
+     * idProyecto es null por defecto, si se introduce con un valor se recuperarán los 
+     * registros de tiempos de un usuario en un proyecto especifico
+     * @param {*} idUsuario 
+     * @param {*} idProyecto 
+     * @returns 
+     */
+    async listarPorUsuario(idUsuario, idProyecto = null) {
+        let query = `SELECT * FROM scrumbird.registro_tiempos WHERE id_usuario = $1`;
+        const params = [idUsuario];
+
+        if (idProyecto !== null) {
+            query += ` AND id_proyecto = $2`;
+            params.push(idProyecto);
+        }
+
+        query += ` ORDER BY hora_inicio DESC;`;
+
+        const { rows } = await this.pool.query(query, params);
         return rows;
     }
 }

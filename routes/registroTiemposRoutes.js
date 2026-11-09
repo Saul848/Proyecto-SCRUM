@@ -8,6 +8,6 @@ const controlador = new RegistroTiemposControlador(new RegistroTiemposDAO(pool))
 
 router.post('/', (req, res) => controlador.crear(req, res));
 router.put('/:id/finalizar', (req, res) => controlador.finalizar(req, res));
-router.get('/usuario/:idUsuario', (req, res) => controlador.listarPorUsuario(req, res));
+router.get('/usuario/:idUsuario/:id_proyecto', (req, res) => controlador.listarPorUsuario(req, res));
 
 module.exports = router;

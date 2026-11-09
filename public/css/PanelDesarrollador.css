@@ -391,7 +391,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     color: #334155;
-    transition: background 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .dev-menu-btn:hover {
@@ -402,4 +402,89 @@ body {
     background-color: #e0f2fe;
     color: #0284c7;
     font-weight: 700;
+}
+
+/*cambios*/
+/* ==========================================
+   ESTRUCTURA ACTUAL DEL PANEL DESARROLLADOR
+   ========================================== */
+
+/* Encabezado superior */
+.dev-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 25px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+.dev-badge-rol {
+    background-color: #ff9431;
+    color: #ffffff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#dev-titulo-pagina {
+    margin: 0;
+    font-size: 24px;
+    color: #2d3748;
+}
+
+/* Contenedor principal: menú + contenido */
+.dev-main-container {
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 85px);
+    background-color: #f8fafc;
+}
+
+/* Menú lateral */
+.dev-sidebar-menu {
+    width: 250px;
+    flex-shrink: 0;
+    padding: 20px 12px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+/* Área del Product Backlog */
+.dev-main-container > .dev-product-backlog {
+    flex: 1;
+    min-width: 0;
+    padding: 25px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Área de mensajes */
+.dev-main-container > #modal-mensajes-desarrollador {
+    flex: 1;
+    min-width: 0;
+    padding: 25px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 768px) {
+    .dev-main-container {
+        flex-direction: column;
+    }
+
+    .dev-sidebar-menu {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dev-main-container > .dev-product-backlog,
+    .dev-main-container > #modal-mensajes-desarrollador {
+        width: 100%;
+    }
 }

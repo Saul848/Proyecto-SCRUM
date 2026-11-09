@@ -57,18 +57,12 @@ async function registrarUsuario(evento) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const formRegistro = document.getElementById("form-registro");
-    if (formRegistro) {
-        formRegistro.addEventListener("submit", registrarUsuario);
-    }
-});
-
 /**
  * Función para recuperar los usuarios desde el controlador
  * @returns 
  */
 async function obtenerUsuarios() {
+    
     try {
         // Generamos la solicitud
         const respuesta = await fetch(`/usuarios/scrumbird`, {
@@ -105,10 +99,11 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
 
     if(usuarios.length === 0) {
         contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
+        return;
     }
 
     const tarjetas = usuarios.map(usuario =>`
-    <button class="tarjeta-usuario" data-id="${usuario.id}">
+    <button class="tarjeta-usuario" data-id="${usuario.id}" data-nombre="${usuario.nombre}" data-email="${usuario.correo_electronico}" data-username="${usuario.nombre_de_usuario}">
         <span>${usuario.id}</span>
         <span>${usuario.nombre}</span>
         <span>${usuario.correo_electronico}</span>
@@ -116,30 +111,76 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
     </button>
     `).join("");
     console.log("filas construidas");
-    
     contenedorUsuarios.innerHTML = tarjetas;
 
-    contenedorUsuarios.addEventListener('click', (evento)=>{
+    contenedorUsuarios.addEventListener('click', async (evento)=>{
         const tarjeta= evento.target.closest('.tarjeta-usuario');
 
         if(!tarjeta) return;
 
         const idUsuario = tarjeta.dataset.id;
+        const name = tarjeta.dataset.nombre;
+        const email = tarjeta.dataset.email;
+        const username = tarjeta.dataset.username;
         console.log("Click en el usuario con id: ", idUsuario);
+        const proyectos = await listarProyectosUsuario(idUsuario);
         /**Contenido de cada tarjeta para usuario individual - plantilla: añadir lógica todavía y css */
-        const detalles = `
-            <div id="cont-detalles-usuario" class="modal-overlay">
-                <div>   
-                    <h2>Detalles del usuario: <span id="nombre-usuario"></span>> </h2>
-                    <div id="detalles-usuario">
-
-                    </div>
-                    <h2>Proyectos actuales</h2>
-                    <div id="projects-usuario">
-                    
-                    </div>
+        const tarjetasProyectos = proyectos.length === 0
+            ? "<p>Este usuario no participa en ningún proyecto.</p>"
+            : proyectos.map(p => `
+                <div class="item-card">
+                    <span class="item-nombre">${p.nombre}</span>
+                    <span class="badge badge-azul">${p.rol}</span>
                 </div>
+            `).join("");
+
+        const detalles = `
+        <div id="cont-detalles-usuario" class="modal-overlay active">
+            <div class="detalles-card">
+                <button type="button" id="btn-cerrar-detalles">&times;</button>
+                <h2>Detalles de ${username}</h2>
+
+                <div id="detalles-usuario">
+                    <p><strong>Nombre:</strong> ${name}</p>
+                    <p><strong>Usuario:</strong> ${username}</p>
+                    <p><strong>ID:</strong> ${idUsuario}</p>
+                    <p><strong>Correo:</strong> ${email}</p>
+                </div>
+
+                <h3>Proyectos actuales:</h3>
+                <div id="projects-usuario">${tarjetasProyectos}</div>
             </div>
-        `
-    })
+        </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', detalles);
+        
+        document.getElementById('btn-cerrar-detalles').addEventListener('click', () => {
+            document.getElementById('cont-detalles-usuario').remove();
+        });
+    })    
 })
+
+async function listarProyectosUsuario(idUsuario) {
+    try{
+        const proyectosDeUsuario= await fetch(`/proyectos/listarProyectosDeUsuario/${idUsuario}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        // Obtenemos los datos del JSON
+        const datos = await proyectosDeUsuario.json();
+        // Convertido a un array de proyectos
+        
+        const proyectos = Array.isArray(datos) ? datos : (datos.data || []);
+        //console.log("datos obtenidos: "+ proyectos);
+
+        return proyectos;
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error de conexión");
+        return [];
+    }
+}

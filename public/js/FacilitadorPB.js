@@ -51,8 +51,639 @@ let datosHistorias = [];
  // Índice actabasado en 0
 let currentIndexAdd = 0;
 let currentIndexMod = 0;
+//funcion prueba ale 
+window.cargarGrafica = async function (tipo) {
+ if (tipo === "sprint") {
+  await cargarBurndownSprint();
+  return;
+}
 
+if (tipo !== "product-backlog") return;
 
+  const contenedor =
+    document.getElementById("contenedor-grafica-activa");
+  const titulo =
+    document.getElementById("titulo-grafica-activa");
+  const areaDatos =
+    document.getElementById("area-tabla-datos");
+  const canvas =
+    document.getElementById("chartBurndownCanvas");
+
+  if (!contenedor || !titulo || !areaDatos || !canvas) {
+    console.error("Faltan elementos HTML de la gráfica.");
+    return;
+  }
+
+  contenedor.style.display = "block";
+  titulo.textContent = "Burndown del Product Backlog";
+  areaDatos.textContent = "Cargando…";
+
+  try {
+    if (typeof Chart === "undefined") {
+      throw new Error("Chart.js no está cargado.");
+    }
+
+    Chart.getChart(canvas)?.destroy();
+
+    const proyecto = JSON.parse(
+      sessionStorage.getItem("proyectoActivo")
+    );
+
+    const idProyecto = Number(proyecto?.id);
+
+    if (!Number.isInteger(idProyecto) || idProyecto <= 0) {
+      throw new Error("No se encontró un proyecto activo válido.");
+    }
+
+    const respuesta = await fetch(
+      `/proyectos/product-backlog-por-sprint/${idProyecto}`
+    );
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP ${respuesta.status}`);
+    }
+
+    const resultado = await respuesta.json();
+
+    if (!resultado.ok || !Array.isArray(resultado.datos)) {
+      throw new Error("Respuesta del servidor inválida.");
+    }
+
+    const sprints = resultado.datos;
+
+    if (sprints.length === 0) {
+      areaDatos.textContent = "Este proyecto todavía no tiene sprints.";
+      return;
+    }
+
+    const totalInicial = sprints.reduce(
+      (suma, sprint) => suma + Number(sprint.total_horas),
+      0
+    );
+
+    const etiquetas = [
+      "Inicio",
+      ...sprints.map(s => `Sprint ${s.no_iteracion}`)
+    ];
+
+    // Descenso ideal uniforme por sprint.
+    const ideales = etiquetas.map((_, indice) =>
+      Number(
+        (totalInicial * (1 - indice / sprints.length)).toFixed(2)
+      )
+    );
+
+    /*
+     * Inicio: esfuerzo planificado inicial.
+     * Los cierres reales quedan vacíos hasta registrar su avance.
+     * null significa "sin medición", NO cero horas.
+     */
+    
+   /* const restantes = [
+      totalInicial,
+      ...sprints.map(() => null)
+    ];
+    */
+
+  const restantes = [
+  totalInicial,
+  ...sprints.map(sprint =>
+    sprint.horas_restantes == null
+      ? null
+      : Math.round(Number(sprint.horas_restantes))
+  )
+];
+
+    const planificadas = [
+      0,
+      ...sprints.map(s => Number(s.historias_planificadas))
+    ];
+
+   const terminadas = [
+  0,
+  ...sprints.map(sprint =>
+    sprint.historias_terminadas == null
+      ? null
+      : Number(sprint.historias_terminadas)
+  )
+];
+
+    // Tabla junto a la gráfica.
+    const tabla = document.createElement("table");
+    tabla.style.width = "100%";
+    tabla.style.borderCollapse = "collapse";
+
+    const encabezado = tabla.createTHead().insertRow();
+
+    [
+      "Sprint",
+      "Horas restantes",
+      "Historias terminadas",
+      "Historias planificadas",
+      "Ideal"
+    ].forEach(texto => {
+      const th = document.createElement("th");
+      th.textContent = texto;
+      encabezado.append(th);
+    });
+
+    const cuerpo = tabla.createTBody();
+
+    etiquetas.forEach((etiqueta, indice) => {
+      const fila = cuerpo.insertRow();
+
+      [
+        etiqueta,
+        restantes[indice],
+        terminadas[indice],
+        planificadas[indice],
+        ideales[indice]
+      ].forEach(valor => {
+        const celda = fila.insertCell();
+
+        celda.textContent = valor === null
+          ? "Sin registro"
+          : typeof valor === "number"
+            ? valor.toLocaleString("es-MX", {
+                maximumFractionDigits: 2
+              })
+            : valor;
+      });
+    });
+
+    tabla.querySelectorAll("th, td").forEach(celda => {
+      celda.style.padding = "8px";
+      celda.style.borderBottom = "1px solid #dbe4ed";
+      celda.style.textAlign = "left";
+    });
+
+    const aviso = document.createElement("p");
+    aviso.textContent = sprints.some(sprint => sprint.es_prueba)
+  ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones consultadas desde la BD.";
+    areaDatos.replaceChildren(tabla, aviso);
+
+    new Chart(canvas, {
+      type: "bar",
+
+      data: {
+        labels: etiquetas,
+
+        datasets: [
+          {
+            type: "line",
+            label: "Horas restantes",
+            data: restantes,
+            borderColor: "#22c55e",
+            backgroundColor: "#22c55e",
+            pointRadius: 4,
+            tension: 0,
+            spanGaps: false,
+            yAxisID: "horas",
+            order: 0
+          },
+          {
+            type: "line",
+            label: "Ideal",
+            data: ideales,
+            borderColor: "#0284c7",
+            backgroundColor: "#0284c7",
+            pointRadius: 4,
+            tension: 0,
+            yAxisID: "horas",
+            order: 0
+          },
+          {
+            type: "bar",
+            label: "Historias planificadas",
+            data: planificadas,
+            backgroundColor: "#38bdf8",
+            yAxisID: "historias",
+            order: 1
+          },
+          {
+            type: "bar",
+            label: "Historias terminadas",
+            data: terminadas,
+            backgroundColor: "#86efac",
+            yAxisID: "historias",
+            order: 1
+          }
+        ]
+      },
+
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+          title: {
+            display: true,
+            text: "BURNDOWN"
+          },
+          legend: {
+            position: "bottom"
+          }
+        },
+
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Sprint"
+            }
+          },
+
+          horas: {
+            type: "linear",
+            position: "left",
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "Horas calculadas"
+            }
+          },
+
+          historias: {
+            type: "linear",
+            position: "right",
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            },
+            grid: {
+              drawOnChartArea: false
+            },
+            title: {
+              display: true,
+              text: "Cantidad de historias"
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error cargando burndown:", error);
+    areaDatos.textContent = error.message;
+  }
+};
+async function cargarBurndownSprint() {
+  const contenedor =
+    document.getElementById("contenedor-grafica-activa");
+  const titulo =
+    document.getElementById("titulo-grafica-activa");
+  const areaDatos =
+    document.getElementById("area-tabla-datos");
+  const canvas =
+    document.getElementById("chartBurndownCanvas");
+
+  if (!contenedor || !titulo || !areaDatos || !canvas) {
+    console.error("Faltan elementos HTML de la gráfica.");
+    return;
+  }
+
+  contenedor.style.display = "block";
+  titulo.textContent = "Burndown del Sprint";
+  areaDatos.textContent = "Cargando sprints…";
+
+  try {
+    if (typeof Chart === "undefined") {
+      throw new Error("Chart.js no está cargado.");
+    }
+
+    Chart.getChart(canvas)?.destroy();
+
+    const proyecto = JSON.parse(
+      sessionStorage.getItem("proyectoActivo")
+    );
+
+    const idProyecto = Number(proyecto?.id);
+
+    if (!Number.isInteger(idProyecto) || idProyecto <= 0) {
+      throw new Error("No se encontró un proyecto activo válido.");
+    }
+
+    const respuesta = await fetch(
+      `/proyectos/product-backlog-por-sprint/${idProyecto}`
+    );
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP ${respuesta.status}`);
+    }
+
+    const resultado = await respuesta.json();
+
+    if (!resultado.ok || !Array.isArray(resultado.datos)) {
+      throw new Error("Respuesta del servidor inválida.");
+    }
+
+    const sprints = resultado.datos;
+
+    if (!sprints.length) {
+      areaDatos.textContent = "Este proyecto no tiene sprints.";
+      return;
+    }
+
+    // Selector de sprint.
+    const etiquetaSelector = document.createElement("label");
+    etiquetaSelector.textContent = "Selecciona un sprint: ";
+
+    const selector = document.createElement("select");
+    selector.style.padding = "8px";
+    selector.style.marginBottom = "12px";
+
+    sprints.forEach(sprint => {
+      const opcion = document.createElement("option");
+      opcion.value = String(sprint.id_sprint);
+      opcion.textContent = `Sprint ${sprint.no_iteracion}`;
+      selector.append(opcion);
+    });
+
+    etiquetaSelector.append(selector);
+
+    const detalle = document.createElement("p");
+    const zonaTabla = document.createElement("div");
+    zonaTabla.style.maxHeight = "280px";
+    zonaTabla.style.overflowY = "auto";
+
+    const aviso = document.createElement("p");
+    aviso.textContent =
+      "Simulación: las fechas y las horas iniciales vienen de la BD. " +
+      "Los avances diarios son datos de prueba.";
+
+    areaDatos.replaceChildren(
+      etiquetaSelector,
+      detalle,
+      zonaTabla,
+      aviso
+    );
+
+    async function pintarSprint() {
+      Chart.getChart(canvas)?.destroy();
+
+      try {
+        const sprint = sprints.find(
+          s => String(s.id_sprint) === selector.value
+        );
+
+        if (!sprint) {
+          throw new Error("No se encontró el sprint seleccionado.");
+        }
+
+        const totalInicial = Number(sprint.total_horas);
+
+        if (!Number.isFinite(totalInicial) || totalInicial < 0) {
+          throw new Error("Las horas del sprint no son válidas.");
+        }
+
+        // Fechas UTC para evitar cambios por zona horaria.
+        function convertirFecha(valor) {
+          if (
+            typeof valor !== "string" ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(valor)
+          ) {
+            return NaN;
+          }
+
+          return Date.parse(`${valor}T00:00:00Z`);
+        }
+
+        const inicio = convertirFecha(sprint.fecha_inicio);
+        const fin = convertirFecha(sprint.fecha_fin);
+
+        if (!Number.isFinite(inicio) || !Number.isFinite(fin)) {
+          throw new Error("El sprint necesita fechas de inicio y fin válidas.");
+        }
+
+        if (fin < inicio) {
+          throw new Error("La fecha final es anterior a la inicial.");
+        }
+
+        const milisegundosDia = 86400000;
+
+        // Se incluyen ambos extremos y todos los días calendario.
+        const cantidadDias =
+          Math.round((fin - inicio) / milisegundosDia) + 1;
+
+        const etiquetas = ["Inicio"];
+        const fechas = ["Antes del primer día"];
+
+        for (let indice = 0; indice < cantidadDias; indice++) {
+          const fecha = new Date(
+            inicio + indice * milisegundosDia
+          );
+
+          etiquetas.push(`Día ${indice + 1}`);
+
+          fechas.push(
+            fecha.toLocaleDateString("es-MX", {
+              timeZone: "UTC"
+            })
+          );
+        }
+
+        // Ideal: reducción uniforme al cierre de cada día.
+       // Ideal: redondeado al entero más cercano.
+const ideales = etiquetas.map((_, indice) =>
+  Math.round(totalInicial * (1 - indice / cantidadDias))
+);
+
+        /*
+         * AVANCES DE PRUEBA POR DÍA.   
+         * Los días sin valor se simulan con avance cero.
+         */
+       const respuestaMediciones = await fetch(
+  `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
+);
+
+if (!respuestaMediciones.ok) {
+  throw new Error(
+    `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
+  );
+}
+
+const resultadoMediciones = await respuestaMediciones.json();
+
+if (
+  !resultadoMediciones.ok ||
+  !Array.isArray(resultadoMediciones.datos)
+) {
+  throw new Error("Las mediciones diarias no tienen el formato esperado.");
+}
+
+// Si se cambió el selector mientras cargaba, ignorar esta respuesta.
+if (selector.value !== String(sprint.id_sprint)) return;
+
+const mediciones = resultadoMediciones.datos;
+
+const porFecha = new Map(
+  mediciones.map(medicion => [
+    medicion.fecha,
+    Number(medicion.horas_restantes)
+  ])
+);
+
+const restantes = [totalInicial];
+const avancesAplicados = [0];
+
+for (let indice = 0; indice < cantidadDias; indice++) {
+  const fechaISO = new Date(
+    inicio + indice * milisegundosDia
+  ).toISOString().slice(0, 10);
+
+  const pendiente = porFecha.has(fechaISO)
+    ? porFecha.get(fechaISO)
+    : null;
+
+  const anterior = restantes[restantes.length - 1];
+
+  // Solo calcular la reducción si ambos puntos tienen medición.
+  const reduccion =
+    pendiente !== null && anterior !== null
+      ? anterior - pendiente
+      : null;
+
+  restantes.push(pendiente);
+  avancesAplicados.push(reduccion);
+}
+
+aviso.textContent = mediciones.some(m => m.es_prueba)
+  ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones diarias consultadas desde la BD.";
+
+        titulo.textContent =
+          `Burndown del Sprint ${sprint.no_iteracion}`;
+
+        detalle.textContent =
+          `Horas iniciales: ${totalInicial}. ` +
+          `Duración: ${cantidadDias} días calendario. ` +
+          `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
+
+        const tabla = document.createElement("table");
+        tabla.style.width = "100%";
+        tabla.style.borderCollapse = "collapse";
+
+        const encabezado = tabla.createTHead().insertRow();
+
+        [
+          "Día",
+          "Fecha",
+          "Reducción de pendientes (h)",
+          "Horas restantes",
+          "Ideal"
+        ].forEach(texto => {
+          const th = document.createElement("th");
+          th.textContent = texto;
+          encabezado.append(th);
+        });
+
+        const cuerpo = tabla.createTBody();
+
+        etiquetas.forEach((etiqueta, indice) => {
+          const fila = cuerpo.insertRow();
+
+          [
+            etiqueta,
+            fechas[indice],
+            avancesAplicados[indice],
+            restantes[indice],
+            ideales[indice]
+          ].forEach(valor => {
+            const celda = fila.insertCell();
+
+            celda.textContent =
+                valor === null
+                    ? "Sin registro"
+                    : typeof valor === "number"
+                    ? valor.toLocaleString("es-MX", {
+                        maximumFractionDigits: 0
+                        })
+                    : valor;
+          });
+        });
+
+        tabla.querySelectorAll("th, td").forEach(celda => {
+          celda.style.padding = "8px";
+          celda.style.borderBottom = "1px solid #dbe4ed";
+          celda.style.textAlign = "left";
+        });
+
+        zonaTabla.replaceChildren(tabla);
+
+        new Chart(canvas, {
+          type: "line",
+
+          data: {
+            labels: etiquetas,
+            datasets: [
+              {
+                label: "Horas restantes",
+                data: restantes,
+                borderColor: "#22c55e",
+                backgroundColor: "#22c55e",
+                pointRadius: 3,
+                tension: 0,
+                fill: false,
+                spanGaps: false
+              },
+              {
+                label: "Ideal",
+                data: ideales,
+                borderColor: "#0284c7",
+                backgroundColor: "#0284c7",
+                pointRadius: 3,
+                tension: 0,
+                fill: false
+              }
+            ]
+          },
+
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+              title: {
+                display: true,
+                text: `BURNDOWN — SPRINT ${sprint.no_iteracion}`
+              },
+              legend: {
+                position: "bottom"
+              }
+            },
+
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Días del sprint"
+                }
+              },
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Horas pendientes"
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error dibujando sprint:", error);
+        detalle.textContent = error.message;
+        zonaTabla.replaceChildren();
+      }
+    }
+
+    selector.addEventListener("change", pintarSprint);
+    pintarSprint();
+
+  } catch (error) {
+    console.error("Error cargando sprint:", error);
+    areaDatos.textContent = error.message;
+  }
+}
 /**
  * Función para renderizar dinámicamente las historias de usuario en el DOM
  */
@@ -594,397 +1225,6 @@ async function agregarHistoriaUsuario(idProyecto) {
 function cargar_cabecera_inicial() {
     document.getElementById("cabecera-mensajes").style.display = "block";
 }
-///////////////////////////
-///////////////////////////
-// TABLERO KANVAN
-
-/**
- * Realiza una petición GET al servidor para obtener todas las historias de usuario 
- * del sprint actual correspondientes al proyecto (facilitador/cliente)
- * 
- * @async
- * @function obtenerHistoriasKanvan
- * @param {number} idProyecto - Identificador único del proyecto.
- * @param {number} idSprint - Identificador único del sprint actual.
- * @returns {Promise<Array<Object>>} Una promesa que resuelve con un arreglo de objetos que contienen 
- *                                   las historias del sprint, o un arreglo vacío si ocurre un error.
- */
-async function obtenerHistoriasKanvan(idProyecto, idSprint) {
-    try {
-        const respuesta = await fetch(`/historias/historiasSprint/${idProyecto}/${idSprint}`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-
-        if (!respuesta.ok) {
-            alert("Ocurrió un error al obtener las historias del sprint.");
-            return [];
-        }
-
-        const datos = await respuesta.json();
-        return datos.data || [];
-    } catch (error) {
-        console.error("Error de red al conectar con el servidor:", error);
-        return [];
-    }
-}
-
-/**
- * Realiza una petición GET al servidor para obtener únicamente las historias 
- * asignadas a un desarrollador específico dentro del proyecto y sprint actual.
- * 
- * @async
- * @function obtenerHistoriasKanvanDesarrollador
- * @param {number} idProyecto - Identificador único del proyecto.
- * @param {number} idSprint - Identificador único del sprint actual.
- * @param {number} idDesarrollador - Identificador único del usuario (desarrollador).
- * @returns {Promise<Array<Object>>} Una promesa que resuelve con un arreglo de objetos que contienen 
- *                                   las historias asignadas al desarrollador, o un arreglo vacío si falla.
- */
-async function obtenerHistoriasKanvanDesarrollador(idProyecto, idSprint, idDesarrollador) {
-    try {
-        const respuesta = await fetch(`/historias/historiasSprintDev/${idProyecto}/${idSprint}/${idDesarrollador}`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-
-        if (!respuesta.ok) {
-            alert("Ocurrió un error al obtener las historias del desarrollador.");
-            return [];
-        }
-
-        const datos = await respuesta.json();
-        return datos.data || [];
-    } catch (error) {
-        console.error("Error de red al conectar con el servidor:", error);
-        return [];
-    }
-}
-
-// Rol del usuario actual logueado (puedes cambiarlo a "desarrollador", "facilitador" o "cliente")
-const ROL_ACTUAL = "desarrollador"; //CAMBIAR POR LOCAL_STORAGE
-let historiasDelSprint = [];
-
-async function cargarKanvan(){
-    if (ROL_ACTUAL === "facilitador"  || ROL_ACTUAL === "cliente") {
-        // CAMBIAR A SPRINT Y PROYECTO ACTUALES
-        historiasDelSprint = await obtenerHistoriasKanvan(1, 1);
-        if(historiasDelSprint.length === 0){
-            alert("El Sprint esta vacio");
-        }
-    } else if (ROL_ACTUAL === "desarrollador") {
-        // CAMBIAR A SPRINT Y PROYECTO ACTUALES Y ID DESARROLLADOR
-        historiasDelSprint = await obtenerHistoriasKanvanDesarrollador(1, 1, 1);
-        if(historiasDelSprint.length === 0){
-            alert("El Sprint esta vacio");
-        }
-    } else {
-        alert("ROL no especificado o no valido")
-    }
-
-    inicializarTablero();
-    inicializarBuscadorKanban();
-}
-
-let tarjetaArrastrada = null;
-let estadoOrigen = null;
-
-function inicializarTablero() {
-    const columnas = document.querySelectorAll(".columna-kanban");
-
-    columnas.forEach(columna => {
-        columna.innerHTML = "";
-
-        columna.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            columna.classList.add("drag-over");
-        });
-
-        columna.addEventListener("dragleave", () => {
-            columna.classList.remove("drag-over");
-        });
-
-        columna.addEventListener("drop", manejarDrop);
-    });
-
-    historiasDelSprint.forEach(historia => {
-        const tarjeta = crearTarjeta(historia);
-
-        // Admite los nombres de propiedades que devuelve tu procedimiento
-        const estado = historia.estado_actual ?? historia.estado;
-
-        const columnaDestino = document.querySelector(
-            `.columna-kanban[data-estado="${estado}"]`
-        );
-
-        if (columnaDestino) {
-            // LÓGICA DE ORDENAMIENTO:
-            // Si es prioritaria, va hasta arriba. Si no, se coloca al final (debajo de las prioritarias).
-            if (historia.prioridad) {
-                // Inserta la tarjeta antes de la primera tarjeta existente en la columna
-                const primeraTarjeta = columnaDestino.querySelector(".tarjeta-historia");
-                if (primeraTarjeta) {
-                    columnaDestino.insertBefore(tarjeta, primeraTarjeta);
-                } else {
-                    columnaDestino.appendChild(tarjeta);
-                }
-            } else {
-                // Las no prioritarias se van al final de la columna (debajo de las prioritarias)
-                columnaDestino.appendChild(tarjeta);
-            }
-        }
-    });
-}
-
-function crearTarjeta(historia) {
-    const card = document.createElement("div");
-
-    // El procedimiento almacenado devuelve historia_id
-    const historiaId = historia.historia_id ?? historia.id;
-    const titulo = historia.titulo ?? historia.descripcion ?? "Historia sin título";
-    console.log(historia);
-
-    // Asignación de clase según si es prioritaria (boolean)
-    if (historia.prioridad) {
-        card.classList.add("prioritaria");
-    } else {
-        card.classList.add("no-prioritaria");
-    }
-    
-    card.classList.add("tarjeta-historia");
-    card.setAttribute("draggable", "true");
-    card.dataset.id = historiaId;
-
-    card.innerHTML = `
-        <h4 class="historia-titulo">${titulo}</h4>
-        <div class="tarjeta-footer">
-            <button class="btn-detalles"
-                onclick="verDetallesHistoriaKanban(${historiaId})">
-                Ver detalles &rarr;
-            </button>
-        </div>
-    `;
-
-    card.addEventListener("dragstart", (e) => {
-         console.log(historiasDelSprint);
-
-        document.getElementById("responsableHistoria").value = historia.nombre_responsable;
-        tarjetaArrastrada = card;
-        estadoOrigen = card.parentElement.dataset.estado;
-
-        card.classList.add("dragging");
-        e.dataTransfer.setData("text/plain", historiaId);
-    });
-
-    card.addEventListener("dragend", () => {
-        card.classList.remove("dragging");
-        tarjetaArrastrada = null;
-        estadoOrigen = null;
-    });
-
-    return card;
-}
-
-async function manejarDrop(e) {
-    e.preventDefault();
-    this.classList.remove("drag-over");
-
-    if (!tarjetaArrastrada) return;
-
-    const tarjeta = tarjetaArrastrada;
-    const estadoAnterior = estadoOrigen;
-    const columnaOrigen = tarjeta.parentElement;
-    const columnaDestino = this;
-
-    const estadoDestino = columnaDestino.dataset.estado;
-
-    if (estadoDestino === estadoAnterior) return;
-
-    // Reglas para el facilitador
-    if (ROL_ACTUAL === "facilitador") {
-        const esOrigenValido = estadoAnterior === "en-revision";
-        const esDestinoValido =
-            estadoDestino === "terminado" ||
-            estadoDestino === "en-progreso";
-
-        if (!esOrigenValido || !esDestinoValido) {
-            alert(
-                "Solo puedes mover historias desde 'En revisión' " +
-                "hacia 'Terminado' o regresar a 'En progreso'."
-            );
-            return;
-        }
-    }
-    // Reglas para el desarrollador
-    else if (ROL_ACTUAL === "desarrollador") {
-        const esOrigenValido =
-            estadoAnterior === "por-empezar" ||
-            estadoAnterior === "en-progreso";
-
-        const esDestinoValido =
-            estadoDestino === "en-progreso" ||
-            estadoDestino === "en-revision";
-
-        if (!esOrigenValido || !esDestinoValido) {
-            alert(
-                "Solo puedes mover historias desde 'Por empezar' " +
-                "o 'En progreso' hacia 'En progreso' o 'En revisión'."
-            );
-            return;
-        }
-    } else {
-        alert("Acción denegada");
-        return;
-    }
-
-    const historiaId = Number(tarjeta.dataset.id);
-
-    // Movimiento visual provisional respetando la prioridad al soltar
-    const esPrioritaria = tarjeta.classList.contains("prioritaria");
-    if (esPrioritaria) {
-        const primeraTarjeta = columnaDestino.querySelector(".tarjeta-historia");
-        if (primeraTarjeta) {
-            columnaDestino.insertBefore(tarjeta, primeraTarjeta);
-        } else {
-            columnaDestino.appendChild(tarjeta);
-        }
-    } else {
-        columnaDestino.appendChild(tarjeta);
-    }
-
-    tarjeta.setAttribute("draggable", "false");
-
-    try {
-        const guardado = await actualizarEstadoHistoria(historiaId, 1, estadoDestino);
-
-        if (!guardado) {
-            // Revertir posición si falla la BD
-            if (esPrioritaria) {
-                const primeraTarjetaOrigen = columnaOrigen.querySelector(".tarjeta-historia");
-                if (primeraTarjetaOrigen) {
-                    columnaOrigen.insertBefore(tarjeta, primeraTarjetaOrigen);
-                } else {
-                    columnaOrigen.appendChild(tarjeta);
-                }
-            } else {
-                columnaOrigen.appendChild(tarjeta);
-            }
-            return;
-        }
-
-        const historiaEncontrada = historiasDelSprint.find(
-            historia =>
-                Number(historia.historia_id ?? historia.id) === historiaId
-        );
-
-        if (historiaEncontrada) {
-            if ("estado_actual" in historiaEncontrada) {
-                historiaEncontrada.estado_actual = estadoDestino;
-            } else {
-                historiaEncontrada.estado = estadoDestino;
-            }
-        }
-
-        console.log(
-            `BD actualizada: historia ${historiaId}, estado ${estadoDestino}`
-        );
-    } catch (error) {
-        console.error("No se pudo guardar el cambio:", error);
-        if (esPrioritaria) {
-            const primeraTarjetaOrigen = columnaOrigen.querySelector(".tarjeta-historia");
-            if (primeraTarjetaOrigen) {
-                columnaOrigen.insertBefore(tarjeta, primeraTarjetaOrigen);
-            } else {
-                columnaOrigen.appendChild(tarjeta);
-            }
-        } else {
-            columnaOrigen.appendChild(tarjeta);
-        }
-        alert("Ocurrió un error. La tarjeta regresará a su columna original.");
-    } finally {
-        tarjeta.setAttribute("draggable", "true");
-    }
-}
-
-async function actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
-    try {
-        const respuesta = await fetch(`/historias/estado/${idHistoria}/${idProyecto}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                nuevoEstado
-            })
-        });
-
-        // Evita fallos si el servidor no devuelve JSON válido.
-        const resultado = await respuesta.json();
-
-        if (!respuesta.ok || resultado.success === false) {
-            alert(
-                resultado.mensaje ||
-                resultado.message ||
-                "Error al actualizar el estado."
-            );
-
-            return false;
-        }
-
-        alert("Estado actualizado correctamente");
-        return true;
-
-    } catch (error) {
-        console.error("Error al guardar modificaciones:", error);
-        alert("Error de conexión al guardar los cambios.");
-        return false;
-    }
-}
-
-/**
- * Inicializa el comportamiento de búsqueda en tiempo real para el tablero Kanban.
- * Escucha los eventos de entrada del usuario en el input de búsqueda y filtra
- * de forma dinámica las tarjetas visibles según el título o contenido coincidente.
- * 
- * @function inicializarBuscadorKanban
- * @returns {void} No retorna ningún valor.
- */
-function inicializarBuscadorKanban() {
-    const inputBusqueda = document.getElementById("inputBusquedaKanban");
-    
-    if (!inputBusqueda) return;
-
-    inputBusqueda.addEventListener("input", (e) => {
-        const textoBusqueda = e.target.value.toLowerCase().trim();
-        const tarjetas = document.querySelectorAll(".tarjeta-historia");
-
-        tarjetas.forEach(tarjeta => {
-            const tituloElemento = tarjeta.querySelector(".historia-titulo");
-            const textoTitulo = tituloElemento ? tituloElemento.textContent.toLowerCase() : "";
-            const contenidoCompleto = tarjeta.textContent.toLowerCase();
-
-            // Si el título o el contenido incluyen lo que escribió el usuario, se muestra; si no, se oculta
-            if (textoTitulo.includes(textoBusqueda) || contenidoCompleto.includes(textoBusqueda)) {
-                tarjeta.style.display = ""; 
-            } else {
-                tarjeta.style.display = "none"; 
-            }
-        });
-    });
-}
-
-// Inicializar al cargar el DOM
-document.addEventListener("DOMContentLoaded", cargarKanvan);
-
-// TERMINO TABLERO KANVAN
-////////////////////////////////
-////////////////////////////////
-
 
 cargar_cabecera_inicial();
 
