@@ -1,11 +1,40 @@
 let historiaActualEvidencias = null;
 
+async function asegurarModalCargadoEvidenciaHistoria() {
+    // Si ya existe en el DOM, no hace nada
+    if (document.getElementById("modal-evidencias-historia-kanban")) return;
+
+    try {
+        // Asegúrate de poner la ruta correcta hacia tu archivo .html separado
+        const respuesta = await fetch('../html/modalEvidenciaHistoria.html');
+        if (!respuesta.ok) {
+            console.error("No se pudo cargar el archivo HTML del modal.");
+            return;
+        }
+        const html = await respuesta.text();
+
+        //Inyectarlo dentro de la zona de trabajo para mantener orden
+        const zonaTrabajo = document.getElementById("zonaDeTrabajo");
+        if (zonaTrabajo) {
+            zonaTrabajo.insertAdjacentHTML('beforeend', html);
+        } else {
+            // Fallback por si la zona de trabajo no se encuentra
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+    } catch (error) {
+        console.error("Error de red al intentar cargar el modal:", error);
+    }
+}
+
 /**
  * Abre el modal de evidencias de una historia.
  */
-async function abrirModalEvidencias(historiaId) {
+async function abrirModalEvidenciasHistoria(historiaId) {
+    // Asegurar que el HTML exista antes de intentar rellenarlo
+    await asegurarModalCargadoEvidenciaHistoria();
+
     const historia = historiasDelSprint.find(
-        h => Number(h.historia_id ?? h.id) === Number(historiaId)
+        h => Number(h.historia_id) === Number(historiaId)
     );
 
     if (!historia) {
@@ -15,90 +44,69 @@ async function abrirModalEvidencias(historiaId) {
 
     historiaActualEvidencias = historia;
 
-    mostrarModal("modal-evidencias-historia-kanban");
-
     document.getElementById(
         "kanban-evidencias-id-historia-num"
     ).textContent = historiaId;
 
-    const estado = historia.estado_actual ?? historia.estado ?? "En progreso";
+    const estado = historia.estado_actual;
 
     document.getElementById(
         "kanban-evidencias-badge-estado"
     ).textContent = estado;
 
-    aplicarReglasPermisosYEstado(estado);
+    aplicarReglasPermisosYEstadoHistoria(estado);
+    mostrarModal("modal-evidencias-historia-kanban");
 
-    const idProyecto = historia.id_proyecto ?? 1;
-    const idHistoria = historia.historia_id ?? historia.id;
+    const idProyecto = proyectoActualKanban.id;
+    const idHistoria = historia.historia_id;
 
-    await cargarArchivosEvidencias(idProyecto, idHistoria);
+    await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 }
 
 /**
  * Configura la interfaz según el rol y el estado.
  */
-function aplicarReglasPermisosYEstado(estado) {
-    const esTerminada = ["terminado", "terminada"].includes(
-        String(estado).toLowerCase()
-    );
+function aplicarReglasPermisosYEstadoHistoria(estado) {
+    const esTerminada = ["terminado", "terminada"].includes(String(estado).toLowerCase());
+    const puedeSubir = ROL_ACTUAL === "desarrollador" && !esTerminada;
 
-    const zonaCarga = document.getElementById(
-        "kanban-evidencias-zona-carga"
-    );
+    const zona = document.getElementById("kanban-evidencias-zona-carga");
+    const input = document.getElementById("kanban-evidencias-input-file");
+    const alerta = document.getElementById("kanban-evidencias-alerta");
+    const texto = document.getElementById("kanban-evidencias-alerta-texto");
 
-    const inputArchivo = document.getElementById(
-        "kanban-evidencias-input-file"
-    );
+    zona.style.display = puedeSubir ? "" : "none";   // no depende del CSS
+    input.disabled = !puedeSubir;
+    zona.onclick = puedeSubir ? () => input.click() : null;
 
-    const alertaTexto = document.getElementById(
-        "kanban-evidencias-alerta-texto"
-    );
-
-    const alerta = document.getElementById(
-        "kanban-evidencias-alerta"
-    );
-
-    const puedeSubir =
-        ROL_ACTUAL === "desarrollador" && !esTerminada;
-
-    zonaCarga.classList.toggle("bloqueado", !puedeSubir);
-    inputArchivo.disabled = !puedeSubir;
-
-    // Evita acumular eventos onclick al abrir diferentes historias.
-    zonaCarga.onclick = puedeSubir
-        ? () => inputArchivo.click()
-        : null;
-
+    alerta.classList.remove("info", "bloqueado");
     if (esTerminada) {
         alerta.classList.add("bloqueado");
-        alertaTexto.textContent =
-            "Historia terminada: no se pueden subir ni borrar evidencias.";
-    } else if (ROL_ACTUAL === "facilitador" || ROL_ACTUAL === "cliente") {
-        alerta.classList.remove("bloqueado");
-        alertaTexto.textContent =
-            "Modo de solo lectura: puedes ver y descargar evidencias.";
+        texto.textContent = "Historia terminada: no se pueden subir ni borrar evidencias.";
+    } else if (!puedeSubir) {
+        alerta.classList.add("info");
+        texto.textContent = "Modo de solo lectura: puedes ver y descargar evidencias.";
     } else {
-        alerta.classList.remove("bloqueado");
-        alertaTexto.textContent =
-            "Puedes subir imágenes (PNG, JPG), PDF o ZIP (máx. 5 MB) y borrar las que tú subiste.";
+        alerta.classList.add("info");
+        texto.textContent = "Puedes subir imágenes (PNG, JPG), PDF o ZIP (máx. 5 MB) y borrar las que tú subiste.";
     }
 }
 
 /**
  * Obtiene y dibuja las evidencias de una historia.
  */
-async function cargarArchivosEvidencias(idProyecto, idHistoria) {
+async function cargarArchivosEvidenciasHistoria(idProyecto, idHistoria) {
     const lista = document.getElementById(
         "kanban-evidencias-lista-archivos"
     );
 
     lista.innerHTML = "<p>Cargando evidencias...</p>";
-
+    console.log(`/historias/evidencias/${idProyecto}/${idHistoria}`);
     try {
         const respuesta = await fetch(
             `/historias/evidencias/${idProyecto}/${idHistoria}`
         );
+
 
         if (!respuesta.ok) {
             throw new Error(`Error HTTP ${respuesta.status}`);
@@ -128,9 +136,7 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
         }
 
         const estado = String(
-            historiaActualEvidencias.estado_actual ??
-            historiaActualEvidencias.estado ??
-            ""
+            historiaActualEvidencias.estado_actual
         ).toLowerCase();
 
         const esTerminada = ["terminado", "terminada"].includes(estado);
@@ -141,31 +147,33 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
 
             const esAutor =
                 Number(archivo.id_usuario_subio) ===
-                Number(window.USUARIO_ACTUAL_ID ?? 1);
+                Number(usuarioActualKanban.id);
 
+            // 1. Botón de descarga para todos los roles
             let botones = `
-                <button type="button"
-                    class="kanban-btn-accion kanban-btn-descargar">
-                    Descargar
-                </button>
-            `;
+    <button type="button" class="kanban-btn-accion kanban-btn-descargar">
+        Descargar
+    </button>
+`;
 
-            if (
-                ROL_ACTUAL === "desarrollador" &&
-                esAutor &&
-                !esTerminada
-            ) {
-                botones += `
-                    <button type="button"
-                        class="kanban-btn-accion kanban-btn-borrar">
-                        Borrar
-                    </button>
-                `;
-            } else if (ROL_ACTUAL === "desarrollador" && !esAutor) {
-                botones += `
-                    <span class="kanban-lbl-bloqueado">Ajena</span>
-                `;
+            // 2. Limpiar y verificar el rol actual de forma estricta
+            const rolLimpio = String(ROL_ACTUAL ?? "").trim().toLowerCase();
+
+            // SI NO ES DESARROLLADOR (ej. facilitador o cliente), JAMÁS se agrega el botón de borrar
+            if (rolLimpio === "desarrollador") {
+                if (esAutor && !esTerminada) {
+                    botones += `
+                        <button type="button" class="kanban-btn-accion kanban-btn-borrar">
+                            Borrar
+                        </button>
+                    `;
+                } else if (!esAutor) {
+                    botones += `
+                        <span class="kanban-lbl-bloqueado">Ajena</span>
+                    `;
+                }
             }
+            // Si el rol es "facilitador", "cliente" o cualquier otro, el bloque anterior se omite por completo y SOLO tendrá el botón de Descargar.
 
             // Determinar icono según la extensión del archivo
             const nombreLower = archivo.nombre.toLowerCase();
@@ -199,19 +207,19 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
 
             item.querySelector(".kanban-evidencias-item-info")
                 .addEventListener("click", () => {
-                    mostrarVistaPrevia(archivo.url, archivo.nombre);
+                    mostrarVistaPreviaHistoria(archivo.url, archivo.nombre);
                 });
 
             item.querySelector(".kanban-btn-descargar")
                 .addEventListener("click", () => {
-                    descargarEvidencia(archivo.url, archivo.nombre);
+                    descargarEvidenciaHistoria(archivo.url, archivo.nombre);
                 });
 
             const botonBorrar = item.querySelector(".kanban-btn-borrar");
 
             if (botonBorrar) {
                 botonBorrar.addEventListener("click", () => {
-                    borrarEvidencia(archivo.nombre);
+                    borrarEvidenciaHistoria(archivo.nombre);
                 });
             }
 
@@ -225,71 +233,104 @@ async function cargarArchivosEvidencias(idProyecto, idHistoria) {
     }
 }
 
+
 /**
  * Muestra la vista previa del archivo (imagen, PDF o aviso para ZIP).
  */
-function mostrarVistaPrevia(urlArchivo, nombreArchivo) {
+function mostrarVistaPreviaHistoria(urlArchivo, nombreArchivo) {
     const contenedor = document.getElementById(
         "kanban-evidencias-preview-content"
     );
 
+    if (!contenedor) return;
+
     contenedor.innerHTML = "";
 
-    const nombreLower = nombreArchivo.toLowerCase();
+    const extension = nombreArchivo
+        .substring(nombreArchivo.lastIndexOf('.'))
+        .toLowerCase();
 
-    if (nombreLower.endsWith(".pdf")) {
-        // Vista previa para PDF usando un objeto <embed> o <iframe>
-        const embed = document.createElement("embed");
-        embed.src = urlArchivo;
-        embed.type = "application/pdf";
-        embed.className = "preview-pdf-real"; // Asegúrate de definir estilos si es necesario
-
-        const nombre = document.createElement("span");
-        nombre.className = "preview-nombre-archivo";
-        nombre.textContent = nombreArchivo;
-
-        contenedor.append(embed, nombre);
-    } else if (nombreLower.endsWith(".zip")) {
-        // Vista previa genérica para ZIP (no se puede renderizar directamente)
-        contenedor.innerHTML = `
-            <div class="preview-icono-default">&#128230;</div>
-            <span class="preview-nombre-archivo">${nombreArchivo}</span>
-            <span class="preview-sub-text">
-                Los archivos comprimidos ZIP no tienen vista previa directa. Puedes descargarlos.
-            </span>
-        `;
-    } else {
-        // Vista previa para imágenes (PNG, JPG, JPEG)
+    if (['.png', '.jpg', '.jpeg'].includes(extension)) {
+        // Vista previa para imágenes
         const imagen = document.createElement("img");
         imagen.src = urlArchivo;
         imagen.alt = nombreArchivo;
         imagen.className = "preview-imagen-real";
 
-        const nombre = document.createElement("span");
-        nombre.className = "preview-nombre-archivo";
-        nombre.textContent = nombreArchivo;
+        contenedor.appendChild(imagen);
 
-        contenedor.append(imagen, nombre);
+    } else if (extension === '.pdf') {
+        // Icono y botón para abrir PDF
+        const iconoPdf = document.createElement("div");
+        iconoPdf.className = "preview-icono-default";
+        iconoPdf.textContent = "📄";
+
+        const btnVerPdf = document.createElement("a");
+        btnVerPdf.href = urlArchivo;
+        btnVerPdf.target = "_blank";
+        btnVerPdf.rel = "noopener noreferrer";
+        btnVerPdf.className = "btn-modal-cancelar";
+        btnVerPdf.style.marginTop = "5px";
+        btnVerPdf.style.textDecoration = "none";
+        btnVerPdf.textContent = "Ver PDF";
+
+        contenedor.append(iconoPdf, btnVerPdf);
+
+    } else if (extension === '.zip') {
+        // Icono y botón para descargar ZIP
+        const iconoZip = document.createElement("div");
+        iconoZip.className = "preview-icono-default";
+        iconoZip.textContent = "📦";
+
+        const btnDescargarZip = document.createElement("a");
+        btnDescargarZip.href = urlArchivo;
+        btnDescargarZip.download = nombreArchivo;
+        btnDescargarZip.className = "btn-modal-cancelar";
+        btnDescargarZip.style.marginTop = "5px";
+        btnDescargarZip.style.textDecoration = "none";
+        btnDescargarZip.textContent = "Descargar ZIP";
+
+        contenedor.append(iconoZip, btnDescargarZip);
     }
+
+    // Nombre del archivo
+    const nombre = document.createElement("span");
+    nombre.className = "preview-nombre-archivo";
+    nombre.textContent = nombreArchivo;
+
+    contenedor.appendChild(nombre);
 }
 
 /**
  * Descarga una evidencia.
  */
-function descargarEvidencia(url, nombre) {
+function descargarEvidenciaHistoria(url, nombre) {
+    let urlCompleta = url;
+
+    // Completar URL si es una ruta relativa
+    if (!url.startsWith('http')) {
+        const base = window.location.origin;
+        urlCompleta = url.startsWith('/')
+            ? base + url
+            : base + '/' + url;
+    }
+
     const enlace = document.createElement("a");
-    enlace.href = url;
-    enlace.download = nombre;
+    enlace.href = urlCompleta;
+    enlace.download = nombre || 'evidencia';
+    enlace.setAttribute('target', '_blank');
+    enlace.rel = "noopener noreferrer";
 
     document.body.appendChild(enlace);
     enlace.click();
     enlace.remove();
 }
 
+
 /**
  * Sube una evidencia al servidor.
  */
-async function manejarSeleccionArchivo(input) {
+async function manejarSeleccionArchivoHistoria(input) {
     const archivo = input.files[0];
 
     if (!archivo || !historiaActualEvidencias) return;
@@ -340,7 +381,7 @@ async function manejarSeleccionArchivo(input) {
         return;
     }
 
-    const idProyecto = historiaActualEvidencias.id_proyecto ?? 1;
+    const idProyecto = proyectoActualKanban.id;
     const idHistoria =
         historiaActualEvidencias.historia_id ??
         historiaActualEvidencias.id;
@@ -367,7 +408,7 @@ async function manejarSeleccionArchivo(input) {
 
         alert("Evidencia subida correctamente.");
 
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
+        await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 
     } catch (error) {
         console.error("Error al subir evidencia:", error);
@@ -380,7 +421,7 @@ async function manejarSeleccionArchivo(input) {
 /**
  * Borra una evidencia por su nombre.
  */
-async function borrarEvidencia(nombreArchivo) {
+async function borrarEvidenciaHistoria(nombreArchivo) {
     if (!historiaActualEvidencias) return;
 
     const estado = String(
@@ -403,7 +444,7 @@ async function borrarEvidencia(nombreArchivo) {
         return;
     }
 
-    const idProyecto = historiaActualEvidencias.id_proyecto ?? 1;
+    const idProyecto = proyectoActualKanban.id;
     const idHistoria =
         historiaActualEvidencias.historia_id ??
         historiaActualEvidencias.id;
@@ -433,10 +474,10 @@ async function borrarEvidencia(nombreArchivo) {
 
         if (elementoVisual && elementoVisual.getAttribute("src") ===
             `/evidencias/${idProyecto}/${idHistoria}/${nombreArchivo}`) {
-            mostrarVistaPreviaPlaceholder();
+            mostrarVistaPreviaPlaceholderHistoria();
         }
 
-        await cargarArchivosEvidencias(idProyecto, idHistoria);
+        await cargarArchivosEvidenciasHistoria(idProyecto, idHistoria);
 
         alert("Evidencia borrada correctamente.");
 
@@ -446,7 +487,7 @@ async function borrarEvidencia(nombreArchivo) {
     }
 }
 
-function mostrarVistaPreviaPlaceholder() {
+function mostrarVistaPreviaPlaceholderHistoria() {
     const contenedor = document.getElementById(
         "kanban-evidencias-preview-content"
     );

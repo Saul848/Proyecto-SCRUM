@@ -106,6 +106,14 @@ class ProyectosDAO {
         );
         return rows;
     }
+
+    async listarSprintsProyecto(idProyecto){
+        const { rows } = await this.pool.query(
+            'SELECT * FROM scrumbird.sprint WHERE id_proyecto = $1;',
+            [idProyecto]
+        );
+        return rows;
+    }
 }
 
 module.exports = ProyectosDAO;
