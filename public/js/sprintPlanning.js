@@ -9,6 +9,14 @@ if (typeof window.ID_PROYECTO === 'undefined') {
 if (typeof window.ID_SPRINT === 'undefined') window.ID_SPRINT = 1;
 if (typeof window.ID_REUNION === 'undefined') window.ID_REUNION = 1;
 
+//funcion de rol
+function obtenerRolActual() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
+  const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
+  return (urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion || (esDevPorRuta ? 'desarrollador' : 'facilitador')).toLowerCase();
+}
+
 function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam) {
   const urlParams = new URLSearchParams(window.location.search);
   
