@@ -47,6 +47,16 @@ function setupAsignacionTareasSockets(server) {
         io.to(`sprint-${data.sprintId}`).emit("confirmar-sprint-cliente", data);
         });
 
+        // Retransmitir cambios en el factor o en las horas estimadas de la historia
+        socket.on("actualizar-factor-historia", (data) => {
+        socket.to(`sprint-${data.sprintId}`).emit("cambio-factor-historia-cliente", data);
+        });
+
+        // Retransmitir cambios de las fechas de la iteración
+        socket.on("disparar-cambio-fechas", (data) => {
+        socket.to(`sprint-${data.sprintId}`).emit("cambio-fechas-cliente", data);
+        });
+
         socket.on("disconnect", () => {
             console.log(`Desconectado de asignación de tareas: ${socket.id}`);
         });
