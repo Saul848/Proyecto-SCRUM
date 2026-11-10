@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desarrollador - Panel principal</title>
+    <title>Desarrollador - Panel Principal</title>
 
     <!-- Estilos -->
     <link rel="stylesheet" href="../css/PanelDesarrollador.css">
@@ -16,111 +16,19 @@
     <link rel="stylesheet" href="../css/modalSubirMaterial.css">
     <link rel="stylesheet" href="../css/sprintPlanning.css">
     <link rel="stylesheet" href="../css/reuniones.css">
-    <title>Desarrollador - Panel Principal</title>
-    <!-- <script>
-        const ROL_ACTUAL = "desarrollador";
-    </script>
 
     <!-- Carga la librería cliente de Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
 </head>
-
 <body>
-
-    <!-- ============================= -->
-    <!-- CABECERA DEL DESARROLLADOR -->
-    <!-- ============================= -->
-
-    <header class="dev-header">
-        <div class="dev-badge-rol">
-            Desarrollador
-        </div>
-
-        <h1 id="dev-titulo-pagina" class="dev-titulo-central">
-            Mensajes
-        </h1>
-
-        <button
-            id="dev-btn-iniciar"
-            class="dev-btn-iniciar"
-            type="button">
-            Iniciar una conversación
-        </button>
-    </header>
-
-
-    <!-- ============================= -->
-    <!-- CONTENEDOR PRINCIPAL -->
-    <!-- ============================= -->
-
-    <main class="dev-main-container">
-
-        <!-- MENÚ LATERAL -->
-
-        <aside class="dev-sidebar-menu">
-            <div class="dev-indice-wrapper">
-
-                <span class="dev-seccion-label">
-                    ❖ Sección
-                </span>
-
-                <ul class="dev-menu-lista">
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Mi equipo
-                        </button>
-                    </li>
-
-                    <li>
-                        <button
-                            id="dev-btn-mensajes"
-                            class="dev-menu-btn activo"
-                            type="button">
-                            Mensajes
-                        </button>
-                    </li>
-
-                    <li>
-                        <button
-                            id="dev-btn-product-backlog"
-                            class="dev-menu-btn"
-                            type="button">
-                            Product Backlog
-                        </button>
-                    </li>
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Sprint
-                        </button>
-                    </li>
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Mis tareas
-                        </button>
-                    </li>
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Reunirse
-                        </button>
-                    </li>
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Gráficas
-                        </button>
-                    </li>
-
-                    <li>
-                        <button class="dev-menu-btn" type="button">
-                            Ajustes
-                        </button>
-                    </li>
-
-                </ul>
+    <main class="dev-sidebar-menu">
+        
+        <!-- ============================= -->
+        <!-- CABECERA DEL DESARROLLADOR -->
+        <!-- ============================= -->
+        <header class="dev-header">
+            <div class="dev-badge-rol">
+                Desarrollador
             </div>
         </aside>
   </header>
@@ -297,142 +205,53 @@
 
         </section>
 
+            </section>
     </main>
-
 
     <!-- ============================= -->
     <!-- MODAL DE MATERIAL ADICIONAL -->
     <!-- ============================= -->
-
-    <div
-        id="mi-modal-evidencias-general"
-        class="modal-overlay"
-        style="display: none !important;">
-
+    <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
         <div class="modal-content">
-
-            <!-- Cabecera -->
-
             <div class="modal-header">
-
-                <button
-                    type="button"
-                    class="btn-modal-cancelar kanban-evidencias-btn-volver"
-                    onclick="cerrarMiModalGeneral(event)">
+                <button type="button" class="btn-modal-cancelar kanban-evidencias-btn-volver" onclick="cerrarMiModalGeneral(event)">
                     &lsaquo; Volver al Product Backlog
                 </button>
-
-                <span
-                    id="material-general-badge-estado"
-                    class="badge-estado general-badge">
-                    General
-                </span>
-
+                <span id="material-general-badge-estado" class="badge-estado general-badge">General</span>
             </div>
-
-
-            <!-- Mensaje informativo -->
 
             <div class="alerta-info">
-
-                <span id="material-general-alerta-texto">
-                    Material compartido para consulta y descarga.
-                </span>
-
+                <span id="material-general-alerta-texto">Material compartido para consulta y descarga.</span>
             </div>
 
-
-            <!-- Zona de carga (oculta para desarrolladores) -->
-
-            <div
-                id="material-general-zona-carga"
-                class="zona-carga"
-                style="display: none;"
-                onclick="document.getElementById('material-general-input-file').click();">
-
-                <p>
-                    <strong>
-                        Subir material adicional
-                    </strong>
-                </p>
-
-                <p>
-                    Haz clic para elegir un archivo
-                    (PNG, JPG, PDF, ZIP)
-                </p>
-
-                <input
-                    type="file"
-                    id="material-general-input-file"
-                    accept=".png,.jpg,.jpeg,.pdf,.zip"
-                    onchange="subirMaterialGeneral(this)"
-                    onclick="event.stopPropagation();">
-
+            <div id="material-general-zona-carga" class="zona-carga" style="display: none;" onclick="document.getElementById('material-general-input-file').click();">
+                <p><strong>Subir material adicional</strong></p>
+                <p>Haz clic para elegir un archivo (PNG, JPG, PDF, ZIP)</p>
+                <input type="file" id="material-general-input-file" accept=".png,.jpg,.jpeg,.pdf,.zip" onchange="subirMaterialGeneral(this)" onclick="event.stopPropagation();">
             </div>
-
-
-            <!-- Lista de archivos -->
 
             <div class="seccion-lista-archivos">
-
-                <h4 id="material-general-contador">
-                    Archivos subidos (0)
-                </h4>
-
-                <div
-                    id="material-general-lista-archivos"
-                    class="lista-archivos">
-
-                    <div class="sin-archivos">
-                        No hay materiales subidos todavía.
-                    </div>
-
+                <h4 id="material-general-contador">Archivos subidos (0)</h4>
+                <div id="material-general-lista-archivos" class="lista-archivos">
+                    <div class="sin-archivos">No hay materiales subidos todavía.</div>
                 </div>
-
             </div>
-
-
-            <!-- Vista previa -->
 
             <div class="seccion-preview">
-
                 <h4>Vista previa</h4>
-
-                <div
-                    id="material-general-preview-content"
-                    class="preview-content">
-
-                    <span class="preview-icono-default">
-                        &#128444;
-                    </span>
-
-                    <span
-                        id="material-general-preview-nombre"
-                        class="preview-nombre-archivo">
-                        Selecciona un archivo
-                    </span>
-
+                <div id="material-general-preview-content" class="preview-content">
+                    <span class="preview-icono-default">&#128444;</span>
+                    <span id="material-general-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
                 </div>
-
             </div>
-
-
-            <!-- Botón cerrar -->
 
             <div class="modal-actions">
-
-                <button
-                    type="button"
-                    class="btn-modal-cancelar"
-                    onclick="cerrarMiModalGeneral(event)">
-                    Cerrar
-                </button>
-
+                <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">Cerrar</button>
             </div>
-
         </div>
-
     </div>
+    </main>
+    
 
     <!-- ============================= -->
     <!-- SECCIÓN DE MENSAJES (GENERAL) -->
@@ -533,36 +352,36 @@
   <script>
   // Función para alternar los modales en el panel del desarrollador
     function mostrarModal(idModal, idCabecera) {
-      document.querySelectorAll(".modal-class").forEach(modal => {
-        modal.style.display = "none";
-      });
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
 
-      const modalSeleccionado = document.getElementById(idModal);
-      if (modalSeleccionado) {
-        modalSeleccionado.style.display = "block";
-      }
-
-      if (idCabecera) {
-        mostrarCabecera(idCabecera);
-      }
-
-      // Si abren el módulo de reuniones, cargamos automáticamente la lista
-      if (idModal === 'modal-reuniones') {
-        if (typeof cargarReuniones === 'function') {
-          cargarReuniones();
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
         }
-      }
+
+        if (idCabecera) {
+            mostrarCabecera(idCabecera);
+        }
+
+        // Si abren el módulo de reuniones, cargamos automáticamente la lista
+        if (idModal === 'modal-reuniones') {
+            if (typeof cargarReuniones === 'function') {
+                cargarReuniones();
+            }
+        }
     }
 
     function mostrarCabecera(idCabecera) {
-      document.querySelectorAll(".cabecera-default").forEach(cabecera => {
-        cabecera.style.display = "none";
-      });
-      const cabeceraSeleccionada = document.getElementById(idCabecera);
-      if (cabeceraSeleccionada) {
-        cabeceraSeleccionada.style.display = "flex";
-      }
+        document.querySelectorAll(".cabecera-default").forEach(cabecera => {
+            cabecera.style.display = "none";
+        });
+        const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if (cabeceraSeleccionada) {
+            cabeceraSeleccionada.style.display = "flex";
+        }
     }
-  </script>
+    </script>
 </body>
 </html>
