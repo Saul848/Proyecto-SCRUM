@@ -56,7 +56,7 @@ app.use('/reuniones', require('./routes/reunionRoutes'));
 /**
  * Rutas de mensajes de cliente
  */
-app.use('/mensajes', require('./routes/MensajesClienteRoutes'));
+//app.use('/mensajes', require('./routes/MensajesClienteRoutes'));
 
 
 /**
@@ -115,9 +115,19 @@ http.createServer((req, res) => {
 /**
  * Rutas de mensajes
  */
-app.use('/mensajes', require('./routes/mensajesRoutes'));
+//app.use('/mensajes', require('./routes/mensajesRoutes'));
 
 /**
  * Ruta de mensajes de desarrollador
  */
-app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
+//app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
+
+/**
+ * Rutas de mensajes
+ */
+const mensajeRoutes = require('./routes/mensajeRoutes');
+
+/**
+ * Middleware para manejar las rutas de mensajes.
+ */
+app.use('/api/mensajes', mensajeRoutes);

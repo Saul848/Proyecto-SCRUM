@@ -1,0 +1,301 @@
+/* Contenedor general del chat */
+.main-container-chat {
+    display: flex;
+    height: 75vh;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    font-family: sans-serif;
+    border: 1px solid #e2e8f0;
+}
+
+/* Sidebar izquierdo */
+.sidebar-mensajes {
+    width: 320px;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 8px 12px;
+    border-radius: 20px;
+    gap: 8px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.menu-seccion {
+    font-weight: bold;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.lista-elementos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.elemento-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.elemento-item:hover, .elemento-item.activo {
+    background: #e2e8f0;
+    font-weight: 500;
+}
+
+.badge-nuevo {
+    background: #f97316;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+/* Indicador de estado de contacto */
+.estado-contacto {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.estado-conectado { color: #16a34a; }
+.estado-desconectado { color: #dc2626; }
+
+/* Área de Chat Derecha */
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+}
+
+.chat-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header-info h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.sub-info-chat {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.btn-detalles {
+    background: #38bdf8;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-detalles:hover {
+    background: #0ea5e9;
+}
+
+/* Historial de mensajes */
+.chat-mensajes {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #ffffff;
+}
+
+.burbuja {
+    max-width: 60%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.burbuja.recibida {
+    background: #e2e8f0;
+    color: #1e293b;
+    align-self: flex-start;
+    border-top-left-radius: 2px;
+}
+
+.burbuja.enviada {
+    background: #dcfce7;
+    border: 1px solid #22c55e;
+    color: #166534;
+    align-self: flex-end;
+    border-top-right-radius: 2px;
+}
+
+.remitente {
+    font-size: 11px;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+/* Caja inferior de entrada de texto */
+.chat-input-box {
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-input-box input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+}
+
+#btnEnviarMensajeGeneral {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+#btnEnviarMensajeGeneral:hover {
+    background: #f1f5f9;
+}
+
+/* Botón Inspirado en el Prototipo */
+.btn-iniciar-conversacion {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-iniciar-conversacion:hover {
+    background-color: #0056b3;
+}
+
+.btn-iniciar-conversacion:active {
+    transform: scale(0.98);
+}
+
+/* Estilos del Modal Flotante */
+.modal-chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-chat-content {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    width: 350px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.modal-chat-content h3 {
+    margin-top: 0;
+    color: #1e293b;
+    font-size: 18px;
+}
+
+.modal-chat-content p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.lista-modal-contactos {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 15px 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.item-contacto-modal {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #334155;
+    transition: background 0.15s;
+}
+
+.item-contacto-modal:hover {
+    background-color: #f8fafc;
+    color: #007bff;
+}
+
+.btn-cerrar-modal {
+    background-color: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 500;
+}
+
+.btn-cerrar-modal:hover {
+    background-color: #cbd5e1;
+}
