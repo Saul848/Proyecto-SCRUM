@@ -47,6 +47,37 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     if (btnVolverFase1) btnVolverFase1.style.display = "none";
     if (btnConfirmarSprint) btnConfirmarSprint.style.display = "none";
     if (btnSalir) btnSalir.style.display = "none";
+    
+    // 🔒 Restricción: Solo el facilitador puede poner/modificar las fechas
+    if (inpFechaInicio) inpFechaInicio.disabled = true;
+    if (inpFechaFin) inpFechaFin.disabled = true;
+  }
+
+  // 🔄 Sincronización y control de fechas en tiempo real (Facilitador -> Desarrollador)
+  if (inpFechaInicio) {
+    inpFechaInicio.onchange = () => {
+      calcularRestante();
+      if (obtenerRolActual() === 'facilitador' && socketAsignacion) {
+        socketAsignacion.emit("disparar-cambio-fechas", {
+          sprintId: window.ID_SPRINT,
+          fechaInicio: inpFechaInicio.value,
+          fechaFin: inpFechaFin ? inpFechaFin.value : ''
+        });
+      }
+    };
+  }
+
+  if (inpFechaFin) {
+    inpFechaFin.onchange = () => {
+      calcularRestante();
+      if (obtenerRolActual() === 'facilitador' && socketAsignacion) {
+        socketAsignacion.emit("disparar-cambio-fechas", {
+          sprintId: window.ID_SPRINT,
+          fechaInicio: inpFechaInicio ? inpFechaInicio.value : '',
+          fechaFin: inpFechaFin.value
+        });
+      }
+    };
   }
 
   if (btnContinuar) {
@@ -125,9 +156,6 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
       }
     };
   }
-
-  if (inpFechaInicio) inpFechaInicio.onchange = calcularRestante;
-  if (inpFechaFin) inpFechaFin.onchange = calcularRestante;
 
   // Ejecutamos la carga inicial
   cargarHistoriasSprint();
@@ -289,23 +317,34 @@ async function cargarVistaPlanningPoker(rol) {
   }
 }
 
-//tabla de detalles y calculo de esfuerzo
+//tabla de detalles y calculo de esfuerzo con factores fijos
 function poblarTablaDetalles() {
   const cuerpoTabla = document.getElementById("cuerpoTabla");
   if (!cuerpoTabla) return;
 
   cuerpoTabla.innerHTML = requisitos.map(h => {
     const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
-    const estimacionInicial = h.horas_estimadas ?? h.puntos_de_historia ?? 5;
-    const factorComplejidad = h.factor_complejidad || "";
+    const horasEstimadas = h.horas_estimadas ?? h.puntos_de_historia ?? 5;
+    
+    // Obtenemos el factor guardado o por defecto 0 (0% Ninguno)
+    const factorSeleccionado = h.factor_complejidad !== undefined && h.factor_complejidad !== "" ? Number(h.factor_complejidad) : 0;
     
     return `
       <tr data-id="${h.id}">
         <td>PB-${numMostrar}</td>
         <td>${h.nombre}</td>
-        <td><input type="number" class="inp-puntos" value="${estimacionInicial}" style="width: 60px;" onchange="calcularEsfuerzoTotal()"></td>
-        <td><input type="number" step="0.1" class="inp-factor" value="${factorComplejidad}" placeholder="Ej. 0.2" style="width: 70px;" onchange="calcularEsfuerzoTotal()"></td>
-        <td class="lbl-esfuerzo">${estimacionInicial}</td>
+        <td>
+          <input type="number" class="inp-puntos" value="${horasEstimadas}" style="width: 70px;" onchange="notificarCambioEstimacion(${h.id}, this)">
+        </td>
+        <td>
+          <select class="inp-factor" onchange="notificarCambioEstimacion(${h.id}, this)" style="padding: 4px; border-radius: 4px;">
+            <option value="0" ${factorSeleccionado === 0 ? 'selected' : ''}>0% Ninguno</option>
+            <option value="0.25" ${factorSeleccionado === 0.25 ? 'selected' : ''}>25% Bajo</option>
+            <option value="0.5" ${factorSeleccionado === 0.5 ? 'selected' : ''}>50% Medio</option>
+            <option value="1.0" ${factorSeleccionado === 1.0 ? 'selected' : ''}>100% Alto</option>
+          </select>
+        </td>
+        <td class="lbl-esfuerzo">${horasEstimadas}</td>
       </tr>
     `;
   }).join('');
@@ -313,7 +352,37 @@ function poblarTablaDetalles() {
   calcularEsfuerzoTotal();
 }
 
-//calculo - Estimación inicial * (1 + Factor)
+//funcion que notifica los cambios de factor u horas a los demás en tiempo real
+window.notificarCambioEstimacion = (idHistoria, elemento) => {
+  const fila = elemento.closest("tr");
+  const inpPuntos = fila.querySelector(".inp-puntos");
+  const inpFactor = fila.querySelector(".inp-factor");
+
+  const horas = Number(inpPuntos.value) || 0;
+  const factor = Number(inpFactor.value) || 0;
+
+  //actualizar objeto en arreglo local
+  const historia = requisitos.find(h => h.id === idHistoria);
+  if (historia) {
+    historia.horas_estimadas = horas;
+    historia.factor_complejidad = factor;
+  }
+
+  //recalcular localmente
+  calcularEsfuerzoTotal();
+
+  //emitir por WebSocket para sincronizar a todos los participantes
+  if (socketAsignacion) {
+    socketAsignacion.emit("actualizar-factor-historia", {
+      sprintId: window.ID_SPRINT,
+      idHistoria: idHistoria,
+      horas: horas,
+      factor: factor
+    });
+  }
+};
+
+//calculo: Horas estimadas * (1 + Factor de complejidad) con redondeo a entero
 function calcularEsfuerzoTotal() {
   const filas = document.querySelectorAll("#cuerpoTabla tr");
   let esfuerzoAcumulado = 0;
@@ -324,11 +393,11 @@ function calcularEsfuerzoTotal() {
     const lblEsfuerzo = tr.querySelector(".lbl-esfuerzo");
 
     if (inpPuntos && inpFactor && lblEsfuerzo) {
-      const puntos = Number(inpPuntos.value) || 0;
+      const horas = Number(inpPuntos.value) || 0;
       const factor = Number(inpFactor.value) || 0;
 
-      //si hay factor, se ajusta; si no, pasa igual que la estimación inicial
-      const esfuerzoAjustado = factor > 0 ? Math.round(puntos * (1 + factor)) : puntos;
+      //multiplicación de horas por el factor fijo con redondeo estándar (.5 o superior sube al siguiente entero)
+      const esfuerzoAjustado = Math.round(horas * (1 + factor));
       
       lblEsfuerzo.textContent = esfuerzoAjustado;
       esfuerzoAcumulado += esfuerzoAjustado;
@@ -343,8 +412,13 @@ function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
   if (!cuerpoAsignacion) return;
 
-  const rol = (window.ROL_ACTUAL || "facilitador").toLowerCase();
+  const rol = obtenerRolActual(); // 👈 Usamos la función robusta para detectar el rol
   const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Usuario" };
+
+  const panelSolicitudes = document.querySelector(".panel-solicitudes");
+  if (panelSolicitudes) {
+    panelSolicitudes.style.display = (rol === 'desarrollador') ? "none" : "block";
+  }
 
   cuerpoAsignacion.innerHTML = requisitos.map(h => {
     const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
@@ -505,7 +579,7 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //escucha la señal para regresar a la dección de reuniones
+    //escucha la señal para regresar a la sección de reuniones
     socketAsignacion.on("volver-detalles-cliente", () => {
       const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
       const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
@@ -515,6 +589,37 @@ function inicializarSocketsAsignacion(idSprint) {
         // Redirigir al desarrollador a su panel en la sección de reuniones y vista de detalles
         window.location.href = `PanelDesarrollador.html?sprint=${window.ID_SPRINT}&reunion=${window.ID_REUNION}&proyecto=${window.ID_PROYECTO}&seccion=reuniones&vista=detalles`;
       }
+    });
+
+    // 🔄 Listener: Escuchar cuando alguien cambia horas o factor de complejidad en tiempo real
+    socketAsignacion.on("cambio-factor-historia-cliente", (data) => {
+      const historia = requisitos.find(h => h.id === data.idHistoria);
+      if (historia) {
+        historia.horas_estimadas = data.horas;
+        historia.factor_complejidad = data.factor;
+      }
+
+      // Actualizar los inputs en la tabla si se encuentran en pantalla
+      const fila = document.querySelector(`#cuerpoTabla tr[data-id="${data.idHistoria}"]`);
+      if (fila) {
+        const inpPuntos = fila.querySelector(".inp-puntos");
+        const inpFactor = fila.querySelector(".inp-factor");
+        if (inpPuntos) inpPuntos.value = data.horas;
+        if (inpFactor) inpFactor.value = data.factor;
+      }
+
+      calcularEsfuerzoTotal();
+    });
+
+    // 🔄 Listener: Escuchar cuando el facilitador actualiza las fechas en tiempo real
+    socketAsignacion.on("cambio-fechas-cliente", (data) => {
+      const inpFechaInicio = document.getElementById("inpFechaInicio");
+      const inpFechaFin = document.getElementById("inpFechaFin");
+
+      if (inpFechaInicio && data.fechaInicio) inpFechaInicio.value = data.fechaInicio;
+      if (inpFechaFin && data.fechaFin) inpFechaFin.value = data.fechaFin;
+
+      calcularRestante();
     });
 
     //escuchar si alguien solicita una historia (Facilitador)
