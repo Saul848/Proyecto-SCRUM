@@ -10,8 +10,10 @@ const divHistoria = document.getElementById("DivHistoria");
 const inpAddTitulo = document.getElementById("inpAddTitulo");
 const inpAddDescripcion = document.getElementById("inpAddDescripccion");
 const inpAddValor = document.getElementById("inpAddValor");
+const inpAddHoras = document.getElementById("inpAddHoras");
 const btnGuardarHistoria = document.getElementById("btnGuardarModalAdd");
 const btnCerrarModalAdd = document.getElementById("btnCerrarModalAdd");
+
 // Campos criterios de aceptacion
 const containerAdd = document.getElementById("contenedorAdd");
 const btnArribaAdd = document.getElementById("btnArribaAdd");
@@ -28,6 +30,7 @@ const inpModTitulo = document.getElementById("inpModTitulo");
 const inpModDescripcion = document.getElementById("inpModDescripcion");
 const inpModCriterios = document.getElementById("inpModCriterios");
 const inpModValor = document.getElementById("inpModValor");
+const inpModHoras = document.getElementById("inpModHoras");
 const btnModificarHistoria = document.getElementById("btnGuardarModalMod");
 const btnCerrarModalMod = document.getElementById("btnCerrarModalMod");
 
@@ -743,7 +746,8 @@ async function renderizarHistorias() {
             </div>
 
             <label class="LabelValor">${historia.valor || "#"}</label>
-            <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
+            <label class="LabelValor">${historia.horasCalculadas || "#"}</label>
+            <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
             <div class="DivBtnComentar">
                 <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
