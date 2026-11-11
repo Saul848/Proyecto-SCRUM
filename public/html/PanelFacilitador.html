@@ -13,12 +13,8 @@
   <link rel="stylesheet" href="../css/sprintPlanning.css">
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="../css/modalSprintBacklog.css">
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <script>
-    // Forzamos la variable global para este archivo
-    // const ROL_ACTUAL = "facilitador";
-  </script>
+  <link rel="stylesheet" href="../css/grupos.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="../css/registroTiempos.css">
   <link rel="stylesheet" href="../css/planningPokerFacilitador.css">
 
@@ -287,6 +283,29 @@
                 <!-- Aquí JavaScript agregará los contactos -->
               </div>
             </div>
+            
+<!-- Sección de grupos -->
+<div class="seccion-grupos">
+  <div class="encabezado-grupos">
+    <p class="menu-seccion">GRUPOS</p>
+
+    <button
+      type="button"
+      id="btnCrearGrupo"
+      class="btn-crear-grupo"
+      title="Crear nuevo grupo"
+      aria-label="Crear nuevo grupo">
+      +
+    </button>
+  </div>
+
+  <div id="listaGrupos" class="lista-grupos">
+    <p class="mensaje-sin-grupos">
+      Aquí aparecerán tus grupos.
+    </p>
+  </div>
+</div>
+       
           </aside>
 
           <!-- Sección Derecha: Chat Activo -->
@@ -608,6 +627,8 @@
     </div>
 </div>
 
+<!-- Contenedor para los modales de grupos -->
+<div id="contenedorModalesGrupos"></div>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
@@ -622,6 +643,8 @@
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
   <script src="../js/mensajesF.js" defer></script>
+  <script src="../js/cargarModalesGrupos.js" defer></script>
+  <script src="../js/grupos.js" defer></script>
 </body>
 
 </html>

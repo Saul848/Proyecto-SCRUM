@@ -504,3 +504,122 @@ body {
     }
 }
 
+/* ==========================================
+   INTEGRACIÓN DE GRUPOS EN MENSAJES
+   ========================================== */
+
+#modal-mensajes .seccion-grupos {
+    margin-top: 22px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+#modal-mensajes .encabezado-grupos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#modal-mensajes .encabezado-grupos .menu-seccion {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+#modal-mensajes .btn-crear-grupo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 21px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#modal-mensajes .btn-crear-grupo:hover {
+    background: #dbeafe;
+    transform: scale(1.05);
+}
+
+#modal-mensajes .btn-crear-grupo:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#modal-mensajes .lista-grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#modal-mensajes .mensaje-sin-grupos {
+    margin: 6px 0;
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   GRUPOS COMPACTOS EN LA VENTANA DE MENSAJES
+   ========================================== */
+
+#modal-mensajes .lista-grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#modal-mensajes .grupos-tarjeta {
+    padding: 12px;
+    margin: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    box-shadow: none;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#modal-mensajes .grupos-tarjeta h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+}
+
+#modal-mensajes .grupos-tarjeta p {
+    margin: 3px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #64748b;
+    overflow-wrap: anywhere;
+}
+
+#modal-mensajes .grupos-btn-ver {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 7px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#modal-mensajes .grupos-btn-ver:hover {
+    background: #c7d2fe;
+}
+

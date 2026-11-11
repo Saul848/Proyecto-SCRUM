@@ -2,10 +2,11 @@
    MÓDULO DE GRUPOS - SCRUMBIRD
    ========================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
+function inicializarGrupos() {
 
     const modal = document.getElementById('modalCrearGrupo');
-    const btnAbrir = document.getElementById('btnAbrirCrearGrupo');
+    const btnAbrir = document.getElementById('btnCrearGrupo')
+    || document.getElementById('btnAbrirCrearGrupo');
     const btnCerrar = document.getElementById('btnCerrarCrearGrupo');
     const btnCancelar = document.getElementById('btnCancelarCrearGrupo');
 
@@ -806,4 +807,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar grupos al abrir la página
     cargarGrupos();
 
-});
+};
+
+/* ==========================================
+   INICIALIZACIÓN DEL MÓDULO DE GRUPOS
+   ========================================== */
+
+let gruposInicializados = false;
+
+function intentarInicializarGrupos() {
+
+    if (gruposInicializados) return;
+
+    const modal = document.getElementById('modalCrearGrupo');
+    const formulario = document.getElementById('formCrearGrupo');
+    const lista = document.getElementById('listaGrupos');
+
+    // Esperar hasta que los elementos estén disponibles
+    if (!modal || !formulario || !lista) return;
+
+    gruposInicializados = true;
+    inicializarGrupos();
+}
+
+// Para la página de pruebas
+if (document.readyState === 'loading') {
+    document.addEventListener(
+        'DOMContentLoaded',
+        intentarInicializarGrupos
+    );
+} else {
+    intentarInicializarGrupos();
+}
+
+// Para los paneles que cargan los modales dinámicamente
+document.addEventListener(
+    'modalesGruposCargados',
+    intentarInicializarGrupos
+);
+
