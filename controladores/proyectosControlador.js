@@ -127,12 +127,35 @@ class ProyectosControlador {
     }
 
     async listarProyectosDeUsuario(req, res){
+        const id = this.#idValido(req.params.id);
+        if (!id) return res.status(400).json({ error: 'id inválido' });
         try {
             const{id} = req.params;
-            res.json(await this.dao.listarProyectosDeUsuario(id));
+            res.json(await this.dao.listarProyectosDeUsuario(id)); 
         } catch (err) {
             this.#error(res, err);
         }
+    }
+
+
+    /**
+     * Obtiene el contenido de todos los sprints de un proyecto determinado
+     * @param {*} req Peticion HTTP
+     * @param {*} res Respuesta HTTP
+     */
+    async listarSprintsProyecto(req, res) {
+        try {
+            const{idProyecto} = req.params;
+
+            const sprints = await this.dao.listarSprintsProyecto(idProyecto);
+
+            res.status(200).json({ ok: true, data: sprints });
+
+        } catch (err) {
+            console.error("Error al listar sprints:", err.message);
+            res.status(500).json({ ok: false, mensaje: "Error al obtener la lista de sprints" });
+        }
+        
     }
 
     /** Métodos privados*/
@@ -144,6 +167,10 @@ class ProyectosControlador {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 
+    #idValido(valor) {
+        const id = Number(valor);
+        return Number.isInteger(id) && id > 0 ? id : null;
+    }
 }
 
 module.exports = ProyectosControlador;

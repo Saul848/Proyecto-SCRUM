@@ -99,10 +99,24 @@ class ProyectosDAO {
         return rows;
     }
 
+    /**
+     * Método que lista todos los proyectos de un usuario con el ID de este
+     * GET /proyectos/listarProyectosDeUsuario/:id
+     * @param {*} idUsuario ID del usuario
+     * @returns 
+     */
     async listarProyectosDeUsuario(idUsuario){
         const { rows } = await this.pool.query(
-            'SELECT p.*, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1',
+            'SELECT p.id, p.nombre, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1',
             [idUsuario]
+        );
+        return rows;
+    }
+
+    async listarSprintsProyecto(idProyecto){
+        const { rows } = await this.pool.query(
+            'SELECT * FROM scrumbird.sprint WHERE id_proyecto = $1;',
+            [idProyecto]
         );
         return rows;
     }

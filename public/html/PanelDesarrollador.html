@@ -3,115 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desarrollador - Panel de Mensajes</title>
+    <title>Desarrollador - Panel Principal</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="../css/PanelDesarrollador.css">
-    <link rel="stylesheet" href="../css/mensajesDesarrollador.css">
-    
+    <link rel="stylesheet" href="../css/mensajes.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
+    <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
+    <link rel="stylesheet" href="../css/modalSprintBacklog.css">
+    <link rel="stylesheet" href="../css/productBacklogDesarrollador.css">
+    <link rel="stylesheet" href="../css/modalSubirMaterial.css">
+    <link rel="stylesheet" href="../css/sprintPlanning.css">
+    <link rel="stylesheet" href="../css/reuniones.css">
+
+    <!-- Carga la librería cliente de Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <!-- Bloque Superior de la vista -->
-    <header class="dev-header">
-        <div class="dev-badge-rol">
-            Desarrollador
-        </div>
-    <h1 class="dev-titulo-central">Mensajes</h1>
-
-    <button class="dev-btn-iniciar">Iniciar una conversación</button>
-    </header>
+    <main class="dev-sidebar-menu">
+        
+        <!-- ============================= -->
+        <!-- CABECERA DEL DESARROLLADOR -->
+        <!-- ============================= -->
+        <header class="dev-header">
+            <div class="dev-badge-rol">
+                Desarrollador
+            </div>
+        </aside>
+  </header>
     
-    <!-- Bloque Inferior -->
-    <main class="dev-main-container">
-        
-        <!-- Panel Lateral de Navegación -->
-        <aside class="dev-sidebar-menu">
-        <div class="dev-indice-wrapper">
-            <span class="dev-seccion-label">❖ Seccion</span>
-            <ul class="dev-menu-lista">
-            <li><button class="dev-menu-btn">Mi equipo</button></li>
-            <li><button class="dev-menu-btn activo">Mensajes</button></li>
-            <li><button class="dev-menu-btn">Product Backlog</button></li>
-            <li><button class="dev-menu-btn">Sprint</button></li>
-            <li><button class="dev-menu-btn">Mis tareas</button></li>
-            <li><button class="dev-menu-btn">Reunirse</button></li>
-            <li><button class="dev-menu-btn">Graficas</button></li>
-            <li><button class="dev-menu-btn">Ajustes</button></li>
-            </ul>
+  <!-- Bloque inferior -->
+  <main id="BloqueInferior">
+    
+    <!-- Section panelLateral -->
+    <section id="panelLateral">
+      <div id="divIndice">
+        <span>❖ Seccion</span>
+        <ul id="listaPanelLateral">
+          <li><button href="#" id="linkMiEquipo">Mi equipo</button></li>
+          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">Mensajes</button></li>
+          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
+          <li><button href="#" id="linkSprint" onclick="mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">Sprint Backlog</button></li>
+          <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
+          <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button></li>
+          <li><button href="#" id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">Graficas</button></li>
+          <li><button href="#" id="linkAjustes">Ajustes</button></li>
+          <li><button href="#" id="btn-storage">Prueba sessionStorage</button></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section zonaDeTrabajo -->
+    <section id="zonaDeTrabajo">
+
+      <!-- MODAL / VISTA 1: PRODUCT BACKLOG (DESARROLLADOR) -->
+      <div id="modal-product-backlog" class="modal-class" style="display: block;">
+        <div id="DivContPB">
+          
+          <!-- Barra de filtros -->
+          <div id="contenedorFiltrosPB" class="filtros-pb-container">
+            <input type="text" id="inputFiltroId" class="filtro-input filtro-id" placeholder="Filtrar ID...">
+            <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre" placeholder="Filtrar nombre...">
+            <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
+            <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint" placeholder="Filtrar sprint...">
+            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+          </div>
+
+          <div id="DivEncabezados">
+            <label id="LabelID">ID</label>
+            <label id="LabelNombreHistoria">Historias de usuario</label>
+            <label id="LabelDescripccion">Descripccion</label>
+            <label id="LabelCriterios">Criterios de acpetacion</label>
+            <label id="LabelValor">Valor</label>
+            <label id="LabelSprintAsginado">Sprint asignado</label>
+            <div class="espacioAcciones"></div>
+          </div>
+
+          <div id="DivHistoria"></div>
+
+            <div id="divOpccionesInferiores">
+            <!-- Botón ajustado para el Desarrollador (PB-54) -->
+           <div id="DivBtnVerMaterial">
+           <button type="button" class="btn-ver-material" id="btn-ver-material">
+           <span class="material-symbols-outlined">visibility</span>
+            Ver material adicional
+          </button>
+         </div>
         </div>
-        </aside>
-            
-    <!-- MODAL MODULAR DE MENSAJES DESARROLLADOR -->
-    <div id="modal-mensajes-desarrollador" class="modal-class">
-    <div class="main-container-chat">
-        
-        <!-- Panel Izquierdo: Canales y Contactos -->
-        <aside class="sidebar-mensajes">
-            <div class="search-box">
-                <span>🔍</span>
-                <input type="text" placeholder="Buscar tema o mensaje...">
+
+
+        <!-- ============================= -->
+        <!-- PRODUCT BACKLOG DESARROLLADOR -->
+        <!-- ============================= -->
+
+        <section
+            id="dev-seccion-product-backlog"
+            class="dev-product-backlog"
+            style="display: none;">
+
+            <div class="dev-pb-encabezado">
+
+                <h2>Historias de usuario</h2>
+
+                <p>
+                    Consulta las historias de usuario registradas
+                    en el Product Backlog del proyecto.
+                </p>
+
             </div>
 
-            <div>
-                <p class="menu-seccion">Canales</p>
-                <div class="lista-elementos" id="listaCanalesDesarrollador">
-                    <div class="elemento-item activo" onclick="seleccionarCanal(1, 'Desarrolladores, Scrum Master')">
-                        #Dudas de requerimientos 
-                        <span class="badge-nuevo">4 nuevos</span>
-                    </div>
-                    <div class="elemento-item" onclick="seleccionarCanal(2, 'Aprobaciones y entregas')">
-                        #Aprobaciones y entregas
-                    </div>
-                    <div class="elemento-item" onclick="seleccionarCanal(3, 'General del proyecto')">
-                        #General del proyecto 
-                        <span class="badge-nuevo">2 nuevos</span>
-                    </div>
-                </div>
+
+            <!-- FILTROS DEL PRODUCT BACKLOG -->
+
+            <div
+                id="contenedorFiltrosPB"
+                class="filtros-pb-container">
+
+                <input
+                    id="inputFiltroId"
+                    class="filtro-input filtro-id"
+                    type="text"
+                    placeholder="Filtrar ID..."
+                    aria-label="Filtrar por ID">
+
+                <input
+                    id="inputFiltroNombre"
+                    class="filtro-input filtro-nombre"
+                    type="text"
+                    placeholder="Filtrar nombre..."
+                    aria-label="Filtrar por nombre">
+
+                <input
+                    id="inputFiltroValor"
+                    class="filtro-input filtro-valor"
+                    type="number"
+                    placeholder="Filtrar valor..."
+                    aria-label="Filtrar por valor">
+
+                <input
+                    id="inputFiltroSprint"
+                    class="filtro-input filtro-sprint"
+                    type="text"
+                    placeholder="Filtrar sprint..."
+                    aria-label="Filtrar por sprint">
+
+                <button
+                    id="btnLimpiarFiltros"
+                    class="btn-limpiar-filtros"
+                    type="button">
+                    Limpiar
+                </button>
+
             </div>
 
-            <div>
-                <div class="dev-grupo-seccion">
-                    <p class="dev-menu-titulo">Contacto directo</p>
-                    <div class="dev-lista-elementos" id="listaContactosDirectos">
-                    </div>
-                </div>
-            </div>
-        </aside>
 
-        <!-- Sección Derecha: Chat Activo -->
-        <section class="chat-area">
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <h3 id="tituloCanalActual">Desarrolladores, Scrum Master</h3>
-                    <span class="sub-info-chat">4 participantes · <span class="en-linea">🟢 2 en línea</span></span>
-                </div>
-                <button class="btn-detalles">Ver detalles</button>
-            </div>
+            <!-- TABLA DE HISTORIAS -->
 
-            <!-- Historial de mensajes -->
-            <div class="chat-mensajes" id="contenedorMensajes">
-                <div class="burbuja recibida">
-                    <span class="remitente">Facilitador Scrum Master</span>
-                    Buenas tardes
-                </div>
-                <div class="burbuja recibida">
-                    <span class="remitente">Facilitador Scrum Master</span>
-                    Hola, quería saber cómo van con el proyecto, tienen algún detalle que quieran revisar?
-                </div>
-                <div class="burbuja enviada">
-                    <span class="remitente">Tú (desarrollador)</span>
-                    Buenas tardes, por el momento todo está corriendo de forma correcta, sin dudas de por medio
-                </div>
+            <div class="dev-pb-tabla-contenedor">
+
+                <table class="dev-pb-tabla">
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Historias de usuario</th>
+                            <th>Descripción</th>
+                            <th>Criterios de aceptación</th>
+                            <th>Valor</th>
+                            <th>Sprint asignado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="dev-pb-lista-historias">
+
+                        <tr>
+                            <td colspan="6">
+                                Cargando historias de usuario...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
             </div>
 
-            <!-- Caja de texto para enviar -->
-            <div class="chat-input-box">
-                <input type="text" id="inputMensaje" placeholder="Escribe tu mensaje...">
-                <button id="btnEnviarMensaje">➤</button>
+
+            <!-- BOTÓN DE MATERIAL ADICIONAL -->
+
+            <div class="dev-pb-acciones">
+
+                <button
+                    id="btn-compartir-material"
+                    type="button"
+                    class="dev-pb-btn-material">
+                    Ver material adicional
+                </button>
+
             </div>
+
         </section>
-    </div>
-    </div>
+
+            </section>
     </main>
 
-    <script src="../js/mensajesDesarrollador.js"></script>
+    <!-- ============================= -->
+    <!-- MODAL DE MATERIAL ADICIONAL -->
+    <!-- ============================= -->
+    <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-modal-cancelar kanban-evidencias-btn-volver" onclick="cerrarMiModalGeneral(event)">
+                    &lsaquo; Volver al Product Backlog
+                </button>
+                <span id="material-general-badge-estado" class="badge-estado general-badge">General</span>
+            </div>
+
+            <div class="alerta-info">
+                <span id="material-general-alerta-texto">Material compartido para consulta y descarga.</span>
+            </div>
+
+            <div id="material-general-zona-carga" class="zona-carga" style="display: none;" onclick="document.getElementById('material-general-input-file').click();">
+                <p><strong>Subir material adicional</strong></p>
+                <p>Haz clic para elegir un archivo (PNG, JPG, PDF, ZIP)</p>
+                <input type="file" id="material-general-input-file" accept=".png,.jpg,.jpeg,.pdf,.zip" onchange="subirMaterialGeneral(this)" onclick="event.stopPropagation();">
+            </div>
+
+            <div class="seccion-lista-archivos">
+                <h4 id="material-general-contador">Archivos subidos (0)</h4>
+                <div id="material-general-lista-archivos" class="lista-archivos">
+                    <div class="sin-archivos">No hay materiales subidos todavía.</div>
+                </div>
+            </div>
+
+            <div class="seccion-preview">
+                <h4>Vista previa</h4>
+                <div id="material-general-preview-content" class="preview-content">
+                    <span class="preview-icono-default">&#128444;</span>
+                    <span id="material-general-preview-nombre" class="preview-nombre-archivo">Selecciona un archivo</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    </main>
+    
+
+    <!-- ============================= -->
+    <!-- SECCIÓN DE MENSAJES (GENERAL) -->
+    <!-- ============================= -->
+    <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="main-container-chat">
+            
+            <!-- Panel izquierdo: Canales y Contactos Directos -->
+            <aside class="sidebar-mensajes">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
+                </div>
+
+                <!-- Canales -->
+                <div>
+                    <p class="menu-seccion">Canales</p>
+                    <div class="lista-elementos" id="listaCanalesGeneral">
+                        <!-- Se llenarán dinámicamente desde la BD -->
+                    </div>
+                </div>
+
+                <!-- Contacto Directo -->
+                <div>
+                    <p class="menu-seccion">Contacto directo</p>
+                    <div class="lista-elementos" id="listaContactosGeneral">
+                        <!-- Se llenarán dinámicamente con los miembros del proyecto -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Panel derecho: Área de Chat -->
+            <section class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
+                        <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
+                    </div>
+                    
+                    <!-- Botones superiores alineados a la derecha -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="btnIniciarConversacion" class="btn-iniciar-conversacion" style="padding: 6px 12px; font-size: 13px;">
+                            💬 Iniciar conversación
+                        </button>
+                        <button class="btn-detalles" type="button">Ver detalles</button>
+                    </div>
+                </div>
+
+                <!-- Historial de mensajes -->
+                <div class="chat-mensajes" id="contenedorMensajesGeneral">
+                    <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
+                        Selecciona una conversación a la izquierda para empezar a chatear.
+                    </div>
+                </div>
+
+                <!-- Caja inferior de entrada de texto (¡Aquí está de vuelta!) -->
+                <div class="chat-input-box">
+                    <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                    <button id="btnEnviarMensajeGeneral" type="button">➤</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
+    <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
+        <div class="modal-chat-content">
+            <h3>Iniciar nueva conversación</h3>
+            <p>Selecciona un miembro del proyecto:</p>
+            <div id="listaContactosModal" class="lista-modal-contactos">
+                <!-- Se llenará dinámicamente -->
+            </div>
+            <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
+        </div>
+    </div>
+    
+  <!-- MODAL: REUNIRSE (Desarrollador) -->
+  <div id="modal-reuniones" class="modal-class" style="display: none;">
+    <div class="area-fondo" style="padding: 20px;">
+      <!--las tarjetas de reuniones se inyectarán aquí automáticamente -->
+    </div>
+  </div>
+  <!-- Contenedor dinámico para la vista de Sprint Planning -->
+  <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
+
+  <!-- Scripts por separado --> 
+  <script src="../js/PanelDesarrollador.js"></script>
+  <script src="../js/ProductBacklogDesarrollador.js"></script> 
+  <script src="../js/modalSubirMaterial.js"></script>
+  <script src="../js/mensajes.js"></script>
+  <script src="../js/modalSprintBacklog.js" defer></script>
+  <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
+  <script src="../js/modalEvidenciaHistoria.js" defer></script>
+  <script src="../js/reuniones.js" defer></script>
+  <script src="../js/sprintPlanning.js" defer></script>
+  
+  <script>
+  // Función para alternar los modales en el panel del desarrollador
+    function mostrarModal(idModal, idCabecera) {
+        document.querySelectorAll(".modal-class").forEach(modal => {
+            modal.style.display = "none";
+        });
+
+        const modalSeleccionado = document.getElementById(idModal);
+        if (modalSeleccionado) {
+            modalSeleccionado.style.display = "block";
+        }
+
+        if (idCabecera) {
+            mostrarCabecera(idCabecera);
+        }
+
+        // Si abren el módulo de reuniones, cargamos automáticamente la lista
+        if (idModal === 'modal-reuniones') {
+            if (typeof cargarReuniones === 'function') {
+                cargarReuniones();
+            }
+        }
+    }
+
+    function mostrarCabecera(idCabecera) {
+        document.querySelectorAll(".cabecera-default").forEach(cabecera => {
+            cabecera.style.display = "none";
+        });
+        const cabeceraSeleccionada = document.getElementById(idCabecera);
+        if (cabeceraSeleccionada) {
+            cabeceraSeleccionada.style.display = "flex";
+        }
+    }
+    </script>
 </body>
 </html>

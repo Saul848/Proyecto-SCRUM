@@ -1,10 +1,44 @@
 let historiaSeleccionadaKanban = null;
 
 /**
+ * Carga el HTML del modal mediante fetch la primera vez que se necesita
+ */
+async function asegurarModalCargadoDetallesHistoria() {
+    // Si ya existe en el DOM, no hace nada
+    if (document.getElementById("modal-detalle-historia-kanban")) return;
+
+    try {
+        // Asegúrate de poner la ruta correcta hacia tu archivo .html separado
+        const respuesta = await fetch('../html/modalDetalleHistoriaKanban.html');
+        if (!respuesta.ok) {
+            console.error("No se pudo cargar el archivo HTML del modal.");
+            return;
+        }
+        const html = await respuesta.text();
+
+        //Inyectarlo dentro de la zona de trabajo para mantener orden
+        const zonaTrabajo = document.getElementById("zonaDeTrabajo");
+        if (zonaTrabajo) {
+            zonaTrabajo.insertAdjacentHTML('beforeend', html);
+        } else {
+            // Fallback por si la zona de trabajo no se encuentra
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+    } catch (error) {
+        console.error("Error de red al intentar cargar el modal:", error);
+    }
+}
+
+/**
  * Abre el modal de detalle de historia y carga su información dinámicamente.
  * @param {number} historiaId - ID de la historia de usuario seleccionada.
  */
 async function verDetallesHistoriaKanban(historiaId) {
+    console.log("Clic en ver detalles para la historia ID:", historiaId);
+
+    // Asegurar que el HTML exista antes de intentar rellenarlo
+    await asegurarModalCargadoDetallesHistoria();
+
     // 1. Mostrar el modal usando lógica existente
     mostrarModal("modal-detalle-historia-kanban");
 
@@ -56,7 +90,7 @@ async function verDetallesHistoriaKanban(historiaId) {
 /**
  * Acción del botón para abrir las evidencias del servidor
  */
-function abrirEvidenciasHistoriaSeleccionada() {
+async function abrirEvidenciasHistoriaSeleccionada() {
     if (!historiaSeleccionadaKanban) {
         alert("Primero debes seleccionar una historia.");
         return;
@@ -66,5 +100,5 @@ function abrirEvidenciasHistoriaSeleccionada() {
         historiaSeleccionadaKanban.historia_id ??
         historiaSeleccionadaKanban.id;
 
-    abrirModalEvidencias(historiaId);
+    await abrirModalEvidenciasHistoria(historiaId);
 }

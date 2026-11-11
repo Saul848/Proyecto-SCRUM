@@ -135,14 +135,13 @@ async function obtenerProyectosDeUsuario(idUser) {
         
         // Obtenemos los datos del JSON
         const datos = await respuesta.json();
-        console.log("datos :"+ datos);
+        console.log("datos obtenidos - proyectos")
         // Convertido a un array de usuarios
         /*const proyectos = datos.data || [];
         console.log("proyectos: "+proyectos);
         
         // Regresa el arreglo con los datos
         //console.log(usuarios)*/
-        alert("datos obtenidos");
         return datos;
     } catch (error) {
         console.error("Error en la petición:", error);
@@ -190,6 +189,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
             "<p>Sin proyectos aún, ¡prueba a crear uno!</p>";
         return;
     }
+    console.log(proyectos);
 
     const tarjetasP = proyectos.map(proyecto => `
         <button class="item-card" data-id="${proyecto.id}">
@@ -207,7 +207,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
         if (!tarjetaP) return;
 
         const idProyecto = Number(tarjetaP.dataset.id);
-
+        console.log(idProyecto)
         // Encontrar el proyecto seleccionado.
         const proyectoSeleccionado = proyectos.find(
             proyecto => Number(proyecto.id) === idProyecto
@@ -242,7 +242,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
                 break;
 
             case "desarrollador":
-                window.location.href = '/html/desarrolladorBoton.html';
+                window.location.href = '/html/PanelDesarrollador.html';
                 break;
 
             case "cliente":

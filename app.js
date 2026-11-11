@@ -38,6 +38,10 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
  */
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
+/**
+ * Rutas de material adicional general.
+ */
+app.use('/material-general', require('./routes/materialGeneralRoutes'));
 
 /**
  * Rutas de proyectos
@@ -47,12 +51,18 @@ app.use('/proyectos', require('./routes/proyectosRoutes'));
 /**
  * Rutas de reuniones
  */
-app.use('/api/reunion', require('./routes/reunionRoutes'));
+app.use('/reuniones', require('./routes/reunionRoutes'));
 
 /**
  * Rutas de mensajes de cliente
  */
-app.use('/mensajes', require('./routes/MensajesClienteRoutes'));    
+//app.use('/mensajes', require('./routes/MensajesClienteRoutes'));
+
+
+/**
+ * Rutas de registro de tiempos de usuarios
+ */
+app.use('/registro-tiempos', require('./routes/registroTiemposRoutes'));
 
 /**
  * Carga del certificado autorfirmado para el cifrado
@@ -81,6 +91,9 @@ const server = https.createServer(opciones, app);
 const setupPlanningPokerSockets = require('./controladores/planningPokerServer.js'); // Ajusta la ruta a tu archivo de sockets
 setupPlanningPokerSockets(server);
 
+const setupAsignacionTareasSockets = require('./controladores/asignacionTareasServer.js'); // (Ajusta la ruta según donde hayas guardado tu archivo)
+setupAsignacionTareasSockets(server);
+
 /**
  * 3. Ponemos a escuchar el servidor HTTPS en el puerto 8443
  */
@@ -97,12 +110,24 @@ http.createServer((req, res) => {
     res.end();
 }).listen(8082);
 
-/**
- * Rutas de proyectos
- */
-app.use('/proyectos', require('./routes/proyectosRoutes'));
+
 
 /**
  * Rutas de mensajes
  */
-app.use('/mensajes', require('./routes/mensajesRoutes'));
+//app.use('/mensajes', require('./routes/mensajesRoutes'));
+
+/**
+ * Ruta de mensajes de desarrollador
+ */
+//app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
+
+/**
+ * Rutas de mensajes
+ */
+const mensajeRoutes = require('./routes/mensajeRoutes');
+
+/**
+ * Middleware para manejar las rutas de mensajes.
+ */
+app.use('/api/mensajes', mensajeRoutes);

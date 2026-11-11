@@ -1,0 +1,69 @@
+<!--Modal 3 Sprint Backlog-->
+<div id="sprint-backlog" class="modal-class">
+    <div id="objetivo-iteracion">
+        <h2>Objetivo actual de la iteración</h2>
+        <div class="selector-iteracion-wrapper">
+            <label for="select-no-iteracion">No. iteración #</label>
+            <select id="select-no-iteracion">
+                <!-- Se llenará dinámicamente con JavaScript -->
+                <option value="1">1</option>
+            </select>
+        </div>
+        <div id="objt-iteracion-box">No hay información disponible para el objetivo de esta iteración.</div>
+    </div>
+
+    <!-- Contenedor de duración con clase para control de rol -->
+    <div id="duracion-iteracion">
+        <h2>Duración</h2>
+        <div id="fechas">
+            <label id="lbl-fecha-inicio">Fecha inicio: No disponible</label>
+            <label id="lbl-fecha-final">Fecha final: No disponible</label>
+            <!-- Añadido ID o clase para ocultarlo -->
+            <button id="boton-cambiar-duracion" class="ocultable-rol">cambiar duración</button>
+        </div>
+    </div>
+
+    <!-- TABLERO KANVAN -->
+    <div id="historias-sprint">
+        <!-- Campo de búsqueda para la PB-24 -->
+        <div class="kanban-search-container" style="margin-bottom: 15px;">
+            <input type="text" id="inputBusquedaKanban" placeholder="🔍 Buscar historias por título o palabra clave..."
+                style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1;"
+                autocomplete="off">
+        </div>
+        <div class="columnas-kanban">
+            <h3>Por empezar</h3>
+            <h3>En progreso</h3>
+            <h3>En revisión</h3>
+            <h3>Terminado</h3>
+        </div>
+
+        <!-- Contenedor general de las 4 columnas (Grid) -->
+        <div id="tabla-historias">
+            <div class="columna-kanban" data-estado="por-empezar"></div>
+            <div class="columna-kanban" data-estado="en-progreso"></div>
+            <div class="columna-kanban" data-estado="en-revision"></div>
+            <div class="columna-kanban" data-estado="terminado"></div>
+        </div>
+
+        <label for="responsableHistoria">Responsable asignado:</label>
+        <input type="text" readonly="readonly" id="responsableHistoria">
+    </div>
+    <!-- TERMINO tablero KANVAN -->
+
+    <div id="botones-inferiores">
+        <!-- Añadidos IDs para identificarlos fácilmente -->
+        <button id="btn-ver-impedimentos" class="ocultable-rol">Ver impedimentos actuales</button>
+        <button id="btn-ver-historial" class="ocultable-rol">Ver historial de cambios</button>
+    
+        <div id="progreso-sprint">
+            <span>Progreso del sprint</span>
+            <div class="barra-progreso">
+                <!-- ID añadido para que JS pueda cambiar el ancho -->
+                <div id="barra-progreso-relleno" class="barra-progreso-relleno" style="width: 0%;"></div>
+            </div>
+            <!-- ID añadido para que JS actualice el texto numérico -->
+            <span id="texto-porcentaje-progreso">0%</span>
+        </div>
+    </div>
+</div>

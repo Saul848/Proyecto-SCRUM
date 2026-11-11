@@ -171,7 +171,7 @@ body {
 }
 
 /* ===== Contenedor general bajo la barra superior ===== */
-#contenedorMenuSuperior ~ * {
+#contenedor-principal {
     display: flex;
     flex: 1;
 }
@@ -528,4 +528,84 @@ body {
     background-color: #1a73e8;
     color: #ffffff;
     cursor: pointer;
+}
+
+/*CSS de las tarjetas de detalles de cada usuario---------------------------*/
+/* Fondo difuminado que cubre la pantalla */
+#cont-detalles-usuario {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+}
+
+/* Tarjeta principal: aquí está el diseño */
+.detalles-card {
+    position: relative;
+    width: min(700px, 90%);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px 28px;
+    background-color: #e9f0f2;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.detalles-card h2 {
+    font-size: 1.15em;
+    margin-bottom: 14px;
+}
+
+.detalles-card h3 {
+    font-size: 1.05em;
+    margin: 22px 0 12px;
+}
+
+/* Caja blanca con los datos */
+#detalles-usuario {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px 24px;
+}
+
+#detalles-usuario p {
+    font-size: 1.1em;
+    line-height: 1.7;
+}
+
+/* Lista de proyectos */
+#projects-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#projects-usuario .item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+/* Botón cerrar */
+#btn-cerrar-detalles {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.6em;
+    cursor: pointer;
+    color: #555;
+}
+
+#btn-cerrar-detalles:hover {
+    color: #000;
 }
