@@ -1,90 +1,306 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente - Panel Principal</title>
+    <link rel="stylesheet" href="../css/PanelFacilitador.css">
     <link rel="stylesheet" href="../css/mensajes.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <title>Document</title>
+    <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
+    <link rel="stylesheet" href="../css/reuniones.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Carga la librería cliente de Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
+    <!-- Bloque superior -->
+    <header id="BloqueSuperior">
 
-  <!-- ============================= -->
-    <!-- SECCIÓN DE MENSAJES (GENERAL) -->
-    <!-- ============================= -->
-    <div id="modal-mensajes" class="modal-class" style="display: none;">
-        <div class="main-container-chat">
-            
-            <!-- Panel izquierdo: Canales y Contactos Directos -->
-            <aside class="sidebar-mensajes">
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
+        <div id="contenedor-cabeceras">
+
+            <!-- Mi equipo -->
+            <div class="cabecera-default" id="cabecera-equipo">
+                <span class="badge-rol">Cliente</span>
+                <div class="info-cabecera">
+                    <h2>Equipo de trabajo</h2>
+                    <p>Consulta los integrantes y la información de tu equipo Scrum.</p>
                 </div>
-
-                <!-- Canales -->
-                <div>
-                    <p class="menu-seccion">Canales</p>
-                    <div class="lista-elementos" id="listaCanalesGeneral">
-                        <!-- Se llenarán dinámicamente desde la BD -->
-                    </div>
-                </div>
-
-                <!-- Contacto Directo -->
-                <div>
-                    <p class="menu-seccion">Contacto directo</p>
-                    <div class="lista-elementos" id="listaContactosGeneral">
-                        <!-- Se llenarán dinámicamente con los miembros del proyecto -->
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Panel derecho: Área de Chat -->
-            <section class="chat-area">
-                <div class="chat-header">
-                    <div class="chat-header-info">
-                        <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
-                        <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
-                    </div>
-                    
-                    <!-- Botones superiores alineados a la derecha -->
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button id="btnIniciarConversacion" class="btn-iniciar-conversacion" style="padding: 6px 12px; font-size: 13px;">
-                            💬 Iniciar conversación
-                        </button>
-                        <button class="btn-detalles" type="button">Ver detalles</button>
-                    </div>
-                </div>
-
-                <!-- Historial de mensajes -->
-                <div class="chat-mensajes" id="contenedorMensajesGeneral">
-                    <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
-                        Selecciona una conversación a la izquierda para empezar a chatear.
-                    </div>
-                </div>
-
-                <!-- Caja inferior de entrada de texto (¡Aquí está de vuelta!) -->
-                <div class="chat-input-box">
-                    <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
-                    <button id="btnEnviarMensajeGeneral" type="button">➤</button>
-                </div>
-            </section>
-
-        </div>
-    </div>
-
-    <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
-    <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
-        <div class="modal-chat-content">
-            <h3>Iniciar nueva conversación</h3>
-            <p>Selecciona un miembro del proyecto:</p>
-            <div id="listaContactosModal" class="lista-modal-contactos">
-                <!-- Se llenará dinámicamente -->
             </div>
-            <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
-        </div>
-    </div>
 
-  <script src="../js/mensajes.js"></script>
+            <!-- Mensajes -->
+            <div class="cabecera-default" id="cabecera-mensajes">
+                <span class="badge-rol">Cliente</span>
+                <div class="info-cabecera">
+                    <h2>Centro de comunicación</h2>
+                    <p>Comunícate con los integrantes mediante conversaciones y canales.</p>
+                </div>
+            </div>
+
+            <!-- Product Backlog -->
+            <div class="cabecera-default" id="cabecera-productBacklog">
+                <span class="badge-rol">Cliente</span>
+                <div class="info-cabecera">
+                    <h2>Product Backlog del proyecto</h2>
+                    <p>Consulta las historias de usuario, sus criterios de aceptación y la Definición de Hecho.</p>
+                </div>
+            </div>
+
+            <!-- Reuniones -->
+            <div class="cabecera-default" id="cabecera-springPlanning">
+                <span class="badge-rol">Cliente</span>
+                <div class="info-cabecera">
+                    <h2>Reuniones del equipo</h2>
+                    <p>Consulta las reuniones programadas para el proyecto.</p>
+                </div>
+            </div>
+
+            <!-- Gráficas -->
+            <div class="cabecera-default" id="cabecera-graficas">
+                <span class="badge-rol">Cliente</span>
+                <div class="info-cabecera">
+                    <h2>Métricas del proyecto</h2>
+                    <p>Visualiza el avance general del Product Backlog.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- Bloque inferior -->
+    <main id="BloqueInferior">
+
+        <!-- Section panelLateral -->
+        <section id="panelLateral">
+            <div id="divIndice">
+                <span>❖ Seccion</span>
+
+                <ul id="panelLateral">
+
+                    <li>
+                        <button id="linkMiEquipo" onclick="mostrarModal('modal-usuariosF', 'cabecera-equipo')">
+                            Mi equipo
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">
+                            Mensajes
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="linkProductBacklog" class="active"
+                            onclick="mostrarModal('modal-product-backlog', 'cabecera-productBacklog')">
+                            Product Backlog
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">
+                            Reunirse
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">
+                            Gráficas
+                        </button>
+                    </li>
+
+                </ul>
+
+            </div>
+        </section>
+
+        <!-- Section zonaDeTrabajo -->
+        <section id="zonaDeTrabajo">
+
+            <!-- MODAL 1: PRODUCT BACKLOG -->
+            <div id="modal-product-backlog" class="modal-class" style="display: block;">
+                <div id="DivContPB">
+
+                    <!-- Barra de filtros -->
+                    <div id="contenedorFiltrosPB" class="filtros-pb-container">
+                        <input type="text" id="inputFiltroId" class="filtro-input filtro-id"
+                            placeholder="Filtrar ID...">
+                        <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre"
+                            placeholder="Filtrar nombre...">
+                        <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor"
+                            placeholder="Filtrar valor...">
+                        <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint"
+                            placeholder="Filtrar sprint...">
+                        <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+                    </div>
+
+                    <!-- Encabezados de historias de usuario -->
+                    <div id="DivEncabezados">
+                        <label id="LabelID">ID</label>
+                        <label id="LabelNombreHistoria">Historias de usuario</label>
+                        <label id="LabelDescripccion">Descripccion</label>
+                        <label id="LabelCriterios">Criterios de acpetacion</label>
+                        <label id="LabelValor">Valor</label>
+                        <label id="LabelSprintAsginado">Sprint asignado</label>
+                        <div class="espacioAcciones"></div>
+                    </div>
+
+                    <!-- Seccion que contiene los datos de las historias de usuario -->
+                    <div id="DivHistoria"></div>
+
+                </div> <!-- Aquí acaba el ContPB -->
+
+                <div id="ContDOD">
+                    <div id="encabezado-dod">
+                        <h2>Definición de hecho (DOD)</h2>
+                        <div id="contenido-definicion">
+                            <label id="dodTexto"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN DE MENSAJES (GENERAL) -->
+            <div id="modal-mensajes" class="modal-class" style="display: none;">
+                <div class="main-container-chat">
+                    <!-- Panel izquierdo: Canales y Contactos Directos -->
+                    <aside class="sidebar-mensajes">
+                        <div class="search-box">
+                            <span>🔍</span>
+                            <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
+                        </div>
+
+                        <!-- Contactos directos -->
+                        <div>
+                            <p class="menu-seccion">Contacto directo</p>
+                            <div id="listaContactosDirectos">
+                                <!-- Aquí JavaScript agregará los contactos -->
+                            </div>
+                        </div>
+
+                        <!-- Canales dinámicos -->
+                        <div>
+                            <p class="menu-seccion">Canales</p>
+                            <div class="lista-elementos" id="listaCanalesGeneral">
+                                <!-- Se llenarán dinámicamente desde la BD -->
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Panel derecho: Área de Chat -->
+                    <section class="chat-area">
+                        <div class="chat-header">
+                            <div class="chat-header-info">
+                                <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
+                                <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button id="btnIniciarConversacion" class="btn-iniciar-conversacion"
+                                    style="padding: 6px 12px; font-size: 13px;">
+                                    💬 Iniciar conversación
+                                </button>
+                                <button id="btnDetallesConversacion" class="btn-detalles" type="button">Ver
+                                    detalles</button>
+                            </div>
+                        </div>
+
+                        <!-- Historial de mensajes -->
+                        <div class="chat-mensajes" id="contenedorMensajesGeneral">
+                            <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
+                                Selecciona una conversación a la izquierda para empezar a chatear.
+                            </div>
+                        </div>
+
+                        <!-- Caja inferior de entrada de texto -->
+                        <div class="chat-input-box">
+                            <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                            <button id="btnEnviarMensajeGeneral" type="button">➤</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
+            <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
+                <div class="modal-chat-content">
+                    <h3>Iniciar nueva conversación</h3>
+                    <p>Selecciona un miembro del proyecto:</p>
+                    <div id="listaContactosModal" class="lista-modal-contactos">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                    <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
+                </div>
+            </div>
+
+            <!-- MODAL 3: REUNIRSE -->
+            <div id="modal-reuniones" class="modal-class" style="display: none;">
+                <div class="area-fondo" style="padding: 20px;">
+                    <!-- Las tarjetas de reuniones se inyectarán aquí automáticamente -->
+                </div>
+            </div>
+
+            <!-- Sección de Gráficas -->
+            <div id="modal-graficas" class="modal-class" style="display: none;">
+                <div class="chat-header">
+                    <h3>Gráficas y Métricas del Proyecto</h3>
+                </div>
+
+                <div style="padding: 20px;">
+                    <p style="color: #666; margin-bottom: 20px;">Selecciona qué gráfica deseas visualizar:</p>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <!-- Opción: Burndown Chart del Product Backlog -->
+                        <div class="tarjeta-grafica" onclick="cargarGrafica('product-backlog')"
+                            style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; width: 260px; cursor: pointer; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;">
+                            <div style="font-size: 24px; color: #2563eb; margin-bottom: 10px;">📊</div>
+                            <h4 style="margin: 0 0 8px 0; color: #333;">Burndown Chart (Product Backlog)</h4>
+                            <p style="margin: 0; font-size: 13px; color: #777;">Monitorea el avance total de las
+                                historias y estimaciones del proyecto.</p>
+                        </div>
+                    </div>
+
+                    <!-- Área de Gráficas y Métricas -->
+                    <div id="contenedor-grafica-activa"
+                        style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
+                        <h4 id="titulo-grafica-activa"
+                            style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica
+                        </h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+                            <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
+                                <!-- Tabla estilo Excel se inyectará aquí -->
+                            </div>
+                            <div id="area-dibujo-grafica"
+                                style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
+                                <canvas id="chartBurndownCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para listar los miembros de un equipo -->
+            <div id="modal-usuariosF" class="modal-class">
+                <h2>Lista de miembros del equipo</h2>
+                <div id="contenedor-blancoF">
+                    <div id="contenedor-azulF">
+                        <h3>Miembros</h3>
+                        <div id="contenedor-usuariosF"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Scripts correspondientes -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/FacilitadorPB.js" defer></script>
+    <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
+    <script src="../js/reuniones.js" defer></script>
+    <script src="../js/PanelFacilitador.js"></script>
+    <script src="../js/mensajes.js" defer></script>
 </body>
+
 </html>

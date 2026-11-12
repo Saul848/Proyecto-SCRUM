@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="../css/modalSubirMaterial.css">
   <link rel="stylesheet" href="../css/modalSprintBacklog.css">
   <link rel="stylesheet" href="../css/grupos.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="stylesheet" href="../css/registroTiempos.css">
   <link rel="stylesheet" href="../css/planningPokerFacilitador.css">
 
@@ -26,39 +27,100 @@
 <body>
   <!-- Bloque superior -->
   <header id="BloqueSuperior">
+
     <div id="contenedor-cabeceras">
-      <!--Cabecera 1-->
-      
-<!-- Cabecera de Mensajes -->
-<div class="cabecera-default" id="cabecera-mensajes">
-    <!-- Rol -->
-    <div id="DivMsjFacilitador"> Facilitador </div>
-    <!-- Título -->
-    <div id="tituloSeccionCentral" style="display: none;"> Mensajes </div>
-    <!-- Información del proyecto -->
-    <div id="DivTitulo"> Product Backlog para el cliente: <span>Juan Carlos</span></div>
-    <!-- Se conserva por compatibilidad -->
-    <button class="btn-iniciar" id="btnIniciarConversacionCabecera" style="display: none;"> Iniciar conversación </button>
-</div>
-<!--Cabecera 2-->
-      <div>
-        <div class="cabecera-default" id="cabecera-sprintPB">
-          <span class="badge-rol">Facilitador</span>
-          <h2>Sprint backlog</h2>
-          <button class="btn-pill btn-azul" onclick="abrirPlanningPokerParaFacilitador()">Planning poker</button>
-          <button class="btn-pill btn-azul">Generar reporte</button>
-          <button class="btn-pill btn-verde">Modificar sprint actual</button>
-          <button class="btn-pill btn-rojo">Cerrar sprint</button>
+
+      <!-- Mi equipo -->
+      <div class="cabecera-default" id="cabecera-equipo">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Equipo de trabajo</h2>
+          <p>Consulta los integrantes y la información de tu equipo Scrum.</p>
         </div>
       </div>
-      <!--Cabecera 3-->
+
+      <!-- Mensajes -->
+      <div class="cabecera-default" id="cabecera-mensajes">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Centro de comunicación</h2>
+          <p>Comunícate con los integrantes mediante conversaciones y grupos.</p>
+        </div>
+      </div>
+
+      <!-- Product Backlog -->
+      <div class="cabecera-default" id="cabecera-productBacklog">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Gestión del Product Backlog</h2>
+          <p>Administra las historias de usuario, sus criterios de aceptación y la Definición de Hecho.</p>
+        </div>
+      </div>
+
+      <!-- Sprint Backlog -->
+      <div class="cabecera-default" id="cabecera-sprintPB">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Gestión del Sprint Backlog</h2>
+          <p>Organiza las historias seleccionadas para el sprint y consulta su avance.</p>
+        </div>
+
+        <button class="btn-pill btn-azul" onclick="abrirPlanningPokerParaFacilitador()">
+          Planning poker
+        </button>
+
+        <button class="btn-pill btn-azul">Generar reporte</button>
+        <button class="btn-pill btn-verde">Modificar sprint actual</button>
+        <button class="btn-pill btn-rojo">Cerrar sprint</button>
+      </div>
+
+      <!-- Mis tareas -->
+      <div class="cabecera-default" id="cabecera-tareas">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Mis tareas asignadas</h2>
+          <p>Consulta y da seguimiento a las actividades pendientes.</p>
+        </div>
+      </div>
+
+      <!-- Reuniones -->
       <div class="cabecera-default" id="cabecera-springPlanning">
         <span class="badge-rol">Facilitador</span>
-        <h2>Reuniones</h2>
+        <div class="info-cabecera">
+          <h2>Reuniones del equipo</h2>
+          <p>Consulta y organiza las reuniones correspondientes al proyecto.</p>
+        </div>
+      </div>
+
+      <!-- Gráficas -->
+      <div class="cabecera-default" id="cabecera-graficas">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Métricas del proyecto</h2>
+          <p>Visualiza el avance general y el rendimiento de los sprints.</p>
+        </div>
+      </div>
+
+      <!-- Ajustes -->
+      <div class="cabecera-default" id="cabecera-ajustes">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Configuración del panel</h2>
+          <p>Administra las preferencias y opciones del sistema.</p>
+        </div>
+      </div>
+
+      <!-- Registro de tiempos -->
+      <div class="cabecera-default" id="cabecera-tiempos">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Seguimiento del tiempo</h2>
+          <p>Registra las actividades realizadas y el tiempo dedicado a ellas.</p>
+        </div>
       </div>
 
     </div>
-
+    
   </header>
 
   <!-- Bloque inferior -->
@@ -69,16 +131,62 @@
       <div id="divIndice">
         <span>❖ Seccion</span>
         <ul id="panelLateral">
-          <li><button href="#" id="linkMiEquipo" onclick="mostrarModal('modal-usuariosF', 'cabecera-graficas')">Mi equipo</button></li>
-          <li><button href="#" id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">Mensajes</button></li>
-          <li><button href="#" id="linkProductBacklog" class="active" onclick="mostrarModal('modal-product-backlog', 'cabecera-mensajes')">Product Backlog</button></li>
-          <li><button href="#" id="linkSprint" onclick=" mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">Sprint Backlog</button></li>
-          <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
-          <li><button href="#" id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button></li>
-          <li><button href="#" id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">Graficas</button></li>
-          <li><button href="#" id="linkAjustes">Ajustes</button></li>
-          <li><button href="#" id="linkTiempos" onclick="mostrarModal('modal-tiempos', 'cabecera-springPlanning')">Registro de tiempos</button></li>
-          <li><button href="#" id="btnSessionProyectoUsuario" onclick="consoleSessionStorage()">sessionStorage</button></li>
+
+          <li>
+            <button id="linkMiEquipo" onclick="mostrarModal('modal-usuariosF', 'cabecera-equipo')">
+              Mi equipo
+            </button>
+          </li>
+
+          <li>
+            <button id="linkMensajes" onclick="mostrarModal('modal-mensajes', 'cabecera-mensajes')">
+              Mensajes
+            </button>
+          </li>
+
+          <li>
+            <button id="linkProductBacklog" class="active"
+              onclick="mostrarModal('modal-product-backlog', 'cabecera-productBacklog')">
+              Product Backlog
+            </button>
+          </li>
+
+          <li>
+            <button id="linkSprint" onclick="mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">
+              Sprint Backlog
+            </button>
+          </li>
+
+          <li>
+            <button id="linkMisTareas" onclick="mostrarModal('modal-mis-tareas', 'cabecera-tareas')">
+              Mis tareas
+            </button>
+          </li>
+
+          <li>
+            <button id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">
+              Reunirse
+            </button>
+          </li>
+
+          <li>
+            <button id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">
+              Gráficas
+            </button>
+          </li>
+
+          <li>
+            <button id="linkAjustes" onclick="mostrarModal('modal-ajustes', 'cabecera-ajustes')">
+              Ajustes
+            </button>
+          </li>
+
+          <li>
+            <button id="linkTiempos" onclick="mostrarModal('modal-tiempos', 'cabecera-tiempos')">
+              Registro de tiempos
+            </button>
+          </li>
+
         </ul>
       </div>
     </section>
@@ -257,98 +365,95 @@
           </div>
         </div>
       </div>
-    <!-- ============================= -->
-    <!-- SECCIÓN DE MENSAJES (GENERAL) -->
-    <!-- ============================= -->
-    <div id="modal-mensajes" class="modal-class" style="display: none;">
+      <!-- ============================= -->
+      <!-- SECCIÓN DE MENSAJES (GENERAL) -->
+      <!-- ============================= -->
+      <div id="modal-mensajes" class="modal-class" style="display: none;">
         <div class="main-container-chat">
-            <!-- Panel izquierdo: Canales y Contactos Directos -->
-            <aside class="sidebar-mensajes">
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
-                </div>          
-<!-- Contactos directos -->
-<div>
-    <p class="menu-seccion">Contacto directo</p>
-    <div id="listaContactosDirectos">
-        <!-- Aquí JavaScript agregará los contactos -->
-    </div>
-</div>
-
-<!-- Canales dinámicos -->
-<div>
-    <p class="menu-seccion">Canales</p>
-    <div class="lista-elementos" id="listaCanalesGeneral">
-        <!-- Se llenarán dinámicamente desde la BD -->
-    </div>
-</div>
-<!-- Sección de grupos -->
-<div class="seccion-grupos">
-    <div class="encabezado-grupos">
-        <p class="menu-seccion">GRUPOS</p>
-
-        <button
-            type="button"
-            id="btnCrearGrupo"
-            class="btn-crear-grupo"
-            title="Crear nuevo grupo"
-            aria-label="Crear nuevo grupo">
-            +
-        </button>
-    </div>
-
-    <div id="listaGrupos" class="lista-grupos">
-        <p class="mensaje-sin-grupos">
-            Aquí aparecerán tus grupos.
-        </p>
-    </div>
-</div>
-</aside>
-            <!-- Panel derecho: Área de Chat -->
-            <section class="chat-area">
-                <div class="chat-header">
-                    <div class="chat-header-info">
-                        <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
-                        <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
-                    </div>
-                    <!-- Botones superiores alineados a la derecha -->
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button id="btnIniciarConversacion" class="btn-iniciar-conversacion" style="padding: 6px 12px; font-size: 13px;">
-                            💬 Iniciar conversación
-                        </button>
-                        <button id="btnDetallesConversacion" class="btn-detalles" type="button">Ver detalles</button>
-                    </div>
-                </div>
-
-                <!-- Historial de mensajes -->
-                <div class="chat-mensajes" id="contenedorMensajesGeneral">
-                    <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
-                        Selecciona una conversación a la izquierda para empezar a chatear.
-                    </div>
-                </div>
-
-                <!-- Caja inferior de entrada de texto (¡Aquí está de vuelta!) -->
-                <div class="chat-input-box">
-                    <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
-                    <button id="btnEnviarMensajeGeneral" type="button">➤</button>
-                </div>
-            </section>
-
-        </div>
-    </div>
-
-    <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
-    <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
-        <div class="modal-chat-content">
-            <h3>Iniciar nueva conversación</h3>
-            <p>Selecciona un miembro del proyecto:</p>
-            <div id="listaContactosModal" class="lista-modal-contactos">
-                <!-- Se llenará dinámicamente -->
+          <!-- Panel izquierdo: Canales y Contactos Directos -->
+          <aside class="sidebar-mensajes">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
             </div>
-            <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
+            <!-- Contactos directos -->
+            <div>
+              <p class="menu-seccion">Contacto directo</p>
+              <div id="listaContactosDirectos">
+                <!-- Aquí JavaScript agregará los contactos -->
+              </div>
+            </div>
+
+            <!-- Canales dinámicos -->
+            <div>
+              <p class="menu-seccion">Canales</p>
+              <div class="lista-elementos" id="listaCanalesGeneral">
+                <!-- Se llenarán dinámicamente desde la BD -->
+              </div>
+            </div>
+            <!-- Sección de grupos -->
+            <div class="seccion-grupos">
+              <div class="encabezado-grupos">
+                <p class="menu-seccion">GRUPOS</p>
+
+                <button type="button" id="btnCrearGrupo" class="btn-crear-grupo" title="Crear nuevo grupo"
+                  aria-label="Crear nuevo grupo">
+                  +
+                </button>
+              </div>
+
+              <div id="listaGrupos" class="lista-grupos">
+                <p class="mensaje-sin-grupos">
+                  Aquí aparecerán tus grupos.
+                </p>
+              </div>
+            </div>
+          </aside>
+          <!-- Panel derecho: Área de Chat -->
+          <section class="chat-area">
+            <div class="chat-header">
+              <div class="chat-header-info">
+                <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
+                <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
+              </div>
+              <!-- Botones superiores alineados a la derecha -->
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button id="btnIniciarConversacion" class="btn-iniciar-conversacion"
+                  style="padding: 6px 12px; font-size: 13px;">
+                  💬 Iniciar conversación
+                </button>
+                <button id="btnDetallesConversacion" class="btn-detalles" type="button">Ver detalles</button>
+              </div>
+            </div>
+
+            <!-- Historial de mensajes -->
+            <div class="chat-mensajes" id="contenedorMensajesGeneral">
+              <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
+                Selecciona una conversación a la izquierda para empezar a chatear.
+              </div>
+            </div>
+
+            <!-- Caja inferior de entrada de texto (¡Aquí está de vuelta!) -->
+            <div class="chat-input-box">
+              <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+              <button id="btnEnviarMensajeGeneral" type="button">➤</button>
+            </div>
+          </section>
+
         </div>
-    </div>
+      </div>
+
+      <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
+      <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
+        <div class="modal-chat-content">
+          <h3>Iniciar nueva conversación</h3>
+          <p>Selecciona un miembro del proyecto:</p>
+          <div id="listaContactosModal" class="lista-modal-contactos">
+            <!-- Se llenará dinámicamente -->
+          </div>
+          <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
+        </div>
+      </div>
 
       <!-- MODAL 3: REUNIRSE -->
       <div id="modal-reuniones" class="modal-class" style="display: none;">
@@ -440,7 +545,8 @@
           <!-- Área de Gráficas y Métricas: Tabla y Gráfica lado a lado con diseño compacto -->
           <div id="contenedor-grafica-activa"
             style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
-            <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">Vista de Gráfica</h4>
+            <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">
+              Vista de Gráfica</h4>
             <!-- Contenedor principal en fila (lado a lado) -->
             <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
               <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
@@ -463,10 +569,10 @@
                   style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
                   <canvas id="chartBurndownCanvas"></canvas>
                 </div>
-              </div>   <!-- cierra el flex tabla/gráfica -->
-            </div>     <!-- cierra contenedor-grafica-activa -->
-          </div>       <!-- cierra el div con padding: 20px -->
-        </div>         <!-- cierra modal-graficas -->
+              </div> <!-- cierra el flex tabla/gráfica -->
+            </div> <!-- cierra contenedor-grafica-activa -->
+          </div> <!-- cierra el div con padding: 20px -->
+        </div> <!-- cierra modal-graficas -->
       </div>
 
       <!-- MODAL PARA registro de tiempos -->
@@ -506,118 +612,97 @@
       </div><!--Aqui acaba el modal de miembros del equipo-->
     </section>
   </main>
-    
-<!-- MODAL PARA MATERIAL ADICIONAL GENERAL -->
-<div id="mi-modal-evidencias-general"
-     class="modal-overlay"
-     style="display: none !important;">
+
+  <!-- MODAL PARA MATERIAL ADICIONAL GENERAL -->
+  <div id="mi-modal-evidencias-general" class="modal-overlay" style="display: none !important;">
 
     <div class="modal-content">
 
-        <!-- Cabecera: Botón Volver y Estado -->
-        <div class="modal-header">
-            <button
-                class="btn-modal-cancelar kanban-evidencias-btn-volver"
-                type="button"
-                onclick="cerrarMiModalGeneral(event)">
-                &lsaquo; Volver al tablero
-            </button>
+      <!-- Cabecera: Botón Volver y Estado -->
+      <div class="modal-header">
+        <button class="btn-modal-cancelar kanban-evidencias-btn-volver" type="button"
+          onclick="cerrarMiModalGeneral(event)">
+          &lsaquo; Volver al tablero
+        </button>
 
-            <span
-                id="material-general-badge-estado"
-                class="badge-estado general-badge">
-                General
-            </span>
-        </div>
+        <span id="material-general-badge-estado" class="badge-estado general-badge">
+          General
+        </span>
+      </div>
 
-        <!-- Alerta informativa -->
-        <div class="alerta-info">
-            <span id="material-general-alerta-texto">
-                Puedes subir imágenes PNG, JPG, archivos PDF y ZIP
-                de hasta 5 MB.
-            </span>
-        </div>
+      <!-- Alerta informativa -->
+      <div class="alerta-info">
+        <span id="material-general-alerta-texto">
+          Puedes subir imágenes PNG, JPG, archivos PDF y ZIP
+          de hasta 5 MB.
+        </span>
+      </div>
 
-        <!-- Zona de carga de archivos -->
-        <div
-            id="material-general-zona-carga"
-            class="zona-carga"
-            onclick="document.getElementById('material-general-input-file').click();">
+      <!-- Zona de carga de archivos -->
+      <div id="material-general-zona-carga" class="zona-carga"
+        onclick="document.getElementById('material-general-input-file').click();">
 
-            <p>
-                <strong>Subir material adicional</strong>
-            </p>
+        <p>
+          <strong>Subir material adicional</strong>
+        </p>
 
-            <p>
-                Haz clic para elegir un archivo
-                (PNG, JPG, PDF, ZIP)
-            </p>
+        <p>
+          Haz clic para elegir un archivo
+          (PNG, JPG, PDF, ZIP)
+        </p>
 
-            <input
-                type="file"
-                id="material-general-input-file"
-                accept=".png,.jpg,.jpeg,.pdf,.zip"
-                onchange="subirMaterialGeneral(this)"
-                onclick="event.stopPropagation();">
-        </div>
+        <input type="file" id="material-general-input-file" accept=".png,.jpg,.jpeg,.pdf,.zip"
+          onchange="subirMaterialGeneral(this)" onclick="event.stopPropagation();">
+      </div>
 
-        <!-- Sección de lista de archivos -->
-        <div class="seccion-lista-archivos">
+      <!-- Sección de lista de archivos -->
+      <div class="seccion-lista-archivos">
 
-            <h4 id="material-general-contador">
-                Archivos subidos (0)
-            </h4>
+        <h4 id="material-general-contador">
+          Archivos subidos (0)
+        </h4>
 
-            <div
-                id="material-general-lista-archivos"
-                class="lista-archivos">
+        <div id="material-general-lista-archivos" class="lista-archivos">
 
-                <div class="sin-archivos">
-                    No hay materiales subidos todavía.
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Sección de vista previa -->
-        <div class="seccion-preview">
-
-            <h4>Vista previa</h4>
-
-            <div
-                id="material-general-preview-content"
-                class="preview-content">
-
-                <span class="preview-icono-default">
-                    &#128444;
-                </span>
-
-                <span
-                    id="material-general-preview-nombre"
-                    class="preview-nombre-archivo">
-                    Selecciona un archivo
-                </span>
-
-            </div>
-        </div>
-
-        <!-- Acciones de cierre -->
-        <div class="modal-actions">
-
-            <button
-                type="button"
-                class="btn-modal-cancelar"
-                onclick="cerrarMiModalGeneral(event)">
-                Cerrar
-            </button>
+          <div class="sin-archivos">
+            No hay materiales subidos todavía.
+          </div>
 
         </div>
+      </div>
+
+      <!-- Sección de vista previa -->
+      <div class="seccion-preview">
+
+        <h4>Vista previa</h4>
+
+        <div id="material-general-preview-content" class="preview-content">
+
+          <span class="preview-icono-default">
+            &#128444;
+          </span>
+
+          <span id="material-general-preview-nombre" class="preview-nombre-archivo">
+            Selecciona un archivo
+          </span>
+
+        </div>
+      </div>
+
+      <!-- Acciones de cierre -->
+      <div class="modal-actions">
+
+        <button type="button" class="btn-modal-cancelar" onclick="cerrarMiModalGeneral(event)">
+          Cerrar
+        </button>
+
+      </div>
 
     </div>
-</div>
+  </div>
 
-<!-- Contenedor para los modales de grupos -->
-<div id="contenedorModalesGrupos"></div>
+  <!-- Contenedor para los modales de grupos -->
+  <div id="contenedorModalesGrupos"></div>
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>

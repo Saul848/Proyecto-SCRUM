@@ -349,39 +349,5 @@
   <script src="../js/reuniones.js" defer></script>
   <script src="../js/sprintPlanning.js" defer></script>
   
-  <script>
-  // Función para alternar los modales en el panel del desarrollador
-    function mostrarModal(idModal, idCabecera) {
-        document.querySelectorAll(".modal-class").forEach(modal => {
-            modal.style.display = "none";
-        });
-
-        const modalSeleccionado = document.getElementById(idModal);
-        if (modalSeleccionado) {
-            modalSeleccionado.style.display = "block";
-        }
-
-        if (idCabecera) {
-            mostrarCabecera(idCabecera);
-        }
-
-        // Si abren el módulo de reuniones, cargamos automáticamente la lista
-        if (idModal === 'modal-reuniones') {
-            if (typeof cargarReuniones === 'function') {
-                cargarReuniones();
-            }
-        }
-    }
-
-    function mostrarCabecera(idCabecera) {
-        document.querySelectorAll(".cabecera-default").forEach(cabecera => {
-            cabecera.style.display = "none";
-        });
-        const cabeceraSeleccionada = document.getElementById(idCabecera);
-        if (cabeceraSeleccionada) {
-            cabeceraSeleccionada.style.display = "flex";
-        }
-    }
-    </script>
 </body>
 </html>
