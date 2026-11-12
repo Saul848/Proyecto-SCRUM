@@ -136,8 +136,8 @@ static async eliminarParticipante(idGrupo, idAdministrador, idParticipante) {
         }
 
         // Evitar que el administrador se elimine a sí mismo.
-        if (idAdministrador === idParticipante) {
-            throw new Error('El administrador no puede eliminarse a sí mismo');
+        if (Number(idAdministrador) === Number(idParticipante)) {
+        throw new Error('El administrador no puede eliminarse a sí mismo');
         }
 
         // Eliminar únicamente la relación del participante con el grupo.

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Facilitador - Panel Principal</title>
   <link rel="stylesheet" href="../css/PanelFacilitador.css">
-  <link rel="stylesheet" href="../css/mensajesFacilitador.css">
+  <link rel="stylesheet" href="../css/mensajes.css">
   <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
   <link rel="stylesheet" href="../css/modalEvidenciaHistoria.css">
   <link rel="stylesheet" href="../css/reuniones.css">
@@ -28,16 +28,19 @@
   <header id="BloqueSuperior">
     <div id="contenedor-cabeceras">
       <!--Cabecera 1-->
-      <div class="cabecera-default" id="cabecera-mensajes">
-        <div id="DivMsjFacilitador">Facilitador</div>
-        <!-- Título central (Solo se verá en Mensajes o secciones con título central) -->
-        <div id="tituloSeccionCentral" style="display: none;">Mensajes</div>
-        <!-- Texto secundario / información del cliente -->
-        <div id="DivTitulo">Product Backlog para el cliente: <span>Juan Carlos</span></div>
-        <!-- Botón derecho exclusivo de Mensajes -->
-        <button class="btn-iniciar" id="btnIniciarConversacion" style="display: none;">Iniciar conversación</button>
-      </div>
-      <!--Cabecera 2-->
+      
+<!-- Cabecera de Mensajes -->
+<div class="cabecera-default" id="cabecera-mensajes">
+    <!-- Rol -->
+    <div id="DivMsjFacilitador"> Facilitador </div>
+    <!-- Título -->
+    <div id="tituloSeccionCentral" style="display: none;"> Mensajes </div>
+    <!-- Información del proyecto -->
+    <div id="DivTitulo"> Product Backlog para el cliente: <span>Juan Carlos</span></div>
+    <!-- Se conserva por compatibilidad -->
+    <button class="btn-iniciar" id="btnIniciarConversacionCabecera" style="display: none;"> Iniciar conversación </button>
+</div>
+<!--Cabecera 2-->
       <div>
         <div class="cabecera-default" id="cabecera-sprintPB">
           <span class="badge-rol">Facilitador</span>
@@ -254,112 +257,98 @@
           </div>
         </div>
       </div>
+    <!-- ============================= -->
+    <!-- SECCIÓN DE MENSAJES (GENERAL) -->
+    <!-- ============================= -->
+    <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="main-container-chat">
+            <!-- Panel izquierdo: Canales y Contactos Directos -->
+            <aside class="sidebar-mensajes">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="inputBuscarChat" placeholder="Buscar tema o mensaje...">
+                </div>          
+<!-- Contactos directos -->
+<div>
+    <p class="menu-seccion">Contacto directo</p>
+    <div id="listaContactosDirectos">
+        <!-- Aquí JavaScript agregará los contactos -->
+    </div>
+</div>
 
-      <!-- MODAL 2: MENSAJES (Módulo PB-09) -->
-      <div id="modal-mensajes" class="modal-class" style="display: none;">
-        <div class="main-container">
-
-          <!-- Panel Izquierdo: Canales y Contactos -->
-          <aside class="sidebar-mensajes">
-            <div class="search-box">
-              <span>🔍</span>
-              <input type="text" placeholder="Buscar tema o mensaje...">
-            </div>
-
-            <div>
-              <p class="menu-seccion">Canales</p>
-              <div class="lista-elementos" id="listaCanales">
-                <div class="elemento-item activo" onclick="cambiarCanal('Dudas de requerimientos')">#Dudas de
-                  requerimientos</div>
-                <div class="elemento-item" onclick="cambiarCanal('Aprobaciones y entregas')">#Aprobaciones y entregas
-                </div>
-                <div class="elemento-item" onclick="cambiarCanal('General del proyecto')">#General del proyecto</div>
-              </div>
-            </div>
-
-            <div>
-              <p class="menu-seccion">Contacto directo</p>
-              <div id="listaContactosDirectos">
-                <!-- Aquí JavaScript agregará los contactos -->
-              </div>
-            </div>
-            
+<!-- Canales dinámicos -->
+<div>
+    <p class="menu-seccion">Canales</p>
+    <div class="lista-elementos" id="listaCanalesGeneral">
+        <!-- Se llenarán dinámicamente desde la BD -->
+    </div>
+</div>
 <!-- Sección de grupos -->
 <div class="seccion-grupos">
-  <div class="encabezado-grupos">
-    <p class="menu-seccion">GRUPOS</p>
+    <div class="encabezado-grupos">
+        <p class="menu-seccion">GRUPOS</p>
 
-    <button
-      type="button"
-      id="btnCrearGrupo"
-      class="btn-crear-grupo"
-      title="Crear nuevo grupo"
-      aria-label="Crear nuevo grupo">
-      +
-    </button>
-  </div>
+        <button
+            type="button"
+            id="btnCrearGrupo"
+            class="btn-crear-grupo"
+            title="Crear nuevo grupo"
+            aria-label="Crear nuevo grupo">
+            +
+        </button>
+    </div>
 
-  <div id="listaGrupos" class="lista-grupos">
-    <p class="mensaje-sin-grupos">
-      Aquí aparecerán tus grupos.
-    </p>
-  </div>
+    <div id="listaGrupos" class="lista-grupos">
+        <p class="mensaje-sin-grupos">
+            Aquí aparecerán tus grupos.
+        </p>
+    </div>
 </div>
-       
-          </aside>
+</aside>
+            <!-- Panel derecho: Área de Chat -->
+            <section class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <h3 id="tituloChatActual">Selecciona un canal o contacto</h3>
+                        <span class="sub-info-chat" id="subInfoChat">Proyecto Activo</span>
+                    </div>
+                    <!-- Botones superiores alineados a la derecha -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button id="btnIniciarConversacion" class="btn-iniciar-conversacion" style="padding: 6px 12px; font-size: 13px;">
+                            💬 Iniciar conversación
+                        </button>
+                        <button id="btnDetallesConversacion" class="btn-detalles" type="button">Ver detalles</button>
+                    </div>
+                </div>
 
-          <!-- Sección Derecha: Chat Activo -->
-          <section class="chat-area">
-            <div class="chat-header">
-              <div class="chat-header-info">
-                <h3 id="tituloCanalActual">#Dudas de requerimientos</h3>
-                <span style="font-size: 12px; color: #22c55e;">🟢 En línea</span>
-              </div>
-              <button class="btn-detalles">Ver detalles</button>
-            </div>
+                <!-- Historial de mensajes -->
+                <div class="chat-mensajes" id="contenedorMensajesGeneral">
+                    <div class="burbuja recibida" style="text-align: center; width: 100%; color: #64748b;">
+                        Selecciona una conversación a la izquierda para empezar a chatear.
+                    </div>
+                </div>
 
-            <!-- Historial de mensajes -->
-            <div class="chat-mensajes" id="contenedorMensajes">
-              <div class="burbuja recibida">
-                <span class="remitente">Desarrollador 1</span>
-                Hola Juan Carlos, para comentarte que no pude terminar una historia de usuario.
-              </div>
-            </div>
+                <!-- Caja inferior de entrada de texto (¡Aquí está de vuelta!) -->
+                <div class="chat-input-box">
+                    <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                    <button id="btnEnviarMensajeGeneral" type="button">➤</button>
+                </div>
+            </section>
 
-            <!-- Caja de texto para enviar -->
-            <div class="chat-input-box">
-              <input type="text" id="inputMensaje" placeholder="Escribe tu mensaje...">
-              <button id="btnEnviar">➤</button>
-            </div>
-          </section>
         </div>
-      </div>
+    </div>
 
-      <!-- MODAL PARA SUBIR MATERIAL ADICIONAL -->
-      <div id="modal-material" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-          <h3>Subir Material Adicional</h3>
-          <p>Selecciona un archivo (PDF, imagen, etc.) para compartirlo con el equipo.</p>
-
-          <form id="form-subir-material" enctype="multipart/form-data">
-            <div class="form-group">
-              <label for="archivo-input">Archivo:</label>
-              <input type="file" id="archivo-input" name="archivo" required />
+    <!-- Modal Oculto para Seleccionar Contacto a Iniciar -->
+    <div id="modalNuevoChat" class="modal-chat-overlay" style="display: none;">
+        <div class="modal-chat-content">
+            <h3>Iniciar nueva conversación</h3>
+            <p>Selecciona un miembro del proyecto:</p>
+            <div id="listaContactosModal" class="lista-modal-contactos">
+                <!-- Se llenará dinámicamente -->
             </div>
-
-            <div class="form-group">
-              <label for="descripcion-material">Descripción o Título:</label>
-              <input type="text" id="descripcion-material" name="descripcion"
-                placeholder="Ej. Guía de requerimientos v2" />
-            </div>
-
-            <div class="modal-actions">
-              <button type="button" id="btn-cancelar-modal" class="btn-modal-cancelar">Cancelar</button>
-              <button type="submit" class="btn-modal-submit">Subir Archivo</button>
-            </div>
-          </form>
+            <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
         </div>
-      </div>
+    </div>
 
       <!-- MODAL 3: REUNIRSE -->
       <div id="modal-reuniones" class="modal-class" style="display: none;">
@@ -642,7 +631,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
-  <script src="../js/mensajesF.js" defer></script>
+  <script src="../js/mensajes.js" defer></script>
   <script src="../js/cargarModalesGrupos.js" defer></script>
   <script src="../js/grupos.js" defer></script>
 </body>

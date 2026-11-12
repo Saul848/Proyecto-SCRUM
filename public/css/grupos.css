@@ -623,3 +623,130 @@ body {
     background: #c7d2fe;
 }
 
+
+/* Grupo seleccionado en la ventana de mensajes */
+
+#modal-mensajes .grupos-tarjeta {
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                border-color 0.2s ease;
+}
+
+#modal-mensajes .grupos-tarjeta:hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+#modal-mensajes .grupos-tarjeta.activo {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+/* ==========================================
+   DISEÑO DEL MODAL AGREGAR PARTICIPANTES
+   ========================================== */
+
+#modalAgregarParticipantes .grupos-modal {
+    width: min(90%, 650px);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+/* Encabezado */
+#modalAgregarParticipantes .grupos-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+#modalAgregarParticipantes .grupos-modal-header h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+#modalAgregarParticipantes .grupos-modal-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+/* Botón cerrar */
+#modalAgregarParticipantes #btnCerrarAgregarParticipantes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Formulario */
+#modalAgregarParticipantes #formAgregarParticipantes {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#modalAgregarParticipantes .grupos-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#modalAgregarParticipantes .grupos-campo label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Lista de contactos */
+#modalAgregarParticipantes .grupos-lista-contactos {
+    min-height: 65px;
+    max-height: 220px;
+    height: auto;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#modalAgregarParticipantes .grupos-lista-contactos p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+/* Mensajes de estado */
+#modalAgregarParticipantes #mensajeAgregarParticipantes:empty {
+    display: none;
+}
+
+/* Botones inferiores */
+#modalAgregarParticipantes .grupos-modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+#modalAgregarParticipantes .grupos-modal-acciones button {
+    min-height: 42px;
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    cursor: pointer;
+}

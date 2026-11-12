@@ -20,6 +20,9 @@ function mostrarModal(idModal, idCabecera) {
         tituloCentral.style.display = "block";
     }
     if (btnIniciar) btnIniciar.style.display = "block";
+    if (typeof cargarCanales === 'function') {
+            cargarCanales();
+        }
     } else {
         if (tituloCentral) tituloCentral.style.display = "none";
         if (btnIniciar) btnIniciar.style.display = "none";

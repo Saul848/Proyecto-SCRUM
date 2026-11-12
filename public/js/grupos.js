@@ -260,6 +260,35 @@ function inicializarGrupos() {
         }
     });
 
+function seleccionarGrupo(grupo) {
+    // Guardar el grupo seleccionado para consultar sus detalles
+    window.grupoSeleccionadoMensajes = {
+        id: grupo.id,
+        nombre: grupo.nombre,
+        administrador: grupo.administrador
+    };
+
+    // Quitar la selección visual anterior
+    document.querySelectorAll(
+        "#modal-mensajes .elemento-item, " +
+        "#modal-mensajes .opcion-contacto, " +
+        "#modal-mensajes .grupos-tarjeta"
+    ).forEach(elemento => {
+        elemento.classList.remove("activo");
+    });
+
+    // Avisar al módulo de mensajería que cambió la conversación
+    if (typeof window.seleccionarGrupoMensajes === "function") {
+        window.seleccionarGrupoMensajes(grupo);
+    } else {
+        console.warn(
+            "El módulo de mensajería todavía no está disponible."
+        );
+    }
+
+    console.log("Grupo seleccionado:", grupo.nombre);
+}
+
     /* ==========================================
        MOSTRAR GRUPOS DEL USUARIO
        ========================================== */
@@ -304,6 +333,18 @@ function inicializarGrupos() {
 
                 const tarjeta = document.createElement('article');
                 tarjeta.className = 'grupos-tarjeta';
+                tarjeta.addEventListener('click', () => {
+                seleccionarGrupo(grupo);
+
+                // Marcar visualmente el grupo seleccionado
+                document.querySelectorAll(
+              '#modal-mensajes .grupos-tarjeta'
+               ).forEach(elemento => {
+              elemento.classList.remove('activo');
+            });
+
+            tarjeta.classList.add('activo');
+     });
 
                 const titulo = document.createElement('h3');
                 titulo.textContent = grupo.nombre;
@@ -317,25 +358,10 @@ function inicializarGrupos() {
                     ? 'Rol: Administrador del grupo'
                     : 'Rol: Participante';
 
-                
-                const btnVerParticipantes = document.createElement('button');
-                btnVerParticipantes.type = 'button';
-                btnVerParticipantes.className = 'grupos-btn-ver';
-                btnVerParticipantes.textContent = 'Ver participantes';
-
-                btnVerParticipantes.addEventListener('click', () => {
-                    abrirModalParticipantes(
-                        grupo.id,
-                        grupo.nombre,
-                        grupo.administrador
-                    );
-                });
-
                 tarjeta.append(
                     titulo,
                     descripcion,
-                    rol,
-                    btnVerParticipantes
+                    rol
                 );
 
                 listaGrupos.appendChild(tarjeta);
@@ -377,6 +403,32 @@ function inicializarGrupos() {
 
         await cargarParticipantes();
     }
+
+/* ==========================================
+   VER DETALLES DEL GRUPO SELECCIONADO
+   ========================================== */
+
+const btnDetallesConversacion =
+    document.getElementById('btnDetallesConversacion');
+
+if (btnDetallesConversacion) {
+    btnDetallesConversacion.addEventListener('click', () => {
+
+        const grupo = window.grupoSeleccionadoMensajes;
+
+        // Solo abrir el modal si hay un grupo seleccionado
+        if (!grupo) {
+            return;
+        }
+
+        abrirModalParticipantes(
+            grupo.id,
+            grupo.nombre,
+            grupo.administrador
+        );
+    });
+}
+
 
     function cerrarModalParticipantes() {
         modalParticipantes.hidden = true;
