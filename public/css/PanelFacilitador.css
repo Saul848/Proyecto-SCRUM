@@ -753,9 +753,19 @@ body {
   cursor: pointer;
 }
 
-/* clases para los modales ocultos por defecto*/
-.cabecera-default {
-  display: none
+/* Todas las cabeceras ocultas */
+#contenedor-cabeceras .cabecera-default {
+    display: none;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+/* Únicamente la cabecera activa se muestra */
+#contenedor-cabeceras .cabecera-default.activa {
+    display: flex;
 }
 
 .modal-class {
@@ -1262,15 +1272,18 @@ body {
     min-width: 0;
 }
 
-/* Solo la cabecera de mensajes */
-#cabecera-mensajes {
-    display: flex;
+#contenedor-cabeceras #cabecera-mensajes {
+    display: none;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     min-height: 48px;
     gap: 20px;
     box-sizing: border-box;
+}
+
+#contenedor-cabeceras #cabecera-mensajes.activa {
+    display: flex;
 }
 
 /* Etiqueta Facilitador */
@@ -1463,5 +1476,69 @@ ul#panelLateral button.active {
 
     #zonaDeTrabajo {
         padding: 10px !important;
+    }
+}
+
+
+
+/* =====================================
+   CABECERAS DINÁMICAS DEL FACILITADOR
+===================================== */
+
+#contenedor-cabeceras {
+    width: 100%;
+    min-width: 0;
+}
+
+.cabecera-default {
+    display: none;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.cabecera-default .badge-rol {
+    flex-shrink: 0;
+    background-color: #ff9431;
+    color: white;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.info-cabecera {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-cabecera h2 {
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.info-cabecera p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+@media (max-width: 700px) {
+    .cabecera-default {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .info-cabecera h2 {
+        font-size: 16px;
+    }
+
+    .info-cabecera p {
+        font-size: 11px;
     }
 }
