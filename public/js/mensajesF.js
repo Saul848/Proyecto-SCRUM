@@ -23,6 +23,17 @@ let conversacionesCanales = {
  * Función que se ejecuta al dar clic en un canal o en un contacto del proyecto
  */
 function cambiarCanal(nombreChat, idDestinatario = null, esCanal = true) {
+
+    // Limpiar el grupo seleccionado al cambiar de conversación
+    window.grupoSeleccionadoMensajes = null;
+
+    // Quitar el resaltado visual de los grupos
+    document.querySelectorAll(
+        '#modal-mensajes .grupos-tarjeta.activo'
+    ).forEach(tarjeta => {
+        tarjeta.classList.remove('activo');
+    });
+
     chatActivo = nombreChat;
     
     if (!esCanal && idDestinatario) {

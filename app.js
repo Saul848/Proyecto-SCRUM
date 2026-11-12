@@ -65,6 +65,11 @@ app.use('/reuniones', require('./routes/reunionRoutes'));
 app.use('/registro-tiempos', require('./routes/registroTiemposRoutes'));
 
 /**
+ * Rutas de grupos de conversación
+ */
+app.use('/grupos', require('./routes/grupoRoutes'));
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {
@@ -110,17 +115,6 @@ http.createServer((req, res) => {
     res.end();
 }).listen(8082);
 
-
-
-/**
- * Rutas de mensajes
- */
-//app.use('/mensajes', require('./routes/mensajesRoutes'));
-
-/**
- * Ruta de mensajes de desarrollador
- */
-//app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
 
 /**
  * Rutas de mensajes

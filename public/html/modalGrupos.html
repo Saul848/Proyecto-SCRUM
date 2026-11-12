@@ -1,0 +1,187 @@
+<!-- Modal para crear grupos -->
+    <div id="modalCrearGrupo" class="grupos-modal-overlay" hidden>
+
+        <div class="grupos-modal">
+
+            <div class="grupos-modal-header">
+                <h2>Crear nuevo grupo</h2>
+
+                <button id="btnCerrarCrearGrupo"
+                        type="button"
+                        aria-label="Cerrar modal">
+                    &times;
+                </button>
+            </div>
+
+            <form id="formCrearGrupo">
+
+                <div class="grupos-campo">
+                    <label for="nombreGrupo">Nombre del grupo</label>
+
+                    <input
+                        type="text"
+                        id="nombreGrupo"
+                        maxlength="100"
+                        placeholder="Ej. Equipo de desarrollo"
+                        required>
+                </div>
+
+                <div class="grupos-campo">
+                    <label for="descripcionGrupo">
+                        Descripción
+                    </label>
+
+                    <textarea
+                        id="descripcionGrupo"
+                        rows="3"
+                        placeholder="¿Para qué se utilizará este grupo?"></textarea>
+                </div>
+
+                <div class="grupos-campo">
+                    <label>Seleccionar participantes</label>
+
+                    <div id="listaContactosGrupo"
+                         class="grupos-lista-contactos">
+                        <p>Cargando contactos...</p>
+                    </div>
+                </div>
+
+                <p id="mensajeCrearGrupo" role="status"></p>
+
+                <div class="grupos-modal-acciones">
+                    <button type="button"
+                            id="btnCancelarCrearGrupo"
+                            class="btn-secundario">
+                        Cancelar
+                    </button>
+
+                    <button type="submit"
+                            class="btn-primario">
+                        Crear grupo
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+    
+<!-- Modal para administrar participantes -->
+<div id="modalParticipantesGrupo"
+     class="grupos-modal-overlay"
+     hidden>
+
+    <div class="grupos-modal">
+
+        <div class="grupos-modal-header">
+            <div>
+                <h2 id="tituloParticipantesGrupo">
+                    Participantes del grupo
+                </h2>
+                <p>Consulta y administra los integrantes.</p>
+            </div>
+
+            <button
+                id="btnCerrarParticipantes"
+                type="button"
+                aria-label="Cerrar participantes">
+                &times;
+            </button>
+        </div>
+
+        <div class="grupos-participantes-contenido">
+
+            <div id="listaParticipantesGrupo">
+                <p>Cargando participantes...</p>
+            </div>
+            
+<!-- Solo se mostrará a los administradores -->
+<button
+    id="btnAbrirAgregarParticipantes"
+    type="button"
+    class="btn-primario"
+    hidden>
+    + Agregar participantes
+</button>
+
+
+            <p id="mensajeParticipantesGrupo"
+               role="status"></p>
+
+            <div class="grupos-modal-acciones">
+                <button
+                    id="btnVolverParticipantes"
+                    type="button"
+                    class="btn-secundario">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL PARA AGREGAR PARTICIPANTES
+     ========================================== -->
+
+<div id="modalAgregarParticipantes"
+     class="grupos-modal-overlay"
+     hidden>
+
+    <div class="grupos-modal">
+
+        <div class="grupos-modal-header">
+            <div>
+                <h2>Agregar participantes</h2>
+                <p id="nombreGrupoAgregar">
+                    Selecciona los contactos del proyecto.
+                </p>
+            </div>
+
+            <button
+                id="btnCerrarAgregarParticipantes"
+                type="button"
+                aria-label="Cerrar modal">
+                &times;
+            </button>
+        </div>
+
+        <form id="formAgregarParticipantes">
+
+            <div class="grupos-campo">
+                <label>Contactos disponibles</label>
+
+                <div id="listaContactosAgregar"
+                     class="grupos-lista-contactos">
+                    <p>Cargando contactos...</p>
+                </div>
+            </div>
+
+            <p id="mensajeAgregarParticipantes"
+               role="status"></p>
+
+            <div class="grupos-modal-acciones">
+
+                <button
+                    id="btnCancelarAgregarParticipantes"
+                    type="button"
+                    class="btn-secundario">
+                    Cancelar
+                </button>
+
+                <button
+                    id="btnGuardarParticipantes"
+                    type="submit"
+                    class="btn-primario">
+                    Agregar seleccionados
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

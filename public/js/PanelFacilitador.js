@@ -1,32 +1,72 @@
+
 function mostrarModal(idModal, idCabecera) {
+
+    // Ocultar las secciones
     document.querySelectorAll(".modal-class").forEach(modal => {
-      modal.style.display = "none";
+        modal.style.display = "none";
     });
 
+    // Mostrar la sección seleccionada
     const modalSeleccionado = document.getElementById(idModal);
+
     if (modalSeleccionado) {
         modalSeleccionado.style.display = "block";
     }
 
-    const headerNormal = document.getElementById("BloqueSuperior");
-    const headerSprint = document.getElementById("cabecera-sprint");
-    const tituloCentral = document.getElementById("tituloSeccionCentral");
-    const btnIniciar = document.getElementById("btnIniciarConversacion");
+    // Actualizar la cabecera correspondiente
     mostrarCabecera(idCabecera);
 
-    if (idModal === 'modal-mensajes') {
+    const tituloCentral = document.getElementById("tituloSeccionCentral");
+
+    // Botón de la cabecera superior
+    const btnIniciar = document.getElementById(
+        "btnIniciarConversacionCabecera"
+    );
+
+    if (idModal === "modal-mensajes") {
+
         if (tituloCentral) {
-        tituloCentral.textContent = "Mensajes";
-        tituloCentral.style.display = "block";
-    }
-    if (btnIniciar) btnIniciar.style.display = "block";
+            tituloCentral.textContent = "Mensajes";
+            tituloCentral.style.display = "block";
+        }
+
+        // El botón de iniciar conversación del chat ya funciona por separado.
+        //Mantenemos oculto el duplicado de la cabecera.
+        if (btnIniciar) {
+            btnIniciar.style.display = "none";
+        }
+
     } else {
-        if (tituloCentral) tituloCentral.style.display = "none";
-        if (btnIniciar) btnIniciar.style.display = "none";
+
+        if (tituloCentral) {
+            tituloCentral.style.display = "none";
+        }
+
+        if (btnIniciar) {
+            btnIniciar.style.display = "none";
+        }
     }
 
-    if (idModal === 'modal-reuniones') {
-        if (typeof cargarReuniones === 'function') {
+    // Actualizar la opción activa del menú lateral
+    const botonesMenu = document.querySelectorAll(
+        "section#panelLateral button"
+    );
+
+    botonesMenu.forEach(boton => {
+        boton.classList.remove("active");
+
+        const onclick = boton.getAttribute("onclick") || "";
+
+        if (onclick.includes("'" + idModal + "'") ||
+            onclick.includes('"' + idModal + '"')) {
+
+            boton.classList.add("active");
+        }
+    });
+
+    // Funcionalidad de reuniones
+    if (idModal === "modal-reuniones") {
+        if (typeof cargarReuniones === "function") {
             cargarReuniones();
         }
     }

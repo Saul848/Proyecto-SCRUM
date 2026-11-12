@@ -1239,3 +1239,229 @@ body {
     color: #666;
     padding: 16px;
 }
+
+
+/* ==========================================
+   CABECERA DEFINITIVA - PANEL FACILITADOR
+========================================== */
+
+/* Contenedor superior */
+#BloqueSuperior {
+    display: flex !important;
+    align-items: center !important;
+    width: 100%;
+    height: 72px !important;
+    min-height: 72px;
+    padding: 12px 24px !important;
+    box-sizing: border-box;
+}
+
+/* Contenedor de todas las cabeceras */
+#contenedor-cabeceras {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Solo la cabecera de mensajes */
+#cabecera-mensajes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 48px;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+/* Etiqueta Facilitador */
+#cabecera-mensajes #DivMsjFacilitador {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0 !important;
+    padding: 8px 16px !important;
+    background: #fff0e0 !important;
+    color: #c65b0a !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    font-weight: 700;
+}
+
+/* Título Mensajes */
+#cabecera-mensajes #tituloSeccionCentral {
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    flex: 1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Texto secundario */
+#cabecera-mensajes #DivTitulo {
+    position: static !important;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 35%;
+    margin: 0 !important;
+    text-align: right;
+    font-size: 12px !important;
+    font-weight: 500;
+    color: #64748b !important;
+}
+
+/* Botón antiguo: permanece oculto */
+#cabecera-mensajes #btnIniciarConversacionCabecera {
+    display: none !important;
+}
+
+/* Pantallas pequeñas */
+@media (max-width: 700px) {
+    #BloqueSuperior {
+        padding: 10px 14px !important;
+    }
+
+    #cabecera-mensajes {
+        gap: 10px;
+    }
+
+    #cabecera-mensajes #tituloSeccionCentral {
+        font-size: 16px;
+    }
+
+    #cabecera-mensajes #DivTitulo {
+        font-size: 10px !important;
+    }
+}
+
+/* ==========================================
+   DISEÑO GENERAL - PANEL FACILITADOR
+   MENÚ LATERAL Y ZONA DE TRABAJO
+========================================== */
+
+/* Fondo general */
+body {
+    max-width: 100%;
+    padding: 10px;
+    background-color: #edf2f7;
+}
+
+/* Contenedor inferior */
+#BloqueInferior {
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 102px);
+    border-radius: 0 0 14px 14px;
+    overflow: hidden;
+}
+
+/* ==========================================
+   MENÚ LATERAL
+========================================== */
+
+/* Contenedor del menú */
+section#panelLateral {
+    width: 205px !important;
+    min-width: 205px !important;
+    flex: 0 0 205px;
+    padding: 22px 12px !important;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+/* Lista de navegación */
+ul#panelLateral {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    list-style: none;
+    border: none !important;
+}
+
+/* Elementos de la lista */
+ul#panelLateral li {
+    width: 100%;
+    padding: 0 !important;
+    margin: 0;
+}
+
+/* Botones del menú */
+ul#panelLateral button {
+    width: 100%;
+    padding: 11px 13px !important;
+    text-align: left;
+    background: transparent;
+    color: #475569;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* Efecto al pasar el mouse */
+ul#panelLateral button:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+/* Opción seleccionada */
+ul#panelLateral button.active {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+/* ==========================================
+   ZONA DE TRABAJO
+========================================== */
+
+/* Área principal */
+#zonaDeTrabajo {
+    flex: 1;
+    min-width: 0;
+    padding: 18px !important;
+    background: #edf3f8;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* Chat más amplio */
+#modal-mensajes .main-container-chat {
+    height: calc(100vh - 140px);
+    min-height: 520px;
+}
+
+/* ==========================================
+   ADAPTACIÓN A PANTALLAS PEQUEÑAS
+========================================== */
+
+@media (max-width: 850px) {
+
+    section#panelLateral {
+        width: 165px !important;
+        min-width: 165px !important;
+        flex-basis: 165px;
+    }
+
+    ul#panelLateral button {
+        font-size: 12px;
+        padding: 10px 8px !important;
+    }
+
+    #zonaDeTrabajo {
+        padding: 10px !important;
+    }
+}

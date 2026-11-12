@@ -3,8 +3,7 @@
  * @description Capa de acceso a datos para mensajes (privados, canales y grupos) en PostgreSQL.
  */
 class MensajeDAO {
-    
-    constructor(pool) {
+        constructor(pool) {
         this.pool = pool;
     }
 
@@ -72,39 +71,77 @@ class MensajeDAO {
     // ==========================================
     // 3. MENSAJES DE GRUPO (Tabla: grupo / mensaje_grupo)
     // ==========================================
-    async listarGruposPorUsuario(idProyecto, idUsuario) {
-        const query = `
-            SELECT g.id, g.nombre, g.descripcion, g.id_proyecto
-            FROM scrumbird.grupo g
-            JOIN scrumbird.esta_en_grupo eg ON g.id = eg.id_grupo
-            WHERE g.id_proyecto = $1 AND eg.id_usuario = $2;
-        `;
-        const { rows } = await this.pool.query(query, [idProyecto, idUsuario]);
-        return rows;
-    }
 
-    async listarMensajesGrupo(idGrupoDestino) {
-        const query = `
-            SELECT mg.id, mg.id_autor, mg.id_grupo_destino, mg.fecha, mg.mensaje,
-                u.nombre as nombre_autor, u.nombre_de_usuario
-            FROM scrumbird.mensaje_grupo mg
-            JOIN scrumbird.usuario u ON mg.id_autor = u.id
-            WHERE mg.id_grupo_destino = $1
-            ORDER BY mg.fecha ASC;
-        `;
-        const { rows } = await this.pool.query(query, [idGrupoDestino]);
-        return rows;
-    }
+    async listarMensajesGrupo(idGrupoDestino, idUsuario) {
+    const query = `
+        SELECT
+            mg.id,
+            mg.id_autor,
+            mg.id_grupo_destino,
+            mg.fecha,
+            mg.mensaje,
+            u.nombre AS nombre_autor,
+            u.nombre_de_usuario
+        FROM scrumbird.mensaje_grupo mg
+        JOIN scrumbird.usuario u
+            ON mg.id_autor = u.id
+        WHERE mg.id_grupo_destino = $1
+          AND EXISTS (
+              SELECT 1
+              FROM scrumbird.esta_en_grupo eg
+              WHERE eg.id_grupo = $1
+                AND eg.id_usuario = $2
+          )
+        ORDER BY mg.fecha ASC;
+    `;
+
+    const { rows } = await this.pool.query(query, [
+        idGrupoDestino,
+        idUsuario
+    ]);
+
+    return rows;
+}
 
     async crearMensajeGrupo({ idAutor, idGrupoDestino, mensaje }) {
-        const query = `
-            INSERT INTO scrumbird.mensaje_grupo (id_autor, id_grupo_destino, mensaje, fecha)
-            VALUES ($1, $2, $3, NOW())
-            RETURNING id, id_autor, id_grupo_destino, fecha, mensaje;
-        `;
-        const { rows } = await this.pool.query(query, [idAutor, idGrupoDestino, mensaje]);
-        return rows[0];
+    const texto = typeof mensaje === 'string'
+        ? mensaje.trim()
+        : '';
+
+    if (!texto) {
+        throw new Error('El mensaje no puede estar vacío');
     }
+
+    const query = `
+        INSERT INTO scrumbird.mensaje_grupo
+            (id_autor, id_grupo_destino, mensaje, fecha)
+        SELECT $1, $2, $3, NOW()
+        WHERE EXISTS (
+            SELECT 1
+            FROM scrumbird.esta_en_grupo
+            WHERE id_usuario = $1
+              AND id_grupo = $2
+        )
+        RETURNING
+            id,
+            id_autor,
+            id_grupo_destino,
+            fecha,
+            mensaje;
+    `;
+
+    const { rows } = await this.pool.query(query, [
+        idAutor,
+        idGrupoDestino,
+        texto
+    ]);
+
+    if (rows.length === 0) {
+        throw new Error('No perteneces a este grupo');
+    }
+
+    return rows[0];
+}
 }
 
 module.exports = MensajeDAO;
