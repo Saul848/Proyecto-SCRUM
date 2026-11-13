@@ -184,3 +184,7 @@ async function listarProyectosUsuario(idUsuario) {
         return [];
     }
 }
+
+document.getElementById("btn-capacitacion").addEventListener('click', ()=>{
+    mostrarModal("modal-capacitacion");
+})
