@@ -203,7 +203,88 @@
 
             </div>
 
+
         </section>
+           </div> <!-- cierra DivContPB -->
+      </div> <!-- cierra modal-product-backlog -->
+<!-- Sección de Gráficas -->
+<div id="modal-graficas" class="modal-class" style="display: none;">
+
+  <div class="chat-header">
+    <h3>Gráficas y Métricas del Proyecto</h3>
+  </div>
+
+  <div style="padding: 20px;">
+    <p style="color: #666; margin-bottom: 20px;">
+      Selecciona qué gráfica deseas visualizar:
+    </p>
+
+    <!-- Tarjetas -->
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+
+      <div class="tarjeta-grafica"
+           onclick="cargarGrafica('product-backlog')"
+           style="border: 1px solid #e0e0e0; border-radius: 8px;
+                  padding: 20px; width: 260px; cursor: pointer;
+                  background: #fff;">
+        <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+
+        <h4 style="margin: 0 0 8px; color: #333;">
+          Burndown Chart (Product Backlog)
+        </h4>
+
+        <p style="margin: 0; font-size: 13px; color: #777;">
+          Monitorea el avance total de las historias y
+          estimaciones del proyecto.
+        </p>
+      </div>
+
+      <div class="tarjeta-grafica"
+           onclick="cargarGrafica('sprint')"
+           style="border: 1px solid #e0e0e0; border-radius: 8px;
+                  padding: 20px; width: 260px; cursor: pointer;
+                  background: #fff;">
+        <div style="font-size: 24px; margin-bottom: 10px;">📉</div>
+
+        <h4 style="margin: 0 0 8px; color: #333;">
+          Burndown Chart (Sprint)
+        </h4>
+
+        <p style="margin: 0; font-size: 13px; color: #777;">
+          Monitorea las horas restantes durante el sprint seleccionado.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Resultado: tabla y gráfica -->
+    <div id="contenedor-grafica-activa"
+         style="display: none; margin-top: 20px; background: #fff;
+                padding: 20px; border-radius: 8px;
+                border: 1px solid #e0e0e0; margin-bottom: 40px;">
+
+      <h4 id="titulo-grafica-activa"
+          style="margin: 0 0 15px; color: #333; font-size: 16px;">
+        Vista de Gráfica
+      </h4>
+
+      <div style="display: flex; flex-wrap: wrap;
+                  gap: 20px; align-items: flex-start;">
+
+        <div id="area-tabla-datos"
+             style="flex: 1; min-width: 280px; overflow-x: auto;">
+        </div>
+
+        <div id="area-dibujo-grafica"
+             style="position: relative; flex: 1;
+                    min-width: 280px; height: 320px;">
+          <canvas id="chartBurndownCanvas"></canvas>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
             </section>
     </main>
@@ -338,6 +419,10 @@
   <!-- Contenedor dinámico para la vista de Sprint Planning -->
   <div id="vista-sprintPlanning" class="modal-class" style="display: none;"></div>
 
+
+ 
+
+
   <!-- Scripts por separado --> 
   <script src="../js/PanelDesarrollador.js"></script>
   <script src="../js/ProductBacklogDesarrollador.js"></script> 
@@ -346,6 +431,7 @@
   <script src="../js/modalSprintBacklog.js" defer></script>
   <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/reuniones.js" defer></script>
   <script src="../js/sprintPlanning.js" defer></script>
   

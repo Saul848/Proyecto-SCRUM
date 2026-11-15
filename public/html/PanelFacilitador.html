@@ -546,25 +546,24 @@
           <div id="contenedor-grafica-activa"
             style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
             <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">
-              Vista de Gráfica</h4>
+              Vista de Gráfica
+            </h4>
             <!-- Contenedor principal en fila (lado a lado) -->
             <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
               <!-- Tabla de datos (Lado izquierdo, ancho flexible) -->
               <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
                 <!-- Tabla estilo Excel se inyectará aquí -->
               </div>
-            </div> <!-- cierra el contenedor flex de las tarjetas -->
+              <!-- cierra el contenedor flex de las tarjetas -->
             <!-- Área de Gráficas y Métricas -->
-            <div id="contenedor-grafica-activa"
-              style="margin-top: 20px; display: none; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 40px;">
-              <h4 id="titulo-grafica-activa" style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 16px;">
-                Vista de Gráfica</h4>
-
-              <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-                <div id="area-tabla-datos" style="flex: 1; min-width: 280px; overflow-x: auto;">
-                  <!-- Tabla estilo Excel se inyectará aquí -->
+                <!-- Gráfica -->
+              <div id="area-dibujo-grafica"
+                  style="position: relative; flex: 1;
+                          min-width: 280px; height: 320px;">
+                <canvas id="chartBurndownCanvas"></canvas>
+              </div>
                 </div>
-
+          </div>
                 <div id="area-dibujo-grafica"
                   style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
                   <canvas id="chartBurndownCanvas"></canvas>
@@ -706,6 +705,7 @@
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/modalSprintBacklog.js" defer></script>
   <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
   <script src="../js/modalEvidenciaHistoria.js" defer></script>
@@ -713,7 +713,7 @@
   <script src="../js/sprintPlanning.js" defer></script>
   <script src="../js/modalSubirMaterial.js" defer></script>
   <script src="../js/planningPokerFacilitador.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
   <script src="../js/mensajes.js" defer></script>
