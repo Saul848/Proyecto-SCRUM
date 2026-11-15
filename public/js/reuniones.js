@@ -381,8 +381,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (seccion === "reuniones") {
     // 1. Mostrar la cabecera superior correspondiente a Reuniones
-    if (typeof mostrarCabecera === "function") {
-      mostrarCabecera("cabecera-springPlanning");
+    if (typeof mostrarCabeceraR === "function") {
+      mostrarCabeceraR("cabecera-springPlanning");
     }
 
     // 2. Ocultar todos los demás modales activos en el panel

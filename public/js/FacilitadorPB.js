@@ -1260,7 +1260,7 @@ async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
 
 
 function cargar_cabecera_inicial() {
-    document.getElementById("cabecera-mensajes").style.display = "block";
+    document.getElementById("").style.display = "block";
 }
 
 cargar_cabecera_inicial();

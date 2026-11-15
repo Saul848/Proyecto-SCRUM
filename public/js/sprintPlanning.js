@@ -206,7 +206,7 @@ function ocultarTodasCabeceras() {
   });
 }
 
-function mostrarCabecera(id) {
+function mostrarCabeceraR(id) {
   ocultarTodasCabeceras();
   const el = document.getElementById(id);
   if (el) {
@@ -229,13 +229,13 @@ function mostrarVista(idVista) {
 
   switch (idVista) {
     case "vista-fase1":
-      mostrarCabecera("historiasSprint");
+      mostrarCabeceraR("historiasSprint");
       break;
     case "vistaDetalles":
-      mostrarCabecera("historiasResumen");
+      mostrarCabeceraR("historiasResumen");
       break;
     case "vista-fase2":
-      mostrarCabecera("historiasAsignacion");
+      mostrarCabeceraR("historiasAsignacion");
       cargarAsignacionFase2();
       //llamamos el inicializador de sockets
       if (typeof inicializarSocketsAsignacion === 'function') {

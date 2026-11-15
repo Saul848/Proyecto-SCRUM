@@ -609,3 +609,140 @@ body {
 #btn-cerrar-detalles:hover {
     color: #000;
 }
+
+/* ===== Modal de capacitación ===== */
+#modal-capacitacion {
+    padding: 24px;
+    background-color: #eef3f6;
+}
+
+#modal-capacitacion > h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+/* Contenedor blanco exterior */
+#modal-capacitacion #contenedor-blanco {
+    background-color: #ffffff;
+    padding: 20px;
+    height: 520px;
+}
+
+/* Contenedor interior: dos columnas */
+#modal-capacitacion #contenedor-azul {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 14px;
+    height: 100%;
+}
+
+/* ----- Columna izquierda ----- */
+#contenedor-modulos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px;
+    background-color: #eef3f6;
+    overflow-y: auto;
+}
+
+.modulo-btn {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 62px;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modulo-btn:hover {
+    background-color: #f7fbfd;
+}
+
+.modulo-btn.activo {
+    border-color: #2f8fe0;
+}
+
+.modulo-btn .flecha {
+    font-size: 0.8em;
+    flex-shrink: 0;
+}
+
+.modulo-btn:focus-visible {
+    outline: 2px solid #2f8fe0;
+    outline-offset: 2px;
+}
+
+/* ----- Columna derecha ----- */
+#contenido-modulo {
+    background-color: #eef3f6;
+    padding: 18px 20px;
+    overflow-y: auto;
+}
+
+#contenido-modulo > h2 {
+    font-size: 1.15em;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    border-bottom: 6px solid #ffffff;
+}
+
+.modulo-objetivo {
+    text-align: center;
+    font-size: 0.9em;
+    color: #444;
+    margin-bottom: 16px;
+}
+
+/* Tarjeta de cada sección */
+.seccion-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+.seccion-info h3 {
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #1976d2;
+    margin-bottom: 6px;
+}
+
+.seccion-info small {
+    font-size: 0.7em;
+    color: #666;
+}
+
+/* Botones de estado */
+.btn-estado {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 22px;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #ffffff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-iniciar   { background-color: #34c759; }
+.btn-hecho     { background-color: #6bb8ff; }
+.btn-pendiente { background-color: #b0b0b5; cursor: default; }
+
+.btn-estado:hover:not(.btn-pendiente) {
+    filter: brightness(0.93);
+}
