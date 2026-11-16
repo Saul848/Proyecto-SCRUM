@@ -1222,11 +1222,11 @@ async function agregarHistoriaUsuario(idProyecto) {
     }
 }
 
-function cargar_cabecera_inicial() {
-    document.getElementById("").style.display = "block";
-}
+// function cargar_cabecera_inicial() {
+//     document.getElementById("").style.display = "block";
+// }
 
-cargar_cabecera_inicial();
+// cargar_cabecera_inicial();
 
 // Variables globales adicionales para filtros
 let todasLasHistorias = [];
