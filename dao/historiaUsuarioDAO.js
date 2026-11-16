@@ -22,11 +22,11 @@ class historiaUsuarioDAO {
         }
     }
 
-/**
- * Obtiene un arreglo de historias de usuario pertenecientes a un proyecto, donde cada una incluye un arreglo con sus criterios de aceptación.
- * @param {Object} pool Pool de conexiones a la base de datos (pg)
- * @returns {acc} Arreglo de historias de usuario con sus criterios anidados
- */
+    /**
+     * Obtiene un arreglo de historias de usuario pertenecientes a un proyecto, donde cada una incluye un arreglo con sus criterios de aceptación.
+     * @param {Object} pool Pool de conexiones a la base de datos (pg)
+     * @returns {acc} Arreglo de historias de usuario con sus criterios anidados
+     */
     async obtenerHistoriasEnProyecto(idProyecto) {
         //Se prepara la consulta
         const query = `
@@ -35,19 +35,23 @@ class historiaUsuarioDAO {
                 t_historias.nombre, 
                 t_historias.descripcion, 
                 t_historias.valor, 
-                t_historias.asignado_al_sprint, 
+                t_historias.asignado_al_sprint,
+                t_sprint.no_iteracion, 
                 t_criterios.id AS id_criterio, 
                 t_criterios.numero_de_criterio, 
                 t_criterios.criterios_de_aceptacion
             FROM 
                 scrumbird.historia_de_usuario t_historias
             LEFT JOIN 
+                scrumbird.sprint t_sprint 
+                ON t_historias.asignado_al_sprint = t_sprint.id
+            LEFT JOIN 
                 scrumbird.criterios_de_aceptacion t_criterios 
                 ON t_historias.id = t_criterios.id_historia 
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
             WHERE 
                 t_historias.id_proyecto = $1;
-        `
+        `;
         /**
          * Como se observa arriba se utiliza la Palabra LEFT JOIN , esto
          * garantiza que se obtengan las historias de usuario aun cuando
@@ -67,7 +71,7 @@ class historiaUsuarioDAO {
             const mapHistorias = result.rows.reduce((acc, row) => {
                 /*Si la historia aún no existe en el acumulador, la creamos como un objeto JavaScript y con
                 * con un arreglo vacío para almacenar los criterios de aceptacion.
-                */ 
+                */
                 if (!acc[row.id]) {
                     acc[row.id] = {
                         id: row.id,
@@ -75,6 +79,7 @@ class historiaUsuarioDAO {
                         descripcion: row.descripcion,
                         valor: row.valor,
                         asignado_al_sprint: row.asignado_al_sprint,
+                        no_iteracion: row.no_iteracion,
                         criterios: [] // Arreglo para los criterios de esta historia
                     };
                 }
@@ -108,13 +113,13 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario  
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({nombre, descripcion, criterios, valor, idProyecto }){
+    async agregarHistoria({ nombre, descripcion, criterios, valor, idProyecto }) {
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
             //Empezar la transaccion
             await client.query('BEGIN');
-            const insercionHistoria = 
+            const insercionHistoria =
                 `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, id_proyecto) 
                 VALUES ($1, $2, $3, $4)
                 RETURNING id;
@@ -126,17 +131,17 @@ class historiaUsuarioDAO {
             VALUES ($1, $2, $3, $4);`;
             let numeroCriteriosInsertados;
             criterios.forEach((element, index) => {
-            const resultadoCriterio = client.query(insercionCriterio, [index+1, element.criterio, idGenerado, idProyecto])  
+                const resultadoCriterio = client.query(insercionCriterio, [index + 1, element.criterio, idGenerado, idProyecto])
             });
             await client.query('COMMIT');
-            return {success: true, mensaje:"Datos guardados correctamente"};
+            return { success: true, mensaje: "Datos guardados correctamente" };
 
         } catch (error) {
             //Revertir todos los cambios realizados si ocurre un eror en el bloque try
             await client.query('ROLLBACK');
             console.error("Error en el DAO al intentar guardar una nueva historia", error);
             throw error;
-        } finally{
+        } finally {
             //Liberar al cliente para devolverlo al pool de conexiones
             client.release();
         }
