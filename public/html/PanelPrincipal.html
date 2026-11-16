@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/panelPrincipal.css">
+    <link rel="stylesheet" href="../css/mensajes.css">
     <title>Document</title>
 </head>
 <body>
@@ -23,7 +24,7 @@
         <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
         <li><button id="btn-proyectos">Mis proyectos</button></li>
         <li><button id="btn-miembros">Miembros</button></li>
-        <li>Mensajes</li>
+        <li><button id="btn-mensajes">Mensajes</button></li>
         <li><button id="btnSessionStorage" onclick="consoleSessionStorage()">sessionStorage</button></li>
         <li><button id="btn-capacitacion">Capacitacion</button></li>
       </ul>
@@ -34,6 +35,43 @@
       click en las opciones del menú lateral. No solo encimados unos sobre otros-->
 
       <!--Aqui van los modales de cada uno-->
+      <!-- MENSAJERÍA - PANEL PRINCIPAL -->
+       <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="mensajes-principal-encabezado">
+          <h2>Centro de comunicación</h2>
+          <p>Comunícate mediante mensajes privados con otros usuarios de ScrumBird.</p>
+        </div>
+        <div class="main-container-chat">
+          <!-- Panel izquierdo -->
+           <aside class="sidebar-mensajes">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" id="inputBuscarChat" placeholder="Buscar usuario..."></div>
+              <p class="menu-seccion">USUARIOS</p>
+              <div id="listaContactosDirectos" class="lista-elementos">
+                <p>Selecciona un usuario para conversar.</p>
+              </div>
+            </aside>
+            <!-- Panel derecho -->
+             <section class="chat-area">
+              <div class="chat-header">
+                <div class="chat-header-info">
+                  <h3 id="tituloChatActual">Selecciona un usuario</h3>
+                  <span id="subInfoChat" class="sub-info-chat">Mensajes privados</span>
+                </div>
+              </div>
+              <!-- Historial -->
+               <div id="contenedorMensajesGeneral" class="chat-mensajes">
+                <p>Selecciona una conversación para comenzar.</p>
+              </div>
+              <!-- Envío de mensajes -->
+               <div class="chat-input-box">
+                <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                <button id="btnEnviarMensajeGeneral" type="button"> ➤ </button>
+              </div>
+            </section>
+          </div>
+        </div>
       <!--Modal para ver los proyectos y crear nuevos-->
       <div id="modal-proyectos" class="modal-class">
         <div class="top-actions">
@@ -145,6 +183,7 @@
   
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
+  <script src="../js/mensajesPrincipal.js"></script>
   <script>
     function consoleSessionStorage(){
       console.log("recuperando sessionStorage")

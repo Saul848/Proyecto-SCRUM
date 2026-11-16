@@ -7,6 +7,7 @@
     <title>Cliente - Panel Principal</title>
     <link rel="stylesheet" href="../css/PanelFacilitador.css">
     <link rel="stylesheet" href="../css/mensajes.css">
+    <link rel="stylesheet" href="../css/grupos.css">
     <link rel="stylesheet" href="../css/modalDetalleHistoriaKanban.css">
     <link rel="stylesheet" href="../css/reuniones.css">
     <link rel="stylesheet"
@@ -188,6 +189,18 @@
                                 <!-- Se llenarán dinámicamente desde la BD -->
                             </div>
                         </div>
+            <!-- SECCIÓN DE GRUPOS -->
+            <div class="seccion-grupos">
+                <div class="encabezado-grupos">
+                    <p class="menu-seccion">GRUPOS</p>
+                    <button type="button" id="btnCrearGrupo" class="btn-crear-grupo" title="Crear nuevo grupo" aria-label="Crear nuevo grupo">
+                        +
+                    </button>
+                </div>
+                <div id="listaGrupos" class="lista-grupos">
+                    <p class="mensaje-sin-grupos"> Aquí aparecerán tus grupos.</p>
+                </div>
+            </div>
                     </aside>
 
                     <!-- Panel derecho: Área de Chat -->
@@ -234,6 +247,8 @@
                     <button id="btnCerrarModal" class="btn-cerrar-modal">Cancelar</button>
                 </div>
             </div>
+            <!-- Contenedor para los modales de grupos -->
+            <div id="contenedorModalesGrupos"></div>
 
             <!-- MODAL 3: REUNIRSE -->
             <div id="modal-reuniones" class="modal-class" style="display: none;">
@@ -322,6 +337,8 @@
     <script src="../js/reuniones.js" defer></script>
     <script src="../js/PanelFacilitador.js"></script>
     <script src="../js/mensajes.js" defer></script>
+    <script src="../js/cargarModalesGrupos.js" defer></script>
+    <script src="../js/grupos.js" defer></script>
 </body>
 
 </html>
