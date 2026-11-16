@@ -169,17 +169,19 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto a modificar 
      * @returns Mensaje ok
      */
-    async eliminarHistoriaEnProyecto({idHistoria, idProyecto}) {
+    async eliminarHistoriaEnProyecto(idHistoria, idProyecto) {
         try{
-            const { rows } = await this.pool.query(
+            const resultado = await this.pool.query(
                 `DELETE FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_proyecto = $2;
                 `,
                 [idHistoria, idProyecto]
             );
-            return {
-                ok:true,
-                eliminado:true
-            };
+            if(resultado.rowCount>0){
+                return {
+                    ok:true,
+                    eliminado:true
+                };
+            }
         }catch(error){
             console.error("Error al borrar la historia de usuario en BD", error);
             throw error;

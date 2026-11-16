@@ -391,10 +391,10 @@
         </div>
       </div>
 
-      <!-- ============================= -->
+<!-- ============================= -->
       <!-- SECCIÓN DE GESTION DE SPRINTS -->
       <!-- ============================= -->    
-      <div id="modal-gestion-sprints" class="modal-class" style="display: block;">
+      <div id="modal-gestion-sprints" class="modal-class" style="display: none;">
         <div id="DivContSprints">
           <!-- Encabezados de los sprints -->
           <div id="DivEncabezadosSprint">
@@ -404,24 +404,52 @@
             <label id="FechaInicio">Fecha inicio</label>
             <label id="FechaFin">Fecha fin</label>
           </div>
-            <!-- Seccion que contiene los datos de los sprints -->
-            <div id="DivSprint"></div>
-              <!-- Section donde aparecen las opcciones -->
-            <div id="divOpccionesSprint">
-              <div id="DivBtnAgregarSprint">
-                <button type="button" id="btnAgregarSprint"> Agregar nuevo Sprint
-                </button>
-              </div>
-              <div id="DivBtnModSprint">
-                <button id="btnModSprint"># Modificar Sprint</button>
-              </div>
+          <!-- Sección que contiene los datos de los sprints -->
+          <div id="DivSprint"></div>
+          <!-- Sección donde aparecen las opciones -->
+          <div id="divOpccionesSprint">
+            <div id="DivBtnAgregarSprint">
+              <button type="button" id="btnAgregarSprint">Agregar nuevo Sprint</button>
             </div>
+            <div id="DivBtnModSprint">
+              <button id="btnModSprint"># Modificar Sprint</button>
+            </div>
+          </div>
 
           <!-- PANEL MODAL AGREGAR SPRINT -->
           <div id="modalAgregarSprint" class="modal">
             <div class="modal-contenido-dual">
               
-              <!-- SECCIÓN IZQUIERDA: Listas de Historias (Arrastrables) -->
+              <!-- MITAD IZQUIERDA: Formulario del Sprint -->
+              <div class="modal-seccion-formulario">
+                <h3>Agregar Sprint</h3>
+
+                <!-- Campo 1: Objetivo -->
+                <div class="entradaTextA">
+                  <label for="inpAddObjetivoSprint">Objetivo:</label>
+                  <textarea id="inpAddObjetivoSprint" placeholder="Escribe el objetivo del sprint..."></textarea>
+                </div>
+
+                <!-- Campo 2: Fecha de inicio -->
+                <div class="entradaInp">
+                  <label for="inpAddFechaInicioSprint">Fecha de inicio:</label>
+                  <input type="date" id="inpAddFechaInicioSprint">
+                </div>
+
+                <!-- Campo 3: Fecha fin -->
+                <div class="entradaInp">
+                  <label for="inpAddFechaFinSprint">Fecha fin:</label>
+                  <input type="date" id="inpAddFechaFinSprint">
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="modal-botones">
+                  <button type="button" id="btnGuardarSprintAdd" class="btn-guardar-sprint">Guardar Sprint</button>
+                  <button type="button" id="btnCerrarSprintAdd" class="btn-cancelar-sprint">Cancelar</button>
+                </div>
+              </div>
+
+              <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
               <div class="modal-seccion-listas">
                 
                 <!-- Panel Superior: Historias para este Sprint -->
@@ -446,9 +474,16 @@
 
               </div>
 
-              <!-- SECCIÓN DERECHA: Formulario del Sprint -->
+            </div>
+          </div>
+
+          <!-- PANEL MODAL MODIFICAR SPRINT -->
+          <div id="modalModificarSprint" class="modal">
+            <div class="modal-contenido-dual">
+              
+              <!-- MITAD IZQUIERDA: Formulario del Sprint -->
               <div class="modal-seccion-formulario">
-                <h3>Agregar Sprint</h3>
+                <h3>Modificar Sprint</h3>
 
                 <!-- Campo 1: Objetivo -->
                 <div class="entradaTextA">
@@ -470,21 +505,12 @@
 
                 <!-- Botones de acción -->
                 <div class="modal-botones">
-                  <button type="button" id="btnGuardarSprintAdd" class="btn-guardar-sprint">Guardar Sprint</button>
-                  <button type="button" id="btnCerrarSprintAdd" class="btn-cancelar-sprint">Cancelar</button>
+                  <button type="button" id="btnGuardarSprintMod" class="btn-guardar-sprint">Guardar Sprint</button>
+                  <button type="button" id="btnCerrarSprintMod" class="btn-cancelar-sprint">Cancelar</button>
                 </div>
-
               </div>
 
-            </div>
-          </div>
-
-
-          <!-- PANEL MODAL MODIFICAR SPRINT -->
-          <div id="modalModificarSprint" class="modal">
-            <div class="modal-contenido-dual">
-              
-              <!-- SECCIÓN IZQUIERDA: Listas de Historias (Arrastrables) -->
+              <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
               <div class="modal-seccion-listas">
                 
                 <!-- Panel Superior: Historias para este Sprint -->
@@ -505,36 +531,6 @@
                   <div id="contenedorSprintModCatalogo" class="lista-historias-container">
                     <!-- Las historias del catálogo general se renderizan aquí -->
                   </div>
-                </div>
-
-              </div>
-
-              <!-- SECCIÓN DERECHA: Formulario del Sprint -->
-              <div class="modal-seccion-formulario">
-                <h3>Modificar Sprint</h3>
-
-                <!-- Campo 1: Objetivo -->
-                <div class="entradaTextA">
-                  <label for="inpAddObjetivoSprint">Objetivo:</label>
-                  <textarea id="inpAddObjetivoSprint" placeholder="Escribe el objetivo del sprint..."></textarea>
-                </div>
-
-                <!-- Campo 2: Fecha de inicio -->
-                <div class="entradaInp">
-                  <label for="inpAddFechaInicioSprint">Fecha de inicio:</label>
-                  <input type="date" id="inpAddFechaInicioSprint">
-                </div>
-
-                <!-- Campo 3: Fecha fin -->
-                <div class="entradaInp">
-                  <label for="inpAddFechaFinSprint">Fecha fin:</label>
-                  <input type="date" id="inpAddFechaFinSprint">
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="modal-botones">
-                  <button type="button" id="btnGuardarSprintMod" class="btn-guardar-sprint">Guardar Sprint</button>
-                  <button type="button" id="btnCerrarSprintMod" class="btn-cancelar-sprint">Cancelar</button>
                 </div>
 
               </div>

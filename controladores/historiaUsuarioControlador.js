@@ -118,7 +118,7 @@ class historiaUsuarioControlador {
                 mensaje:"Historia agregada correctamente"
             });
         } catch (err) {
-            this.#error(res, err);
+            this.error(res, err);
         }
     }
 
@@ -131,25 +131,33 @@ class historiaUsuarioControlador {
     async eliminarHistoriaEnProyecto(req, res) {
         try {
             const { idHistoria, idProyecto } = req.params;
+
+
+            //Convertimos los parametros de texto a numero entero
+            // Convertimos los parámetros de texto a número entero
+            const idHistoriaNum = Number(idHistoria);
+            const idProyectoNum = Number(idProyecto);
+
+
             //Si mi id no tiene valor o si no es un entero regreso la respuesta correspondiente
-            if(!idHistoria || !Number.isInteger(idHistoria)){
+            if(!idHistoriaNum || !Number.isInteger(idHistoriaNum)){
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Error el id de la historia no es valido"
                 })
             }
             //Si mi idProyecto no tiene valor o si no es un entero regreso la respuesta correspondiente
-            if(!idProyecto || !Number.isInteger(idProyecto)){
+            if(!idProyectoNum || !Number.isInteger(idProyectoNum)){
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Error no puedo encontrarse el proyecto de la historia a eliminar"
                 })
             }
             //Verificamos si la historia existe en la base de datos
-            const historiaExistente = await this.dao.obtenerHistoriaEnProyecto(idHistoria, idProyecto);
-            if(historiaExistente && historiaExistente.id === id){
+            const historiaExistente = await this.dao.obtenerHistoriaEnProyecto(idHistoriaNum, idProyectoNum);
+            if(historiaExistente && historiaExistente.id === idHistoriaNum){
                 //Eliminamos la historia de la base de datos y verificamos su respuesta
-                const historiaEliminada = await this.dao.eliminarHistoriaEnProyecto(idHistoria, idProyecto);
+                const historiaEliminada = await this.dao.eliminarHistoriaEnProyecto(idHistoriaNum, idProyectoNum);
                 //Si la historia fue eliminada con exito enviamos la respuesta correspondiente
                 if(historiaEliminada.ok){
                     return res.status(201).json({
@@ -171,7 +179,7 @@ class historiaUsuarioControlador {
                 })
             }
         } catch (error) {
-            this.#error(res, err);
+            this.error(res, error);
         }
     }
 

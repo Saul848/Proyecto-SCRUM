@@ -64,6 +64,14 @@ let datosHistorias = [];
  // Índice actabasado en 0
 let currentIndexAdd = 0;
 let currentIndexMod = 0;
+
+const idProyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo')).id;
+if (idProyectoActivo){
+  console.log("Te confirmo que el proyecto actual es: "+idProyectoActivo+ " de tipo "+(typeof idProyectoActivo))
+}else{
+    console.log('No hay ningún proyecto activo en la sesión.');
+}
+
 //funcion prueba ale 
 window.cargarGrafica = async function (tipo) {
  if (tipo === "sprint") {
@@ -71,15 +79,6 @@ window.cargarGrafica = async function (tipo) {
   return;
 }
 
-//Obtener la informacion del proyecto actual como un objeto
-let proyectoObjGlobal = null
-const proyectoActual= sessionStorage.getItem('proyectoActivo');
-//Si se obtuvo el dato entonces parsearlo
-if (proyectoActual){
-    proyectoObjGlobal = JSON.parse(proyectoActual);
-}else{
-    console.log('No hay ningún proyecto activo en la sesión.');
-}
 if (tipo !== "product-backlog") return;
 
   const contenedor =
@@ -706,106 +705,11 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
     areaDatos.textContent = error.message;
   }
 }
-/**
- * Función para renderizar dinámicamente las historias de usuario en el DOM
- */
-async function renderizarHistorias() {
-    // 1. Solicitamos los datos al servidor y los guardamos en la variable
-    datosHistorias = await obtenerHistorias(parseInt(1,10));
-    console.log("Datos recibidos del servidor:", datosHistorias); // <-- Revisa la consola del navegador (F12)
 
-    // 2. Limpiamos el contenedor antes de inyectar los elementos
-    divHistoria.innerHTML = "";
 
-    // 3. Validamos si hay elementos para mostrar
-    if (datosHistorias.length === 0) {
-        divHistoria.innerHTML = `<p style="text-align: center; padding: 20px;">No hay historias de usuario registradas.</p>`;
-        return;
-    }
-
-    // 4. Recorremos el arreglo y construimos dinámicamente cada fila con innerHTML
-    datosHistorias.forEach((historia) => {
-        const filaHtml = document.createElement("div");
-        filaHtml.id = `DivFilaHistoria_${historia.id}`;
-        filaHtml.className = "DivFilaHistoria";
-
-        // Obtenemos los criterios de la historia o colocamos un mensaje por defecto si está vacío
-        const criterios = historia.criterios && historia.criterios.length > 0 
-            ? historia.criterios 
-            : [{ criterio: "Sin criterios de aceptación" }];
-
-        let criteriosTextAreasHTML = "";
-        criterios.forEach((crit, index) => {
-            const claseActiva = index === 0 ? "active" : "";
-            // Usamos un textarea con la clase específica y readonly para visualización en tabla
-            criteriosTextAreasHTML += `<textarea class="criterio-input-fila ${claseActiva}" readonly placeholder="Criterio...">${crit.criterio || ""}</textarea>`;
-        });
-
-        filaHtml.innerHTML = `
-            <label class="LabelID">${historia.numeroDeHistoria || "#"}</label>
-            <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
-            <label class="LabelDescripccion">${historia.descripcion || "#"}</label>
-            
-            <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
-            <div class="criterio-fila-wrapper" data-index="0">
-                <button type="button" class="btn-fila-lateral btn-fila-izq" onclick="cambiarCriterioFila(${historia.id}, -1)" title="Anterior">◀</button>
-                <div class="criterios-fila-columna" id="criteriosContainer_${historia.id}">
-                    ${criteriosTextAreasHTML}
-                </div>
-                <button type="button" class="btn-fila-lateral btn-fila-der" onclick="cambiarCriterioFila(${historia.id}, 1)" title="Siguiente">▶</button>
-            </div>
-
-            <label class="LabelValor">${historia.valor || "#"}</label>
-            <label class="LabelValor">${historia.horas || "#"}</label>
-            <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
-            
-            <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${parseInt(1,10)})">🗑️</button>
-            </div>
-        `;
-        divHistoria.appendChild(filaHtml);
-    });
-}
-
-/**
- * Función para navegar entre los criterios de aceptación directamente en la tabla de filas
- * @param {number} historiaId ID de la historia de usuario
- * @param {number} direccion Dirección del movimiento (-1 para izquierda, 1 para derecha)
- */
-function cambiarCriterioFila(historiaId, direccion) {
-    const wrapper = document.querySelector(`#DivFilaHistoria_${historiaId} .criterio-fila-wrapper`);
-    const container = document.getElementById(`criteriosContainer_${historiaId}`);
-    if (!container || !wrapper) return;
-
-    const textareas = container.querySelectorAll("textarea");
-    if (textareas.length <= 1) return;
-
-    // Obtenemos el índice actual guardado en el atributo data-index
-    let currentIndex = parseInt(wrapper.getAttribute("data-index") || "0", 10);
-    
-    // Calculamos el nuevo índice
-    currentIndex += direccion;
-
-    // Control de límites para que no rebase el número de criterios existentes
-    if (currentIndex < 0) currentIndex = 0;
-    if (currentIndex >= textareas.length) currentIndex = textareas.length - 1;
-
-    // Guardamos el nuevo índice
-    wrapper.setAttribute("data-index", currentIndex);
-
-    // Activamos únicamente el textarea correspondiente y ocultamos los demás
-    textareas.forEach((ta, idx) => {
-        if (idx === currentIndex) {
-            ta.classList.add("active");
-        } else {
-            ta.classList.remove("active");
-        }
-    });
-}
-
-// Evento DOMContentLoaded para cargar los datos y renderizarlos al iniciar la página
+// Modificación del evento DOMContentLoaded para usar la carga inicial
 document.addEventListener("DOMContentLoaded", async () => {
-    await renderizarHistorias();
+    await inicializarBacklog();
 });
 
 /**
@@ -1195,7 +1099,7 @@ function agregarNuevaHistoria() {
     let criteriosValidos = verificarCriterios(containerAdd)
     //Se verifican la informacion ingresada en los campos
     if (historiaValida && criteriosValidos) {
-        agregarHistoriaUsuario(1)//----------------------------------------------------------------------------------------------------------------------------------------------------------
+        agregarHistoriaUsuario(idProyectoActivo)//----------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }
 
@@ -1211,49 +1115,50 @@ function agregarNuevaHistoria() {
 async function agregarHistoriaUsuario(idProyecto) {
     let nombre = inpAddTitulo.value.trim();
     let descripcion = inpAddDescripcion.value.trim();
-    let criteriosDom = containerAdd.querySelectorAll('textarea')
-    let criteriosArray= []
-    criteriosDom.forEach((element) =>{
-        criteriosArray.push({criterio:element.value.trim()})
+    let criteriosDom = containerAdd.querySelectorAll('textarea');
+    let criteriosArray = [];
+    criteriosDom.forEach((element) => {
+        criteriosArray.push({ criterio: element.value.trim() });
     });
     let valor = parseInt(inpAddValor.value.trim(), 10);
     let horas = parseInt(inpAddHoras.value.trim(), 10);
-    const respuesta = await fetch("/historias/historiasPB", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            nombre: nombre,
-            descripcion: descripcion,
-            criterios: criteriosArray,
-            valor: valor,
-            horas: horas,
-            idProyecto: idProyecto
-        })
-    });
 
-    const resultado = await respuesta.json();
+    try {
+        const respuesta = await fetch("/historias/historiasPB", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: nombre,
+                descripcion: descripcion,
+                criterios: criteriosArray,
+                valor: valor,
+                horas: horas,
+                idProyecto: idProyecto
+            })
+        });
 
+        const resultado = await respuesta.json();
 
-    if (resultado.success || respuesta.status === 201) {
-        alert(resultado.mensaje || "Historia agregada correctamente");
-        
-        // Limpiamos los campos de los filtros para que la nueva historia se vea inmediatamente
-        inputFiltroId.value = "";
-        inputFiltroNombre.value = "";
-        inputFiltroValor.value = "";
-        inputFiltroSprint.value = "";
+        if (respuesta.ok && (resultado.ok || resultado.success || respuesta.status === 201)) {
+            alert(resultado.mensaje || "Historia agregada correctamente");
 
-        // Volvemos a inicializar el backlog para actualizar la lista, incluyendo la nueva historia
-        await inicializarBacklog();
-        
-        // Se limpian los campos de la sección agregar
-        limpiarCamposModalAdd();
-        // Se oculta el modal
-        modalAgregarHistoria.classList.remove('activo');// Oculta el modal
-    } else {
-        alert(resultado.mensaje || resultado.error || "Error al agregar la historia");
+            inputFiltroId.value = "";
+            inputFiltroNombre.value = "";
+            inputFiltroValor.value = "";
+            inputFiltroSprint.value = "";
+
+            await inicializarBacklog();
+
+            limpiarCamposModalAdd();
+            modalAgregarHistoria.classList.remove('activo');
+        } else {
+            alert(resultado.mensaje || resultado.error || "Error al agregar la historia");
+        }
+    } catch (error) {
+        console.error("Error en el fetch al agregar historia:", error);
+        alert("No se pudo conectar con el servidor para agregar la historia.");
     }
 }
 
@@ -1271,14 +1176,13 @@ async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
     
     if(resultado.ok || respuesta.status === 201){
         alert(resultado.mensaje || "Historia eliminada correctamente");
-        
+
         // Volvemos a inicializar el backlog para actualizar la lista, incluyendo la nueva historia
         await inicializarBacklog();
     } else {
         alert(resultado.mensaje || resultado.error || "Error al eliminar la historia");
     }
 }
-
 
 function cargar_cabecera_inicial() {
     document.getElementById("").style.display = "block";
@@ -1294,7 +1198,8 @@ cargar_cabecera_inicial();
  * @returns {Promise<void>} Promesa que se resuelve cuando se han cargado y filtrado las historias.
  */
 async function inicializarBacklog() {
-    todasLasHistorias = await obtenerHistorias(1);
+    todasLasHistorias = await obtenerHistorias(idProyectoActivo);
+    datosHistorias = todasLasHistorias;
     aplicarFiltros();
 }
 
@@ -1380,7 +1285,7 @@ function renderizarTablaFiltrada(historias) {
             <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
             <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${parseInt(1,10)})">🗑️</button>
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${idProyectoActivo})">🗑️</button>
             </div>
         `;
 
@@ -1443,11 +1348,6 @@ btnLimpiarFiltros.addEventListener("click", () => {
     inputFiltroValor.value = "";
     inputFiltroSprint.value = "";
     aplicarFiltros();
-});
-
-// Modificación del evento DOMContentLoaded para usar la carga inicial
-document.addEventListener("DOMContentLoaded", async () => {
-    await inicializarBacklog();
 });
 
 async function obtenerDOD(idProyecto) {
