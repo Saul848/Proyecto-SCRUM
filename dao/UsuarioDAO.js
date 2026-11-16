@@ -95,12 +95,36 @@ class UsuarioDAO {
     }
 
     async listarUsuariosPorEquipo(id_proyecto) {
-        console.log("idProyecto recibido en DAO:", id_proyecto);
+        //console.log("idProyecto recibido en DAO:", id_proyecto);
         const { rows } = await this.pool.query(
             'SELECT U.nombre AS U_nombre, U.id, P.nombre, TEP.id_proyecto FROM scrumbird.trabajando_en_proyecto TEP, scrumbird.proyecto P, scrumbird.usuario U WHERE P.id=$1 AND TEP.id_proyecto=P.id AND TEP.id_usuario=U.id',
             [id_proyecto]
         );
         return rows;
+    }
+
+    async obtenerProgresoCapacitacion(id_usuario){
+        const { rows } = await this.pool.query(
+            'SELECT id_usuario, modulo_actual, seccion_actual, guia_terminada FROM progreso_capacitacion WHERE id_usuario = $1',
+            [id_usuario]
+        );
+        return rows[0] || null;
+    }
+
+    async actualizarModuloCapacitacion(new_modulo_actual, id_usuario){
+        const { rows } = await this.pool.query(
+            'UPDATE scrumbird.progreso_capacitacion SET modulo_actual = $1 WHERE id_usuario = $2',
+            [new_modulo_actual, id_usuario]
+        );
+        return rows[0] || null;
+    }
+
+    async actualizarSeccionCapacitacion(new_seccion_actual, id_usuario){
+        const { rows } = await this.pool.query(
+            'UPDATE scrumbird.progreso_capacitacion SET seccion_actual = $1 WHERE id_usuario = $2',
+            [new_seccion_actual, id_usuario]
+        );
+        return rows[0] || null;
     }
 }
 

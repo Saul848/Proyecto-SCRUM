@@ -17,7 +17,7 @@ class UsuariosControlador {
         } catch (err) {
         this.#error(res, err);
         }
-    }
+    } 
 
     // En UsuarioControlador.js
     async listar2(req, res) {
@@ -50,7 +50,7 @@ class UsuariosControlador {
      */
     async listarUsuariosPorEquipo(req, res){
         try {
-            console.log("params:", req.params, "body:", req.body);
+            //console.log("params:", req.params, "body:", req.body);
             const id_proyecto = this.#idValido(req.params.idProyecto);
             const usuarios = await this.dao.listarUsuariosPorEquipo(id_proyecto)
             res.json({ data: usuarios });
@@ -132,7 +132,6 @@ class UsuariosControlador {
         this.#error(res, err);
         }
     }
-
     
     // POST /usuarios/login   body: { identificador, passwd } o { email, passwd }
     async login(req, res) {
@@ -168,6 +167,45 @@ class UsuariosControlador {
         }
     }
 
+    // GET /usuarios/progresoCapa/:idUsuario
+    /**
+     * Método que lista todos los usuarios de un proyecto especifico
+     * @param {*} req 
+     * @param {*} res 
+     */
+    async obtenerProgresoCapacitacion(req, res){
+        try {
+            const id_usuario = this.#idValido(req.params.id);
+            const progreso_capacitacion = await this.dao.obtenerProgresoCapacitacion(id_usuario)
+            res.json({ data: progreso_capacitacion });
+        } catch (err) {
+            this.#error(res, err);
+        }
+    }
+
+    //POST /progreso/modulo/:newModulo/:id_usuario 
+    async actualizarModuloCapacitacion(req, res){
+        try {
+            const id = this.#idValido(req.params.id);
+            //Se ocupa el método idValido que sirve para verificar que es un numero y mayor a 0
+            const new_modulo = this.#idValido(req.params.new_modulo_actual);
+            await this.dao.actualizarModuloCapacitacion(new_modulo, id);
+        } catch (error) {
+            console.error("Error al actualizar progreso de modulo en el controlador: ", error.message);
+        }
+    }
+
+    //POST /progreso/seccion/:newSeccion/:id_usuario
+    async actualizarSeccionCapacitacion(req, res){
+        try {
+            const id = this.#idValido(req.params.id);
+            //Se ocupa el método idValido que sirve para verificar que es un numero y mayor a 0
+            const new_seccion = this.#idValido(req.params.new_seccion_actual);
+            await this.dao.actualizarSeccionCapacitacion(new_seccion, id);
+        } catch (error) {
+            console.error("Error al actualizar progreso de seccion en el controlador: ", error.message);
+        }
+    }
     // ---- Métodos privados ----
 
     #idValido(valor) {
