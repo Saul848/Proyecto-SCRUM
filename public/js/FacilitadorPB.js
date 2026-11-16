@@ -42,13 +42,23 @@ const indicadorMod = document.getElementById("criterioIndicadorMod");
 const btnAgregarCriterioMod = document.getElementById("btnAgregarCriterioMod");
 const btnEliminarCriterioMod = document.getElementById("btnEliminarCriterioMod"); // <-- Nuevo
 
+// Captura de elementos de filtro del DOM
+const inputFiltroId = document.getElementById("inputFiltroId");
+const inputFiltroNombre = document.getElementById("inputFiltroNombre");
+const inputFiltroValor = document.getElementById("inputFiltroValor");
+const inputFiltroSprint = document.getElementById("inputFiltroSprint");
+const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
+
+// Variables globales adicionales para filtros
+let todasLasHistorias = [];
+
 //Grupo de elementos Dom con inputs del modal Agregar historia
 const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor];
 
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
 let patronRangoValor = /^(?:[0-9]{1,3}|[1-3][0-9]{3}|4000)$/; // Patron que permite valores entre 0 y 4000
-
+let patronRangoHoras = /^(?:[0-9]{1,2}|100)$/; //Patron que me permite valores desde el 0 al 100 para las horas estimadas
 // Variable global para almacenar las historias obtenidas del servidor
 let datosHistorias = [];
  // Índice actabasado en 0
@@ -746,17 +756,13 @@ async function renderizarHistorias() {
             </div>
 
             <label class="LabelValor">${historia.valor || "#"}</label>
-            <label class="LabelValor">${historia.horasCalculadas || "#"}</label>
+            <label class="LabelValor">${historia.horas || "#"}</label>
             <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
-            <div class="DivBtnComentar">
-                <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
-            </div>
             <div class="DivBtnEliminar">
                 <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${parseInt(1,10)})">🗑️</button>
             </div>
         `;
-
         divHistoria.appendChild(filaHtml);
     });
 }
@@ -810,6 +816,7 @@ function limpiarCamposModalAdd() {
     inpAddDescripcion.value = "";
     reiniciarCriteriosAceptacion(containerAdd, indicadorAdd, currentIndexAdd);
     inpAddValor.value = "";
+    inpAddHoras.value= "";
 }
 
 /**
@@ -820,6 +827,7 @@ function limpiarCamposModalMod() {
     inpModDescripcion.value = "";
     reiniciarCriteriosAceptacion(containerMod, indicadorMod, currentIndexMod);
     inpModValor.value = "";
+    inpModHoras.value ="";
 }
 
 /**
@@ -926,7 +934,7 @@ parArriba.forEach(element=>{
 
 const parAbajo = [btnAbajoAdd, btnAbajoMod];
 
-// Recorrido que asigna el listener que permite navegar con (flecha arriba) en la seccion de criterios de aceptacion.
+// Recorrido que asigna el listener que permite navegar con (flecha abajo) en la seccion de criterios de aceptacion.
 parAbajo.forEach(element=>{
     element.addEventListener("click", (e) => {
         if(e.currentTarget===btnAbajoAdd){
@@ -952,7 +960,7 @@ parAbajo.forEach(element=>{
 
 const parAgregarCriterio = [btnAgregarCriterioAdd, btnAgregarCriterioMod];
 
-// Recorrido que asigna el listener que permite navegar con (flecha arriba) en la seccion de criterios de aceptacion.
+// Recorrido que asigna el listener que permite agregar nuevos criterios de aceptacion.
 parAgregarCriterio.forEach(element=>{
     element.addEventListener("click", (e) => {
         if(e.currentTarget===btnAgregarCriterioAdd){
@@ -1099,6 +1107,16 @@ function verificarCampos(grupoInputs){
                     elemento.style.border = "2px solid blue";
                 }
             }
+            if(elemento === inpAddHoras || elemento ===inpModHoras){
+                if(!patronRangoHoras.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.value = "";
+                    elemento.placeholder = "Ingrese horas entre 0 y 100";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
         }
     });
     return verificado;
@@ -1177,7 +1195,7 @@ function agregarNuevaHistoria() {
     let criteriosValidos = verificarCriterios(containerAdd)
     //Se verifican la informacion ingresada en los campos
     if (historiaValida && criteriosValidos) {
-        agregarHistoriaUsuario(1)
+        agregarHistoriaUsuario(1)//----------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }
 
@@ -1199,6 +1217,7 @@ async function agregarHistoriaUsuario(idProyecto) {
         criteriosArray.push({criterio:element.value.trim()})
     });
     let valor = parseInt(inpAddValor.value.trim(), 10);
+    let horas = parseInt(inpAddHoras.value.trim(), 10);
     const respuesta = await fetch("/historias/historiasPB", {
         method: "POST",
         headers: {
@@ -1209,11 +1228,13 @@ async function agregarHistoriaUsuario(idProyecto) {
             descripcion: descripcion,
             criterios: criteriosArray,
             valor: valor,
+            horas: horas,
             idProyecto: idProyecto
         })
     });
 
     const resultado = await respuesta.json();
+
 
     if (resultado.success || respuesta.status === 201) {
         alert(resultado.mensaje || "Historia agregada correctamente");
@@ -1264,16 +1285,6 @@ function cargar_cabecera_inicial() {
 }
 
 cargar_cabecera_inicial();
-
-// Variables globales adicionales para filtros
-let todasLasHistorias = [];
-
-// Captura de elementos de filtro del DOM
-const inputFiltroId = document.getElementById("inputFiltroId");
-const inputFiltroNombre = document.getElementById("inputFiltroNombre");
-const inputFiltroValor = document.getElementById("inputFiltroValor");
-const inputFiltroSprint = document.getElementById("inputFiltroSprint");
-const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 
 /**
  * Inicializa el Product Backlog obteniendo la lista completa de historias desde el servidor,
@@ -1351,9 +1362,9 @@ function renderizarTablaFiltrada(historias) {
         });
 
         filaHtml.innerHTML = `
-            <label class="LabelID">${historia.id}</label>
+            <label class="LabelID">${historia.numeroDeHistoria || "#"}</label>
             <label class="LabelNombreHistoria">${historia.nombre || historia.titulo}</label>
-            <label class="LabelDescripccion">${historia.descripcion || historia.descripccion || "#"}</label>
+            <label class="LabelDescripccion">${historia.descripcion || "#"}</label>
             
             <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
             <div class="criterio-fila-wrapper" data-index="0">
@@ -1365,13 +1376,11 @@ function renderizarTablaFiltrada(historias) {
             </div>
 
             <label class="LabelValor">${historia.valor || "#"}</label>
-            <label class="LabelSprintAsginado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
+            <label class="LabelValor">${historia.horas || "#"}</label>
+            <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
-            <div class="DivBtnComentar">
-                <button class="btnVerComentarios" data-id="${historia.id}">Ver comentarios</button>
-            </div>
             <div class="DivBtnEliminar">
-                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}">🗑️</button>
+                <button class="btnEliminarHistoria" title="Eliminar" data-id="${historia.id}" onclick="eliminarHistoriaUsuario(${historia.id}, ${parseInt(1,10)})">🗑️</button>
             </div>
         `;
 

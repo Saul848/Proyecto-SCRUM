@@ -35,7 +35,8 @@ class historiaUsuarioDAO {
                 t_historias.numero_de_historia, 
                 t_historias.nombre, 
                 t_historias.descripcion, 
-                t_historias.valor, 
+                t_historias.valor,
+                t_historias.horas_estimadas, 
                 t_historias.asignado_al_sprint, 
                 t_criterios.id AS id_criterio, 
                 t_criterios.numero_de_criterio, 
@@ -79,6 +80,7 @@ class historiaUsuarioDAO {
                         nombre: row.nombre,
                         descripcion: row.descripcion,
                         valor: row.valor,
+                        horas: row.horas_estimadas,
                         asignado_al_sprint: row.asignado_al_sprint,
                         criterios: [] // Arreglo para los criterios de esta historia
                     };
@@ -127,18 +129,18 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario  
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({nombre, descripcion, criterios, valor, idProyecto }){
+    async agregarHistoria({nombre, descripcion, criterios, valor, horas, idProyecto }){
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
             //Empezar la transaccion
             await client.query('BEGIN');
             const insercionHistoria = 
-                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, id_proyecto) 
-                VALUES ($1, $2, $3, $4)
+                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, id_proyecto) 
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id;
              `;
-            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, idProyecto]);
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, idProyecto]);
             const idGenerado = resultadoHistoria.rows[0].id;
 
             const insercionCriterio = `INSERT INTO scrumbird.criterios_de_aceptacion (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)

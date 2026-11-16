@@ -67,10 +67,10 @@ class historiaUsuarioControlador {
      * @returns
      */
     async agregarHistoria(req, res) {
-        const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
+        const { nombre, descripcion, criterios, valor, horas, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
-            if (!nombre || !descripcion || !criterios || valor === undefined || valor === null || !idProyecto) {
+            if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || !idProyecto) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Todos los datos del formulario son obligatorios"
@@ -95,6 +95,12 @@ class historiaUsuarioControlador {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
+            })
+            }
+            if(horas < 0 || horas > 100){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
             })
             }
 
