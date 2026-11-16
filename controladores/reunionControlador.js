@@ -78,17 +78,76 @@ function crearReunionControlador(pool) {
     };
 
     const cambiarEstadoFinalizada = async (req, res) => {
-    try {
-        const { idReunion } = req.params;
-        await reunionDAO.finalizarReunion(idReunion);
-        res.json({ ok: true, mensaje: 'Reunión finalizada correctamente' });
-    } catch (err) {
-        console.error('ERROR AL FINALIZAR REUNIÓN:', err.message);
-        res.status(500).json({ ok: false, error: err.message });
-    }
-};
+        try {
+            const { idReunion } = req.params;
+            await reunionDAO.finalizarReunion(idReunion);
+            res.json({ ok: true, mensaje: 'Reunión finalizada correctamente' });
+        } catch (err) {
+            console.error('ERROR AL FINALIZAR REUNIÓN:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
 
-    return { obtenerReuniones, obtenerDatosFormulario, guardarReunion, cambiarEstadoEnCurso, obtenerHistoriasSprint, cambiarEstadoFinalizada };
+    //para la reunión de revisión
+
+    const obtenerHistoriasRevision = async (req, res) => {
+        try {
+            const { idSprint } = req.params;
+            const { idProyecto } = req.query;
+
+            //verifica que haya una reunión de planificación concluida
+            const planningTerminado = await reunionDAO.verificarPlanningConcluido(idSprint);
+            if (!planningTerminado) {
+                return res.status(403).json({ 
+                    ok: false, 
+                    error: 'No se puede iniciar la revisión: la reunión de Sprint Planning de esta iteración aún no ha finalizado.' 
+                });
+            }
+            //si concluyo la reunión de planificación, se cargan las historias 
+            const historias = await reunionDAO.obtenerHistoriasRevisionPorSprint(idSprint, idProyecto);
+            res.json({ ok: true, data: historias });
+        } catch (err) {
+            console.error('ERROR AL OBTENER HISTORIAS DE REVISIÓN:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
+    const revisarHistoria = async (req, res) => {
+        try {
+            const { idHistoria } = req.params;
+            const { estado, comentario, idEmisor, idReunion, idProyecto } = req.body;
+            
+            await reunionDAO.actualizarRevisionHistoria(idHistoria, estado, comentario, idEmisor, idReunion, idProyecto);
+            
+            res.json({ ok: true, mensaje: 'Revisión registrada correctamente' });
+        } catch (err) {
+            console.error('ERROR AL REVISAR HISTORIA:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
+    const devolverBacklog = async (req, res) => {
+        try {
+            const { idHistoria } = req.params;
+            await reunionDAO.devolverHistoriaAProductBacklog(idHistoria);
+            res.json({ ok: true, mensaje: 'Historia devuelta al product backlog con éxito' });
+        } catch (err) {
+            console.error('ERROR AL DEVOLVER HISTORIA:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
+    return { 
+        obtenerReuniones, 
+        obtenerDatosFormulario, 
+        guardarReunion, 
+        cambiarEstadoEnCurso, 
+        obtenerHistoriasSprint, 
+        cambiarEstadoFinalizada,
+        obtenerHistoriasRevision,
+        revisarHistoria,
+        devolverBacklog
+    };
 }
 
 module.exports = crearReunionControlador;

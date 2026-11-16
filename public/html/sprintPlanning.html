@@ -4,7 +4,7 @@
     <div id="cabeceraPlanning">
         <!--fase 1-inicio/despliegue-->
         <div id="historiasSprint" class="cabeceraDefault">
-            <span class="rolPlanning" id="rol">Facilitador</span>
+            <!--<span class="rolPlanning" id="rol">Facilitador</span>-->
             <h1>Planificación de la iteración</h1>
         </div>
 
@@ -16,6 +16,10 @@
         <!--fase 2 asignación de historias a desarrolladores-->
         <div id="historiasAsignacion" class="cabeceraDefault oculto">
             <h1>Asignación de historias</h1>
+        </div>
+
+        <div id="historiasRevision" class="cabeceraDefault oculto">
+            <h1>Revisión de entregables del Sprint</h1>
         </div>
     </div>
 </header>
@@ -127,6 +131,56 @@
                 <button id="btnVolverFase1" class="btn-azul">← Volver a Fase 1</button>
                 <button id="btnConfirmarSprint" class="btn-azul">Confirmar Sprint Backlog</button>
             </div>
-        </div>          
+        </div>  
+        
+
+        <!-- revisión de entregables del sprint -->
+        <div id="vista-sprintReview" class="oculto">
+            
+            <div class="review-encabezado" style="text-align: center; margin-bottom: 20px;">
+                <h2 id="txtObjetivoIteracion" style="font-size: 16px; color: #475569; font-weight: 600;">Objetivo de la iteración actual</h2>
+            </div>
+
+            <div class="review-meta">
+                <h3>Historias de Usuario Terminadas</h3>
+                <span class="num-iteracion">No. Iteración: <strong id="txtNumIteracion">#</strong></span>
+            </div>
+
+            <!--aviso para el facilitador/desarrollador-->
+            <div id="bannerEsperaCliente" class="alerta-espera oculto">
+                <p>El cliente está evaluando los entregables. Los resultados finales se habilitarán al cerrar el acta.</p>
+            </div>
+
+            <!--resumen para cliente-->
+            <div class="review-contenido-principal">
+                <div id="contenedorTarjetasReview" class="grid-historias-review">
+                    <!--las tarjetas apareceran dinamicamente-->
+                </div>
+                
+                <!-- resumen para cliente -->
+                <aside id="panelResumenRevision" class="panel-resumen-review" data-rol="cliente">
+                    <h3>Resumen de Revisión</h3>
+                    <ul class="lista-resumen-datos">
+                        <li>Historias revisadas: <span id="resRevisadas">0</span></li>
+                        <li>Historias aprobadas: <span id="resAprobadas">0</span></li>
+                        <li>Historias rechazadas: <span id="resRechazadas">0</span></li>
+                        <li>Comentarios totales: <span id="resComentarios">0</span></li>
+                    </ul>
+                </aside>
+            </div>
+
+            <!-- botones de acciones dependiendo el rol -->
+            <div class="acciones acciones-review">
+                <!-- Visible para cliente/facilitador -->
+                <button type="button" id="btnCerrarActaSprint" class="btn-azul" data-rol="cliente,facilitador">
+                    Cerrar acta de revisión y finalizar sprint
+                </button>
+
+                <!-- visible para facilitador/desarrollador -->
+                <button type="button" id="btnIrRetrospectiva" class="btn-azul oculto" data-rol="facilitador,desarrollador">
+                    Ir a retrospectiva
+                </button>
+            </div>
+        </div>
     </div>
 </section>
