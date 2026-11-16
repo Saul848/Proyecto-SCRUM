@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 
+//se manejan los eventos de la parte de reuniones
 function setupAsignacionTareasSockets(server) {
     const io = new Server(server, { cors: { origin: "*" } });
 

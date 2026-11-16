@@ -13,11 +13,26 @@ if (typeof window.ID_REUNION === 'undefined') window.ID_REUNION = 1;
 function obtenerRolActual() {
   const urlParams = new URLSearchParams(window.location.search);
   const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
-  const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
-  return (urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion || (esDevPorRuta ? 'desarrollador' : 'facilitador')).toLowerCase();
+  const esClientePorRuta = window.location.pathname.toLowerCase().includes('cliente');
+
+  let rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
+  
+  if (!rolSesion) {
+    try {
+      const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
+      if (usuarioActivo && usuarioActivo.rol) {
+        rolSesion = usuarioActivo.rol;
+      }
+    } catch (e) {}
+  }
+
+  const rolFinal = urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion || 
+                   (esDevPorRuta ? 'desarrollador' : (esClientePorRuta ? 'cliente' : 'facilitador'));
+                   
+  return rolFinal.toLowerCase();
 }
 
-function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam) {
+function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam, idTipoReunionParam) {
   const urlParams = new URLSearchParams(window.location.search);
   
   const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
@@ -27,7 +42,8 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   window.ID_PROYECTO = Number(idProyectoParam) || Number(urlParams.get("proyecto")) || 1;
   window.ID_SPRINT = Number(idSprintParam) || Number(sessionStorage.getItem("ID_SPRINT_ACTIVO")) || 1;
   window.ID_REUNION = Number(idReunionParam) || Number(sessionStorage.getItem("ID_REUNION_ACTIVA")) || 1;
-  
+  window.ID_TIPO_REUNION = Number(idTipoReunionParam) || Number(sessionStorage.getItem("TIPO_REUNION_ACTIVA")) || 2;
+
   if (typeof inicializarSocketsAsignacion === 'function') {
     inicializarSocketsAsignacion(window.ID_SPRINT);
   }
@@ -48,12 +64,12 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     if (btnConfirmarSprint) btnConfirmarSprint.style.display = "none";
     if (btnSalir) btnSalir.style.display = "none";
     
-    // 🔒 Restricción: Solo el facilitador puede poner/modificar las fechas
+    //Restricción: Solo el facilitador puede poner/modificar las fechas
     if (inpFechaInicio) inpFechaInicio.disabled = true;
     if (inpFechaFin) inpFechaFin.disabled = true;
   }
 
-  // 🔄 Sincronización y control de fechas en tiempo real (Facilitador -> Desarrollador)
+  //Sincronización y control de fechas en tiempo real (Facilitador -> Desarrollador)
   if (inpFechaInicio) {
     inpFechaInicio.onchange = () => {
       calcularRestante();
@@ -157,13 +173,17 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     };
   }
 
-  // Ejecutamos la carga inicial
-  cargarHistoriasSprint();
-  const vistaParam = urlParams.get("vista");
-  if (vistaParam === "detalles") {
-    mostrarVista("vistaDetalles");
+  if (window.ID_TIPO_REUNION === 4) {
+    mostrarVista("vista-sprintReview");
   } else {
-    mostrarVista("vista-fase1");
+  // Ejecutamos la carga inicial
+    cargarHistoriasSprint();
+    const vistaParam = urlParams.get("vista");
+    if (vistaParam === "detalles") {
+      mostrarVista("vistaDetalles");
+    } else {
+      mostrarVista("vista-fase1");
+    }
   }
 }
 
@@ -198,7 +218,7 @@ async function cargarHistoriasSprint() {
 
 //cabeceras
 function ocultarTodasCabeceras() {
-  ["historiasSprint", "historiasResumen", "historiasAsignacion"].forEach(id => {
+  ["historiasSprint", "historiasResumen", "historiasAsignacion", "historiasRevision"].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.classList.add("oculto");
@@ -215,16 +235,18 @@ function mostrarCabeceraR(id) {
 }
 
 function mostrarVista(idVista) {
-  ["vista-fase1", "vistaDetalles", "vista-fase2"].forEach(vId => {
+  ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
     const vista = document.getElementById(vId);
     if (vista) {
       vista.style.setProperty("display", "none", "important");
+      vista.classList.add("oculto"); // Aseguramos que use la clase CSS correcta
     }
   });
 
   const vistaActiva = document.getElementById(idVista);
   if (vistaActiva) {
     vistaActiva.style.setProperty("display", "block", "important");
+    vistaActiva.classList.remove("oculto");
   }
 
   switch (idVista) {
@@ -237,10 +259,10 @@ function mostrarVista(idVista) {
     case "vista-fase2":
       mostrarCabeceraR("historiasAsignacion");
       cargarAsignacionFase2();
-      //llamamos el inicializador de sockets
-      if (typeof inicializarSocketsAsignacion === 'function') {
-        inicializarSocketsAsignacion(window.ID_SPRINT);
-      }
+      break;
+    case "vista-sprintReview":
+      mostrarCabeceraR("historiasRevision");
+      cargarHistoriasRevision();
       break;
   }
 }
@@ -412,7 +434,7 @@ function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
   if (!cuerpoAsignacion) return;
 
-  const rol = obtenerRolActual(); // 👈 Usamos la función robusta para detectar el rol
+  const rol = obtenerRolActual();
   const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Usuario" };
 
   const panelSolicitudes = document.querySelector(".panel-solicitudes");
@@ -591,7 +613,7 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    // 🔄 Listener: Escuchar cuando alguien cambia horas o factor de complejidad en tiempo real
+    //escuchar cuando alguien cambia horas o factor de complejidad en tiempo real
     socketAsignacion.on("cambio-factor-historia-cliente", (data) => {
       const historia = requisitos.find(h => h.id === data.idHistoria);
       if (historia) {
@@ -611,7 +633,7 @@ function inicializarSocketsAsignacion(idSprint) {
       calcularEsfuerzoTotal();
     });
 
-    // 🔄 Listener: Escuchar cuando el facilitador actualiza las fechas en tiempo real
+    //escuchar cuando el facilitador actualiza las fechas en tiempo real
     socketAsignacion.on("cambio-fechas-cliente", (data) => {
       const inpFechaInicio = document.getElementById("inpFechaInicio");
       const inpFechaFin = document.getElementById("inpFechaFin");
@@ -672,8 +694,228 @@ function inicializarSocketsAsignacion(idSprint) {
       renderizarPanelSolicitudes();
       cargarAsignacionFase2();
     });
+
+    //escuchar cuando el cliente termina la revisión de las historias
+    socketAsignacion.on("acta-revision-cerrada-cliente", () => {
+      const rolActual = obtenerRolActual();
+      if (rolActual === 'facilitador' || rolActual === 'desarrollador') {
+          //se oculta el aviso de espera
+          const bannerEspera = document.getElementById("bannerEsperaCliente");
+          if (bannerEspera) bannerEspera.classList.add("oculto");
+
+          //se recargan las tarjetas para mostrar los estados ACEPTADO/RECHAZADO y botones correspondientes
+          cargarHistoriasRevision();
+      }
+  });
   }
 }
+
+//funcion que evalua el rol para cargar la vista de revisión y aplicar las restricciones correspondientes
+function aplicarRestriccionesRevision(rol) {
+    const rolActual = rol.toLowerCase();
+
+    // Seleccionar elementos según el rol
+    const elementosCliente = document.querySelectorAll('[data-rol*="cliente"]');
+    const elementosFacilitadorDev = document.querySelectorAll('[data-rol*="facilitador"], [data-rol*="desarrollador"]');
+    const panelResumen = document.getElementById('panelResumenRevision');
+    const btnCerrarActa = document.getElementById('btnCerrarActaSprint');
+    const btnRetrospectiva = document.getElementById('btnIrRetrospectiva');
+
+  //evento para el botón de cerrar acta de revisión (Ejecutado por el Cliente o Facilitador)
+  const btnCerrarActaSprint = document.getElementById("btnCerrarActaSprint");
+  if (btnCerrarActaSprint) {
+    btnCerrarActaSprint.onclick = async () => {
+      const rolActual = obtenerRolActual();
+
+      if (rolActual === 'cliente') {
+        if (!confirm("¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo.")) return;
+
+        try {
+          //marcar la reunión como 'Finalizada' en la BD
+          const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const resultado = await respuesta.json();
+
+          if (resultado.ok) {
+            //disparar el socket para notificar en tiempo real al Facilitador y Desarrollador
+            if (socketAsignacion) {
+              socketAsignacion.emit("cliente-cerro-acta-revision", {
+                sprintId: window.ID_SPRINT,
+                reunionId: window.ID_REUNION
+              });
+            }
+
+            alert("¡Acta de revisión cerrada con éxito!");
+            //regresar al panel principal o ocultar la vista
+            document.getElementById("vista-sprintPlanning").style.display = "none";
+            document.getElementById("modal-reuniones").style.display = "block";
+          } else {
+            alert("Error al finalizar la reunión.");
+          }
+        } catch (err) {
+          console.error("Error al cerrar el acta:", err);
+        }
+      } else if (rolActual === 'facilitador') {
+        //si es el facilitador cerrando la sesión completa de revisión
+        if (!confirm("¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?")) return;
+
+        try {
+          const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const resultado = await respuesta.json();
+
+          if (resultado.ok) {
+            alert("Reunión finalizada correctamente.");
+            document.getElementById("vista-sprintPlanning").style.display = "none";
+            document.getElementById("modal-reuniones").style.display = "block";
+          } else {
+            alert("Error al finalizar la reunión.");
+          }
+        } catch (err) {
+          console.error("Error al finalizar la reunión:", err);
+        }
+      }
+    };
+  }
+
+    if (rolActual === 'cliente') {
+        // El cliente ve botones de aprobar/rechazar y el resumen lateral
+        elementosCliente.forEach(el => el.style.display = 'flex');
+        elementosFacilitadorDev.forEach(el => el.classList.add('oculto'));
+        if (panelResumen) panelResumen.style.display = 'block';
+        if (btnCerrarActa) {
+            btnCerrarActa.style.display = 'block';
+            btnCerrarActa.classList.remove('oculto');
+        }
+        if (btnRetrospectiva) btnRetrospectiva.style.display = 'none';
+
+    } else if (rolActual === 'facilitador') {
+        // El facilitador ve los estados de revisión y el botón de devolver a backlog si fue rechazado
+        elementosCliente.forEach(el => el.style.display = 'none');
+        elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
+        if (panelResumen) panelResumen.style.display = 'none';
+        if (btnCerrarActa) btnCerrarActa.style.display = 'block'; // Ocultar si el cliente ya cerró el acta
+        if (btnRetrospectiva) btnRetrospectiva.style.display = 'block';
+
+        // Bloquear inputs de edición para que solo observe
+        document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
+
+    } else if (rolActual === 'desarrollador') {
+        // El desarrollador solo consulta estados y navega a retrospectiva (Imagen 3)
+        elementosCliente.forEach(el => el.style.display = 'none');
+        elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
+        
+        // El desarrollador NO ve el botón de cerrar acta ni devolver a backlog
+        const btnDevolver = document.querySelectorAll('.btn-devolver-backlog');
+        btnDevolver.forEach(b => b.style.display = 'none');
+
+        if (panelResumen) panelResumen.style.display = 'none';
+        if (btnCerrarActa) btnCerrarActa.style.display = 'none';
+        if (btnRetrospectiva) btnRetrospectiva.style.display = 'block';
+
+        document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
+    }
+  }
+
+  async function cargarHistoriasRevision() {
+    try {
+        //se obtienen las historias terminadas del sprint actual
+        const respuesta = await fetch(`/reuniones/sprint/${window.ID_SPRINT}/historias-revision?idProyecto=${window.ID_PROYECTO}`, {
+            headers: { "Accept": "application/json" }
+        });
+        const resultado = await respuesta.json();
+        const historias = resultado.data || [];
+
+        const contenedor = document.getElementById('contenedorTarjetasReview');
+        if (!contenedor) return;
+
+        if (historias.length === 0) {
+            contenedor.innerHTML = `<p style="text-align: center; color: #64748b; grid-column: span 3;">No hay historias terminadas registradas para revisar en este sprint.</p>`;
+            return;
+        }
+
+        //se obtiene el rol actual para mostrar lo correspondiente
+        const rolActual = obtenerRolActual();
+        aplicarRestriccionesRevision(rolActual);
+
+        //si la reunión esta finalizada se oculta el banner
+        const bannerEspera = document.getElementById("bannerEsperaCliente");
+        if (bannerEspera) {
+          if (rolActual === 'cliente' || window.ESTADO_REUNION === 'Finalizada') {
+            bannerEspera.classList.add("oculto");
+          } else {
+            bannerEspera.classList.remove("oculto");
+          }
+        }
+
+        //cada tarjeta con sus criterios
+        contenedor.innerHTML = historias.map(h => {
+            const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+            const estadoRevision = h.estado_revision || 'PENDIENTE';
+            const claseEstado = estadoRevision === 'ACEPTADO' ? 'estado-aceptado' : (estadoRevision === 'RECHAZADO' ? 'estado-rechazado' : 'estado-pendiente');
+
+            const listaCriteriosHTML = h.criterios && h.criterios.length > 0 
+                ? h.criterios.map((c, index) => `
+                    <li>
+                        <label>
+                            <input type="checkbox" class="chk-criterio" ${c.cumplido ? 'checked' : ''} ${rolActual !== 'cliente' ? 'disabled' : ''}>
+                            <span>Criterio ${index + 1}: ${c.descripcion || c}</span>
+                        </label>
+                    </li>
+                `).join('')
+                : '<li><small style="color: #64748b;">Sin criterios definidos</small></li>';
+
+            return `
+                <article class="tarjeta-historia-review" id="tarjeta-historia-${h.id}" data-historia-id="${h.id}">
+                    <div class="tarjeta-header-blanco">
+                        <strong class="historia-codigo">SB-${numMostrar}:</strong>
+                        <p class="historia-descripcion">${h.descripcion || h.nombre}</p>
+                    </div>
+
+                    <div class="tarjeta-criterios">
+                        <div class="criterios-cabecera-accion">
+                            <h4>Criterios de Aceptación</h4>
+                            <button type="button" class="btn-azul btn-devolver-backlog ${rolActual === 'facilitador' && estadoRevision === 'RECHAZADO' ? '' : 'oculto'}" onclick="devolverAProductBacklog(${h.id})">
+                                Devolver al product backlog
+                            </button>
+                        </div>
+                        <ul class="lista-criterios">
+                            ${listaCriteriosHTML}
+                        </ul>
+                    </div>
+
+                    <div class="tarjeta-comentario">
+                        <label for="comentario-${h.id}">Comentario:</label>
+                        <textarea id="comentario-${h.id}" class="txt-comentario-review" rows="3" placeholder="Escribe observaciones..." ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? 'disabled' : ''}>${h.comentario || ''}</textarea>
+                    </div>
+
+                    <div class="tarjeta-footer-estado">
+                        <div class="grupo-botones-cliente ${rolActual === 'cliente' && estadoRevision === 'PENDIENTE' ? '' : 'oculto'}">
+                            <button type="button" class="btn-verde" onclick="guardarRevisionHistoria(${h.id}, 'ACEPTADO')">Aprobar</button>
+                            <button type="button" class="btn-rojo" onclick="guardarRevisionHistoria(${h.id}, 'RECHAZADO')">Rechazar</button>
+                        </div>
+
+                        <div class="grupo-estado-final ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? '' : 'oculto'}">
+                            <span class="badge-estado ${claseEstado}">
+                                ${estadoRevision === 'ACEPTADO' ? '✓ Aprobado' : (estadoRevision === 'RECHAZADO' ? '✕ Rechazado' : 'Pendiente')}
+                            </span>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+
+        actualizarContadoresResumen();
+
+    } catch (err) {
+        console.error('Error al cargar las historias de revisión:', err);
+    }
+  }
+
 
 //función que ejecuta el desarrollador al hacer clic en "Solicitar"
 window.solicitarHistoria = (idHistoria) => {
@@ -688,7 +930,7 @@ window.solicitarHistoria = (idHistoria) => {
   }
 };
 
-//función que ejecuta el facilitador al dar "Aceptar" o "Rechazar"
+//función que ejecuta el facilitador al dar "Aceptar" o "Rechazar" cuando un desarrollador pide una historia
 window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
   if (socketAsignacion) {
     socketAsignacion.emit("gestionar-solicitud", {
@@ -699,4 +941,125 @@ window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarr
       nombreDesarrollador
     });
   }
+};
+
+//función que devuelve la historia al product backlog
+window.devolverAProductBacklog = async (idHistoria) => {
+  if (!confirm("¿Estás seguro de devolver esta historia al Product Backlog? Se marcará como pendiente para el siguiente sprint.")) {
+      return;
+  }
+
+  try {
+      const respuesta = await fetch(`/reuniones/historia/${idHistoria}/devolver`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+      });
+      const resultado = await respuesta.json();
+
+      if (resultado.ok) {
+          alert("¡Historia devuelta al Product Backlog exitosamente!");
+          cargarHistoriasRevision(); // Recargar la vista para reflejar los cambios
+      } else {
+          alert("Error al procesar la solicitud.");
+      }
+  } catch (err) {
+      console.error("Error en la petición de devolución:", err);
+  }
+};
+
+//función que ejecuta el cliente al hacer clic en "Aprobar" o "Rechazar"
+window.guardarRevisionHistoria = async (idHistoria, estado) => {
+  try {
+    //obtenemos el comentario escrito en el textarea de esta historia específica
+    const textareaComentario = document.getElementById(`comentario-${idHistoria}`);
+    const comentario = textareaComentario ? textareaComentario.value : '';
+
+    //obtenemos el ID del usuario actual desde la sesión
+    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1 };
+
+    let idProyecto = window.ID_PROYECTO;
+    if (!idProyecto) {
+      try {
+        const proyectoActivo = JSON.parse(sessionStorage.getItem("proyectoActivo"));
+        idProyecto = proyectoActivo ? proyectoActivo.id : null;
+      } catch (e) {
+        idProyecto = null;
+      }
+    }
+
+    const respuesta = await fetch(`/reuniones/historia/${idHistoria}/revisar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        estado: estado,              // 'ACEPTADO' o 'RECHAZADO'
+        comentario: comentario,      // El texto del textarea
+        idEmisor: usuarioActual.id,  // Quién realiza la revisión
+        idReunion: window.ID_REUNION, // ID de la reunión activa
+        idProyecto: idProyecto //se envia el id del proyecto
+      })
+    });
+
+    const resultado = await respuesta.json();
+
+    if (resultado.ok) {
+      //cambio directo en la tarjeta
+      const tarjeta = document.getElementById(`tarjeta-historia-${idHistoria}`);
+      if (tarjeta) {
+        //se deshabilita en textarea de comentarios
+        if (textareaComentario) textareaComentario.disabled = true;
+
+        //se busca el contenedor de botones de decisión y se reemplaza por el badge de estado
+        const contenedorBotones = tarjeta.querySelector('.grupo-botones-cliente');
+        if (contenedorBotones) {
+          const claseBadge = estado === 'ACEPTADO' ? 'estado-aceptado' : 'estado-rechazado';
+          const textoBadge = estado === 'ACEPTADO' ? '✓ Aprobado' : '✕ Rechazado';
+          
+          contenedorBotones.innerHTML = `<span class="badge-estado ${claseBadge}">${textoBadge}</span>`;
+        }
+      }
+      if (typeof actualizarContadoresResumen === 'function') {
+        actualizarContadoresResumen();
+      }
+
+      } else {
+      alert("Error al guardar la revisión: " + (resultado.error || "Desconocido"));
+    }
+
+  } catch (err) {
+    console.error("Error en la petición de revisión:", err);
+    alert("Ocurrió un error al procesar la revisión.");
+  }
+};
+
+window.actualizarContadoresResumen = () => {
+  const tarjetas = document.querySelectorAll('.tarjeta-historia-review');
+  let revisadas = 0;
+  let aprobadas = 0;
+  let rechazadas = 0;
+  let comentariosTotal = 0;
+
+  tarjetas.forEach(t => {
+    const badge = t.querySelector('.badge-estado');
+    const textarea = t.querySelector('.txt-comentario-review');
+
+    if (badge && !badge.textContent.includes('Pendiente')) {
+      revisadas++;
+      if (badge.classList.contains('estado-aceptado')) aprobadas++;
+      if (badge.classList.contains('estado-rechazado')) rechazadas++;
+    }
+
+    if (textarea && textarea.value.trim() !== '') {
+      comentariosTotal++;
+    }
+  });
+
+  const lblRevisadas = document.getElementById('resRevisadas');
+  const lblAprobadas = document.getElementById('resAprobadas');
+  const lblRechazadas = document.getElementById('resRechazadas');
+  const lblComentarios = document.getElementById('resComentarios');
+
+  if (lblRevisadas) lblRevisadas.textContent = revisadas;
+  if (lblAprobadas) lblAprobadas.textContent = aprobadas;
+  if (lblRechazadas) lblRechazadas.textContent = rechazadas;
+  if (lblComentarios) lblComentarios.textContent = comentariosTotal;
 };
