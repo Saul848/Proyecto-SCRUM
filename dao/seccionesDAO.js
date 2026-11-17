@@ -14,7 +14,8 @@ class SeccionesDAO {
     //lista las secciones de un modulo especifico
     async listarSeccionesModulo(id_modulo){
         const { rows } = await this.pool.query(
-            'SELECT id, nombre, numero_seccion, numero_paginas, id_modulo FROM secciones;'
+            'SELECT SE.id, SE.nombre, SE.numero_seccion, SE.numero_paginas, SE.id_modulo FROM secciones SE, modulo M WHERE M.id=$1;'
+            [id_modulo]
         );
         return rows;
     }

@@ -8,7 +8,7 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
   contenedor.append(lista);
 
   try {
-     const progreso = await consultarProgresoCapacitacion();
+    const progreso = await consultarProgresoCapacitacion();
 
     console.log("Progreso del usuario activo:", progreso);
     const respuesta = await fetch(
