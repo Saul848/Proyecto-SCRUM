@@ -31,12 +31,13 @@ class historiaUsuarioDAO {
         //Se prepara la consulta
         const query = `
             SELECT 
-                t_historias.id, 
+                t_historias.id,
+                t_historias.numero_de_historia, 
                 t_historias.nombre, 
                 t_historias.descripcion, 
-                t_historias.valor, 
-                t_historias.asignado_al_sprint,
-                t_sprint.no_iteracion, 
+                t_historias.valor,
+                t_historias.horas_estimadas, 
+                t_historias.asignado_al_sprint, 
                 t_criterios.id AS id_criterio, 
                 t_criterios.numero_de_criterio, 
                 t_criterios.criterios_de_aceptacion
@@ -50,8 +51,11 @@ class historiaUsuarioDAO {
                 ON t_historias.id = t_criterios.id_historia 
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
             WHERE 
-                t_historias.id_proyecto = $1;
-        `;
+                t_historias.id_proyecto = $1
+            ORDER BY 
+                t_historias.numero_de_historia ASC, 
+                t_criterios.numero_de_criterio ASC;
+        `
         /**
          * Como se observa arriba se utiliza la Palabra LEFT JOIN , esto
          * garantiza que se obtengan las historias de usuario aun cuando
@@ -75,9 +79,11 @@ class historiaUsuarioDAO {
                 if (!acc[row.id]) {
                     acc[row.id] = {
                         id: row.id,
+                        numeroDeHistoria: row.numero_de_historia,
                         nombre: row.nombre,
                         descripcion: row.descripcion,
                         valor: row.valor,
+                        horas: row.horas_estimadas,
                         asignado_al_sprint: row.asignado_al_sprint,
                         no_iteracion: row.no_iteracion,
                         criterios: [] // Arreglo para los criterios de esta historia
@@ -105,6 +111,20 @@ class historiaUsuarioDAO {
     }
 
     /**
+     * Funcion que permite obtener una historia de un proyecto en especifico de la BD
+     * @param {idHistoria} Int Id de la historia del proyecto
+     * @param {idProyecto} Int 
+     * @returns 
+     */
+    async obtenerHistoriaEnProyecto(idHistoria, idProyecto) {
+        const { rows } = await this.pool.query(
+            'SELECT * FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_Proyecto = $2;',
+            [idHistoria, idProyecto]
+        );
+        return rows [0] || null;
+    }
+
+    /**
      * Funcion para guardar una nueva historia de usuario con criterios de aceptacion en el sistema mediante una transaccion
      * @param {nombre} String Nombre de la historia de usuario
      * @param {descripcion} String Descripcion de la historia de usuario 
@@ -113,18 +133,18 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario  
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({ nombre, descripcion, criterios, valor, idProyecto }) {
+    async agregarHistoria({nombre, descripcion, criterios, valor, horas, idProyecto }){
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
             //Empezar la transaccion
             await client.query('BEGIN');
-            const insercionHistoria =
-                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, id_proyecto) 
-                VALUES ($1, $2, $3, $4)
+            const insercionHistoria = 
+                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, id_proyecto) 
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id;
              `;
-            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, idProyecto]);
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, idProyecto]);
             const idGenerado = resultadoHistoria.rows[0].id;
 
             const insercionCriterio = `INSERT INTO scrumbird.criterios_de_aceptacion (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)
@@ -143,6 +163,113 @@ class historiaUsuarioDAO {
             throw error;
         } finally {
             //Liberar al cliente para devolverlo al pool de conexiones
+            client.release();
+        }
+    }
+
+    /**
+     * Funcion que elimina una historia de usuario en el servidor utilizando su id
+     * @param {idHistoria} Int Id de la historia a eliminar
+     * @param {idProyecto} Int Id del proyecto a modificar 
+     * @returns Mensaje ok
+     */
+    async eliminarHistoriaEnProyecto(idHistoria, idProyecto) {
+        try{
+            const resultado = await this.pool.query(
+                `DELETE FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_proyecto = $2;
+                `,
+                [idHistoria, idProyecto]
+            );
+            if(resultado.rowCount>0){
+                return {
+                    ok:true,
+                    eliminado:true
+                };
+            }
+        }catch(error){
+            console.error("Error al borrar la historia de usuario en BD", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Metodo para modificar una historia de usuario y actualizar sus criterios de aceptacion mediante una transaccion
+     * @param {number} idHistoria - Id de la historia de usuario a modificar
+     * @param {number} idProyecto - Id del proyecto al que pertenece la historia
+     * @param {Object} datos - Objeto con nombre, descripcion, criterios, valor y horas actualizadas
+     * @returns {Promise<Object>} Objeto con estado ok y mensaje compatible con el controlador
+     */
+    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas }) {
+        const client = await this.pool.connect();
+        try {
+            // Iniciar la transaccion
+            await client.query('BEGIN');
+
+            // 1. Actualizar los datos principales de la historia de usuario
+            const actualizacionHistoria = `
+                UPDATE scrumbird.historia_de_usuario 
+                SET nombre = $1, 
+                    descripcion = $2, 
+                    valor = $3, 
+                    horas_estimadas = $4
+                WHERE id = $5 AND id_proyecto = $6;
+            `;
+            const resultadoHistoria = await client.query(actualizacionHistoria, [
+                nombre,
+                descripcion,
+                valor,
+                horas,
+                idHistoria,
+                idProyecto
+            ]);
+
+            if (resultadoHistoria.rowCount === 0) {
+                await client.query('ROLLBACK');
+                return {
+                    ok: false,
+                    mensaje: "No se encontró la historia de usuario para modificar"
+                };
+            }
+
+            // 2. Actualizar las tuplas de criterios de aceptacion
+            // Eliminamos los criterios anteriores de esta historia para reinsertar los modificados en orden
+            const eliminarCriteriosAnteriores = `
+                DELETE FROM scrumbird.criterios_de_aceptacion 
+                WHERE id_historia = $1 AND id_proyecto = $2;
+            `;
+            await client.query(eliminarCriteriosAnteriores, [idHistoria, idProyecto]);
+
+            const insercionCriterio = `
+                INSERT INTO scrumbird.criterios_de_aceptacion 
+                (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)
+                VALUES ($1, $2, $3, $4);
+            `;
+
+            // Usamos for...of con await para garantizar que todas las inserciones terminen antes del COMMIT
+            for (const [index, element] of criterios.entries()) {
+                await client.query(insercionCriterio, [
+                    index + 1,
+                    element.criterio,
+                    idHistoria,
+                    idProyecto
+                ]);
+            }
+
+            // Confirmar la transaccion
+            await client.query('COMMIT');
+
+            return {
+                ok: true,
+                mensaje: "Historia modificada correctamente"
+            };
+
+        } catch (error) {
+            // Revertir todos los cambios si ocurre un error en cualquier paso
+            await client.query('ROLLBACK');
+            console.error("Error en el DAO al intentar modificar la historia de usuario", error);
+            throw error;
+        } finally {
+            // Liberar al cliente de vuelta al pool de conexiones
             client.release();
         }
     }

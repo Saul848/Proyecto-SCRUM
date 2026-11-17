@@ -152,19 +152,19 @@ body {
   border-radius: 4px;
 }
 
-/* Filas individuales de historia */
+/* Encabezados y filas alineados con la misma proporción de columnas */
+#DivEncabezados,
 .DivFilaHistoria {
-  background-color: #ffffff;
-  border: 1.5px solid #000000;
-  border-radius: 10px;
   display: grid;
   grid-template-columns: 50px 1.2fr 1.5fr 1.5fr 0.8fr 1fr 130px 50px;
   align-items: center;
-  padding: 10px 16px;
-  gap: 6px;
   text-align: center;
-  box-sizing: border-box; /* Crucial para mantener la alineación exacta */
+  gap: 6px;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 10px;
 }
+
 
 .DivFilaHistoria label {
   color: #a0a0a0;
@@ -179,6 +179,16 @@ body {
 
 .DivFilaHistoria .LabelID {
   color: #000000;
+}
+
+/* Alineación vertical centrada para los elementos internos y etiquetas */
+#DivEncabezados label,
+.DivFilaHistoria label,
+.DivFilaHistoria .criterio-fila-wrapper,
+.DivFilaHistoria div[class*="DivBtn"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===================================================
@@ -575,6 +585,263 @@ body {
     background: #e2e6ea;
   }
 
+/* ==========================================================
+   ESTILOS PARA MODALES DE GESTIÓN DE SPRINTS
+   ========================================================== */
+
+/* Capa de superposición del modal */
+#modalAgregarSprint,
+#modalModificarSprint {
+  display: none !important;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+#modalAgregarSprint.activo,
+#modalModificarSprint.activo {
+  display: flex !important;
+}
+
+/* Contenedor principal de la ventana modal dual */
+.modal-contenido-dual {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 14px;
+  width: 920px;
+  max-width: 95%;
+  height: 620px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: row; /* Izquierda: Formulario | Derecha: Listas */
+  overflow: hidden;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+/* MITAD IZQUIERDA: Formulario del Sprint */
+.modal-seccion-formulario {
+  flex: 1 1 50%;
+  width: 50%;
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background-color: #ffffff;
+  border-right: 2px solid #1e293b; /* Línea divisoria vertical central */
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.modal-seccion-formulario h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.modal-seccion-formulario .entradaInp,
+.modal-seccion-formulario .entradaTextA {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-seccion-formulario label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.modal-seccion-formulario textarea {
+  resize: none !important;
+  height: 95px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.modal-seccion-formulario input[type="date"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+/* Botones de control al pie del formulario */
+.modal-seccion-formulario .modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.btn-guardar-sprint {
+  background-color: #0d8bf2 !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-guardar-sprint:hover {
+  background-color: #0275d8 !important;
+}
+
+.btn-cancelar-sprint {
+  background-color: #ff4444 !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancelar-sprint:hover {
+  background-color: #e03131 !important;
+}
+
+/* MITAD DERECHA: Listas de historias divididas en dos paneles */
+.modal-seccion-listas {
+  flex: 1 1 50%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.sub-panel-historias {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #cbd5e1;
+  overflow: hidden;
+}
+
+.sub-panel-historias:last-child {
+  border-bottom: none;
+}
+
+.sub-panel-header {
+  background-color: #e2e8f0;
+  padding: 10px 16px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.sub-panel-header h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Contenedor de lista con Scrollbar a la derecha */
+.lista-historias-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #f8fafc;
+}
+
+.lista-historias-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-historias-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.lista-historias-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* ===================================================
+   DISTRIBUCIÓN Y ALINEACIÓN DE LA SECCIÓN DE SPRINTS
+   =================================================== */
+
+#DivContSprints {
+  background-color: #eaf2f2;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Definición de columnas grid compartida entre cabeceras y filas */
+#DivEncabezadosSprint,
+.DivFilaSprint {
+  display: grid;
+  grid-template-columns: 90px 2fr 1fr 1fr 1fr 90px;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+}
+
+#DivEncabezadosSprint {
+  font-weight: bold;
+  font-size: 13px;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+/* Contenedor con scroll vertical para las filas de sprint */
+#DivSprint {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+/* Estilo individual para cada fila de sprint */
+.DivFilaSprint {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+/* Centrado vertical y horizontal de textos y elementos internos */
+#DivEncabezadosSprint label,
+.DivFilaSprint label,
+.DivFilaSprint div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+}
 /* ========================================================== */
 /* ESTILO MODERNO Y LIMPIO (RESPETANDO FONDO BLANCO Y BOTONES)*/
 /* ========================================================== */

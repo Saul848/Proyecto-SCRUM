@@ -57,6 +57,15 @@
         </div>
       </div>
 
+      <!-- Gestion de sprints Prodcut Backlog -->
+      <div class="cabecera-default" id="cabecera-gestion-sprints">
+        <span class="badge-rol">Facilitador</span>
+        <div class="info-cabecera">
+          <h2>Gestion de los sprints</h2>
+          <p>Pruebas</p>
+        </div>
+      </div>
+
       <!-- Sprint Backlog -->
       <div class="cabecera-default" id="cabecera-sprintPB">
         <span class="badge-rol">Facilitador</span>
@@ -64,7 +73,14 @@
           <h2>Gestión del Sprint Backlog</h2>
           <p>Organiza las historias seleccionadas para el sprint y consulta su avance.</p>
         </div>
-        
+
+
+
+        <button class="btn-pill btn-azul" onclick="abrirPlanningPokerParaFacilitador()">
+          Planning poker
+        </button>
+
+        <button class="btn-pill btn-azul">Generar reporte</button>
         <button class="btn-pill btn-verde">Modificar sprint actual</button>
         <button class="btn-pill btn-rojo">Cerrar sprint</button>
       </div>
@@ -205,6 +221,7 @@
             <label id="LabelDescripccion">Descripccion</label>
             <label id="LabelCriterios">Criterios de acpetacion</label>
             <label id="LabelValor">Valor</label>
+            <label id="LabelHorasEstimadas">Horas estimadas</label>
             <label id="LabelSprintAsginado">Sprint asignado</label>
             <div class="espacioAcciones"></div>
           </div>
@@ -225,6 +242,7 @@
             </div>
             <div id="DivBtnModHistoria">
               <button id="btnModHistoria"># Modificar historia</button>
+              <button id="btnGestionarSprints" onclick="mostrarModal('modal-gestion-sprints', 'cabecera-sprintPB')">Gestionar Sprints</button>
             </div>
           </div>
 
@@ -276,6 +294,12 @@
               <div class="entradaInp">
                 <label for="inpAddValor">Valor:</label>
                 <input type="number" id="inpAddValor" maxlength="4" placeholder="0 - 4000">
+              </div>
+
+              <!-- Campo 5: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="inpAddHoras">Horas estimadas:</label>
+                <input type="number" id="inpAddHoras" maxlength="2" placeholder="0 - 100">
               </div>
 
               <div class="modal-botones">
@@ -334,6 +358,12 @@
                 <input type="number" id="inpModValor" placeholder="0 - 4000">
               </div>
 
+              <!-- Campo 5: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="inpModHoras">Horas estimadas:</label>
+                <input type="number" id="inpModHoras" maxlength="2" placeholder="0 - 100">
+              </div>
+
               <div class="modal-botones">
                 <button id="btnGuardarModalMod">Guardar</button>
                 <button id="btnCerrarModalMod">Cancelar</button>
@@ -351,6 +381,167 @@
           <div id="botones-definicion">
             <button id="addDOD">Añadir definicion de hecho</button>
             <button id="editDOD">Modificar definición de hecho</button>
+          </div>
+        </div>
+      </div>
+
+<!-- ============================= -->
+      <!-- SECCIÓN DE GESTION DE SPRINTS -->
+      <!-- ============================= -->    
+      <div id="modal-gestion-sprints" class="modal-class" style="display: none;">
+        <div id="DivContSprints">
+          <!-- Encabezados de los sprints -->
+          <div id="DivEncabezadosSprint">
+            <label id="NoSprint">No. De sprint</label>
+            <label id="Objetivo">Objetivo</label>
+            <label id="Estado">Estado</label>
+            <label id="FechaInicio">Fecha inicio</label>
+            <label id="FechaFin">Fecha fin</label>
+          </div>
+          <!-- Sección que contiene los datos de los sprints -->
+          <div id="DivSprint"></div>
+          <!-- Sección donde aparecen las opciones -->
+          <div id="divOpccionesSprint">
+            <div id="DivBtnAgregarSprint">
+              <button type="button" id="btnAgregarSprint">Agregar nuevo Sprint</button>
+            </div>
+            <div id="DivBtnModSprint">
+              <button id="btnModSprint"># Modificar Sprint</button>
+            </div>
+          </div>
+
+          <!-- PANEL MODAL AGREGAR SPRINT -->
+          <div id="modalAgregarSprint" class="modal">
+            <div class="modal-contenido-dual">
+              
+              <!-- MITAD IZQUIERDA: Formulario del Sprint -->
+              <div class="modal-seccion-formulario">
+                <h3>Agregar Sprint</h3>
+
+              <!--  Número de Iteración -->
+                <div class="entradaInp">
+                  <label for="inpAddNoIteracionSprint">No. de Iteración (1-100):</label>
+                  <input type="number" id="inpAddNoIteracionSprint" min="1" max="100" placeholder="Ej. 1">
+                </div>
+
+                <!-- Campo Objetivo -->
+                <div class="entradaTextA">
+                  <label for="inpAddObjetivoSprint">Objetivo:</label>
+                  <textarea id="inpAddObjetivoSprint" placeholder="Escribe el objetivo del sprint..."></textarea>
+                </div>
+
+                <!-- Campo Fecha de inicio -->
+                <div class="entradaInp">
+                  <label for="inpAddFechaInicioSprint">Fecha de inicio:</label>
+                  <input type="date" id="inpAddFechaInicioSprint">
+                </div>
+
+                <!-- Campo Fecha fin -->
+                <div class="entradaInp">
+                  <label for="inpAddFechaFinSprint">Fecha fin:</label>
+                  <input type="date" id="inpAddFechaFinSprint">
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="modal-botones">
+                  <button type="button" id="btnGuardarSprintAdd" class="btn-guardar-sprint">Guardar Sprint</button>
+                  <button type="button" id="btnCerrarSprintAdd" class="btn-cancelar-sprint">Cancelar</button>
+                </div>
+              </div>
+
+              <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
+              <div class="modal-seccion-listas">
+                
+                <!-- Panel Superior: Historias para este Sprint -->
+                <div class="sub-panel-historias">
+                  <div class="sub-panel-header">
+                    <h4>Historias para este Sprint</h4>
+                  </div>
+                  <div id="contenedorSprintAddActual" class="lista-historias-container">
+                    <!-- Las historias asignadas a este sprint se renderizan aquí -->
+                  </div>
+                </div>
+
+                <!-- Panel Inferior: Catálogo de historias -->
+                <div class="sub-panel-historias">
+                  <div class="sub-panel-header">
+                    <h4>Catálogo de historias</h4>
+                  </div>
+                  <div id="contenedorSprintAddCatalogo" class="lista-historias-container">
+                    <!-- Las historias del catálogo general se renderizan aquí -->
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- PANEL MODAL MODIFICAR SPRINT -->
+          <div id="modalModificarSprint" class="modal">
+            <div class="modal-contenido-dual">
+              
+              <!-- MITAD IZQUIERDA: Formulario del Sprint -->
+              <div class="modal-seccion-formulario">
+                <h3>Modificar Sprint</h3>
+
+                <!-- Campo Número de Iteración -->
+                  <div class="entradaInp">
+                    <label for="inpModNoIteracionSprint">No. de Iteración (1-100):</label>
+                    <input type="number" id="inpModNoIteracionSprint" min="1" max="100" placeholder="Ej. 1">
+                  </div>
+
+                <!-- Campo Objetivo -->
+                <div class="entradaTextA">
+                  <label for="inpModObjetivoSprint">Objetivo:</label>
+                  <textarea id="inpModObjetivoSprint" placeholder="Escribe el objetivo del sprint..."></textarea>
+                </div>
+
+                <!-- Campo Fecha de inicio -->
+                <div class="entradaInp">
+                  <label for="inpModFechaInicioSprint">Fecha de inicio:</label>
+                  <input type="date" id="inpModFechaInicioSprint">
+                </div>
+
+                <!-- Campo Fecha fin -->
+                <div class="entradaInp">
+                  <label for="inpModFechaFinSprint">Fecha fin:</label>
+                  <input type="date" id="inpModFechaFinSprint">
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="modal-botones">
+                  <button type="button" id="btnGuardarSprintMod" class="btn-guardar-sprint">Guardar Sprint</button>
+                  <button type="button" id="btnCerrarSprintMod" class="btn-cancelar-sprint">Cancelar</button>
+                </div>
+              </div>
+
+              <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
+              <div class="modal-seccion-listas">
+                
+                <!-- Panel Superior: Historias para este Sprint -->
+                <div class="sub-panel-historias">
+                  <div class="sub-panel-header">
+                    <h4>Historias para este Sprint</h4>
+                  </div>
+                  <div id="contenedorSprintModActual" class="lista-historias-container">
+                    <!-- Las historias asignadas a este sprint se renderizan aquí -->
+                  </div>
+                </div>
+
+                <!-- Panel Inferior: Catálogo de historias -->
+                <div class="sub-panel-historias">
+                  <div class="sub-panel-header">
+                    <h4>Catálogo de historias</h4>
+                  </div>
+                  <div id="contenedorSprintModCatalogo" class="lista-historias-container">
+                    <!-- Las historias del catálogo general se renderizan aquí -->
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
@@ -696,6 +887,7 @@
 
   <!-- Scripts por separado -->
   <script src="../js/FacilitadorPB.js" defer></script>
+  <script src="../js/SprintsF.JS" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/modalSprintBacklog.js" defer></script>
   <script src="../js/modalDetalleHistoriaKanban.js" defer></script>
@@ -710,5 +902,4 @@
   <script src="../js/cargarModalesGrupos.js" defer></script>
   <script src="../js/grupos.js" defer></script>
 </body>
-
 </html>

@@ -27,6 +27,13 @@ class historiaUsuarioControlador {
         }
     }
 
+    /**
+     * Funcion que procesa la solicitud para obtener las historias de usuario de un proyecto
+     * con la informacion para mostrarlas en un proyecto.
+     * @param {*} req Request Param id del proyecto en forma de numero
+     * @param {*} res respuesta con estado ok, mensaje y datos de las historias
+     * @returns
+     */
     async listarHistoriasPorProyecto(req, res){
         try {
             //Se obtiene el id del proyecto en el que se encuentra el usuario
@@ -53,12 +60,17 @@ class historiaUsuarioControlador {
         }
     }
 
-    // POST /historias  body: { titulo, descripcion, criterios, valor, sprintAsig }
+    /**
+     * Metodo que procesa la solicitud para agregar una nueva histora
+     * @param {*} req Body con la informacion basica para agregar una nueva historia de usuario
+     * @param {*} res estado ok y mensaje
+     * @returns
+     */
     async agregarHistoria(req, res) {
-        const { nombre, descripcion, criterios, valor, idProyecto} = req.body;
+        const { nombre, descripcion, criterios, valor, horas, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
-            if (!nombre || !descripcion || !criterios || valor === undefined || valor === null || !idProyecto) {
+            if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || !idProyecto) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Todos los datos del formulario son obligatorios"
@@ -85,6 +97,12 @@ class historiaUsuarioControlador {
                     mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
             })
             }
+            if(horas < 0 || horas > 100){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
+            })
+            }
 
         //Fase de insercion
             const historiaCreada = await this.dao.agregarHistoria(req.body);
@@ -99,6 +117,166 @@ class historiaUsuarioControlador {
                 ok:true,
                 mensaje:"Historia agregada correctamente"
             });
+        } catch (err) {
+            this.error(res, err);
+        }
+    }
+
+    /**
+     * Funcion para eliminar historias de la BD
+     * @param {*} req Request Params con el id de la historia y del proyecto
+     * @param {*} res Codigo de respuesta
+     * @returns 
+     */
+    async eliminarHistoriaEnProyecto(req, res) {
+        try {
+            const { idHistoria, idProyecto } = req.params;
+
+
+            //Convertimos los parametros de texto a numero entero
+            // Convertimos los parámetros de texto a número entero
+            const idHistoriaNum = Number(idHistoria);
+            const idProyectoNum = Number(idProyecto);
+
+
+            //Si mi id no tiene valor o si no es un entero regreso la respuesta correspondiente
+            if(!idHistoriaNum || !Number.isInteger(idHistoriaNum)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error el id de la historia no es valido"
+                })
+            }
+            //Si mi idProyecto no tiene valor o si no es un entero regreso la respuesta correspondiente
+            if(!idProyectoNum || !Number.isInteger(idProyectoNum)){
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error no puedo encontrarse el proyecto de la historia a eliminar"
+                })
+            }
+            //Verificamos si la historia existe en la base de datos
+            const historiaExistente = await this.dao.obtenerHistoriaEnProyecto(idHistoriaNum, idProyectoNum);
+            if(historiaExistente && historiaExistente.id === idHistoriaNum){
+                //Eliminamos la historia de la base de datos y verificamos su respuesta
+                const historiaEliminada = await this.dao.eliminarHistoriaEnProyecto(idHistoriaNum, idProyectoNum);
+                //Si la historia fue eliminada con exito enviamos la respuesta correspondiente
+                if(historiaEliminada.ok){
+                    return res.status(201).json({
+                        ok: true,
+                        mensaje: "Historia eliminada correctamente"
+                    })
+                //Si la historia no pudo ser eliminada se envia el mensaje correspondiente
+                }else{
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: "La historia no pudo ser eliminada"
+                    })
+                }
+            //Si la historia no existe se envia el mensaje correspondiente
+            }else{
+                return res.status(404).json({
+                    ok:false,
+                    mensaje: "La historia no existe en la BD"
+                })
+            }
+        } catch (error) {
+            this.error(res, error);
+        }
+    }
+
+    /**
+     * Metodo que procesa la solicitud para modificar una historia de usuario existente
+     * @param {*} req Request Params con idHistoria e idProyecto, y Body con los datos actualizados
+     * @param {*} res Estado ok y mensaje correspondiente
+     * @returns
+     */
+    async modificarHistoriaEnProyecto(req, res) {
+        const { idHistoria, idProyecto } = req.params;
+        const { nombre, descripcion, criterios, valor, horas } = req.body;
+
+        try {
+            // Convertimos los parámetros de texto a número entero
+            const idHistoriaNum = Number(idHistoria);
+            const idProyectoNum = Number(idProyecto);
+
+            // Verificamos que el id de la historia sea válido y entero
+            if (!idHistoriaNum || !Number.isInteger(idHistoriaNum)) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error el id de la historia no es valido"
+                });
+            }
+
+            // Verificamos que el id del proyecto sea válido y entero
+            if (!idProyectoNum || !Number.isInteger(idProyectoNum)) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Error no pudo encontrarse el proyecto de la historia a modificar"
+                });
+            }
+
+            // Se verifica que ninguno de los datos obligatorios esté vacío
+            if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Todos los datos del formulario son obligatorios"
+                });
+            }
+
+            // Se verifica que el arreglo de criterios tenga al menos un criterio de aceptación
+            if (!Array.isArray(criterios) || criterios.length <= 0) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "No se han registrado criterios de aceptacion para la historia"
+                });
+            }
+
+            // Se verifica que el valor sea un número
+            if (isNaN(valor) || typeof valor !== 'number') {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor enviado para la historia no es numerico"
+                });
+            }
+
+            // Se verifica que el valor esté dentro del rango estimado
+            if (valor < 0 || valor > 4000) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
+                });
+            }
+
+            // Se verifica que las horas sean un número y estén dentro del rango establecido
+            if (isNaN(horas) || typeof horas !== 'number' || horas < 0 || horas > 100) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
+                });
+            }
+
+            // Verificamos si la historia existe en la base de datos antes de modificarla
+            const historiaExistente = await this.dao.obtenerHistoriaEnProyecto(idHistoriaNum, idProyectoNum);
+            if (!historiaExistente || historiaExistente.id !== idHistoriaNum) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "La historia no existe en la BD"
+                });
+            }
+
+            // Fase de actualización en el DAO
+            const historiaModificada = await this.dao.modificarHistoria(idHistoriaNum, idProyectoNum, req.body);
+
+            if (historiaModificada && historiaModificada.ok) {
+                return res.status(201).json({
+                    ok: true,
+                    mensaje: historiaModificada.mensaje || "Historia modificada correctamente"
+                });
+            } else {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: (historiaModificada && historiaModificada.mensaje) || "La historia no pudo ser modificada"
+                });
+            }
         } catch (err) {
             this.#error(res, err);
         }
