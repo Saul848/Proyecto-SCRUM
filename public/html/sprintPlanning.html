@@ -1,26 +1,33 @@
 
 <!---->
 <header id="planningSuperior">
-    <div id="cabeceraPlanning">
-        <!--fase 1-inicio/despliegue-->
-        <div id="historiasSprint" class="cabeceraDefault">
-            <!--<span class="rolPlanning" id="rol">Facilitador</span>-->
-            <h1>Planificación de la iteración</h1>
+    <div class="planning-barra">
+        <div id="cabeceraPlanning">
+            <!--fase 1-inicio/despliegue-->
+            <div id="historiasSprint" class="cabeceraDefault">
+                <h1>Planificación de la iteración</h1>
+            </div>
+
+            <!--lista de tareas y detalles-->
+            <div id="historiasResumen" class="cabeceraDefault oculto">
+                <h1>Tareas a realizar en la iteración</h1>
+            </div>
+
+            <!--fase 2 asignación de historias a desarrolladores-->
+            <div id="historiasAsignacion" class="cabeceraDefault oculto">
+                <h1>Asignación de historias</h1>
+            </div>
+
+            <div id="historiasRevision" class="cabeceraDefault oculto">
+                <h1>Revisión de entregables del Sprint</h1>
+            </div>
         </div>
 
-        <!--lista de tareas y detalles-->
-        <div id="historiasResumen" class="cabeceraDefault oculto">
-            <h1>Tareas a realizar en la iteración</h1>
-        </div>
-
-        <!--fase 2 asignación de historias a desarrolladores-->
-        <div id="historiasAsignacion" class="cabeceraDefault oculto">
-            <h1>Asignación de historias</h1>
-        </div>
-
-        <div id="historiasRevision" class="cabeceraDefault oculto">
-            <h1>Revisión de entregables del Sprint</h1>
-        </div>
+        <!-- Botón de salida: visible para todos los roles y en todas las fases -->
+        <button id="btnSalir" type="button" class="btn-salir-reunion">
+            <span class="btn-salir-icono">&larr;</span>
+            Salir de la reunión
+        </button>
     </div>
 </header>
 
@@ -49,8 +56,7 @@
             </div>
 
             <div class="acciones">
-                <button id="btnContinuar" class="btn-azul">Continuar al Planning poker</button>
-                <button id="btnSalir" class="btn-rojo">Salir</button>
+                <button id="btnContinuar" class="btn-azul" data-rol="facilitador,desarrollador">Continuar al Planning poker</button>
             </div>
         </div>
 
@@ -93,7 +99,7 @@
                     </thead>
                     <tbody id="cuerpoTabla"></tbody>
                 </table>
-                <button id="btnContinuarFase2" class="btn-azul">Continuar a fase 2</button>></button>
+                <button id="btnContinuarFase2" class="btn-azul">Continuar a fase 2</button>
             </div>
         </div>
         

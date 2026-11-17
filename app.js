@@ -87,6 +87,11 @@ app.use('/secciones', require('./routes/seccionesRoutes.js'));
 app.use('/modulos', require('./routes/moduloRoutes.js'));
 
 /**
+ * Rutas de impedimentos
+ */
+app.use('/impedimentos', require('./routes/impedimentoRoutes'));
+
+/**
  * Carga del certificado autorfirmado para el cifrado
  */
 const opciones = {

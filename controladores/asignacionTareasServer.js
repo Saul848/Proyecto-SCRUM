@@ -9,7 +9,12 @@ function setupAsignacionTareasSockets(server) {
 
         //unirse a la sala del sprint actual
         socket.on("join-asignacion-sprint", ({ sprintId }) => {
+            // salir de otras salas de sprint (la sala propia del socket, que es su id, se conserva)
+            for (const sala of socket.rooms) {
+                if (sala.startsWith("sprint-")) socket.leave(sala);
+            }
             socket.join(`sprint-${sprintId}`);
+            console.log(`Socket ${socket.id} se unió a sprint-${sprintId}`);
         });
 
         //el desarrollador solicita una historia
@@ -56,6 +61,11 @@ function setupAsignacionTareasSockets(server) {
         // Retransmitir cambios de las fechas de la iteración
         socket.on("disparar-cambio-fechas", (data) => {
         socket.to(`sprint-${data.sprintId}`).emit("cambio-fechas-cliente", data);
+        });
+
+        //el cliente cerró el acta de revisión: avisar al equipo
+        socket.on("cliente-cerro-acta-revision", (data) => {
+            io.to(`sprint-${data.sprintId}`).emit("acta-revision-cerrada-cliente", data);
         });
 
         socket.on("disconnect", () => {
