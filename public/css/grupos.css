@@ -1,0 +1,752 @@
+/* ==========================================
+   MÓDULO DE GRUPOS - SCRUMBIRD
+   ========================================== */
+
+:root {
+    --grupo-primario: #4361ee;
+    --grupo-primario-hover: #3451d1;
+    --grupo-fondo: #f5f7fb;
+    --grupo-blanco: #ffffff;
+    --grupo-texto: #263247;
+    --grupo-secundario: #64748b;
+    --grupo-borde: #e2e8f0;
+    --grupo-peligro: #dc3545;
+}
+
+/* Página de pruebas */
+body {
+    margin: 0;
+    background: var(--grupo-fondo);
+    font-family: Arial, sans-serif;
+    color: var(--grupo-texto);
+}
+
+.grupos-contenedor {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+.grupos-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.grupos-encabezado h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+}
+
+.grupos-encabezado p {
+    color: var(--grupo-secundario);
+    margin: 0;
+}
+
+.grupos-seccion {
+    background: var(--grupo-blanco);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--grupo-borde);
+}
+
+.grupos-seccion h2 {
+    margin-top: 0;
+}
+
+/* Botones */
+.btn-primario,
+.btn-secundario {
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primario {
+    background: var(--grupo-primario);
+    color: white;
+    border: none;
+}
+
+.btn-primario:hover {
+    background: var(--grupo-primario-hover);
+}
+
+.btn-secundario {
+    background: white;
+    color: var(--grupo-texto);
+    border: 1px solid var(--grupo-borde);
+}
+
+.btn-secundario:hover {
+    background: #f1f5f9;
+}
+
+.btn-primario:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   MODAL DE CREACIÓN DE GRUPOS
+   ========================================== */
+
+.grupos-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 9999;
+    box-sizing: border-box;
+}
+
+/* Fundamental para ocultar el modal inicialmente */
+.grupos-modal-overlay[hidden] {
+    display: none !important;
+}
+
+.grupos-modal {
+    background: var(--grupo-blanco);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.grupos-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 25px;
+    border-bottom: 1px solid var(--grupo-borde);
+}
+
+.grupos-modal-header h2 {
+    margin: 0;
+    font-size: 21px;
+}
+
+#btnCerrarCrearGrupo {
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    color: var(--grupo-secundario);
+    cursor: pointer;
+}
+
+#formCrearGrupo {
+    padding: 25px;
+}
+
+.grupos-campo {
+    margin-bottom: 20px;
+}
+
+.grupos-campo label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 9px;
+    font-size: 14px;
+}
+
+.grupos-campo input,
+.grupos-campo textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--grupo-borde);
+    border-radius: 8px;
+    font: inherit;
+    outline: none;
+}
+
+.grupos-campo input:focus,
+.grupos-campo textarea:focus {
+    border-color: var(--grupo-primario);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.12);
+}
+
+/* Lista de contactos */
+.grupos-lista-contactos {
+    border: 1px solid var(--grupo-borde);
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.grupos-contacto {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.grupos-contacto:hover {
+    background: #f1f5f9;
+}
+
+.grupos-contacto input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--grupo-primario);
+}
+
+.grupos-contacto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.grupos-contacto-info small {
+    color: var(--grupo-secundario);
+}
+
+/* Mensajes de respuesta */
+#mensajeCrearGrupo {
+    font-size: 13px;
+    min-height: 18px;
+}
+
+#mensajeCrearGrupo.exito {
+    color: #15803d;
+}
+
+#mensajeCrearGrupo.error {
+    color: var(--grupo-peligro);
+}
+
+/* Acciones */
+.grupos-modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+/* Tarjetas de grupos */
+.grupos-tarjeta {
+    padding: 18px;
+    margin-top: 12px;
+    border: 1px solid var(--grupo-borde);
+    border-radius: 10px;
+    background: white;
+}
+
+.grupos-tarjeta h3 {
+    margin: 0 0 8px;
+}
+
+.grupos-tarjeta p {
+    color: var(--grupo-secundario);
+    margin: 5px 0;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 600px) {
+    .grupos-encabezado {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .grupos-contenedor {
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .grupos-modal {
+        max-height: 95vh;
+    }
+
+    .grupos-modal-header,
+    #formCrearGrupo {
+        padding: 18px;
+    }
+
+    .grupos-modal-acciones {
+        flex-direction: column;
+    }
+
+    .grupos-modal-acciones button {
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   MODAL PARA ADMINISTRAR PARTICIPANTES
+   ========================================== */
+
+.grupos-participantes-contenido {
+    padding: 25px;
+}
+
+.grupos-modal-header p {
+    margin: 8px 0 0;
+    color: var(--grupo-secundario);
+    font-size: 13px;
+}
+
+#btnCerrarParticipantes {
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    color: var(--grupo-secundario);
+    cursor: pointer;
+}
+
+#btnCerrarParticipantes:hover {
+    color: var(--grupo-texto);
+}
+
+/* Lista de integrantes */
+#listaParticipantesGrupo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.grupos-participante {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px;
+    border: 1px solid var(--grupo-borde);
+    border-radius: 10px;
+}
+
+.grupos-participante-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.grupos-participante-info strong {
+    font-size: 14px;
+}
+
+.grupos-participante-info small {
+    color: var(--grupo-secundario);
+    font-size: 12px;
+}
+
+/* Etiqueta del administrador */
+.grupos-etiqueta-admin {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Botón para eliminar participantes */
+.grupos-btn-eliminar {
+    padding: 8px 12px;
+    background: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.grupos-btn-eliminar:hover {
+    background: #ffe4e6;
+}
+
+.grupos-btn-eliminar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Botón para consultar participantes */
+.grupos-btn-ver {
+    margin-top: 12px;
+    padding: 9px 14px;
+    background: #eef2ff;
+    color: #4338ca;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.grupos-btn-ver:hover {
+    background: #e0e7ff;
+}
+
+/* Mensajes de respuesta */
+#mensajeParticipantesGrupo {
+    font-size: 13px;
+    min-height: 18px;
+}
+
+#mensajeParticipantesGrupo.exito {
+    color: #15803d;
+}
+
+#mensajeParticipantesGrupo.error {
+    color: var(--grupo-peligro);
+}
+
+/* Adaptación a celulares */
+@media (max-width: 600px) {
+    .grupos-participantes-contenido {
+        padding: 18px;
+    }
+
+    .grupos-participante {
+        flex-wrap: wrap;
+    }
+
+    .grupos-btn-eliminar {
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   MODAL PARA AGREGAR PARTICIPANTES
+   ========================================== */
+
+/* Botón para abrir el modal */
+#btnAbrirAgregarParticipantes {
+    display: block;
+    margin-top: 18px;
+    width: 100%;
+    padding: 12px;
+}
+
+/* Mantener ocultos los elementos con hidden */
+#btnAbrirAgregarParticipantes[hidden],
+#modalAgregarParticipantes[hidden] {
+    display: none !important;
+}
+
+/* Lista de contactos disponibles */
+#listaContactosAgregar {
+    min-height: 80px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* Contactos seleccionables */
+#listaContactosAgregar .grupos-contacto {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#listaContactosAgregar .grupos-contacto:hover {
+    background: #eef2ff;
+}
+
+/* Resaltar contactos seleccionados */
+#listaContactosAgregar .grupos-contacto:has(input:checked) {
+    background: #eef2ff;
+}
+
+/* Casillas de selección */
+#listaContactosAgregar input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--grupo-primario);
+    cursor: pointer;
+}
+
+/* Mensajes de éxito y error */
+#mensajeAgregarParticipantes {
+    font-size: 13px;
+    min-height: 18px;
+    margin: 12px 0;
+}
+
+#mensajeAgregarParticipantes.exito {
+    color: #15803d;
+}
+
+#mensajeAgregarParticipantes.error {
+    color: var(--grupo-peligro);
+}
+
+/* Botón de envío deshabilitado */
+#btnGuardarParticipantes:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Adaptación a celulares */
+@media (max-width: 600px) {
+    #btnAbrirAgregarParticipantes {
+        width: 100%;
+    }
+
+    #listaContactosAgregar {
+        max-height: 200px;
+    }
+}
+
+/* ==========================================
+   INTEGRACIÓN DE GRUPOS EN MENSAJES
+   ========================================== */
+
+#modal-mensajes .seccion-grupos {
+    margin-top: 22px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+#modal-mensajes .encabezado-grupos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#modal-mensajes .encabezado-grupos .menu-seccion {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+#modal-mensajes .btn-crear-grupo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 21px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#modal-mensajes .btn-crear-grupo:hover {
+    background: #dbeafe;
+    transform: scale(1.05);
+}
+
+#modal-mensajes .btn-crear-grupo:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#modal-mensajes .lista-grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#modal-mensajes .mensaje-sin-grupos {
+    margin: 6px 0;
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   GRUPOS COMPACTOS EN LA VENTANA DE MENSAJES
+   ========================================== */
+
+#modal-mensajes .lista-grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#modal-mensajes .grupos-tarjeta {
+    padding: 12px;
+    margin: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    box-shadow: none;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#modal-mensajes .grupos-tarjeta h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+}
+
+#modal-mensajes .grupos-tarjeta p {
+    margin: 3px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #64748b;
+    overflow-wrap: anywhere;
+}
+
+#modal-mensajes .grupos-btn-ver {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 7px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#modal-mensajes .grupos-btn-ver:hover {
+    background: #c7d2fe;
+}
+
+
+/* Grupo seleccionado en la ventana de mensajes */
+
+#modal-mensajes .grupos-tarjeta {
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                border-color 0.2s ease;
+}
+
+#modal-mensajes .grupos-tarjeta:hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+#modal-mensajes .grupos-tarjeta.activo {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+/* ==========================================
+   DISEÑO DEL MODAL AGREGAR PARTICIPANTES
+   ========================================== */
+
+#modalAgregarParticipantes .grupos-modal {
+    width: min(90%, 650px);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+/* Encabezado */
+#modalAgregarParticipantes .grupos-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+#modalAgregarParticipantes .grupos-modal-header h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+#modalAgregarParticipantes .grupos-modal-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+/* Botón cerrar */
+#modalAgregarParticipantes #btnCerrarAgregarParticipantes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Formulario */
+#modalAgregarParticipantes #formAgregarParticipantes {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#modalAgregarParticipantes .grupos-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#modalAgregarParticipantes .grupos-campo label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Lista de contactos */
+#modalAgregarParticipantes .grupos-lista-contactos {
+    min-height: 65px;
+    max-height: 220px;
+    height: auto;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#modalAgregarParticipantes .grupos-lista-contactos p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+/* Mensajes de estado */
+#modalAgregarParticipantes #mensajeAgregarParticipantes:empty {
+    display: none;
+}
+
+/* Botones inferiores */
+#modalAgregarParticipantes .grupos-modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+#modalAgregarParticipantes .grupos-modal-acciones button {
+    min-height: 42px;
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    cursor: pointer;
+}

@@ -246,7 +246,7 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
                 break;
 
             case "cliente":
-                window.location.href = '/html/PanelFacilitador.html';
+                window.location.href = '/html/PanelCliente.html';
                 break;
 
             default:

@@ -30,10 +30,15 @@ function renderizarSeccionReuniones() {
   const contenedorReuniones = document.querySelector("#modal-reuniones .area-fondo");
   if (!contenedorReuniones) return;
 
-  //detecta si el usuario actual es desarrollador
-  const esDesarrollador = (typeof ROL_ACTUAL !== 'undefined' && ROL_ACTUAL === 'desarrollador') || 
+  //identifica si el rol es diferente a facilitador
+  const rolActual = (typeof ROL_ACTUAL !== 'undefined' ? ROL_ACTUAL : '') || 
+                    sessionStorage.getItem('rol') || 
+                    sessionStorage.getItem('rolActual') || '';
+               
+  const esNoFacilitador = rolActual.toLowerCase().includes('desarrollador') || 
+                          rolActual.toLowerCase().includes('cliente') ||
                           window.location.pathname.toLowerCase().includes('desarrollador') ||
-                          sessionStorage.getItem('rol') === 'desarrollador';
+                          window.location.pathname.toLowerCase().includes('cliente');
 
   // Filtramos según el estado
   const actasFinalizadas = cacheReuniones.filter(r => r.estado && r.estado.toLowerCase() === 'finalizada');
@@ -54,7 +59,7 @@ function renderizarSeccionReuniones() {
   `;
 
   //el boton se muestra si es facilitador
-  const btnAgendarHTML = !esDesarrollador 
+  const btnAgendarHTML = !esNoFacilitador 
     ? `<button class="btn-agendar" id="btnAbrirModalAgendar" style="margin-top: 20px;">Agendar nueva reunión +</button>` 
     : '';
 
@@ -64,7 +69,7 @@ function renderizarSeccionReuniones() {
       <p style="text-align: center; color: #666; margin-top: 30px;">No hay reuniones ${vistaActualReuniones === 'activas' ? 'activas' : 'finalizadas'} para este proyecto.</p>
       ${vistaActualReuniones === 'activas' ? btnAgendarHTML : ''}
     `;
-    configurarModalAgendar();
+    if (!esNoFacilitador) configurarModalAgendar();
     return;
   }
 
@@ -73,11 +78,6 @@ function renderizarSeccionReuniones() {
     const esFinalizada = r.estado && r.estado.toLowerCase() === 'finalizada';
 
     if (esFinalizada) {
-      // Botón de eliminar solo visible para facilitadores
-      const btnEliminarHTML = !esDesarrollador 
-        ? `<button onclick="eliminarReunion(${r.id})" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 13px;">[Eliminar X]</button>` 
-        : '';
-
       return `
         <section class="tarjeta-reunion" data-id="${r.id}" style="background: #f8fafc; border-left: 5px solid #3b82f6; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -92,18 +92,12 @@ function renderizarSeccionReuniones() {
         </section>
       `;
     } else {
-      // Botón de editar solo visible si no es desarrollador
-      const btnEditarHTML = !esDesarrollador 
-        ? `<button class="btn-editar" onclick="editarReunion(${r.id})">Editar</button>` 
-        : '';
-
       return `
         <section class="tarjeta-reunion" data-id="${r.id}" style="background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <h2>${r.nombre}</h2>
             <p class="detalle">Fecha: ${new Date(r.fecha_inicio).toLocaleDateString()} · Tipo ID: ${r.id_tipo_reunion}</p>
             <p class="estado ${r.estado.toLowerCase().replace(' ', '-')}">● Estado: ${r.estado}</p>
-            <button class="btn-entrar" onclick="entrarReunion(${r.id}, ${r.id_sprint})">Entrar</button>
-            <button class="btn-editar" onclick="editarReunion(${r.id})">Editar</button>
+            <button class="btn-entrar" onclick="entrarReunion(${r.id}, ${r.id_sprint}, ${r.id_tipo_reunion})">Entrar</button>
         </section>
       `;
     }
@@ -124,7 +118,7 @@ function renderizarSeccionReuniones() {
     </div>
   `;
 
-  if (!esDesarrollador) {
+  if (!esNoFacilitador) {
     configurarModalAgendar();
   }
 }
@@ -210,8 +204,10 @@ function eliminarReunion(idReunion) {
 
 
 //cambia al sprintPlanning cuando se presiona el boton 'Entrar' en la reunión
-async function entrarReunion(idReunion, idSprint) {
+async function entrarReunion(idReunion, idSprint, idTipoReunion) {
   try {
+    const tipoReal = idTipoReunion ? Number(idTipoReunion) : 2;
+
     //se actualiza el estado en la bd, pasa 'En curso'
     await fetch(`/reuniones/${idReunion}/iniciar`, {
       method: 'PUT',
@@ -221,6 +217,7 @@ async function entrarReunion(idReunion, idSprint) {
     //guarda el sprint y la reunion activa
     sessionStorage.setItem("ID_SPRINT_ACTIVO", idSprint);
     sessionStorage.setItem("ID_REUNION_ACTIVA", idReunion);
+    sessionStorage.setItem("TIPO_REUNION_ACTIVA", idTipoReunion);
 
     document.querySelectorAll(".modal-class").forEach(modal => {
       modal.style.display = "none";
@@ -236,7 +233,7 @@ async function entrarReunion(idReunion, idSprint) {
       contenedorPlanning.style.display = "block";;
 
       if (typeof inicializarSprintPlanning === 'function') {
-        inicializarSprintPlanning(idSprint, idReunion, ID_PROYECTO);
+        inicializarSprintPlanning(idSprint, idReunion, ID_PROYECTO, tipoReal);
       }
     }
   } catch (err) {
@@ -381,8 +378,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (seccion === "reuniones") {
     // 1. Mostrar la cabecera superior correspondiente a Reuniones
-    if (typeof mostrarCabecera === "function") {
-      mostrarCabecera("cabecera-springPlanning");
+    if (typeof mostrarCabeceraR === "function") {
+      mostrarCabeceraR("cabecera-springPlanning");
     }
 
     // 2. Ocultar todos los demás modales activos en el panel

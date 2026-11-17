@@ -370,3 +370,78 @@ body {
   transform: scale(1.1);
   color: #007bff;
 }
+
+
+/* ==========================================
+   CABECERAS DINÁMICAS DEL CLIENTE
+========================================== */
+
+#contenedor-cabeceras {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Todas las cabeceras permanecen ocultas */
+#contenedor-cabeceras .cabecera-default {
+    display: none;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+/* Mostrar únicamente la cabecera seleccionada */
+#contenedor-cabeceras .cabecera-default.activa {
+    display: flex;
+}
+
+/* Etiqueta del rol */
+#contenedor-cabeceras .badge-rol {
+    flex-shrink: 0;
+    background-color: #ff9431;
+    color: #ffffff;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Contenedor de información */
+#contenedor-cabeceras .info-cabecera {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Título */
+#contenedor-cabeceras .info-cabecera h2 {
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* Descripción */
+#contenedor-cabeceras .info-cabecera p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 700px) {
+
+    #contenedor-cabeceras .cabecera-default {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #contenedor-cabeceras .info-cabecera h2 {
+        font-size: 16px;
+    }
+
+    #contenedor-cabeceras .info-cabecera p {
+        font-size: 11px;
+    }
+}

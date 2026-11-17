@@ -39,6 +39,12 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
 /**
+ * Rutas de sprints
+ */
+app.use('/sprints', require('./routes/sprintsRoutes'));
+
+
+/**
  * Rutas de material adicional general.
  */
 app.use('/material-general', require('./routes/materialGeneralRoutes'));
@@ -63,6 +69,27 @@ app.use('/reuniones', require('./routes/reunionRoutes'));
  * Rutas de registro de tiempos de usuarios
  */
 app.use('/registro-tiempos', require('./routes/registroTiemposRoutes'));
+
+/**
+ * Rutas de grupos de conversación
+ */
+app.use('/grupos', require('./routes/grupoRoutes'));
+
+
+/**
+ * Rutas de grupos de conversación
+ */
+app.use('/secciones', require('./routes/seccionesRoutes.js'));
+
+/**
+ * Rutas de grupos de conversación
+ */
+app.use('/modulos', require('./routes/moduloRoutes.js'));
+
+/**
+ * Rutas de impedimentos
+ */
+app.use('/impedimentos', require('./routes/impedimentoRoutes'));
 
 /**
  * Carga del certificado autorfirmado para el cifrado
@@ -110,17 +137,6 @@ http.createServer((req, res) => {
     res.end();
 }).listen(8082);
 
-
-
-/**
- * Rutas de mensajes
- */
-//app.use('/mensajes', require('./routes/mensajesRoutes'));
-
-/**
- * Ruta de mensajes de desarrollador
- */
-//app.use('/mensajes', require('./routes/mensajesDesarrolladorRoutes'));
 
 /**
  * Rutas de mensajes

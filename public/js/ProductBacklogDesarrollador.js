@@ -11,30 +11,6 @@
 (() => {
     "use strict";
 
-    const btnBacklog = document.getElementById(
-        "dev-btn-product-backlog"
-    );
-
-    const btnMensajes = document.getElementById(
-        "dev-btn-mensajes"
-    );
-
-    const seccionBacklog = document.getElementById(
-        "dev-seccion-product-backlog"
-    );
-
-    const seccionMensajes = document.getElementById(
-        "modal-mensajes-desarrollador"
-    );
-
-    const tituloPagina = document.getElementById(
-        "dev-titulo-pagina"
-    );
-
-    const btnConversacion = document.getElementById(
-        "dev-btn-iniciar"
-    );
-
     const tablaHistorias = document.getElementById(
         "dev-pb-lista-historias"
     );
@@ -200,9 +176,8 @@ const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 
             agregarCelda(
                 fila,
-                historia.sprint ??
-                historia.sprintAsig ??
-                historia.asignado_al_sprint
+                historia.no_iteracion ??
+                ""
             );
 
             tablaHistorias.appendChild(fila);
@@ -231,9 +206,7 @@ function aplicarFiltrosDesarrollador() {
         ).toLowerCase();
 
         const sprint = String(
-            historia.sprint ??
-            historia.sprintAsig ??
-            historia.asignado_al_sprint ??
+            historia.no_iteracion ??
             ""
         ).toLowerCase();
 
@@ -284,61 +257,6 @@ function aplicarFiltrosDesarrollador() {
         }
     }
 
-    // Mostrar la sección Product Backlog.
-    function abrirProductBacklog() {
-        if (!seccionBacklog || !seccionMensajes) {
-            console.error(
-                "No se encontraron las secciones del desarrollador."
-            );
-            return;
-        }
-
-        seccionMensajes.style.display = "none";
-        seccionBacklog.style.display = "block";
-
-        if (tituloPagina) {
-            tituloPagina.textContent = "Product Backlog";
-        }
-
-        if (btnConversacion) {
-            btnConversacion.style.display = "none";
-        }
-
-        btnMensajes?.classList.remove("activo");
-        btnBacklog?.classList.add("activo");
-
-        cargarProductBacklog();
-    }
-
-    // Regresar a la sección Mensajes.
-    function abrirMensajes() {
-        if (!seccionBacklog || !seccionMensajes) return;
-
-        seccionBacklog.style.display = "none";
-        seccionMensajes.style.display = "";
-
-        if (tituloPagina) {
-            tituloPagina.textContent = "Mensajes";
-        }
-
-        if (btnConversacion) {
-            btnConversacion.style.display = "";
-        }
-
-        btnBacklog?.classList.remove("activo");
-        btnMensajes?.classList.add("activo");
-    }
-
-    // Eventos de navegación.
-    btnBacklog?.addEventListener(
-        "click",
-        abrirProductBacklog
-    );
-
-    btnMensajes?.addEventListener(
-        "click",
-        abrirMensajes
-    );
     // ==========================================
 // EVENTOS DE LOS FILTROS DEL PRODUCT BACKLOG
 // ==========================================
@@ -373,5 +291,11 @@ btnLimpiarFiltros?.addEventListener("click", () => {
     // Mostrar nuevamente todas las historias.
     aplicarFiltrosDesarrollador();
 });
+
+// Permitir que PanelDesarrollador.js cargue el Product Backlog
+window.cargarProductBacklog = cargarProductBacklog;
+
+// Cargar las historias al entrar al panel
+cargarProductBacklog();
 
 })();
