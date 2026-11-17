@@ -173,39 +173,150 @@ class UsuariosControlador {
      * @param {*} req 
      * @param {*} res 
      */
-    async obtenerProgresoCapacitacion(req, res){
-        try {
-            const id_usuario = this.#idValido(req.params.id);
-            const progreso_capacitacion = await this.dao.obtenerProgresoCapacitacion(id_usuario)
-            res.json({ data: progreso_capacitacion });
-        } catch (err) {
-            this.#error(res, err);
-        }
+    async obtenerProgresoCapacitacion(req, res) {
+  const idUsuario = this.#idValido(req.params.id);
+
+  if (!idUsuario) {
+    return res.status(400).json({
+      ok: false,
+      error: "ID de usuario inválido."
+    });
+  }
+
+  try {
+    const progreso =
+      await this.dao.obtenerProgresoCapacitacion(idUsuario);
+
+    if (!progreso) {
+      return res.status(404).json({
+        ok: false,
+        error: "No existe progreso registrado para este usuario."
+      });
     }
 
-    //POST /progreso/modulo/:newModulo/:id_usuario 
-    async actualizarModuloCapacitacion(req, res){
-        try {
-            const id = this.#idValido(req.params.id);
-            //Se ocupa el método idValido que sirve para verificar que es un numero y mayor a 0
-            const new_modulo = this.#idValido(req.params.new_modulo_actual);
-            await this.dao.actualizarModuloCapacitacion(new_modulo, id);
-        } catch (error) {
-            console.error("Error al actualizar progreso de modulo en el controlador: ", error.message);
-        }
+    return res.json({ ok: true, data: progreso });
+  } catch (error) {
+    console.error("Error consultando progreso:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "No se pudo consultar el progreso."
+    });
+  }
+}
+
+async actualizarModuloCapacitacion(req, res) {
+  const idUsuario = this.#idValido(req.params.id_usuario);
+  const nuevoModulo = this.#idValido(req.params.newModulo);
+
+  if (!idUsuario || !nuevoModulo) {
+    return res.status(400).json({
+      ok: false,
+      error: "Usuario o módulo inválido."
+    });
+  }
+
+  try {
+    const progreso = await this.dao.actualizarModuloCapacitacion(
+      nuevoModulo,
+      idUsuario
+    );
+
+    if (!progreso) {
+      return res.status(404).json({
+        ok: false,
+        error: "No existe progreso registrado para este usuario."
+      });
     }
 
-    //POST /progreso/seccion/:newSeccion/:id_usuario
-    async actualizarSeccionCapacitacion(req, res){
-        try {
-            const id = this.#idValido(req.params.id);
-            //Se ocupa el método idValido que sirve para verificar que es un numero y mayor a 0
-            const new_seccion = this.#idValido(req.params.new_seccion_actual);
-            await this.dao.actualizarSeccionCapacitacion(new_seccion, id);
-        } catch (error) {
-            console.error("Error al actualizar progreso de seccion en el controlador: ", error.message);
-        }
+    return res.json({ ok: true, data: progreso });
+  } catch (error) {
+    console.error("Error actualizando módulo:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "No se pudo actualizar el módulo."
+    });
+  }
+}
+
+async actualizarSeccionCapacitacion(req, res) {
+  const idUsuario = this.#idValido(req.params.id_usuario);
+  const nuevaSeccion = this.#idValido(req.params.newSeccion);
+
+  if (!idUsuario || !nuevaSeccion) {
+    return res.status(400).json({
+      ok: false,
+      error: "Usuario o sección inválidos."
+    });
+  }
+
+  try {
+    const progreso = await this.dao.actualizarSeccionCapacitacion(
+      nuevaSeccion,
+      idUsuario
+    );
+
+    if (!progreso) {
+      return res.status(404).json({
+        ok: false,
+        error: "No existe progreso registrado para este usuario."
+      });
     }
+
+    return res.json({ ok: true, data: progreso });
+  } catch (error) {
+    console.error("Error actualizando sección:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "No se pudo actualizar la sección."
+    });
+  }
+}
+async terminarSeccionCapacitacion(req, res) {
+  const idUsuario = this.#idValido(req.params.idUsuario);
+  const idSeccion = this.#idValido(req.params.idSeccion);
+
+  if (!idUsuario || !idSeccion) {
+    return res.status(400).json({
+      ok: false,
+      error: "Usuario o sección inválidos."
+    });
+  }
+
+  try {
+    const progreso = await this.dao.terminarSeccionCapacitacion(
+      idUsuario,
+      idSeccion
+    );
+
+    return res.json({
+      ok: true,
+      data: progreso
+    });
+  } catch (error) {
+    console.error("Error al terminar sección:", error);
+
+    const conflictos = [
+      "El progreso no existe o es inconsistente.",
+      "Solo puedes terminar la sección actual.",
+      "El siguiente módulo todavía no tiene secciones configuradas."
+    ];
+
+    if (conflictos.includes(error.message)) {
+      return res.status(409).json({
+        ok: false,
+        error: error.message
+      });
+    }
+
+    return res.status(500).json({
+      ok: false,
+      error: "No se pudo guardar la finalización de la sección."
+    });
+  }
+}
     // ---- Métodos privados ----
 
     #idValido(valor) {

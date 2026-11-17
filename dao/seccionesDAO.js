@@ -27,11 +27,21 @@ class SeccionesDAO {
         return rows[0] || null;
     }
     
-    async obtenerSeccionesDeModulo(id_modulo){
-        const { rows } = await this.pool.query(
-            'SELECT id, nombre, numero_seccion, numero_paginas, id_modulo WHERE id_modulo = $1',
-            [id_modulo]
-        );
+    async obtenerSeccionesDeModulo(id_modulo) {
+    const { rows } = await this.pool.query(
+        `SELECT
+        id,
+        nombre,
+        numero_seccion,
+        numero_paginas,
+        id_modulo
+        FROM scrumbird.secciones
+        WHERE id_modulo = $1
+        ORDER BY numero_seccion ASC, id ASC`,
+        [id_modulo]
+    );
+
+    return rows;
     }
 }
 module.exports = SeccionesDAO;
