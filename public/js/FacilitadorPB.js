@@ -23,7 +23,7 @@ const btnAgregarCriterioAdd = document.getElementById("btnAgregarCriterioAdd");
 const btnEliminarCriterioAdd = document.getElementById("btnEliminarCriterioAdd"); // <-- Nuevo
 
 //Grupo de elementos Dom con inputs del modal Agregar historia
-const inpModalAdd = [inpAddTitulo, inpAddDescripcion, inpAddValor];
+const inpModalAdd = [inpAddTitulo, inpAddDescripcion, inpAddValor, inpAddHoras];
 
 // Elementos inputs del modal modificar
 const inpModTitulo = document.getElementById("inpModTitulo");
@@ -53,7 +53,7 @@ const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 let todasLasHistorias = [];
 
 //Grupo de elementos Dom con inputs del modal Agregar historia
-const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor];
+const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor, inpModHoras];
 
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
@@ -64,6 +64,12 @@ let datosHistorias = [];
  // Índice actabasado en 0
 let currentIndexAdd = 0;
 let currentIndexMod = 0;
+
+// Banderas y variables de control para modificación
+let modificando = false;
+let idUltimoPanelSeleccionado = null;
+let posicion = null;
+
 
 const idProyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo')).id;
 if (idProyectoActivo){
@@ -763,9 +769,16 @@ btnAgregarHistoria.addEventListener("click", function () {
     modalAgregarHistoria.classList.add('activo');// Muestra el modal
 });
 
-// Listener para el botón "# Modificar historia"
+// Listener para el botón "# Modificar historia" (abre el modal si hay selección)
 btnModHistoria.addEventListener("click", function () {
-    modalModificarHistoria.classList.add('activo');// Muestra el modal
+    if (modificando && idUltimoPanelSeleccionado !== null) {
+        const idSeleccionado = descomponerId(idUltimoPanelSeleccionado);
+        if (recuperarContenido(idSeleccionado)) {
+            modalModificarHistoria.classList.add('activo');
+        }
+    } else {
+        alert("Error: Debes seleccionar una historia de usuario antes de modificar.");
+    }
 });
 
 // Listener para cerrar el modal "Agregar historia"
@@ -783,6 +796,34 @@ btnCerrarModalMod.addEventListener("click", function () {
 // Listener para guardar una nueva historia de usuario desde el modal
 btnGuardarHistoria.addEventListener("click", function () {
     agregarNuevaHistoria();
+});
+
+// Listener para el botón "Guardar cambios" dentro del modal modificar
+btnModificarHistoria.addEventListener("click", function () {
+    guardarCambiosHistoria();
+});
+
+// Listener global para deseleccionar la historia si se hace clic fuera de ella
+document.addEventListener("click", function (event) {
+    // Si el modal de modificar está abierto, no deseleccionamos la historia mientras el usuario edita
+    if (modalModificarHistoria.classList.contains('activo')) {
+        return;
+    }
+
+    // Si se hizo clic sobre una fila de historia o sobre el botón "# Modificar historia", mantenemos la selección
+    if (event.target.closest('.DivFilaHistoria') || event.target.closest('#btnModHistoria')) {
+        return;
+    }
+
+    // Si se hizo clic en cualquier otro lugar, quitamos el resaltado y bajamos la bandera
+    if (idUltimoPanelSeleccionado !== null) {
+        const ultimoPanel = document.getElementById(idUltimoPanelSeleccionado);
+        if (ultimoPanel !== null) {
+            ultimoPanel.style.backgroundColor = "";
+        }
+        idUltimoPanelSeleccionado = null;
+    }
+    modificando = false;
 });
 
 //Funcion que actualiza los elementos para mostrar los criterios de aceptacion en los modales
@@ -1057,17 +1098,24 @@ function verificarCriterios(contenedorCriteriosModal) {
 function verificarTituloUnico(inputDom) {
     if (!datosHistorias) {
         return true;
-    } else {
-        for (let n = 0; n < datosHistorias.length; n++) {
-            if (datosHistorias[n].titulo === inputDom.value.trim() || datosHistorias[n].nombre === inputDom.value.trim()) {
-                inputDom.style.border = "2px solid red";
-                inputDom.value = "";
-                inputDom.placeholder = "La historia ya existe en el sistema";
-                return false;
-            }
-        }
-        return true;
     }
+    const idEnEdicion = (modificando && idUltimoPanelSeleccionado)
+        ? descomponerId(idUltimoPanelSeleccionado)
+        : null;
+
+    for (let n = 0; n < datosHistorias.length; n++) {
+        // Si estamos modificando esta misma historia, permitimos conservar su propio título
+        if (idEnEdicion !== null && datosHistorias[n].id === idEnEdicion) {
+            continue;
+        }
+        if (datosHistorias[n].titulo === inputDom.value.trim() || datosHistorias[n].nombre === inputDom.value.trim()) {
+            inputDom.style.border = "2px solid red";
+            inputDom.value = "";
+            inputDom.placeholder = "La historia ya existe en el sistema";
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -1100,6 +1148,97 @@ function agregarNuevaHistoria() {
     //Se verifican la informacion ingresada en los campos
     if (historiaValida && criteriosValidos) {
         agregarHistoriaUsuario(idProyectoActivo)//----------------------------------------------------------------------------------------------------------------------------------------------------------
+    }
+}
+
+/**
+ * Ilumina en azul la fila de la historia seleccionada y activa la bandera
+ */
+function iluminarHistoria(id) {
+    if (idUltimoPanelSeleccionado !== null) {
+        const panelAnterior = document.getElementById(idUltimoPanelSeleccionado);
+        if (panelAnterior) {
+            panelAnterior.style.backgroundColor = "";
+        }
+    }
+    idUltimoPanelSeleccionado = `DivFilaHistoria_${id}`;
+    const panelActual = document.getElementById(idUltimoPanelSeleccionado);
+    if (panelActual) {
+        panelActual.style.setProperty('background-color', '#3b82f6', 'important'); // Azul resaltado
+        modificando = true;
+    }
+}
+
+/**
+ * Extrae el ID numérico a partir del ID del elemento DOM
+ */
+function descomponerId(panelDivFilaHistoria) {
+    return Number(panelDivFilaHistoria.replace("DivFilaHistoria_", ""));
+}
+
+/**
+ * Carga los datos de la historia seleccionada en los inputs y textareas del modal Modificar
+ */
+function recuperarContenido(id) {
+    posicion = null;
+    for (let m = 0; m < datosHistorias.length; m++) {
+        if (datosHistorias[m].id === id) {
+            posicion = m;
+            break;
+        }
+    }
+
+    if (posicion === null) {
+        alert("No se pudo recuperar la información de la historia de usuario.");
+        return false;
+    }
+
+    const historia = datosHistorias[posicion];
+
+    // Limpiamos estado previo del modal
+    limpiarCamposModalMod();
+
+    // Cargamos los campos principales
+    inpModTitulo.value = historia.nombre || historia.titulo || "";
+    inpModDescripcion.value = historia.descripcion || "";
+    inpModValor.value = historia.valor ?? "";
+    inpModHoras.value = historia.horas ?? "";
+
+    // Cargamos dinámicamente los criterios de aceptación en containerMod
+    const criterios = Array.isArray(historia.criterios) && historia.criterios.length > 0
+        ? historia.criterios
+        : [{ criterio: "" }];
+
+    containerMod.innerHTML = "";
+    criterios.forEach((crit, index) => {
+        const ta = document.createElement("textarea");
+        ta.id = `criterioMod_${index + 1}`;
+        ta.placeholder = `Escribe el criterio ${index + 1}...`;
+        ta.value = crit.criterio || "";
+        if (index === 0) ta.classList.add("active");
+        containerMod.appendChild(ta);
+    });
+
+    currentIndexMod = 0;
+    indicadorMod.textContent = `1/${criterios.length}`;
+    return true;
+}
+
+/**
+ * Valida los campos y criterios del modal Modificar antes de enviar la petición
+ */
+function guardarCambiosHistoria() {
+    if (!modificando || !idUltimoPanelSeleccionado) {
+        alert("No hay ninguna historia seleccionada para modificar.");
+        return;
+    }
+
+    const historiaValida = verificarCampos(inpModalMod);
+    const criteriosValidos = verificarCriterios(containerMod);
+
+    if (historiaValida && criteriosValidos) {
+        const idHistoria = descomponerId(idUltimoPanelSeleccionado);
+        modificarHistoriaUsuario(idHistoria, idProyectoActivo);
     }
 }
 
@@ -1184,6 +1323,58 @@ async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
     }
 }
 
+
+/**
+ * Envía la petición PUT al servidor para actualizar la historia de usuario
+ */
+async function modificarHistoriaUsuario(idHistoria, idProyecto) {
+    const nombre = inpModTitulo.value.trim();
+    const descripcion = inpModDescripcion.value.trim();
+    const criteriosDom = containerMod.querySelectorAll('textarea');
+    const criteriosArray = [];
+    criteriosDom.forEach((element) => {
+        criteriosArray.push({ criterio: element.value.trim() });
+    });
+    const valor = parseInt(inpModValor.value.trim(), 10);
+    const horas = parseInt(inpModHoras.value.trim(), 10);
+
+    try {
+        const respuesta = await fetch(`/historias/historiasPB/${idHistoria}/${idProyecto}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: idHistoria,
+                nombre: nombre,
+                descripcion: descripcion,
+                criterios: criteriosArray,
+                valor: valor,
+                horas: horas,
+                idProyecto: idProyecto
+            })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok && (resultado.ok || resultado.success || respuesta.status === 200)) {
+            alert(resultado.mensaje || "Historia modificada correctamente");
+
+            // Recargamos la tabla y reseteamos la selección
+            await inicializarBacklog();
+            limpiarCamposModalMod();
+            modalModificarHistoria.classList.remove('activo');
+            modificando = false;
+            idUltimoPanelSeleccionado = null;
+        } else {
+            alert(resultado.mensaje || resultado.error || "Error al modificar la historia");
+        }
+    } catch (error) {
+        console.error("Error en el fetch al modificar historia:", error);
+        alert("No se pudo conectar con el servidor para modificar la historia.");
+    }
+}
+
 function cargar_cabecera_inicial() {
     document.getElementById("").style.display = "block";
 }
@@ -1253,6 +1444,13 @@ function renderizarTablaFiltrada(historias) {
         const filaHtml = document.createElement("div");
         filaHtml.id = `DivFilaHistoria_${historia.id}`;
         filaHtml.className = "DivFilaHistoria";
+        // NUEVO: Seleccionar e iluminar la fila al hacer clic sobre ella
+        filaHtml.onclick = (e) => {
+            if (e.target.closest('.DivBtnEliminar') || e.target.closest('.btn-fila-lateral')) {
+                return;
+            }
+            iluminarHistoria(historia.id);
+        };
 
         // Obtenemos los criterios de la historia o colocamos un mensaje por defecto si está vacío
         const criterios = historia.criterios && historia.criterios.length > 0 

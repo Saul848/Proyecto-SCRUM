@@ -1,79 +1,31 @@
 const express = require('express');
-const pool = require('../poolDb'); // aqui mismo en las rutas se exporta { pool } 
+const pool = require('../poolDb'); 
 
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const HistoriaUsuarioDAO = require('../dao/historiaUsuarioDAO');
-const HistoriaUsuarioControlador = require('../controladores/historiaUsuarioControlador');
+// Importa las clases correctas para Sprints
+const SprintsDAO = require('../dao/sprintsDAO');
+const SprintsControlador = require('../controladores/sprintsControlador');
 
 const router = express.Router();
-const controlador = new HistoriaUsuarioControlador(new HistoriaUsuarioDAO(pool));
+const controlador = new SprintsControlador(new SprintsDAO(pool));
 
 /**
- * Obtiene todas los sprints existentes en un proyecto
+ * Obtiene todos los sprints existentes en un proyecto
  */
-router.get('/sprints/:idProyecto', (req, res) => controlador.listarSprintsPorProyecto(req, res));
+router.get('/listar/:idProyecto', (req, res) => controlador.listarSprintsPorProyecto(req, res));
 
 /**
- * Agrega una nueva historia de usuario dentro de un proyecto
+ * Agrega un nuevo sprint a un proyecto
  */
-router.post('/historiasPB', (req, res) => controlador.agregarHistoria(req, res));
+router.post('/guardar', (req, res) => controlador.agregarSprint(req, res));
 
 /**
- * Elimina una historia de usuario de un proyecto mediante sus respectivos ids
+ * Modifica un sprint en el proyecto (Cambiado a PUT y agregados los parámetros)
  */
-router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
+router.put('/actualizar/:sprintId/:idProyecto', (req, res) => controlador.modificarSprint(req, res));
 
 /**
- * Elimina una historia de usuario de un proyecto mediante sus respectivos ids
+ * Elimina un sprint de un proyecto mediante sus respectivos ids
  */
-router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
-
-// "login" va antes de "/:id" para que no se confunda con un id
-router.get('/', (req, res) => controlador.listar(req, res));
-
-
-/**
- * Obtiene todas las historias del sprint actual
- * Ejemplo de petición: GET /historiasSprint/1/1  (Proyecto 1, Sprint 1)
- */
-router.get('/historiasSprint/:idProyecto/:idSprint', (req, res) => controlador.obtenerHistoriasSprint(req, res));
-
-/**
- * @name GET /
- * @description Obtiene las historias del sprint asignadas a un desarrollador
- * Ejemplo de petición: GET /historiasSprintDev/1/1/2 (Proyecto 1, Sprint 1, Desarrollador 2)
- */
-router.get('/historiasSprintDev/:idProyecto/:idSprint/:idDesarrollador', (req, res) => controlador.obtenerHistoriasPorDesarrollador(req, res));
-
-/**
- * @name GET /evidencias/:idProyecto/:idHistoria
- * @description Obtiene los archivos de evidencias usando los IDs de proyecto e historia de forma segura
- */
-router.get('/evidencias/:idProyecto/:idHistoria', (req, res) => controlador.obtenerEvidenciasHistoria(req, res));
-
-/**
- * @name POST /evidencias/:idProyecto/:idHistoria
- * @description Permite subir imagenes como evidencias de cada Historia de Usuario
- */
-router.post('/evidencias/:idProyecto/:idHistoria', subirEvidencia.single('archivo'), (req, res) => controlador.guardarEvidenciaHistoria(req, res));
-
-
-/**
- * @name DELETE /evidencias/:idProyecto/:idHistoria/:nombreArchivo
- * @description Elimina una imagen de evidencia de una historia de usuario.
- */
-router.delete(
-    "/evidencias/:idProyecto/:idHistoria/:nombreArchivo",
-    (req, res) => controlador.borrarEvidenciaHistoria(req, res)
-);
-
-
-/**
- * @name PUT /
- * @description Actualiza el estado de una historia
- */
-router.put('/estado/:idHistoria/:idProyecto', (req, res) => controlador.actualizarEstadoHistoria(req, res));
+router.delete('/eliminar/:sprintId/:idProyecto', (req, res) => controlador.eliminarSprint(req, res));
 
 module.exports = router;

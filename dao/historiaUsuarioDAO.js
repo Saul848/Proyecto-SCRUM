@@ -188,6 +188,88 @@ class historiaUsuarioDAO {
         }
     }
 
+    /**
+     * Metodo para modificar una historia de usuario y actualizar sus criterios de aceptacion mediante una transaccion
+     * @param {number} idHistoria - Id de la historia de usuario a modificar
+     * @param {number} idProyecto - Id del proyecto al que pertenece la historia
+     * @param {Object} datos - Objeto con nombre, descripcion, criterios, valor y horas actualizadas
+     * @returns {Promise<Object>} Objeto con estado ok y mensaje compatible con el controlador
+     */
+    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas }) {
+        const client = await this.pool.connect();
+        try {
+            // Iniciar la transaccion
+            await client.query('BEGIN');
+
+            // 1. Actualizar los datos principales de la historia de usuario
+            const actualizacionHistoria = `
+                UPDATE scrumbird.historia_de_usuario 
+                SET nombre = $1, 
+                    descripcion = $2, 
+                    valor = $3, 
+                    horas_estimadas = $4
+                WHERE id = $5 AND id_proyecto = $6;
+            `;
+            const resultadoHistoria = await client.query(actualizacionHistoria, [
+                nombre,
+                descripcion,
+                valor,
+                horas,
+                idHistoria,
+                idProyecto
+            ]);
+
+            if (resultadoHistoria.rowCount === 0) {
+                await client.query('ROLLBACK');
+                return {
+                    ok: false,
+                    mensaje: "No se encontró la historia de usuario para modificar"
+                };
+            }
+
+            // 2. Actualizar las tuplas de criterios de aceptacion
+            // Eliminamos los criterios anteriores de esta historia para reinsertar los modificados en orden
+            const eliminarCriteriosAnteriores = `
+                DELETE FROM scrumbird.criterios_de_aceptacion 
+                WHERE id_historia = $1 AND id_proyecto = $2;
+            `;
+            await client.query(eliminarCriteriosAnteriores, [idHistoria, idProyecto]);
+
+            const insercionCriterio = `
+                INSERT INTO scrumbird.criterios_de_aceptacion 
+                (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)
+                VALUES ($1, $2, $3, $4);
+            `;
+
+            // Usamos for...of con await para garantizar que todas las inserciones terminen antes del COMMIT
+            for (const [index, element] of criterios.entries()) {
+                await client.query(insercionCriterio, [
+                    index + 1,
+                    element.criterio,
+                    idHistoria,
+                    idProyecto
+                ]);
+            }
+
+            // Confirmar la transaccion
+            await client.query('COMMIT');
+
+            return {
+                ok: true,
+                mensaje: "Historia modificada correctamente"
+            };
+
+        } catch (error) {
+            // Revertir todos los cambios si ocurre un error en cualquier paso
+            await client.query('ROLLBACK');
+            console.error("Error en el DAO al intentar modificar la historia de usuario", error);
+            throw error;
+        } finally {
+            // Liberar al cliente de vuelta al pool de conexiones
+            client.release();
+        }
+    }
+
 
     /**
      * Obtiene el detalle completo de todas las historias de usuario de un proyecto y sprint 

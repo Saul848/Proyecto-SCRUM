@@ -77,9 +77,9 @@ router.post('/historiasPB', (req, res) => controlador.agregarHistoria(req, res))
 router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
 
 /**
- * Elimina una historia de usuario de un proyecto mediante sus respectivos ids
+ * Modificar una historia de usuario de un proyecto mediante sus respectivos ids
  */
-router.delete("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.eliminarHistoriaEnProyecto(req, res));
+router.put("/historiasPB/:idHistoria/:idProyecto", (req, res) => controlador.modificarHistoriaEnProyecto(req, res));
 
 // "login" va antes de "/:id" para que no se confunda con un id
 router.get('/', (req, res) => controlador.listar(req, res));
