@@ -7,6 +7,10 @@ const router = express.Router();
 const controlador = new SeccionesControlador(new SeccionesDAO(pool));
 
 router.get('/', (req, res) => controlador.listar(req, res));
+router.get(
+  '/modulo/:idModulo',
+  (req, res) => controlador.listarPorModulo(req, res)
+);
 router.get('/:id', (req, res) => controlador.listarPorID(req, res));
 
 module.exports = router;

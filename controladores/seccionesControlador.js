@@ -25,6 +25,34 @@ class seccionesControlador {
             console.error("Error al recuperar el modulo por id: " , err.message);
         }
     }
+    // Obtener las secciones de un módulo.
+    async listarPorModulo(req, res) {
+        const idModulo = this.#idValido(req.params.idModulo);
+
+        if (!idModulo) {
+            return res.status(400).json({
+            ok: false,
+            error: "ID de módulo inválido."
+            });
+        }
+
+        try {
+            const secciones =
+            await this.dao.obtenerSeccionesDeModulo(idModulo);
+
+            return res.json(secciones);
+        } catch (error) {
+            console.error(
+            "Error al consultar secciones del módulo:",
+            error
+            );
+
+            return res.status(500).json({
+            ok: false,
+            error: "No se pudieron consultar las secciones del módulo."
+            });
+        }
+    }
 
     // ---- Métodos privados ----
 
@@ -32,5 +60,6 @@ class seccionesControlador {
         const id = Number(valor);
         return Number.isInteger(id) && id > 0 ? id : null;
     }
+    
 }
 module.exports = seccionesControlador;
