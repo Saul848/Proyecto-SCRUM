@@ -16,5 +16,12 @@ router.get('/:id', (req, res) => controlador.obtener(req, res));
 router.put('/:id', (req, res) => controlador.actualizar(req, res));
 router.put('/:id/passwd', (req, res) => controlador.cambiarPasswd(req, res));
 router.delete('/:id', (req, res) => controlador.eliminar(req, res));
+router.get('/progresoCapa/:id',(req, res) => controlador.obtenerProgresoCapacitacion(req, res));
+router.post('/progreso/modulo/:newModulo/:id_usuario',(req, res) => controlador.actualizarModuloCapacitacion(req, res));
+router.post('/progreso/seccion/:newSeccion/:id_usuario',(req, res) => controlador.actualizarSeccionCapacitacion(req, res));
+router.post(
+  '/progreso/terminar/:idUsuario/:idSeccion',
+  (req, res) => controlador.terminarSeccionCapacitacion(req, res)
+);
 
 module.exports = router; 

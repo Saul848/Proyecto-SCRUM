@@ -49,7 +49,7 @@
       </div>
 
       <!-- Product Backlog -->
-      <div class="cabecera-default" id="cabecera-productBacklog">
+      <div class="cabecera-default activa" id="cabecera-productBacklog">
         <span class="badge-rol">Facilitador</span>
         <div class="info-cabecera">
           <h2>Gestión del Product Backlog</h2>
@@ -183,12 +183,6 @@
           <li>
             <button id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">
               Gráficas
-            </button>
-          </li>
-
-          <li>
-            <button id="linkAjustes" onclick="mostrarModal('modal-ajustes', 'cabecera-ajustes')">
-              Ajustes
             </button>
           </li>
 
@@ -763,8 +757,10 @@
       <!-- MODAL PARA registro de tiempos -->
       <div class="modal-class" id="modal-tiempos">
         <div id="contenedor-registro-tiempos">
-          <button id="btn-registro-tiempos">Iniciar registro de tiempos +</button>
-
+          <div id="barra-registro">
+            <button id="btn-registro-tiempos">Iniciar registro de tiempos +</button>
+            <span id="cronometro" style="display: none;">00:00:00</span>
+          </div>
           <table id="tabla-tiempos">
             <thead>
               <tr>
@@ -900,7 +896,6 @@
   <script src="../js/sprintPlanning.js" defer></script>
   <script src="../js/modalSubirMaterial.js" defer></script>
   <script src="../js/planningPokerFacilitador.js" defer></script>
- 
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
   <script src="../js/mensajes.js" defer></script>

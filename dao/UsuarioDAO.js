@@ -95,13 +95,153 @@ class UsuarioDAO {
     }
 
     async listarUsuariosPorEquipo(id_proyecto) {
-        console.log("idProyecto recibido en DAO:", id_proyecto);
+        //console.log("idProyecto recibido en DAO:", id_proyecto);
         const { rows } = await this.pool.query(
             'SELECT U.nombre AS U_nombre, U.id, P.nombre, TEP.id_proyecto FROM scrumbird.trabajando_en_proyecto TEP, scrumbird.proyecto P, scrumbird.usuario U WHERE P.id=$1 AND TEP.id_proyecto=P.id AND TEP.id_usuario=U.id',
             [id_proyecto]
         );
         return rows;
     }
+
+   async obtenerProgresoCapacitacion(id_usuario) {
+    const { rows } = await this.pool.query(
+        `SELECT id_usuario, modulo_actual, seccion_actual, guia_terminada
+        FROM scrumbird.progreso_capacitacion
+        WHERE id_usuario = $1`,
+        [id_usuario]
+    );
+
+    return rows[0] || null;
+    }
+
+    async actualizarModuloCapacitacion(new_modulo_actual, id_usuario) {
+    const { rows } = await this.pool.query(
+        `UPDATE scrumbird.progreso_capacitacion
+        SET modulo_actual = $1
+        WHERE id_usuario = $2
+        RETURNING id_usuario, modulo_actual, seccion_actual, guia_terminada`,
+        [new_modulo_actual, id_usuario]
+    );
+
+    return rows[0] || null;
+    }
+
+    async actualizarSeccionCapacitacion(new_seccion_actual, id_usuario) {
+    const { rows } = await this.pool.query(
+        `UPDATE scrumbird.progreso_capacitacion
+        SET seccion_actual = $1
+        WHERE id_usuario = $2
+        RETURNING id_usuario, modulo_actual, seccion_actual, guia_terminada`,
+        [new_seccion_actual, id_usuario]
+    );
+
+    return rows[0] || null;
+    }
+    async terminarSeccionCapacitacion(idUsuario, idSeccion) {
+  const cliente = await this.pool.connect();
+
+  try {
+    await cliente.query("BEGIN");
+
+    // Bloquear el progreso mientras se actualiza.
+    const { rows } = await cliente.query(`
+      SELECT
+        p.*,
+        s.numero_seccion,
+        m.numero_modulo
+      FROM scrumbird.progreso_capacitacion p
+      JOIN scrumbird.secciones s
+        ON s.id = p.seccion_actual
+       AND s.id_modulo = p.modulo_actual
+      JOIN scrumbird.modulos m
+        ON m.id = p.modulo_actual
+      WHERE p.id_usuario = $1
+      FOR UPDATE OF p
+    `, [idUsuario]);
+
+    const actual = rows[0];
+
+    if (!actual) {
+      throw new Error("El progreso no existe o es inconsistente.");
+    }
+
+    if (
+      actual.guia_terminada ||
+      Number(actual.seccion_actual) !== Number(idSeccion)
+    ) {
+      throw new Error("Solo puedes terminar la sección actual.");
+    }
+
+    // Buscar la siguiente sección del mismo módulo.
+    const siguientes = await cliente.query(`
+      SELECT id, id_modulo
+      FROM scrumbird.secciones
+      WHERE id_modulo = $1
+        AND numero_seccion > $2
+      ORDER BY numero_seccion, id
+      LIMIT 1
+    `, [actual.modulo_actual, actual.numero_seccion]);
+
+    let siguiente = siguientes.rows[0];
+    let guiaTerminada = false;
+
+    if (!siguiente) {
+      // Buscar el siguiente módulo según su orden.
+      const modulos = await cliente.query(`
+        SELECT id
+        FROM scrumbird.modulos
+        WHERE numero_modulo > $1
+        ORDER BY numero_modulo, id
+        LIMIT 1
+      `, [actual.numero_modulo]);
+
+      const siguienteModulo = modulos.rows[0];
+
+      if (siguienteModulo) {
+        const secciones = await cliente.query(`
+          SELECT id, id_modulo
+          FROM scrumbird.secciones
+          WHERE id_modulo = $1
+          ORDER BY numero_seccion, id
+          LIMIT 1
+        `, [siguienteModulo.id]);
+
+        siguiente = secciones.rows[0];
+
+        if (!siguiente) {
+          throw new Error(
+            "El siguiente módulo todavía no tiene secciones configuradas."
+          );
+        }
+      } else {
+        guiaTerminada = true;
+      }
+    }
+
+    const actualizado = await cliente.query(`
+      UPDATE scrumbird.progreso_capacitacion
+      SET modulo_actual = $1,
+          seccion_actual = $2,
+          guia_terminada = $3
+      WHERE id_usuario = $4
+      RETURNING *
+    `, [
+      siguiente ? siguiente.id_modulo : actual.modulo_actual,
+      siguiente ? siguiente.id : actual.seccion_actual,
+      guiaTerminada,
+      idUsuario
+    ]);
+
+    await cliente.query("COMMIT");
+
+    return actualizado.rows[0];
+  } catch (error) {
+    await cliente.query("ROLLBACK");
+    throw error;
+  } finally {
+    cliente.release();
+  }
+}
 }
 
 module.exports = UsuarioDAO;

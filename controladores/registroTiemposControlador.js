@@ -44,6 +44,7 @@ class RegistroTiemposControlador {
         try {
             const { idUsuario, id_proyecto } = req.params;
             const registros = await this.dao.listarPorUsuario(idUsuario, id_proyecto);
+            console.log("Controlador registro de tiempos")
             res.status(200).json({ ok: true, data: registros });
         } catch (err) {
             console.error("Error al listar los registros de tiempo:", err.message);

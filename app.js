@@ -75,6 +75,17 @@ app.use('/registro-tiempos', require('./routes/registroTiemposRoutes'));
  */
 app.use('/grupos', require('./routes/grupoRoutes'));
 
+
+/**
+ * Rutas de grupos de conversación
+ */
+app.use('/secciones', require('./routes/seccionesRoutes.js'));
+
+/**
+ * Rutas de grupos de conversación
+ */
+app.use('/modulos', require('./routes/moduloRoutes.js'));
+
 /**
  * Carga del certificado autorfirmado para el cifrado
  */

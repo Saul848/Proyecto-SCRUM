@@ -1375,11 +1375,11 @@ async function modificarHistoriaUsuario(idHistoria, idProyecto) {
     }
 }
 
-function cargar_cabecera_inicial() {
-    document.getElementById("").style.display = "block";
-}
+// function cargar_cabecera_inicial() {
+//     document.getElementById("").style.display = "block";
+// }
 
-cargar_cabecera_inicial();
+// cargar_cabecera_inicial();
 
 /**
  * Inicializa el Product Backlog obteniendo la lista completa de historias desde el servidor,

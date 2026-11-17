@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/panelPrincipal.css">
+    <link rel="stylesheet" href="../css/mensajes.css">
     <title>Document</title>
 </head>
 <body>
@@ -23,7 +24,7 @@
         <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
         <li><button id="btn-proyectos">Mis proyectos</button></li>
         <li><button id="btn-miembros">Miembros</button></li>
-        <li>Mensajes</li>
+        <li><button id="btn-mensajes">Mensajes</button></li>
         <li><button id="btnSessionStorage" onclick="consoleSessionStorage()">sessionStorage</button></li>
         <li><button id="btn-capacitacion">Capacitacion</button></li>
       </ul>
@@ -34,6 +35,43 @@
       click en las opciones del menú lateral. No solo encimados unos sobre otros-->
 
       <!--Aqui van los modales de cada uno-->
+      <!-- MENSAJERÍA - PANEL PRINCIPAL -->
+       <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="mensajes-principal-encabezado">
+          <h2>Centro de comunicación</h2>
+          <p>Comunícate mediante mensajes privados con otros usuarios de ScrumBird.</p>
+        </div>
+        <div class="main-container-chat">
+          <!-- Panel izquierdo -->
+           <aside class="sidebar-mensajes">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" id="inputBuscarChat" placeholder="Buscar usuario..."></div>
+              <p class="menu-seccion">USUARIOS</p>
+              <div id="listaContactosDirectos" class="lista-elementos">
+                <p>Selecciona un usuario para conversar.</p>
+              </div>
+            </aside>
+            <!-- Panel derecho -->
+             <section class="chat-area">
+              <div class="chat-header">
+                <div class="chat-header-info">
+                  <h3 id="tituloChatActual">Selecciona un usuario</h3>
+                  <span id="subInfoChat" class="sub-info-chat">Mensajes privados</span>
+                </div>
+              </div>
+              <!-- Historial -->
+               <div id="contenedorMensajesGeneral" class="chat-mensajes">
+                <p>Selecciona una conversación para comenzar.</p>
+              </div>
+              <!-- Envío de mensajes -->
+               <div class="chat-input-box">
+                <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                <button id="btnEnviarMensajeGeneral" type="button"> ➤ </button>
+              </div>
+            </section>
+          </div>
+        </div>
       <!--Modal para ver los proyectos y crear nuevos-->
       <div id="modal-proyectos" class="modal-class">
         <div class="top-actions">
@@ -111,7 +149,6 @@
         <h2>Capacitación en Scrumbird</h2>
         <div id="contenedor-blanco">
           <div id="contenedor-azul">
-
             <!-- Columna izquierda: lista de módulos -->
             <div id="contenedor-modulos">
               <!--Aquí se insertarán los modulos recuperados de la base de datos-->
@@ -124,16 +161,6 @@
             <!-- Columna derecha: contenido del módulo -->
             <div id="contenido-modulo">
               <!--Aquí se insertarán las secciones recuperadas de la base de datos-->
-              <h2>Modulo 1: ¿Qué es Scrum?</h2>
-              <p class="modulo-objetivo"><strong>Objetivo:</strong> información para...</p>
-
-              <div class="seccion-card">
-                <div class="seccion-info">
-                  <h3>Seccion 1: Concepto de Scrum</h3>
-                  <small>Duración: 2 páginas</small>
-                </div>
-                <button class="btn-estado btn-iniciar">▶ Iniciar</button>
-              </div>
             </div>
 
           </div>
@@ -142,9 +169,385 @@
       
     </section>
   </div>
+    <!-- Lector de las secciones del módulo 2 -->
+  <dialog id="lector-herramientas"
+                aria-labelledby="lector-herramientas-titulo"; max-height: 85vh;
+                padding: 24px; border: 0; border-radius: 12px;
+                background: #edf4f6;">
+
+      <header style="display: flex; justify-content: space-between;
+                    align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 2: Herramientas de Scrum</strong>
+        <h3 id="lector-herramientas-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-herramientas"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-herramientas"
+        style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center;
+                  align-items: center; gap: 16px;">
+      <button id="pagina-anterior-herramientas"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-herramientas"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-herramientas"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+      <button id="terminar-seccion-herramientas"
+        type="button"
+            hidden>
+      ✓ Terminar
+    </button>
+    </footer>
+
+  </dialog>
+  <!-- Módulo 2, sección 1: Tareas -->
+<template id="herramientas-tareas">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Herramientas para gestionar las tareas</h3>
+
+    <p>
+      En ScrumBird existen diferentes herramientas que permiten
+      organizar y consultar el trabajo del proyecto:
+    </p>
+
+    <ul>
+      <li>Product Backlog: lista priorizada de historias de usuario.</li>
+      <li>Sprint Backlog: trabajo seleccionado para una iteración.</li>
+      <li>Tablero Kanban: seguimiento visual del estado del trabajo.</li>
+    </ul>
+
+    <p>
+      En las siguientes páginas conocerás la función de cada una.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <p>
+      Es la lista priorizada de requisitos e historias de usuario
+      del proyecto. En ScrumBird, el cliente participa en su
+      definición con apoyo del facilitador.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Historias de usuario:</strong>
+        describen lo que se necesita y sus criterios de aceptación.
+      </li>
+      <li>
+        <strong>Sprints:</strong>
+        organizan el trabajo en iteraciones.
+      </li>
+      <li>
+        <strong>Entregas:</strong>
+        permiten presentar los avances del proyecto.
+      </li>
+    </ul>
+
+    <p>
+      El Product Backlog puede actualizarse conforme cambian
+      las necesidades y se obtiene nueva información.
+      Las historias pueden incluir estimaciones de esfuerzo.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Sprint Backlog</h3>
+
+    <p>
+      Organiza el trabajo seleccionado para un sprint y las tareas
+      necesarias para desarrollar las historias de usuario.
+    </p>
+
+    <p>En ScrumBird, las tareas pueden incluir:</p>
+
+    <ul>
+      <li>Nombre.</li>
+      <li>Descripción.</li>
+      <li>Responsable.</li>
+      <li>Sprint asignado.</li>
+    </ul>
+
+    <p>
+      Durante el sprint, el equipo consulta y actualiza el trabajo.
+      Si queda trabajo pendiente, debe revisarse para decidir
+      cómo se atenderá en la siguiente planificación.
+    </p>
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Tablero Kanban</h3>
+
+    <p>
+      Permite visualizar el estado del trabajo y detectar
+      qué actividades siguen pendientes.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Por empezar:</strong>
+        todavía no se ha iniciado el trabajo.
+      </li>
+      <li>
+        <strong>En progreso:</strong>
+        el equipo está trabajando en la actividad.
+      </li>
+      <li>
+        <strong>En revisión:</strong>
+        el trabajo está siendo revisado.
+      </li>
+      <li>
+        <strong>Terminado:</strong>
+        el trabajo cumple los criterios acordados para finalizarlo.
+      </li>
+    </ul>
+
+    <p>
+      Mantener el tablero actualizado ayuda al equipo a conocer
+      el avance y coordinar sus actividades.
+    </p>
+  </article>
+
+</template>
+<!-- Módulo 2, sección 2: Definición de hecho -->
+<template id="herramientas-dod">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Criterios de definición de hecho (DoD)</h3>
+
+    <p>
+      La Definición de Hecho reúne las condiciones de calidad
+      que debe cumplir el trabajo para considerarse terminado.
+    </p>
+
+    <p>
+      El equipo utiliza estos criterios para comprobar que el
+      resultado está integrado, revisado y listo para formar
+      parte del producto.
+    </p>
+
+    <p>
+      No basta con terminar de programar: también deben realizarse
+      las revisiones, pruebas y documentación acordadas.
+    </p>
+
+    <p>
+      Los criterios de aceptación indican qué debe cumplir una
+      historia específica. La Definición de Hecho establece las
+      condiciones generales de calidad del trabajo terminado.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Ejemplos de criterios de definición de hecho</h3>
+
+    <ul>
+      <li>
+        Los cambios están integrados con el trabajo del equipo.
+      </li>
+      <li>
+        El código fue revisado por otro integrante del equipo.
+      </li>
+      <li>
+        La funcionalidad cumple sus criterios de aceptación.
+      </li>
+      <li>
+        Las pruebas acordadas se ejecutaron correctamente.
+      </li>
+      <li>
+        El trabajo cumple los requisitos de calidad y seguridad
+        establecidos.
+      </li>
+      <li>
+        La documentación necesaria está actualizada.
+      </li>
+      <li>
+        No quedan errores conocidos que impidan utilizar
+        la funcionalidad.
+      </li>
+    </ul>
+
+    <p>
+      Estos ejemplos deben adaptarse a los acuerdos y necesidades
+      del proyecto.
+    </p>
+  </article>
+
+</template>
+<!-- Módulo 2, sección 3: Estimación -->
+<template id="herramientas-estimacion">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Estimación del trabajo</h3>
+
+    <p>
+      Estimar permite al equipo conversar sobre el esfuerzo necesario
+      para desarrollar las historias de usuario y planificar el trabajo.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Planning Poker:</strong>
+        permite discutir y acordar una estimación para cada historia.
+      </li>
+      <li>
+        <strong>Burndown del Product Backlog:</strong>
+        muestra las horas pendientes del proyecto a través de los sprints.
+      </li>
+      <li>
+        <strong>Burndown del Sprint:</strong>
+        muestra las horas pendientes durante los días de un sprint.
+      </li>
+    </ul>
+
+    <p>
+      Una estimación es una referencia para planificar y puede
+      revisarse cuando se obtiene nueva información.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Planning Poker</h3>
+
+    <p>
+      El equipo revisa una historia, aclara dudas y propone una
+      estimación mediante cartas. Las estimaciones se revelan
+      al mismo tiempo y se discuten las diferencias.
+    </p>
+
+    <p>
+      Si existen opiniones muy distintas, el equipo explica sus
+      razones y vuelve a estimar hasta alcanzar un acuerdo.
+    </p>
+
+    <p>
+      En ScrumBird, la estimación se expresa en horas. El esfuerzo
+      calculado se obtiene multiplicando las horas estimadas
+      por el factor de complejidad configurado.
+    </p>
+
+    <div class="cartas-capacitacion"
+         aria-label="Ejemplo de cartas de Planning Poker">
+      <span>0</span>
+      <span>1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>5</span>
+      <span>8</span>
+      <span>13</span>
+      <span>21</span>
+      <span>34</span>
+      <span>55</span>
+      <span>89</span>
+      <span>?</span>
+    </div>
+
+    <p>
+      Las cartas de este ejemplo son ilustrativas; aquí no se
+      realiza una sesión de votación.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Burndown Chart del Product Backlog</h3>
+
+    <p>
+      Compara las horas pendientes del proyecto con una referencia
+      ideal a través de los sprints.
+    </p>
+
+    <ul>
+      <li><strong>Eje horizontal:</strong> sprints del proyecto.</li>
+      <li><strong>Eje vertical:</strong> horas pendientes.</li>
+      <li><strong>Línea ideal:</strong> descenso uniforme del esfuerzo.</li>
+      <li><strong>Línea de seguimiento:</strong> mediciones registradas.</li>
+    </ul>
+
+    <figure class="grafica-capacitacion">
+      <img
+        src="../img/ejemplo-burndown-producto.png"
+        alt="Ejemplo de burndown del proyecto: horas pendientes
+            comparadas con la línea ideal a través de cuatro sprints.">
+      <figcaption>
+        Ejemplo ilustrativo del avance de un proyecto por sprint.
+      </figcaption>
+    </figure>
+   
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Burndown Chart del Sprint</h3>
+
+    <p>
+      Permite observar cómo cambian las horas pendientes dentro
+      de un sprint. Cada punto corresponde a una medición diaria.
+    </p>
+
+    <ul>
+      <li><strong>Eje horizontal:</strong> días del sprint.</li>
+      <li><strong>Eje vertical:</strong> horas pendientes.</li>
+      <li>
+        Si la línea de seguimiento está por encima de la ideal,
+        queda más trabajo pendiente del esperado.
+      </li>
+      <li>
+        Si está por debajo, queda menos trabajo pendiente del esperado.
+      </li>
+    </ul>
+
+    <figure class="grafica-capacitacion">
+      <img
+        src="../img/ejemplo-burndown-sprint.png"
+        alt="Ejemplo de burndown diario: horas restantes registradas
+            hasta el día cinco y línea ideal hasta el día doce.">
+      <figcaption>
+        Ejemplo ilustrativo del avance diario de un sprint.
+      </figcaption>
+    </figure>   
+
+    <p>
+      Un día sin medición significa “sin registro”,
+      no necesariamente cero horas pendientes.
+    </p>
+  </article>
+
+</template>
   
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
+  <script src="../js/mensajesPrincipal.js"></script>
+  <script src="../js/seccionesC.js"></script>
+  <script src="../js/modulosC.js"></script>
   <script>
     function consoleSessionStorage(){
       console.log("recuperando sessionStorage")
