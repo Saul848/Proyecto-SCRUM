@@ -35,10 +35,8 @@ function obtenerRolActual() {
 function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam, idTipoReunionParam) {
   const urlParams = new URLSearchParams(window.location.search);
   
-  const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
-  const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
-  const rol = (urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion || (esDevPorRuta ? 'desarrollador' : 'facilitador')).toLowerCase();
-  
+  const rol = obtenerRolActual();
+
   window.ID_PROYECTO = Number(idProyectoParam) || Number(urlParams.get("proyecto")) || 1;
   window.ID_SPRINT = Number(idSprintParam) || Number(sessionStorage.getItem("ID_SPRINT_ACTIVO")) || 1;
   window.ID_REUNION = Number(idReunionParam) || Number(sessionStorage.getItem("ID_REUNION_ACTIVA")) || 1;
@@ -62,9 +60,17 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     if (btnContinuarFase2) btnContinuarFase2.style.display = "none";
     if (btnVolverFase1) btnVolverFase1.style.display = "none";
     if (btnConfirmarSprint) btnConfirmarSprint.style.display = "none";
-    if (btnSalir) btnSalir.style.display = "none";
     
     //Restricción: Solo el facilitador puede poner/modificar las fechas
+    if (inpFechaInicio) inpFechaInicio.disabled = true;
+    if (inpFechaFin) inpFechaFin.disabled = true;
+  }
+
+  if (rol === 'cliente') {
+    // El cliente solo observa: no controla el avance de la reunión
+    [btnContinuar, btnContinuarFase2, btnVolverFase1, btnConfirmarSprint].forEach(b => {
+      if (b) b.style.display = "none";
+    });
     if (inpFechaInicio) inpFechaInicio.disabled = true;
     if (inpFechaFin) inpFechaFin.disabled = true;
   }
@@ -99,21 +105,13 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   if (btnContinuar) {
     btnContinuar.addEventListener("click", async () => {
       const rolActual = rol;
+      if (rolActual === 'cliente') return;
 
       if (rolActual === 'facilitador' && socketAsignacion) {
         socketAsignacion.emit("disparar-planning-poker", { sprintId: window.ID_SPRINT });
       }
 
       cargarVistaPlanningPoker(rolActual);
-    });
-  }
-
-  if (socketAsignacion) {
-    socketAsignacion.on("abrir-planning-poker-cliente", () => {
-      const rolActual = (window.ROL_ACTUAL || "facilitador").toLowerCase();
-      if (rolActual === 'desarrollador') {
-        cargarVistaPlanningPoker('desarrollador');
-      }
     });
   }
 
@@ -140,7 +138,7 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   if (btnSalir) {
     btnSalir.onclick = () => {
       if (!confirm("¿Salir de la reunión?")) return;
-      // Regresar al panel principal de reuniones sin recargar la página
+      mostrarAvisoFase2Cliente(false); // por si el cliente tenía el aviso en pantalla
       document.getElementById("vista-sprintPlanning").style.display = "none";
       document.getElementById("modal-reuniones").style.display = "block";
     };
@@ -235,11 +233,29 @@ function mostrarCabeceraR(id) {
 }
 
 function mostrarVista(idVista) {
+
+  // El cliente no participa en la Fase 2: se le muestra un aviso en lugar de la asignación
+  if (obtenerRolActual() === 'cliente') {
+    if (idVista === 'vista-fase2' || idVista === 'vistaDetalles') {
+      ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
+        const v = document.getElementById(vId);
+        if (v) {
+          v.style.setProperty("display", "none", "important");
+          v.classList.add("oculto");
+        }
+      });
+      mostrarCabeceraR("historiasSprint");
+      mostrarAvisoFase2Cliente(true);
+      return; // nunca carga la asignación para el cliente
+    }
+    mostrarAvisoFase2Cliente(false);
+  }
+
   ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
     const vista = document.getElementById(vId);
     if (vista) {
       vista.style.setProperty("display", "none", "important");
-      vista.classList.add("oculto"); // Aseguramos que use la clase CSS correcta
+      vista.classList.add("oculto");
     }
   });
 
@@ -265,6 +281,22 @@ function mostrarVista(idVista) {
       cargarHistoriasRevision();
       break;
   }
+}
+
+function mostrarAvisoFase2Cliente(mostrar) {
+  let aviso = document.getElementById("avisoFase2Cliente");
+  if (!aviso) {
+    aviso = document.createElement("div");
+    aviso.id = "avisoFase2Cliente";
+    aviso.style.cssText = "display:none; text-align:center; padding:40px 20px; color:#475569;";
+    aviso.innerHTML = `
+      <h2>El equipo continúa con la planificación</h2>
+      <p>El cliente participa únicamente en la Fase 1. Esta vista se actualizará cuando el facilitador regrese a esa etapa.</p>
+    `;
+    const contenedor = document.querySelector("#area-trabajo .area-fondo") || document.getElementById("area-trabajo");
+    if (contenedor) contenedor.appendChild(aviso);
+  }
+  aviso.style.display = mostrar ? "block" : "none";
 }
 
 //cargar el HTML de Planning Poker según el rol
@@ -371,6 +403,10 @@ function poblarTablaDetalles() {
     `;
   }).join('');
 
+  if (obtenerRolActual() === 'cliente') {
+    cuerpoTabla.querySelectorAll("input, select").forEach(el => el.disabled = true);
+  }
+
   calcularEsfuerzoTotal();
 }
 
@@ -433,13 +469,14 @@ let solicitudesPendientes = [];
 function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
   if (!cuerpoAsignacion) return;
+  if (obtenerRolActual() === 'cliente') return;
 
   const rol = obtenerRolActual();
   const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Usuario" };
 
   const panelSolicitudes = document.querySelector(".panel-solicitudes");
   if (panelSolicitudes) {
-    panelSolicitudes.style.display = (rol === 'desarrollador') ? "none" : "block";
+    panelSolicitudes.style.display = (rol === 'facilitador') ? "block" : "none";
   }
 
   cuerpoAsignacion.innerHTML = requisitos.map(h => {
@@ -588,8 +625,11 @@ function inicializarSocketsAsignacion(idSprint) {
   if (!socketAsignacion) {
     socketAsignacion = io();
 
-    //nos unimos a la sala específica del sprint
-    socketAsignacion.emit("join-asignacion-sprint", { sprintId: idSprint });
+    // Cada vez que el socket se conecte o RECONECTE, volver a unirse a la sala
+    socketAsignacion.on("connect", () => {
+      console.log("Socket conectado:", socketAsignacion.id, "| sprint:", window.ID_SPRINT);
+      socketAsignacion.emit("join-asignacion-sprint", { sprintId: window.ID_SPRINT });
+    });
 
     socketAsignacion.on("abrir-planning-poker-cliente", () => {
       const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
@@ -651,7 +691,7 @@ function inicializarSocketsAsignacion(idSprint) {
       if (!existe) {
         solicitudesPendientes.push(data);
         renderizarPanelSolicitudes();
-        if (document.getElementById("vista-fase2").style.display === "block") {
+        if (document.getElementById("vista-fase2")?.style.display === "block") {
           cargarAsignacionFase2();
         }
       }
@@ -660,15 +700,15 @@ function inicializarSocketsAsignacion(idSprint) {
     //escucha cuando el facilitador pasa a la Fase 2
     socketAsignacion.on("fase-2-cliente", () => {
       const rolActual = obtenerRolActual();
-      if (rolActual === 'desarrollador') {
-        mostrarVista("vista-fase2");
+      if (rolActual === 'desarrollador' || rolActual === 'cliente') {
+        mostrarVista("vista-fase2"); // para el cliente muestra el aviso
       }
     });
 
     //escucha cuando el facilitador vuelve a la Fase 1
     socketAsignacion.on("fase-1-cliente", () => {
       const rolActual = obtenerRolActual();
-      if (rolActual === 'desarrollador') {
+      if (rolActual === 'desarrollador' || rolActual === 'cliente') {
         mostrarVista("vista-fase1");
       }
     });
@@ -678,8 +718,12 @@ function inicializarSocketsAsignacion(idSprint) {
       const rolActual = obtenerRolActual();
       if (rolActual === 'desarrollador') {
         alert("El facilitador ha confirmado el Sprint Backlog. La reunión ha finalizado.");
-        // Redirigir al panel de reuniones del desarrollador
         window.location.href = `PanelDesarrollador.html?sprint=${data.sprintId}&reunion=${data.reunionId}&proyecto=${data.proyectoId}&seccion=reuniones`;
+      } else if (rolActual === 'cliente') {
+        mostrarAvisoFase2Cliente(false);
+        alert("El facilitador ha confirmado el Sprint Backlog. La reunión ha finalizado.");
+        document.getElementById("vista-sprintPlanning").style.display = "none";
+        document.getElementById("modal-reuniones").style.display = "block";
       }
     });
 
@@ -706,8 +750,9 @@ function inicializarSocketsAsignacion(idSprint) {
           //se recargan las tarjetas para mostrar los estados ACEPTADO/RECHAZADO y botones correspondientes
           cargarHistoriasRevision();
       }
-  });
+    });
   }
+  socketAsignacion.emit("join-asignacion-sprint", { sprintId: idSprint });
 }
 
 //funcion que evalua el rol para cargar la vista de revisión y aplicar las restricciones correspondientes
@@ -915,6 +960,15 @@ function aplicarRestriccionesRevision(rol) {
         console.error('Error al cargar las historias de revisión:', err);
     }
   }
+
+  function aplicarRestriccionesPorRol() {
+    const rol = obtenerRolActual();
+    document.querySelectorAll('[data-rol]').forEach(el => {
+      const permitidos = el.dataset.rol.split(',').map(r => r.trim().toLowerCase());
+      el.style.display = permitidos.includes(rol) ? '' : 'none';
+    });
+  }
+
 
 
 //función que ejecuta el desarrollador al hacer clic en "Solicitar"

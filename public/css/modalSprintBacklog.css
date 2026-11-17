@@ -269,3 +269,29 @@
   width: 0%;
   transition: width 0.4s ease-in-out; /* Animación fluida al cambiar el porcentaje */
 }
+
+/* Botones inferiores del Sprint Backlog */
+#botones-inferiores {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#btn-ver-impedimentos,
+#botones-inferiores button {
+  background-color: #2f8fe0;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#btn-ver-impedimentos:hover,
+#botones-inferiores button:hover {
+  background-color: #2b82c9;
+}
