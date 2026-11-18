@@ -288,10 +288,17 @@ function mostrarAvisoFase2Cliente(mostrar) {
   if (!aviso) {
     aviso = document.createElement("div");
     aviso.id = "avisoFase2Cliente";
-    aviso.style.cssText = "display:none; text-align:center; padding:40px 20px; color:#475569;";
+    aviso.style.cssText = "display:none; text-align:center; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:40px 30px; max-width:600px; margin:40px auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);";
     aviso.innerHTML = `
-      <h2>El equipo continúa con la planificación</h2>
-      <p>El cliente participa únicamente en la Fase 1. Esta vista se actualizará cuando el facilitador regrese a esa etapa.</p>
+      <div style="font-size: 40px; margin-bottom: 15px;">📋</div>
+      <h3 style="color: #1e293b; font-size: 20px; margin-bottom: 10px;">Fase de Planificación en curso por el equipo</h3>
+      <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+        Como cliente, has validado y priorizado los requisitos de la iteración (Fase 1). 
+        Actualmente el equipo de desarrollo se encuentra realizando la estimación y asignación de tareas.
+      </p>
+      <span style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;">
+        Puedes salir de la reunión en cualquier momento usando el botón superior.
+      </span>
     `;
     const contenedor = document.querySelector("#area-trabajo .area-fondo") || document.getElementById("area-trabajo");
     if (contenedor) contenedor.appendChild(aviso);
@@ -634,10 +641,21 @@ function inicializarSocketsAsignacion(idSprint) {
     socketAsignacion.on("abrir-planning-poker-cliente", () => {
       const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
       const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
-      const rolActual = (window.ROL_ACTUAL || rolSesion || (esDevPorRuta ? 'desarrollador' : 'facilitador')).toLowerCase();
+      const rolActual = obtenerRolActual();
 
       if (rolActual === 'desarrollador') {
         cargarVistaPlanningPoker('desarrollador');
+      } else if (rolActual === 'cliente') {
+        //al entra en Planning Poker, el cliente debe ver el aviso de espera
+        ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
+          const v = document.getElementById(vId);
+          if (v) {
+            v.style.setProperty("display", "none", "important");
+            v.classList.add("oculto");
+          }
+        });
+        mostrarCabeceraR("historiasSprint");
+        mostrarAvisoFase2Cliente(true);
       }
     });
 
@@ -700,8 +718,19 @@ function inicializarSocketsAsignacion(idSprint) {
     //escucha cuando el facilitador pasa a la Fase 2
     socketAsignacion.on("fase-2-cliente", () => {
       const rolActual = obtenerRolActual();
-      if (rolActual === 'desarrollador' || rolActual === 'cliente') {
+      if (rolActual === 'desarrollador') {
         mostrarVista("vista-fase2"); // para el cliente muestra el aviso
+      } else if (rolActual === 'cliente') {
+        //ocultar la Fase 1 y mostrar el banner de espera de Fase 2
+        ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
+          const v = document.getElementById(vId);
+          if (v) {
+            v.style.setProperty("display", "none", "important");
+            v.classList.add("oculto");
+          }
+        });
+        mostrarCabeceraR("historiasSprint");
+        mostrarAvisoFase2Cliente(true);
       }
     });
 
@@ -709,7 +738,8 @@ function inicializarSocketsAsignacion(idSprint) {
     socketAsignacion.on("fase-1-cliente", () => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'desarrollador' || rolActual === 'cliente') {
-        mostrarVista("vista-fase1");
+        mostrarAvisoFase2Cliente(false); //se oculta el banner de espera
+        mostrarVista("vista-fase1");      // Volver a mostrar la Fase 1
       }
     });
 

@@ -188,3 +188,12 @@ async function listarProyectosUsuario(idUsuario) {
 document.getElementById("btn-capacitacion").addEventListener('click', ()=>{
     mostrarModal("modal-capacitacion");
 })
+
+function cerrarSesion() {
+    sessionStorage.clear();
+    window.location.href = '/html/login.html';
+}
+
+document.getElementById("logout").addEventListener('click', ()=>{
+    cerrarSesion();
+})
