@@ -69,7 +69,7 @@ async function cargarModulosCapacitacion() {
         objetivo.append(document.createTextNode(modulo.objetivo || ""));
 
         contenido.replaceChildren(titulo, objetivo);
-        if (Number(modulo.numero_modulo) === 2) {
+        if (Number(modulo.numero_modulo) === 1 ||Number(modulo.numero_modulo) === 2) {
             cargarSeccionesCapacitacion(modulo, contenido);
         }
       });
