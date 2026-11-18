@@ -160,6 +160,16 @@ function mostrarCabecera(idCabecera) {
     });
 }
 
+function salirDelProyecto() {
+    console.log("Saliendo del proyecto actual...");
+    
+    // Si guardas el ID del proyecto activo, puedes removerlo:
+    sessionStorage.removeItem('proyectoActivo');
+    
+    // Redirigir a tu vista principal donde se listan los proyectos (ajusta la ruta según corresponda)
+    window.location.href = '/html/panelPrincipal.html'; 
+}
+
 function consoleSessionStorage() {
     console.log("recuperando sessionStorage")
     console.log("USUARIO------------")

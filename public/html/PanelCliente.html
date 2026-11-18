@@ -31,6 +31,9 @@
                     <h2>Equipo de trabajo</h2>
                     <p>Consulta los integrantes y la información de tu equipo Scrum.</p>
                 </div>
+                <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                    🚪 Salir del proyecto
+                </button>
             </div>
 
             <!-- Mensajes -->
@@ -40,6 +43,9 @@
                     <h2>Centro de comunicación</h2>
                     <p>Comunícate con los integrantes mediante conversaciones y canales.</p>
                 </div>
+                <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                    🚪 Salir del proyecto
+                </button>
             </div>
 
             <!-- Product Backlog -->
@@ -49,6 +55,9 @@
                     <h2>Product Backlog del proyecto</h2>
                     <p>Consulta las historias de usuario, sus criterios de aceptación y la Definición de Hecho.</p>
                 </div>
+                <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                    🚪 Salir del proyecto
+                </button>
             </div>
 
             <!-- Reuniones -->
@@ -58,6 +67,9 @@
                     <h2>Reuniones del equipo</h2>
                     <p>Consulta las reuniones programadas para el proyecto.</p>
                 </div>
+                <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                    🚪 Salir del proyecto
+                </button>
             </div>
 
             <!-- Gráficas -->
@@ -67,6 +79,9 @@
                     <h2>Métricas del proyecto</h2>
                     <p>Visualiza el avance general del Product Backlog.</p>
                 </div>
+                <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                    🚪 Salir del proyecto
+                </button>
             </div>
 
         </div>
@@ -190,18 +205,19 @@
                                 <!-- Se llenarán dinámicamente desde la BD -->
                             </div>
                         </div>
-            <!-- SECCIÓN DE GRUPOS -->
-            <div class="seccion-grupos">
-                <div class="encabezado-grupos">
-                    <p class="menu-seccion">GRUPOS</p>
-                    <button type="button" id="btnCrearGrupo" class="btn-crear-grupo" title="Crear nuevo grupo" aria-label="Crear nuevo grupo">
-                        +
-                    </button>
-                </div>
-                <div id="listaGrupos" class="lista-grupos">
-                    <p class="mensaje-sin-grupos"> Aquí aparecerán tus grupos.</p>
-                </div>
-            </div>
+                        <!-- SECCIÓN DE GRUPOS -->
+                        <div class="seccion-grupos">
+                            <div class="encabezado-grupos">
+                                <p class="menu-seccion">GRUPOS</p>
+                                <button type="button" id="btnCrearGrupo" class="btn-crear-grupo"
+                                    title="Crear nuevo grupo" aria-label="Crear nuevo grupo">
+                                    +
+                                </button>
+                            </div>
+                            <div id="listaGrupos" class="lista-grupos">
+                                <p class="mensaje-sin-grupos"> Aquí aparecerán tus grupos.</p>
+                            </div>
+                        </div>
                     </aside>
 
                     <!-- Panel derecho: Área de Chat -->
@@ -278,9 +294,7 @@
                                 historias y estimaciones del proyecto.</p>
                         </div>
                         <!-- Opción: Burndown del Sprint -->
-                        <div class="tarjeta-grafica"
-                            onclick="cargarGrafica('sprint')"
-                            style="border: 1px solid #e0e0e0; border-radius: 8px;
+                        <div class="tarjeta-grafica" onclick="cargarGrafica('sprint')" style="border: 1px solid #e0e0e0; border-radius: 8px;
                                     padding: 20px; width: 260px; cursor: pointer;
                                     background-color: #fff;
                                     box-shadow: 0 2px 4px rgba(0,0,0,0.05);">

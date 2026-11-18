@@ -381,10 +381,13 @@ body {
     min-width: 0;
 }
 
+  /* ALINEACIÓN Y BOTÓN DE SALIDA - CLIENTE */
+
 /* Todas las cabeceras permanecen ocultas */
 #contenedor-cabeceras .cabecera-default {
-    display: none;
+    display: none !important;
     align-items: center;
+    justify-content: space-between; /* Separa los textos a la izquierda y el botón a la derecha */
     gap: 18px;
     width: 100%;
     min-height: 60px;
@@ -393,7 +396,7 @@ body {
 
 /* Mostrar únicamente la cabecera seleccionada */
 #contenedor-cabeceras .cabecera-default.activa {
-    display: flex;
+    display: flex !important;
 }
 
 /* Etiqueta del rol */
@@ -427,6 +430,32 @@ body {
     color: #64748b;
     font-size: 12px;
     line-height: 1.4;
+}
+
+/* Estilo del botón de salida del proyecto */
+.cabecera-default .btn-salir-proyecto {
+    background-color: #ffffff;
+    color: #c62828; /* Tono rojo elegante */
+    border: 1px solid #ffcdd2;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.cabecera-default .btn-salir-proyecto:hover {
+    background-color: #ffebee;
+    border-color: #ef9a9a;
+    color: #b71c1c;
+    transform: translateY(-1px);
 }
 
 /* Adaptación a pantallas pequeñas */
