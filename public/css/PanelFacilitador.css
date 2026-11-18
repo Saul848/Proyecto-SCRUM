@@ -22,6 +22,10 @@ body {
 /* ===================================================
    BLOQUE SUPERIOR / CABECERA
    =================================================== */
+/* ===================================================
+   UNIFICACIÓN Y CORRECCIÓN DE CABECERAS
+   =================================================== */
+
 #BloqueSuperior {
   background-color: #ffffff;
   display: flex;
@@ -30,6 +34,80 @@ body {
   padding: 12px 25px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  min-height: 70px;
+  box-sizing: border-box;
+}
+
+/* Ocultar todas por defecto, mostrar solo la activa con flex */
+#contenedor-cabeceras .cabecera-default {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+#contenedor-cabeceras .cabecera-default.activa {
+  display: flex !important;
+}
+
+/* Bloque izquierdo / central con el título y subtítulo */
+.cabecera-default .info-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.cabecera-default h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.cabecera-default p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Estilo unificado para el badge del rol */
+.cabecera-default .badge-rol {
+  background-color: #ff9431 !important;
+  color: #ffffff !important;
+  padding: 6px 16px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+/* Botón de salir unificado a la derecha */
+.cabecera-default .btn-salir-proyecto {
+  background-color: #f8fafc;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cabecera-default .btn-salir-proyecto:hover {
+  background-color: #ffebee;
+  border-color: #ef9a9a;
+  color: #b71c1c;
+  transform: translateY(-1px);
 }
 
 #DivMsjFacilitador {
@@ -50,7 +128,6 @@ body {
 #DivTitulo span {
   color: #0033ff;
 }
-
 /* ===================================================
    BLOQUE INFERIOR / CONTENIDO PRINCIPAL
    =================================================== */
@@ -1020,20 +1097,6 @@ body {
   cursor: pointer;
 }
 
-/* Todas las cabeceras ocultas */
-#contenedor-cabeceras .cabecera-default {
-    display: none;
-    align-items: center;
-    gap: 18px;
-    width: 100%;
-    min-height: 60px;
-    box-sizing: border-box;
-}
-
-/* Únicamente la cabecera activa se muestra */
-#contenedor-cabeceras .cabecera-default.activa {
-    display: flex;
-}
 
 .modal-class {
   display: none
@@ -1046,11 +1109,6 @@ body {
   padding: 12px 20px;
   border-bottom: 2px solid #4a90d9;
   background-color: #ffffff;
-}
-
-.cabecera-default h2 {
-  font-size: 1.2em;
-  margin-right: 8px;
 }
 
 /* Badge "Facilitador" */
@@ -1766,15 +1824,6 @@ ul#panelLateral button.active {
     box-sizing: border-box;
 }
 
-.cabecera-default .badge-rol {
-    flex-shrink: 0;
-    background-color: #ff9431;
-    color: white;
-    padding: 7px 15px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-}
 
 .info-cabecera {
     flex: 1;

@@ -1,4 +1,8 @@
+
 function mostrarModal(idModal, idCabecera) {
+
+  // Actualizar la cabecera correspondiente
+  mostrarCabecera(idCabecera);
 
   // Ocultar todos los modales principales
   document.querySelectorAll(".modal-class").forEach(modal => {
@@ -11,9 +15,6 @@ function mostrarModal(idModal, idCabecera) {
   if (modalSeleccionado) {
     modalSeleccionado.style.display = "block";
   }
-
-  // Mostrar la cabecera correspondiente
-  mostrarCabecera(idCabecera);
 
   // Referencias de Mensajes
   const tituloCentral = document.getElementById("tituloSeccionCentral");
@@ -30,6 +31,7 @@ function mostrarModal(idModal, idCabecera) {
       btnIniciar.style.display = "block";
     }
 
+    // Cargar los canales de mensajes
     if (typeof cargarCanales === "function") {
       cargarCanales();
     }
@@ -68,8 +70,18 @@ function mostrarModal(idModal, idCabecera) {
 
   botonesMenu.forEach(boton => {
     boton.classList.remove("active");
+
+    const onclick = boton.getAttribute("onclick") || "";
+
+    if (
+      onclick.includes("'" + idModal + "'") ||
+      onclick.includes('"' + idModal + '"')
+    ) {
+      boton.classList.add("active");
+    }
   });
 
+  // Mantener el mapeo de botones como respaldo
   const botonesPorModal = {
     "modal-mensajes": "linkMensajes",
     "modal-product-backlog": "linkProductBacklog",
@@ -84,6 +96,112 @@ function mostrarModal(idModal, idCabecera) {
   if (botonActivo) {
     botonActivo.classList.add("active");
   }
+}
+
+
+// Función específica para los modales del Sprint
+async function mostrarModalSprint(idModal, idCabecera) {
+
+  // Asegurar que el modal del Sprint esté cargado
+  await asegurarModalSprintCargado();
+
+  // Ocultar todos los modales principales
+  document.querySelectorAll(".modal-class").forEach(modal => {
+    modal.style.display = "none";
+  });
+
+  // Mostrar el modal seleccionado
+  const modalSeleccionado = document.getElementById(idModal);
+
+  if (modalSeleccionado) {
+    modalSeleccionado.style.display = "block";
+  } else {
+    console.error("No se encontró el modal:", idModal);
+    return;
+  }
+
+  // Actualizar la cabecera correspondiente
+  mostrarCabecera(idCabecera);
+
+  // Ocultar elementos correspondientes a Mensajes
+  const tituloCentral = document.getElementById("tituloSeccionCentral");
+  const btnIniciar = document.getElementById("btnIniciarConversacion");
+
+  if (tituloCentral) {
+    tituloCentral.style.display = "none";
+  }
+
+  if (btnIniciar) {
+    btnIniciar.style.display = "none";
+  }
+
+  // Actualizar el botón activo del menú lateral
+  const botonesMenu = document.querySelectorAll(
+    "#listaPanelLateral button"
+  );
+
+  botonesMenu.forEach(boton => {
+    boton.classList.remove("active");
+
+    const onclick = boton.getAttribute("onclick") || "";
+
+    if (
+      onclick.includes("'" + idModal + "'") ||
+      onclick.includes('"' + idModal + '"')
+    ) {
+      boton.classList.add("active");
+    }
+  });
+
+  // Activar específicamente el botón Sprint
+  const botonSprint = document.getElementById("linkSprint");
+
+  if (botonSprint) {
+    botonSprint.classList.add("active");
+  }
+
+  // Cargar el Kanban
+  if (typeof cargarKanvan === "function") {
+    cargarKanvan();
+  }
+
+  // Aplicar los permisos correspondientes
+  if (typeof aplicarPermisosInterfaz === "function") {
+    aplicarPermisosInterfaz();
+  }
+}
+
+
+// Función para actualizar las cabeceras
+function mostrarCabecera(idCabecera) {
+
+  const cabeceras = document.querySelectorAll(
+    "#contenedor-cabeceras .cabecera-default"
+  );
+
+  // Quitar la clase activa de todas las cabeceras
+  cabeceras.forEach(cabecera => {
+    cabecera.classList.remove("activa");
+  });
+
+  // Buscar la cabecera seleccionada
+  const cabeceraSeleccionada = document.getElementById(idCabecera);
+
+  if (cabeceraSeleccionada) {
+    cabeceraSeleccionada.classList.add("activa");
+  } else {
+    console.error("No se encontró la cabecera:", idCabecera);
+  }
+}
+
+function salirDelProyecto() {
+    console.log("Saliendo del proyecto actual...");
+    
+    // Si guardas el ID del proyecto activo, puedes removerlo:
+    sessionStorage.removeItem('proyectoActivo');
+    
+    // Redirigir a tu vista principal donde se listan los proyectos (ajusta la ruta según corresponda)
+    window.location.href = '/html/panelPrincipal.html'; 
 }
 
 //funcion prueba ale 
@@ -717,64 +835,6 @@ async function cargarBurndownSprint() {
   } catch (error) {
     console.error("Error cargando sprint:", error);
     areaDatos.textContent = error.message;
-  }
-}
-// Función específica que usa tu compañero para el Sprint
-async function mostrarModalSprint(idModal, idCabecera) {
-  // 1. Aquí dentro SÍ puedes usar await sin problemas
-  await asegurarModalSprintCargado();
-
-  // 2. Ocultar todos los modales principales
-  document.querySelectorAll(".modal-class").forEach(modal => {
-    modal.style.display = "none";
-  });
-
-  // 3. Mostrar el modal correspondiente
-  const modalSeleccionado = document.getElementById(idModal);
-  if (modalSeleccionado) {
-    modalSeleccionado.style.display = "block";
-  }
-
-  // 4. Mostrar la cabecera
-  mostrarCabecera(idCabecera);
-
-  // Actualizar el botón activo del panel lateral
-  const botonesMenu = document.querySelectorAll("#listaPanelLateral button");
-
-  botonesMenu.forEach(boton => {
-    boton.classList.remove("active");
-  });
-
-  const botonActivo = document.getElementById("linkSprint");
-
-  if (botonActivo) {
-    botonActivo.classList.add("active");
-  }
-
-  // 5. Cargar el Kanban
-  if (typeof cargarKanvan === "function") {
-    cargarKanvan();
-  }
-
-  if (typeof aplicarPermisosInterfaz === "function") {
-    aplicarPermisosInterfaz();
-  }
-}
-
-function mostrarCabecera(idCabecera) {
-
-  // Ocultar todas las cabeceras
-  document.querySelectorAll(
-    "#contenedor-cabeceras .cabecera-default"
-  ).forEach(cabecera => {
-    cabecera.classList.remove("activa");
-  });
-
-  // Mostrar únicamente la seleccionada
-  const cabeceraSeleccionada = document.getElementById(idCabecera);
-
-  if (cabeceraSeleccionada) {
-    cabeceraSeleccionada.classList.add("activa");
   }
 }
 

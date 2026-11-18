@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/panelPrincipal.css">
     <link rel="stylesheet" href="../css/mensajes.css">
-    <title>Document</title>
+    <title>Panel Principal</title>
 </head>
 <body>
   <div id="contenedorMenuSuperior">
     <div id="contenedorFunciones">
       <button>Logo</button> <!--Provisional, cambiar por el logo con o sin función, segun lo que se requiera en el proyecto-->
       <h1>Gestor Scrum</h1>
-      <button>Usuario</button>
-      <button>Cerrar sesion</button>
+      <button onclick="cerrarSesion()">Cerrar sesion</button>
     </div>
   </div>
 
@@ -23,7 +22,6 @@
         <li><button id="btn-proyectos">Mis proyectos</button></li>
         <li><button id="btn-miembros">Miembros</button></li>
         <li><button id="btn-mensajes">Mensajes</button></li>
-        <li><button id="btnSessionStorage" onclick="consoleSessionStorage()">sessionStorage</button></li>
         <li><button id="btn-capacitacion">Capacitacion</button></li>
       </ul>
     </div>
@@ -711,6 +709,7 @@
   <script src="../js/mensajesPrincipal.js"></script>
   <script src="../js/seccionesC.js"></script>
   <script src="../js/modulosC.js"></script>
+  <script src="../js/PanelPrincipal.js"></script>
   <script>
     function consoleSessionStorage(){
       console.log("recuperando sessionStorage")

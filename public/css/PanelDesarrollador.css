@@ -589,19 +589,48 @@ body {
     align-items: center;
 }
 
-/* Cabeceras ocultas por defecto */
+/* ==========================================
+   ESTILOS DE CABECERAS Y BOTÓN DE SALIDA
+   ========================================== */
+
 #contenedor-cabeceras .cabecera-default {
     display: none !important;
     align-items: center;
+    justify-content: space-between; /* Distribuye el contenido a los extremos */
     gap: 18px;
     width: 100%;
     min-height: 52px;
     box-sizing: border-box;
 }
 
-/* Mostrar solamente la cabecera activa */
 #contenedor-cabeceras .cabecera-default.activa {
     display: flex !important;
+}
+
+/* Botón de salir de proyecto unificado */
+.cabecera-default .btn-salir-proyecto {
+    background-color: #ffffff;
+    color: #c62828; /* Tono rojo elegante */
+    border: 1px solid #ffcdd2;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.cabecera-default .btn-salir-proyecto:hover {
+    background-color: #ffebee;
+    border-color: #ef9a9a;
+    color: #b71c1c;
+    transform: translateY(-1px);
 }
 
 /* Información de cada cabecera */

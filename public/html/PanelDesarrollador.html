@@ -36,11 +36,14 @@
 
                 <!-- Mi equipo -->
                 <div class="cabecera-default" id="cabecera-equipo">
-                    <span class="badge-rol">Facilitador</span>
+                    <span class="badge-rol">Desarrollador</span>
                     <div class="info-cabecera">
                         <h2>Equipo de trabajo</h2>
                         <p>Consulta los integrantes y la información de tu equipo Scrum.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Cabecera Product Backlog -->
@@ -50,6 +53,9 @@
                         <h2>Product Backlog</h2>
                         <p>Consulta las historias de usuario registradas en el proyecto.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Cabecera Mensajes -->
@@ -59,6 +65,9 @@
                         <h2>Centro de comunicación</h2>
                         <p>Comunícate con los integrantes de tu equipo Scrum.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Cabecera Sprint Backlog -->
@@ -68,6 +77,9 @@
                         <h2>Sprint Backlog</h2>
                         <p>Consulta las historias y actividades correspondientes al sprint.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Cabecera Reuniones -->
@@ -77,6 +89,9 @@
                         <h2>Reuniones del equipo</h2>
                         <p>Consulta las reuniones programadas para el proyecto.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Cabecera Gráficas -->
@@ -86,17 +101,22 @@
                         <h2>Métricas del proyecto</h2>
                         <p>Visualiza el avance de las historias y los sprints.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
 
                 <!-- Registro de tiempos -->
                 <div class="cabecera-default" id="cabecera-tiempos">
-                    <span class="badge-rol">Facilitador</span>
+                    <span class="badge-rol">Desarrollador</span>
                     <div class="info-cabecera">
                         <h2>Seguimiento del tiempo</h2>
                         <p>Registra las actividades realizadas y el tiempo dedicado a ellas.</p>
                     </div>
+                    <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+                        🚪 Salir del proyecto
+                    </button>
                 </div>
-
 
             </div>
         </header>
@@ -129,7 +149,6 @@
                         <li><button href="#" id="linkSprint"
                                 onclick="mostrarModalSprint('sprint-backlog', 'cabecera-sprintPB')">Sprint
                                 Backlog</button></li>
-                        <li><button href="#" id="linkMisTareas">Mis tareas</button></li>
                         <li><button href="#" id="linkReunirse"
                                 onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">Reunirse</button>
                         </li>

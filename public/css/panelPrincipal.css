@@ -57,6 +57,14 @@
     background-color: rgb(194, 226, 255);
 }
 
+/* Estilo para el botón activo del panel lateral (Azul suave y moderno) */
+#panelLateral button.activo {
+    background-color: #e3f2fd; /* Azul pastel muy claro */
+    color: #1565c0;            /* Texto en un azul legible y elegante */
+    font-weight: 600;
+    border-left: 4px solid #2196f3; /* Borde lateral sutil para destacar */
+}
+
 /*Estilos para el modal de usuarios ------------------------------------*/
 
 #contenedor-azul {
