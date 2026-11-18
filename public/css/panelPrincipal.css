@@ -631,7 +631,7 @@ body {
 /* Contenedor interior: dos columnas */
 #modal-capacitacion #contenedor-azul {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: minmax(190px, 300px) minmax(0, 1fr);
     gap: 14px;
     height: 100%;
 }
@@ -684,6 +684,7 @@ body {
 
 /* ----- Columna derecha ----- */
 #contenido-modulo {
+    min-width: 0;
     background-color: #eef3f6;
     padding: 18px 20px;
     overflow-y: auto;
@@ -997,6 +998,151 @@ body {
 }
 
 #terminar-seccion-herramientas:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Reutilizar estilos del lector para Módulo 1 */
+#lector-intro-scrum {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(900px, 92vw);
+  max-height: 85vh;
+  padding: 24px;
+  border: 8px solid #fff;
+  border-radius: 12px;
+  background: #edf4f6;
+  color: #172334;
+  box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+}
+
+#lector-intro-scrum[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+#lector-intro-scrum::backdrop {
+  background: rgb(15 23 42 / 40%);
+}
+
+#lector-intro-scrum > header {
+  flex-shrink: 0;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #fff;
+}
+
+#lector-intro-scrum > header strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #526477;
+}
+
+#lector-intro-scrum-titulo {
+  margin: 6px 0 0;
+  font-size: 20px;
+}
+
+#cerrar-lector-intro-scrum {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #172334;
+  color: #fff;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+#pagina-intro-scrum {
+  flex: 1;
+  min-height: 0 !important;
+  overflow-y: auto;
+  padding: 28px 16px !important;
+}
+
+#pagina-intro-scrum .pagina-capacitacion {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+#pagina-intro-scrum h3 {
+  margin: 0 0 20px;
+  text-align: center;
+  font-size: 20px;
+}
+
+#pagina-intro-scrum p,
+#pagina-intro-scrum ol,
+#pagina-intro-scrum ul {
+  margin: 0 0 16px;
+}
+
+#pagina-intro-scrum ol,
+#pagina-intro-scrum ul {
+  padding-left: 24px;
+}
+
+#pagina-intro-scrum li {
+  margin-bottom: 10px;
+}
+
+#lector-intro-scrum > footer {
+  flex-shrink: 0;
+  padding-top: 16px;
+  border-top: 2px solid #fff;
+}
+
+#pagina-anterior-intro-scrum,
+#pagina-siguiente-intro-scrum {
+  width: 44px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #172334;
+  color: #fff;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+#pagina-anterior-intro-scrum:disabled,
+#pagina-siguiente-intro-scrum:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#contador-paginas-intro-scrum {
+  min-width: 80px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+  font-size: 14px;
+}
+
+#terminar-seccion-intro-scrum {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 20px;
+  background: #38a9f5;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#terminar-seccion-intro-scrum[hidden] {
+  display: none;
+}
+
+#terminar-seccion-intro-scrum:disabled {
   opacity: 0.6;
   cursor: wait;
 }
