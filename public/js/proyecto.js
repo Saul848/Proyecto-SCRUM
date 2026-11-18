@@ -13,37 +13,38 @@ btnCancelar.addEventListener('click', () => modal.classList.remove('active'));
 
 // Cargar usuarios al iniciar
 document.addEventListener("DOMContentLoaded", async () => {
-try {
-    const respuesta = await fetch('/usuarios');
-    const resultado = await respuesta.json();
-                    
-    const contenedor = document.getElementById('listaUsuarios');
-    if (respuesta.ok && resultado.length > 0) {
-        contenedor.innerHTML = '';
-        resultado.forEach(user => {
-        contenedor.innerHTML += `
-        <div class="collab-item">
-            <div class="user-info">
-                <input type="checkbox" name="invitado" id="user_${user.id}" value="${user.id}" data-correo="${user.correo_electronico}">
-                <label for="user_${user.id}">
-                    <strong>${user.nombre}</strong>
-                    <span>${user.correo_electronico}</span>
-                </label>
+    mostrarProyectos();
+    try {
+        const respuesta = await fetch('/usuarios');
+        const resultado = await respuesta.json();
+                        
+        const contenedor = document.getElementById('listaUsuarios');
+        if (respuesta.ok && resultado.length > 0) {
+            contenedor.innerHTML = '';
+            resultado.forEach(user => {
+            contenedor.innerHTML += `
+            <div class="collab-item">
+                <div class="user-info">
+                    <input type="checkbox" name="invitado" id="user_${user.id}" value="${user.id}" data-correo="${user.correo_electronico}">
+                    <label for="user_${user.id}">
+                        <strong>${user.nombre}</strong>
+                        <span>${user.correo_electronico}</span>
+                    </label>
+                </div>
+                <select name="rol_${user.id}" class="select-rol">
+                <option value="Developer">Developer</option>
+                <option value="Scrum Master">Scrum Master</option>
+                <option value="QA">QA</option>
+                </select>
             </div>
-            <select name="rol_${user.id}" class="select-rol">
-            <option value="Developer">Developer</option>
-            <option value="Scrum Master">Scrum Master</option>
-            <option value="QA">QA</option>
-            </select>
-        </div>
-        `;
-    });
-    } else {
-        contenedor.innerHTML = '<p class="empty-text">No hay usuarios disponibles.</p>';
-    }
-} catch (error) {
-    console.error("Error al cargar usuarios:", error);
-    document.getElementById('listaUsuarios').innerHTML = '<p class="error-text">Error al conectar con el servidor.</p>';
+            `;
+        });
+        } else {
+            contenedor.innerHTML = '<p class="empty-text">No hay usuarios disponibles.</p>';
+        }
+    } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+        document.getElementById('listaUsuarios').innerHTML = '<p class="error-text">Error al conectar con el servidor.</p>';
     }
 });
 
@@ -167,7 +168,7 @@ function convertirRol(rol) {
 /**
  * Método para mostrar el panel de proyectos.
  */
-document.getElementById("btn-proyectos").addEventListener('click', async () => {
+async function mostrarProyectos() {
     mostrarModalP("modal-proyectos");
 
     const usuarioActivo = JSON.parse(
@@ -254,4 +255,8 @@ document.getElementById("btn-proyectos").addEventListener('click', async () => {
                 alert("No se reconoce tu rol en este proyecto.");
         }
     };
+}
+
+document.getElementById("btn-proyectos").addEventListener('click', async () => {
+    mostrarProyectos();
 });
