@@ -156,7 +156,7 @@
     </section>
   </div>
 
-  <!-- Lector de las secciones del módulo 1 -->
+  <!-- Lector de las secciones del módulo 1 --------------------------->
 <dialog id="lector-intro-scrum"
         aria-labelledby="lector-intro-scrum-titulo"
         style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
@@ -175,7 +175,7 @@
   </header>
 
   <div id="pagina-intro-scrum"
-       style="min-height: 280px; padding: 20px 0;">
+    style="min-height: 280px; padding: 20px 0;">
   </div>
 
   <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
@@ -330,7 +330,7 @@
 
 </template>
 
-    <!-- Lector de las secciones del módulo 2 -->
+    <!-- Lector de las secciones del módulo 2 -------------------->
   <dialog id="lector-herramientas"
                 aria-labelledby="lector-herramientas-titulo"; max-height: 85vh;
                 padding: 24px; border: 0; border-radius: 12px;
@@ -616,7 +616,7 @@
     </p>
 
     <div class="cartas-capacitacion"
-         aria-label="Ejemplo de cartas de Planning Poker">
+        aria-label="Ejemplo de cartas de Planning Poker">
       <span>0</span>
       <span>1</span>
       <span>2</span>
@@ -662,7 +662,7 @@
         Ejemplo ilustrativo del avance de un proyecto por sprint.
       </figcaption>
     </figure>
-   
+  
   </article>
 
   <!-- Página 4 -->
@@ -701,9 +701,249 @@
       no necesariamente cero horas pendientes.
     </p>
   </article>
-
 </template>
+
+  <!-- Lector de las secciones del módulo 3 --------------------------->
+  <dialog id="lector-reuniones"
+          aria-labelledby="lector-reuniones-titulo"
+          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 3: Reuniones</strong>
+        <h3 id="lector-reuniones-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-reuniones-scrum"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-reuniones"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-reuniones"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-reuniones"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-reuniones"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-reuniones"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
+
+
+  <!-- Módulo 3, sección 1: Sprint planning (2 páginas) -->
+  <template id="sprint-planning">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunion de Planificacion de iteración se realiza el primer dia, en esta participan el facilitador,
+        el cliente y el equipo de desarrollo. 
+      </p>
+
+      <p>
+        Se llevan a cabo dos fases, la primera denominada QUÉ, donde el cliente presenta la lista de requisitos 
+        del producto/proyecto y la segunda denominada CÓMO donde el equipo elabora la lista de tareas de la iteración 
+        (Sprint Backlog), esta segunda parte es el resultado que se va a obtener de esta reunión.
+      </p>
+    </article>
+
+    <!-- Página 2 -->    
+    <article class="pagina-capacitacion">
+      <h3>Fase 1: </h3>
+
+      <p>
+        La primera parte de la reunión se denomina como “Qué”, de sus principales características es que aqui se hace 
+        la selección de los requisitos, tiene una duración (timebox) estimada de 2 horas, contemplando si la iteración es de 2 semanas.
+      </p>
+
+      <p>
+        Durante esta primera parte, el cliente presenta al equipo la lista de requisitos priorizada del producto/proyecto, le asigna un 
+        nombre a la iteración y proponne los requisitos más prioritarios a desarrollar.
+      </p>
+
+      <p>
+        El equipo de desarrollo examina la lista, hace preguntas al cliente sobre las dudas que vayan surgiendo, añade condiciones de 
+        satisfacción y selecciona los objetivos más prioritarios que prevé completar en la iteración.
+      </p>
+    </article>
+
+    <!-- Página 3 -->    
+    <article class="pagina-capacitacion">
+      <h3>Fase 2: </h3>
+
+      <p>
+        La segunda parte de la reunión se denomina “Cómo”, en esta se hace la planificación de la iteración, tiene una duración(timebox) de 2 
+        horas.
+      </p>
+
+      <p>
+        En esta parte el equipo elabora una táctica que le permitia conseguir el mejor resultado con el mínimo esfuerzo, esta actividad la 
+        realiza unicamente el equipo ya que es el responsable de organizar su trabajo y es quien mejor conoce la manera de realizarlo.
+      </p>
+
+      <p>
+        Se definen las tareas para completar cada objetivo/requisito, entonces se crea la lista de tareas de la iteración (Sprint backlog) 
+        basándose en la definición de hecho (DoD).
+      </p>
+
+      <p>
+        Se realiza una estimación conjunta del esfuerzo que se va a realizar para cada tarea, los miembros se autoasignan las tareas, el 
+        trabajo se puede realizar en equipo o de manera individual, esto con la finalidad de resolver objetivos complejos.
+      </p>
+    </article>
+  </template>
+
+  <!-- Módulo 3, sección 2: Daily meeting (2 páginas) -->
+  <template id="daily-meeting">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        Las iteraciones tienen que proporcionar un resultado completo, de manera que cuando el cliente solicite una entrega, 
+        se debe de hacer un esfuerzo minimo para que el producto entregable sea usable, por lo que el equipo realiza ciertas actividades:
+      </p>
+
+      <p>
+        Cada día el equipo realiza una reunión de sincronización que tiene una duración de 15 minutos.
+      </p>
+
+      <ul>
+        <li>Cada miembro puede inspeccionar el trabajo realizado por los otros para realizar las adaptaciones necesarias.</li>
+        <li>Se comunican los impedimentos que han surgido.</li>
+        <li>Se actualiza el estado de la lista de tareas de la iteración (Sprint Backlog) y los gráfios de trabajo pendiente 
+          (Burndown charts).
+        </li>
+      </ul>
+
+      <p>
+        El facilitador se encarga de eliminar los obstaculos que el equipo no pueda resolver, además de que los protege de interrupciones 
+        externas que puedan afectar el objetivo de la iteración.
+      </p>
+    </article>
+
+    <!-- Página 2 -->    
+    <article class="pagina-capacitacion">
+      <p>
+        Usualmente la reunión diaria se realiza frente a un tablero físico o pizarra (Scrum Taskboard), el equipo inspecciona el 
+        trabajo de los demás para poder realizar adaptaciones que permitan cumplir con la entrega de la iteración. 
+      </p>
+
+      <p>
+        Durante la reunión cada miembro debe respondar tres preguntas:
+      </p>
+
+      <ul>
+        <li>¿Qué he hecho desde la última reunión de sincronización para ayudar al equipo a cumplir su objetivo?</li>
+        <li>¿Qué voy a hacer a partir de este momento para ayudar al equipo a cumplir su objetivo?</li>
+        <li>¿Qué impedimentos tengo o voy a tener que nos impidan conseguir nuestro objetivo?</li>
+      </ul>
+
+      <p>
+        La reunión permite identificar problemas a tiempo, además de que se hace visible si un miembro del equipo está realizando 
+        tareas por debajo del rendimiento esperado.
+      </p>
+    </article>
+  </template>
   
+  <!-- Módulo 3, sección 3: Sprint review (1 página) -->
+  <template id="sprint-review">
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunión de revisión se realiza el último día de la iteración y va de la mano con la de retrospectva.
+      </p>
+
+      <p>
+        Tiene una duración(timebox) estimada de 1,5 horas, donde participan el facilitador, el cliente y el equipo de desarrollo.
+      </p>
+
+      <p>
+        Se considera una reunión informal, en esta el equipo revisa los resultados obtenidos respecto al objetivo de la iteración, 
+        los problemas identificadas y como se resolvieron. El equipo presenta al cliente los requisitos completados en la iteración.
+      </p>
+
+      <p>
+        De los resultados mostrados, la velocidad de desarrollo del equipo y los cambios que haya habido en el proyecto, el cliente 
+        identifica las adaptaciones necesarias replanificando el proyecto.
+      </p>
+    </article>
+  </template>
+
+  
+  <!-- Módulo 3, sección 4: Retrospectiva (2 páginas) -->
+  <template id="retrospectiva">
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunión de retrospectiva se realiza con el objetivo de mejorar la productividad y la calidad del producto que se esta 
+        desarrollando, además de la motivación del equipo, se ejecuta después de la reunión de demostración al cliente, esto para 
+        poder incorporar temas a tratar durante la reunión de retrospectiva.
+      </p>
+
+      <p>
+        Se realiza en un timebox de 1,5 horas, se debe considerar que cuanto más tiempo pasa, menos se recuerdan los problemas que más 
+        molestaron, que son los que se deben de tratar y mejorar.
+      </p>
+
+      <p>
+        El equipo analiza su manera de trabajar durante la iteración, porque esta consiguiendo o no los objetivos a los que se comprometió 
+        al inicio de la iteración y por qué el incremento de producto que acaba de demostrar al cliente era el esperada o no.
+      </p>
+    </article>
+
+    <!-- Página 2 -->
+    <article class="pagina-capacitacion">
+      <p>
+        De los aspectos que se abordan durante la reunión son:
+      </p>
+
+      <ul>
+        <li>Qué cosas han funcionado bien.</li>
+        <li>Cuales hay que mejorar.</li>
+        <li>Qué cosas quiere probar hacer en la siguiente iteración.</li>
+        <li>Qué ha aprendido.</li>
+        <li>Cuales son los problemas que podrían impedirle progresar adecuadamente.</li>
+      </ul>
+
+      <p>
+        Como resultado de la reunión se puede encontrar:
+      </p>
+
+      <ul>
+        <li>Plan de acciones de mejora</li>
+        <li>Nuevas best practices</li>
+        <li>Acuerdos de equipo actualizados</li>
+        <li>Impedimentos a escalar</li>
+      </ul>
+
+      <p>
+        El Facilitador se encargará de eliminar o escalar los obstáculos identificados.
+      </p>
+    </article>
+  </template>
+
+
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
   <script src="../js/mensajesPrincipal.js"></script>
