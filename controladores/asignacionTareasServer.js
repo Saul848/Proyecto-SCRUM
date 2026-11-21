@@ -29,6 +29,14 @@ function setupAsignacionTareasSockets(server) {
             
             //reenviamos el cambio de estado a todos los usuarios de la sala
             io.to(`sprint-${data.sprintId}`).emit("actualizar-estado-asignacion", data);
+
+            //si la solicitud es aceptada, se envia una notificación de asignación exitosa
+            if (data.aceptada) {
+                io.to(`sprint-${data.sprintId}`).emit("notificacion-asignacion-exitosa", {
+                    idDesarrollador: data.idDesarrollador,
+                    nombreHistoria: data.nombreHistoria || `PB-${data.idHistoria}`
+                });
+            }
         });
 
         //sincroniza apertura de Planning Poker entre facilitador y desarrolladores

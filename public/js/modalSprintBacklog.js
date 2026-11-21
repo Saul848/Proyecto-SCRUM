@@ -233,6 +233,7 @@ async function cargarKanvan(sprintActual = 1){
         console.warn("El Sprint está vacío o no hay historias.");
     }
 
+    await obtenerImpedimentosSprintActual(sprintActual);
     inicializarTablero();
     inicializarBuscadorKanban();
     actualizarBarraProgreso(); // Actualiza el porcentaje según historias terminadas
@@ -334,6 +335,30 @@ async function manejarDrop(e) {
 
     if (estadoDestino === estadoAnterior) return;
 
+    const historiaId = Number(tarjeta.dataset.id);
+
+    const ordenColumnas = {
+        "por-empezar": 1,
+        "en-progreso": 2,
+        "en-revision": 3,
+        "terminado": 4
+    };
+
+    const mueveHaciaAdelante = (ordenColumnas[estadoDestino] ?? 0) > (ordenColumnas[estadoAnterior] ?? 0);
+
+    const tieneImpedimentoSinResolver = impedimentosCargados.some(imp =>
+        Number(imp.id_historia) === historiaId &&
+        String(imp.estado).toLowerCase() !== "resuelto"
+    );
+
+    if (mueveHaciaAdelante && tieneImpedimentoSinResolver) {
+        mostrarNotificacionKanban(
+            "Esta historia tiene un impedimento sin resolver y no puede avanzar en el tablero.",
+            "error"
+        );
+        return;
+    }
+
     // Validaciones de roles al mover...
     if (ROL_ACTUAL === "facilitador") {
         const esOrigenValido = estadoAnterior === "en-revision";
@@ -354,7 +379,6 @@ async function manejarDrop(e) {
         return;
     }
 
-    const historiaId = Number(tarjeta.dataset.id);
     const esPrioritaria = tarjeta.classList.contains("prioritaria");
 
     // Mover visualmente
@@ -393,6 +417,33 @@ async function manejarDrop(e) {
         columnaOrigen.appendChild(tarjeta);
         alert("Ocurrió un error al actualizar.");
     }
+}
+
+function mostrarNotificacionKanban(mensaje, tipo = "error") {
+    let contenedor = document.getElementById("notificaciones-kanban-container");
+
+    if (!contenedor) {
+        contenedor = document.createElement("div");
+        contenedor.id = "notificaciones-kanban-container";
+        document.body.appendChild(contenedor);
+    }
+
+    const tipoValido = ["error", "exito", "info"].includes(tipo) ? tipo : "error";
+
+    const toast = document.createElement("div");
+    toast.className = `notificacion-kanban ${tipoValido}`;
+    toast.textContent = mensaje;
+
+    contenedor.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.add("visible");
+    });
+
+    setTimeout(() => {
+        toast.classList.remove("visible");
+        setTimeout(() => toast.remove(), 250);
+    }, 3500);
 }
 
 async function actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
@@ -476,7 +527,7 @@ function inicializarBuscadorKanban() {
 
 const rolesVenImpedimentos = ["facilitador", "desarrollador"];
 let impedimentosCargados = [];
-let filtroImpedimentoActual = "todos";
+let filtroImpedimentoActual = "pendiente";
 
 function escaparHTML(texto) {
     const d = document.createElement("div");
@@ -519,10 +570,21 @@ document.addEventListener("click", async (e) => {
     }
 });
 
+function sincronizarBotonesFiltroImpedimentos() {
+    document.querySelectorAll(".btn-filtro-imp").forEach(btn => {
+        const activo = btn.dataset.filtro === filtroImpedimentoActual;
+        btn.classList.toggle("activo", activo);
+        btn.style.background = activo ? "#f8fafc" : "#fff";
+        btn.style.fontWeight = activo ? "600" : "400";
+    });
+}
+
 async function abrirModalImpedimentos() {
     const modal = document.getElementById("modal-gestion-impedimentos");
     if (!modal) return;
     aplicarPermisosImpedimentos();
+    filtroImpedimentoActual = "pendiente";
+    sincronizarBotonesFiltroImpedimentos();
     modal.style.display = "flex";
     await cargarImpedimentosEnModal();
 }
@@ -533,27 +595,118 @@ function cerrarModalImpedimentos() {
     mostrarFormularioImpedimento(false);
 }
 
-async function cargarImpedimentosEnModal() {
-    const selectSprint = document.getElementById("select-no-iteracion");
-    const sprintActual = selectSprint ? selectSprint.value : "";
-    if (!sprintActual) {
-        impedimentosCargados = [];
-        renderizarTarjetasImpedimentos();
-        return;
+function validarSolucionImpedimento(texto) {
+    const limpio = (texto || "").trim();
+
+    if (!limpio) {
+        return {
+            valida: false,
+            mensaje: "Debes escribir una solución antes de marcar el impedimento como resuelto."
+        };
     }
 
+    // Rechaza si el texto consiste casi únicamente en signos o símbolos sin letras
+    const letras = limpio.match(/[a-záéíóúüñ]/gi) || [];
+    if (letras.length < 10) {
+        return {
+            valida: false,
+            mensaje: "No se aceptan solo signos o símbolos; escribe una solución descriptiva."
+        };
+    }
+
+    // Rechaza repeticiones de un mismo carácter (ej. "aaaa", "qqqq")
+    if (/(.)\1{3,}/i.test(limpio)) {
+        return {
+            valida: false,
+            mensaje: "Escribe una solución real y descriptiva (no se permiten caracteres repetidos como 'aaaa' o 'qqqq')."
+        };
+    }
+
+    // Rechaza 4 o más consonantes seguidas (típico de tecleo aleatorio)
+    if (/[bcdfghjklmnpqrstvwxyzñ]{4,}/i.test(limpio)) {
+        return {
+            valida: false,
+            mensaje: "El texto contiene combinaciones de letras poco naturales. Escribe una solución clara y real."
+        };
+    }
+
+    const palabrasBrutas = limpio.split(/\s+/);
+    
+    // Evita bloques pegados demasiado largos sin espacios
+    const hayBloqueExcesivo = palabrasBrutas.some(p => p.length > 18);
+    if (hayBloqueExcesivo) {
+        return {
+            valida: false,
+            mensaje: "Se detectó una palabra o cadena excesivamente larga sin espacios. Redacta una solución normal."
+        };
+    }
+
+    const palabrasValidas = palabrasBrutas.filter(p => /[a-záéíóúüñ]{2,}/i.test(p));
+    if (palabrasValidas.length < 3 || limpio.length < 15) {
+        return {
+            valida: false,
+            mensaje: "Ingresa una solución más completa (al menos 3 palabras reales, sin símbolos sueltos ni texto repetitivo)."
+        };
+    }
+
+    // Cada palabra de 6 o más letras debe tener al menos una vocal
+    const tienePalabraSinVocales = palabrasValidas.some(palabra => {
+        const soloLetras = (palabra.match(/[a-záéíóúüñ]/gi) || []).join("");
+        return soloLetras.length >= 6 && !/[aeiouáéíóúü]/i.test(soloLetras);
+    });
+
+    if (tienePalabraSinVocales) {
+        return {
+            valida: false,
+            mensaje: "El texto parece ser un tecleo aleatorio o sin sentido. Escribe una solución clara y real."
+        };
+    }
+
+    // Proporción mínima de vocales en el texto completo
+    const vocales = limpio.match(/[aeiouáéíóúü]/gi) || [];
+    if (vocales.length < Math.ceil(letras.length * 0.28)) {
+        return {
+            valida: false,
+            mensaje: "Ingresa una redacción comprensible con palabras reales antes de marcar como resuelto."
+        };
+    }
+
+    return { valida: true, solucion: limpio };
+}
+
+async function obtenerImpedimentosSprintActual(sprintActual) {
+    if (!proyectoActualKanban || !sprintActual) {
+        impedimentosCargados = [];
+        return;
+    }
     try {
         const respuesta = await fetch(`/impedimentos/${proyectoActualKanban.id}/${sprintActual}`);
         const resultado = await respuesta.json();
-        if (!respuesta.ok || !resultado.success) {
-            console.error("Error del servidor al listar impedimentos:", resultado);
-            return;
-        }
-        impedimentosCargados = resultado.data || [];
-        renderizarTarjetasImpedimentos();
+        impedimentosCargados = (respuesta.ok && resultado.success) ? (resultado.data || []) : [];
     } catch (error) {
-        console.error("Error al cargar impedimentos:", error);
+        console.error("Error al sincronizar impedimentos:", error);
+        impedimentosCargados = [];
     }
+}
+
+async function cargarImpedimentosEnModal() {
+    const selectSprint = document.getElementById("select-no-iteracion");
+    const sprintActual = selectSprint ? selectSprint.value : "";
+    await obtenerImpedimentosSprintActual(sprintActual);
+    renderizarTarjetasImpedimentos();
+}
+
+function esImpedimentoPropio(imp) {
+    if (!usuarioActualKanban) return false;
+
+    const idReportante = imp.id_usuario_reporta ?? imp.id_usuario ?? imp.usuario_id;
+    if (idReportante !== undefined && idReportante !== null && usuarioActualKanban.id !== undefined) {
+        return Number(idReportante) === Number(usuarioActualKanban.id);
+    }
+
+    const nombreActual = String(usuarioActualKanban.nombre ?? usuarioActualKanban.usuario ?? "").trim().toLowerCase();
+    const nombreReportante = String(imp.nombre_desarrollador ?? "").trim().toLowerCase();
+    return Boolean(nombreActual && nombreReportante && nombreActual === nombreReportante);
 }
 
 function renderizarTarjetasImpedimentos() {
@@ -579,12 +732,17 @@ function renderizarTarjetasImpedimentos() {
         if (ROL_ACTUAL === "facilitador" && !esResuelto) {
             htmlResolucion = `
                 <div style="border-top:1px dashed #fca5a5; padding-top:8px; margin-top:8px;">
-                    <textarea id="solucion-${imp.id}" placeholder="Escribe la solución..." style="width:100%; padding:6px; margin-bottom:6px;"></textarea>
-                    <button type="button" onclick="marcarResuelto(${imp.id})" style="background:#16a34a; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Marcar como Resuelto</button>
+                    <textarea id="solucion-${imp.id}" placeholder="Escribe una solución detallada (mínimo 3 palabras reales)..." style="width:100%; padding:6px; margin-bottom:6px; box-sizing:border-box;"></textarea>
+                    <button type="button" id="btn-resolver-${imp.id}" onclick="marcarResuelto(${imp.id})" disabled style="background:#16a34a; color:#fff; border:none; padding:6px 12px; border-radius:4px; opacity:0.55; cursor:not-allowed;">Marcar como Resuelto</button>
                 </div>`;
         } else if (esResuelto) {
             htmlResolucion = `<p style="margin:4px 0 0; color:#166534; font-size:13px;"><strong>Solución:</strong> ${escaparHTML(imp.solucion)}</p>`;
         }
+
+        const nombreDesarrollador = escaparHTML(imp.nombre_desarrollador);
+        const etiquetaPropia = esImpedimentoPropio(imp)
+            ? ` <span style="color:#2563eb; font-weight:700;">(Tú)</span>`
+            : "";
 
         const fecha = imp.fecha_reporte ? formatearFechaSimple(String(imp.fecha_reporte)) : "";
         const tarjeta = document.createElement("div");
@@ -595,12 +753,30 @@ function renderizarTarjetasImpedimentos() {
                 <strong>${escaparHTML(imp.nombre_historia)}</strong>
                 <span style="font-size:12px; font-weight:bold; color:${esResuelto ? "#166534" : "#991b1b"};">${escaparHTML((imp.estado || "").toUpperCase())}</span>
             </div>
-            <p style="margin:4px 0; font-size:13px;">Reportado por: <strong>${escaparHTML(imp.nombre_desarrollador)}</strong> ${fecha ? "| " + fecha : ""}</p>
+            <p style="margin:4px 0; font-size:13px;">Reportado por: <strong>${nombreDesarrollador}</strong>${etiquetaPropia} ${fecha ? "| " + fecha : ""}</p>
             <p style="margin:4px 0; font-size:14px;">${escaparHTML(imp.descripcion)}</p>
             ${htmlResolucion}
         `;
         contenedor.appendChild(tarjeta);
+
+        if (ROL_ACTUAL === "facilitador" && !esResuelto) {
+            const txtSolucion = document.getElementById(`solucion-${imp.id}`);
+            if (txtSolucion) {
+                txtSolucion.addEventListener("input", () => actualizarEstadoBotonResolver(imp.id));
+            }
+        }
     });
+}
+
+function actualizarEstadoBotonResolver(idImpedimento) {
+    const txt = document.getElementById(`solucion-${idImpedimento}`);
+    const btn = document.getElementById(`btn-resolver-${idImpedimento}`);
+    if (!txt || !btn) return;
+
+    const esValida = validarSolucionImpedimento(txt.value).valida;
+    btn.disabled = !esValida;
+    btn.style.opacity = esValida ? "1" : "0.55";
+    btn.style.cursor = esValida ? "pointer" : "not-allowed";
 }
 
 //el desarrollador registra un impedimento 
@@ -610,15 +786,34 @@ function mostrarFormularioImpedimento(mostrar) {
     form.style.display = mostrar ? "block" : "none";
     if (!mostrar) return;
 
-    // Historias del sprint cargadas en el Kanban (para el desarrollador son las suyas)
     const select = document.getElementById("imp-historia");
+    const btnGuardar = document.getElementById("btn-guardar-impedimento");
     select.innerHTML = "";
-    historiasDelSprint.forEach(h => {
-        const opt = document.createElement("option");
-        opt.value = h.historia_id ?? h.id;
-        opt.textContent = h.titulo ?? h.descripcion ?? "Historia sin título";
-        select.appendChild(opt);
+
+    const historiasElegibles = historiasDelSprint.filter(h => {
+        const estado = h.estado_actual ?? h.estado;
+        return estado === "en-progreso" || estado === "en-revision";
     });
+
+    if (historiasElegibles.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No tienes historias en 'En progreso' o 'En revisión'";
+        select.appendChild(opt);
+        select.disabled = true;
+        if (btnGuardar) btnGuardar.disabled = true;
+    } else {
+        select.disabled = false;
+        if (btnGuardar) btnGuardar.disabled = false;
+
+        historiasElegibles.forEach(h => {
+            const opt = document.createElement("option");
+            opt.value = h.historia_id ?? h.id;
+            opt.textContent = h.titulo ?? h.descripcion ?? "Historia sin título";
+            select.appendChild(opt);
+        });
+    }
+
     document.getElementById("imp-descripcion").value = "";
 }
 
@@ -650,7 +845,8 @@ async function guardarImpedimento() {
             return;
         }
         mostrarFormularioImpedimento(false);
-        await cargarImpedimentosEnModal();
+        await obtenerImpedimentosSprintActual(idSprint);
+        renderizarTarjetasImpedimentos();
     } catch (error) {
         console.error("Error al registrar impedimento:", error);
         alert("Error de conexión al registrar el impedimento.");
@@ -660,10 +856,14 @@ async function guardarImpedimento() {
 //el facilitador resuelve el impedimento
 async function marcarResuelto(idImpedimento) {
     const txtSolucion = document.getElementById(`solucion-${idImpedimento}`);
-    const solucion = txtSolucion ? txtSolucion.value.trim() : "";
+    const validacion = validarSolucionImpedimento(txtSolucion ? txtSolucion.value : "");
 
-    if (!solucion) {
-        alert("Debes escribir una nota de solución.");
+    if (!validacion.valida) {
+        if (typeof mostrarNotificacionKanban === "function") {
+            mostrarNotificacionKanban(validacion.mensaje, "error");
+        } else {
+            alert(validacion.mensaje);
+        }
         return;
     }
 
@@ -671,11 +871,14 @@ async function marcarResuelto(idImpedimento) {
         const respuesta = await fetch(`/impedimentos/resolver/${idImpedimento}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ solucion })
+            body: JSON.stringify({ solucion: validacion.solucion })
         });
         const resultado = await respuesta.json();
         if (resultado.success) {
             await cargarImpedimentosEnModal();
+            if (typeof mostrarNotificacionKanban === "function") {
+                mostrarNotificacionKanban("Impedimento marcado como resuelto.", "exito");
+            }
         } else {
             alert(resultado.mensaje || "No se pudo resolver el impedimento.");
         }

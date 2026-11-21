@@ -11,6 +11,8 @@ class impedimentoDAO {
             const query = `
                 SELECT 
                     i.id,
+                    i.id_historia,
+                    i.id_usuario_reporta,
                     i.descripcion,
                     i.estado,
                     i.solucion,
