@@ -173,7 +173,8 @@ class UsuariosControlador {
      * @param {*} req 
      * @param {*} res 
      */
-    async obtenerProgresoCapacitacion(req, res) {
+    // Dentro de usuarioContreolador.js
+async obtenerProgresoCapacitacion(req, res) {
   const idUsuario = this.#idValido(req.params.id);
 
   if (!idUsuario) {
@@ -184,8 +185,7 @@ class UsuariosControlador {
   }
 
   try {
-    const progreso =
-      await this.dao.obtenerProgresoCapacitacion(idUsuario);
+    const progreso = await this.dao.obtenerProgresoCapacitacion(idUsuario);
 
     if (!progreso) {
       return res.status(404).json({
@@ -194,7 +194,15 @@ class UsuariosControlador {
       });
     }
 
-    return res.json({ ok: true, data: progreso });
+    return res.json({
+      ok: true,
+      data: {
+        id_usuario: Number(progreso.id_usuario),
+        modulo_actual: Number(progreso.modulo_actual),
+        seccion_actual: Number(progreso.seccion_actual),
+        guia_terminada: Boolean(progreso.guia_terminada)
+      }
+    });
   } catch (error) {
     console.error("Error consultando progreso:", error);
 

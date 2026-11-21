@@ -1,7 +1,5 @@
 //Aquí irá la lógica de los modulos recuperados (frontend)
-//Parte de Rubí
-
-//Parte de Ale
+// modulosC.js
 document.addEventListener("DOMContentLoaded", cargarModulosCapacitacion);
 
 async function cargarModulosCapacitacion() {
@@ -39,8 +37,7 @@ async function cargarModulosCapacitacion() {
       boton.className = "modulo-btn";
 
       const nombre = document.createElement("span");
-      nombre.textContent =
-        `Módulo ${modulo.numero_modulo}: ${modulo.nombre}`;
+      nombre.textContent = `Módulo ${modulo.numero_modulo}: ${modulo.nombre}`;
 
       const flecha = document.createElement("span");
       flecha.className = "flecha";
@@ -49,15 +46,14 @@ async function cargarModulosCapacitacion() {
       boton.append(nombre, flecha);
 
       boton.addEventListener("click", () => {
-        lista.querySelectorAll(".modulo-btn").forEach(elemento => {
+        lista.querySelectorAll(".modulo-btn").forEach((elemento) => {
           elemento.classList.remove("activo");
         });
 
         boton.classList.add("activo");
 
         const titulo = document.createElement("h2");
-        titulo.textContent =
-          `Módulo ${modulo.numero_modulo}: ${modulo.nombre}`;
+        titulo.textContent = `Módulo ${modulo.numero_modulo}: ${modulo.nombre}`;
 
         const objetivo = document.createElement("p");
         objetivo.className = "modulo-objetivo";
@@ -69,9 +65,9 @@ async function cargarModulosCapacitacion() {
         objetivo.append(document.createTextNode(modulo.objetivo || ""));
 
         contenido.replaceChildren(titulo, objetivo);
-        if (Number(modulo.numero_modulo) === 1 ||Number(modulo.numero_modulo) === 2) {
-            cargarSeccionesCapacitacion(modulo, contenido);
-        }
+
+        // Cargar secciones para cualquier módulo disponible
+        cargarSeccionesCapacitacion(modulo, contenido);
       });
 
       lista.append(boton);
@@ -81,6 +77,3 @@ async function cargarModulosCapacitacion() {
     lista.textContent = "No se pudieron cargar los módulos.";
   }
 }
-//Parte de Tania
-
-//Parte de saul
