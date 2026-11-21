@@ -769,6 +769,17 @@ function inicializarSocketsAsignacion(idSprint) {
       cargarAsignacionFase2();
     });
 
+    //escuchar cuando al desarrollador se le asigna una tarea
+    socketAsignacion.on("notificacion-asignacion-exitosa", (data) => {
+      const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1 };
+      const rolActual = obtenerRolActual();
+
+      // Si el rol es desarrollador y coincide el ID del usuario al que le aceptaron la tarea
+      if (rolActual === 'desarrollador' && Number(usuarioActual.id) === Number(data.idDesarrollador)) {
+        mostrarModalNotificacion(`Se te ha asignado la tarea "${data.nombreHistoria}" con éxito. Revisa tus responsabilidades.`);
+      }
+    });
+
     //escuchar cuando el cliente termina la revisión de las historias
     socketAsignacion.on("acta-revision-cerrada-cliente", () => {
       const rolActual = obtenerRolActual();
@@ -999,6 +1010,34 @@ function aplicarRestriccionesRevision(rol) {
     });
   }
 
+  //función que muestra cuando una notificación cuando se le ha asignado una historia a un desarrollador
+  function mostrarModalNotificacion(mensaje) {
+    //evitar duplicados si ya hay una abierta
+    const modalExistente = document.getElementById("overlayNotificacionCustom");
+    if (modalExistente) modalExistente.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "overlayNotificacionCustom";
+    overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; animation: fadeIn 0.2s ease;";
+
+    const cajaModal = document.createElement("div");
+    cajaModal.style.cssText = "background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); width: 400px; text-align: center; font-family: inherit;";
+
+    cajaModal.innerHTML = `
+      <div style="font-size: 40px; margin-bottom: 12px;">🔔</div>
+      <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 18px; font-weight: 600;">Notificación de Asignación</h3>
+      <p style="color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">${mensaje}</p>
+      <button id="btnAceptarNoti" style="background: #2563eb; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; transition: background 0.2s;">Aceptar</button>
+    `;
+
+    overlay.appendChild(cajaModal);
+    document.body.appendChild(overlay);
+
+    //botón para cerrar la ventana emergente
+    document.getElementById("btnAceptarNoti").onclick = () => {
+      overlay.remove();
+    };
+  }
 
 
 //función que ejecuta el desarrollador al hacer clic en "Solicitar"

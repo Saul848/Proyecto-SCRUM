@@ -161,9 +161,10 @@ class reunionDAO{
     async devolverHistoriaAProductBacklog(idHistoria) {
     //marcamos la historia como pendiente y desvinculamos del sprint asginado
     const { rowCount } = await this.pool.query(
-        `UPDATE scrumbird.trabajando_en_historia 
-         SET pendiente = true 
-         WHERE historia_asignada = $1;`,
+        `UPDATE scrumbird.historia_de_usuario
+         SET pendiente = true,
+             asignado_al_sprint = NULL
+         WHERE id = $1;`,
         [idHistoria]
     );
     return rowCount;
