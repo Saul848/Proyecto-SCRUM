@@ -60,7 +60,9 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     TO_CHAR(s.fecha_fin, 'YYYY-MM-DD') AS fecha_fin,
     COUNT(h.id)::integer AS historias_planificadas,
     COALESCE(SUM(h.horas_calculadas), 0) AS total_horas,
+    COALESCE(SUM(h.puntos_de_historia), 0) AS total_puntos,
     c.horas_restantes,
+    c.puntos_restantes,
     c.historias_terminadas,
     c.es_prueba
   FROM scrumbird.sprint s
@@ -74,6 +76,7 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     s.id,
     s.no_iteracion,
     c.horas_restantes,
+    c.puntos_restantes,
     c.historias_terminadas,
     c.es_prueba
   ORDER BY s.no_iteracion, s.id;
@@ -82,9 +85,13 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     res.json({
   ok: true,
   datos: rows.map(fila => ({
-    ...fila,
-    total_horas: Number(fila.total_horas)
-  }))
+  ...fila,
+  total_horas: Number(fila.total_horas),
+  total_puntos: Number(fila.total_puntos),
+  puntos_restantes: fila.puntos_restantes == null
+    ? null
+    : Number(fila.puntos_restantes)
+}))
 });
   } catch (error) {
     console.error("Error consultando burndown:", error);
@@ -130,6 +137,7 @@ router.get(
         SELECT
           TO_CHAR(d.fecha, 'YYYY-MM-DD') AS fecha,
           d.horas_restantes,
+          d.puntos_restantes,
           d.es_prueba
         FROM scrumbird.burndown_diario d
         JOIN scrumbird.sprint s ON s.id = d.id_sprint
