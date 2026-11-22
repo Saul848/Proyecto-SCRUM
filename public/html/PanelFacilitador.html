@@ -29,7 +29,6 @@
   <header id="BloqueSuperior">
 
     <div id="contenedor-cabeceras">
-
       <!-- Mi equipo -->
       <div class="cabecera-default" id="cabecera-equipo">
         <span class="badge-rol">Facilitador</span>
@@ -37,6 +36,9 @@
           <h2>Equipo de trabajo</h2>
           <p>Consulta los integrantes y la información de tu equipo Scrum.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
       <!-- Mensajes -->
@@ -46,24 +48,33 @@
           <h2>Centro de comunicación</h2>
           <p>Comunícate con los integrantes mediante conversaciones y grupos.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
       <!-- Product Backlog -->
-      <div class="cabecera-default" id="cabecera-productBacklog">
+      <div class="cabecera-default activa" id="cabecera-productBacklog">
         <span class="badge-rol">Facilitador</span>
         <div class="info-cabecera">
           <h2>Gestión del Product Backlog</h2>
           <p>Administra las historias de usuario, sus criterios de aceptación y la Definición de Hecho.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
-      <!-- Gestion de sprints Prodcut Backlog -->
+      <!-- Gestion de sprints -->
       <div class="cabecera-default" id="cabecera-gestion-sprints">
         <span class="badge-rol">Facilitador</span>
         <div class="info-cabecera">
           <h2>Gestion de los sprints</h2>
-          <p>Pruebas</p>
+          <p>Organiza y da seguimiento a los ciclos de desarrollo.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
       <!-- Sprint Backlog -->
@@ -73,25 +84,9 @@
           <h2>Gestión del Sprint Backlog</h2>
           <p>Organiza las historias seleccionadas para el sprint y consulta su avance.</p>
         </div>
-
-
-
-        <button class="btn-pill btn-azul" onclick="abrirPlanningPokerParaFacilitador()">
-          Planning poker
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
         </button>
-
-        <button class="btn-pill btn-azul">Generar reporte</button>
-        <button class="btn-pill btn-verde">Modificar sprint actual</button>
-        <button class="btn-pill btn-rojo">Cerrar sprint</button>
-      </div>
-
-      <!-- Mis tareas -->
-      <div class="cabecera-default" id="cabecera-tareas">
-        <span class="badge-rol">Facilitador</span>
-        <div class="info-cabecera">
-          <h2>Mis tareas asignadas</h2>
-          <p>Consulta y da seguimiento a las actividades pendientes.</p>
-        </div>
       </div>
 
       <!-- Reuniones -->
@@ -101,6 +96,9 @@
           <h2>Reuniones del equipo</h2>
           <p>Consulta y organiza las reuniones correspondientes al proyecto.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
       <!-- Gráficas -->
@@ -110,15 +108,9 @@
           <h2>Métricas del proyecto</h2>
           <p>Visualiza el avance general y el rendimiento de los sprints.</p>
         </div>
-      </div>
-
-      <!-- Ajustes -->
-      <div class="cabecera-default" id="cabecera-ajustes">
-        <span class="badge-rol">Facilitador</span>
-        <div class="info-cabecera">
-          <h2>Configuración del panel</h2>
-          <p>Administra las preferencias y opciones del sistema.</p>
-        </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
 
       <!-- Registro de tiempos -->
@@ -128,10 +120,12 @@
           <h2>Seguimiento del tiempo</h2>
           <p>Registra las actividades realizadas y el tiempo dedicado a ellas.</p>
         </div>
+        <button class="btn-salir-proyecto" onclick="salirDelProyecto()" title="Salir del proyecto">
+          🚪 Regresar a panel principal
+        </button>
       </div>
-
     </div>
-    
+
   </header>
 
   <!-- Bloque inferior -->
@@ -169,12 +163,6 @@
           </li>
 
           <li>
-            <button id="linkMisTareas" onclick="mostrarModal('modal-mis-tareas', 'cabecera-tareas')">
-              Mis tareas
-            </button>
-          </li>
-
-          <li>
             <button id="linkReunirse" onclick="mostrarModal('modal-reuniones', 'cabecera-springPlanning')">
               Reunirse
             </button>
@@ -183,12 +171,6 @@
           <li>
             <button id="linkGraficas" onclick="mostrarModal('modal-graficas', 'cabecera-graficas')">
               Gráficas
-            </button>
-          </li>
-
-          <li>
-            <button id="linkAjustes" onclick="mostrarModal('modal-ajustes', 'cabecera-ajustes')">
-              Ajustes
             </button>
           </li>
 
@@ -248,7 +230,8 @@
             </div>
             <div id="DivBtnModHistoria">
               <button id="btnModHistoria"># Modificar historia</button>
-              <button id="btnGestionarSprints" onclick="mostrarModal('modal-gestion-sprints', 'cabecera-sprintPB')">Gestionar Sprints</button>
+              <button id="btnGestionarSprints"
+                onclick="mostrarModal('modal-gestion-sprints', 'cabecera-sprintPB')">Gestionar Sprints</button>
             </div>
           </div>
 
@@ -391,9 +374,9 @@
         </div>
       </div>
 
-<!-- ============================= -->
+      <!-- ============================= -->
       <!-- SECCIÓN DE GESTION DE SPRINTS -->
-      <!-- ============================= -->    
+      <!-- ============================= -->
       <div id="modal-gestion-sprints" class="modal-class" style="display: none;">
         <div id="DivContSprints">
           <!-- Encabezados de los sprints -->
@@ -425,12 +408,12 @@
           <!-- PANEL MODAL AGREGAR SPRINT -->
           <div id="modalAgregarSprint" class="modal">
             <div class="modal-contenido-dual">
-              
+
               <!-- MITAD IZQUIERDA: Formulario del Sprint -->
               <div class="modal-seccion-formulario">
                 <h3>Agregar Sprint</h3>
 
-              <!--  Número de Iteración -->
+                <!--  Número de Iteración -->
                 <div class="entradaInp">
                   <label for="inpAddNoIteracionSprint">No. de Iteración (1-100):</label>
                   <input type="number" id="inpAddNoIteracionSprint" min="1" max="100" placeholder="Ej. 1">
@@ -463,7 +446,7 @@
 
               <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
               <div class="modal-seccion-listas">
-                
+
                 <!-- Panel Superior: Historias para este Sprint -->
                 <div class="sub-panel-historias">
                   <div class="sub-panel-header">
@@ -492,16 +475,16 @@
           <!-- PANEL MODAL MODIFICAR SPRINT -->
           <div id="modalModificarSprint" class="modal">
             <div class="modal-contenido-dual">
-              
+
               <!-- MITAD IZQUIERDA: Formulario del Sprint -->
               <div class="modal-seccion-formulario">
                 <h3>Modificar Sprint</h3>
 
                 <!-- Campo Número de Iteración -->
-                  <div class="entradaInp">
-                    <label for="inpModNoIteracionSprint">No. de Iteración (1-100):</label>
-                    <input type="number" id="inpModNoIteracionSprint" min="1" max="100" placeholder="Ej. 1">
-                  </div>
+                <div class="entradaInp">
+                  <label for="inpModNoIteracionSprint">No. de Iteración (1-100):</label>
+                  <input type="number" id="inpModNoIteracionSprint" min="1" max="100" placeholder="Ej. 1">
+                </div>
 
                 <!-- Campo Objetivo -->
                 <div class="entradaTextA">
@@ -530,7 +513,7 @@
 
               <!-- MITAD DERECHA: Listas de Historias (Arrastrables) -->
               <div class="modal-seccion-listas">
-                
+
                 <!-- Panel Superior: Historias para este Sprint -->
                 <div class="sub-panel-historias">
                   <div class="sub-panel-header">
@@ -747,30 +730,31 @@
                 <!-- Tabla estilo Excel se inyectará aquí -->
               </div>
               <!-- cierra el contenedor flex de las tarjetas -->
-            <!-- Área de Gráficas y Métricas -->
-                <!-- Gráfica -->
-              <div id="area-dibujo-grafica"
-                  style="position: relative; flex: 1;
+              <!-- Área de Gráficas y Métricas -->
+              <!-- Gráfica -->
+              <div id="area-dibujo-grafica" style="position: relative; flex: 1;
                           min-width: 280px; height: 320px;">
                 <canvas id="chartBurndownCanvas"></canvas>
               </div>
-                </div>
+            </div>
           </div>
-                <div id="area-dibujo-grafica"
-                  style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
-                  <canvas id="chartBurndownCanvas"></canvas>
-                </div>
-              </div> <!-- cierra el flex tabla/gráfica -->
-            </div> <!-- cierra contenedor-grafica-activa -->
-          </div> <!-- cierra el div con padding: 20px -->
-        </div> <!-- cierra modal-graficas -->
+          <div id="area-dibujo-grafica"
+            style="position: relative; flex: 1; min-width: 280px; max-width: 450px; height: 260px;">
+            <canvas id="chartBurndownCanvas"></canvas>
+          </div>
+        </div> <!-- cierra el flex tabla/gráfica -->
+      </div> <!-- cierra contenedor-grafica-activa -->
+      </div> <!-- cierra el div con padding: 20px -->
+      </div> <!-- cierra modal-graficas -->
       </div>
 
       <!-- MODAL PARA registro de tiempos -->
       <div class="modal-class" id="modal-tiempos">
         <div id="contenedor-registro-tiempos">
-          <button id="btn-registro-tiempos">Iniciar registro de tiempos +</button>
-
+          <div id="barra-registro">
+            <button id="btn-registro-tiempos">Iniciar registro de tiempos +</button>
+            <span id="cronometro" style="display: none;">00:00:00</span>
+          </div>
           <table id="tabla-tiempos">
             <thead>
               <tr>
@@ -906,11 +890,11 @@
   <script src="../js/sprintPlanning.js" defer></script>
   <script src="../js/modalSubirMaterial.js" defer></script>
   <script src="../js/planningPokerFacilitador.js" defer></script>
- 
   <script src="../js/registroTiempos.js"></script>
   <script src="../js/PanelFacilitador.js"></script>
   <script src="../js/mensajes.js" defer></script>
   <script src="../js/cargarModalesGrupos.js" defer></script>
   <script src="../js/grupos.js" defer></script>
 </body>
+
 </html>

@@ -1,48 +1,217 @@
+
 function mostrarModal(idModal, idCabecera) {
-    document.querySelectorAll(".modal-class").forEach(modal => {
-      modal.style.display = "none";
-    });
 
-    const modalSeleccionado = document.getElementById(idModal);
-    if (modalSeleccionado) {
-        modalSeleccionado.style.display = "block";
+  // Actualizar la cabecera correspondiente
+  mostrarCabecera(idCabecera);
+
+  // Ocultar todos los modales principales
+  document.querySelectorAll(".modal-class").forEach(modal => {
+    modal.style.display = "none";
+  });
+
+  // Mostrar el modal seleccionado
+  const modalSeleccionado = document.getElementById(idModal);
+
+  if (modalSeleccionado) {
+    modalSeleccionado.style.display = "block";
+  }
+
+  // Referencias de Mensajes
+  const tituloCentral = document.getElementById("tituloSeccionCentral");
+  const btnIniciar = document.getElementById("btnIniciarConversacion");
+
+  if (idModal === "modal-mensajes") {
+
+    if (tituloCentral) {
+      tituloCentral.textContent = "Mensajes";
+      tituloCentral.style.display = "block";
     }
 
-    const headerNormal = document.getElementById("BloqueSuperior");
-    const headerSprint = document.getElementById("cabecera-sprint");
-    const tituloCentral = document.getElementById("tituloSeccionCentral");
-    const btnIniciar = document.getElementById("btnIniciarConversacion");
-    mostrarCabecera(idCabecera);
-
-    if (idModal === 'modal-mensajes') {
-        if (tituloCentral) {
-        tituloCentral.textContent = "Mensajes";
-        tituloCentral.style.display = "block";
-    }
-    if (btnIniciar) btnIniciar.style.display = "block";
-    if (typeof cargarCanales === 'function') {
-            cargarCanales();
-        }
-    } else {
-        if (tituloCentral) tituloCentral.style.display = "none";
-        if (btnIniciar) btnIniciar.style.display = "none";
+    if (btnIniciar) {
+      btnIniciar.style.display = "block";
     }
 
-    if (idModal === 'modal-reuniones') {
-        if (typeof cargarReuniones === 'function') {
-            cargarReuniones();
-        }
+    // Cargar los canales de mensajes
+    if (typeof cargarCanales === "function") {
+      cargarCanales();
     }
+
+  } else {
+
+    if (tituloCentral) {
+      tituloCentral.style.display = "none";
+    }
+
+    if (btnIniciar) {
+      btnIniciar.style.display = "none";
+    }
+  }
+
+  // Cargar el Product Backlog al seleccionarlo
+  if (idModal === "modal-product-backlog") {
+
+    if (typeof cargarProductBacklog === "function") {
+      cargarProductBacklog();
+    }
+  }
+
+  // Cargar las reuniones al seleccionarlas
+  if (idModal === "modal-reuniones") {
+
+    if (typeof cargarReuniones === "function") {
+      cargarReuniones();
+    }
+  }
+
+  // Actualizar el botón activo del menú lateral
+  const botonesMenu = document.querySelectorAll(
+    "#listaPanelLateral button"
+  );
+
+  botonesMenu.forEach(boton => {
+    boton.classList.remove("active");
+
+    const onclick = boton.getAttribute("onclick") || "";
+
+    if (
+      onclick.includes("'" + idModal + "'") ||
+      onclick.includes('"' + idModal + '"')
+    ) {
+      boton.classList.add("active");
+    }
+  });
+
+  // Mantener el mapeo de botones como respaldo
+  const botonesPorModal = {
+    "modal-mensajes": "linkMensajes",
+    "modal-product-backlog": "linkProductBacklog",
+    "modal-reuniones": "linkReunirse",
+    "modal-graficas": "linkGraficas"
+  };
+
+  const botonActivo = document.getElementById(
+    botonesPorModal[idModal]
+  );
+
+  if (botonActivo) {
+    botonActivo.classList.add("active");
+  }
+}
+
+
+// Función específica para los modales del Sprint
+async function mostrarModalSprint(idModal, idCabecera) {
+
+  // Asegurar que el modal del Sprint esté cargado
+  await asegurarModalSprintCargado();
+
+  // Ocultar todos los modales principales
+  document.querySelectorAll(".modal-class").forEach(modal => {
+    modal.style.display = "none";
+  });
+
+  // Mostrar el modal seleccionado
+  const modalSeleccionado = document.getElementById(idModal);
+
+  if (modalSeleccionado) {
+    modalSeleccionado.style.display = "block";
+  } else {
+    console.error("No se encontró el modal:", idModal);
+    return;
+  }
+
+  // Actualizar la cabecera correspondiente
+  mostrarCabecera(idCabecera);
+
+  // Ocultar elementos correspondientes a Mensajes
+  const tituloCentral = document.getElementById("tituloSeccionCentral");
+  const btnIniciar = document.getElementById("btnIniciarConversacion");
+
+  if (tituloCentral) {
+    tituloCentral.style.display = "none";
+  }
+
+  if (btnIniciar) {
+    btnIniciar.style.display = "none";
+  }
+
+  // Actualizar el botón activo del menú lateral
+  const botonesMenu = document.querySelectorAll(
+    "#listaPanelLateral button"
+  );
+
+  botonesMenu.forEach(boton => {
+    boton.classList.remove("active");
+
+    const onclick = boton.getAttribute("onclick") || "";
+
+    if (
+      onclick.includes("'" + idModal + "'") ||
+      onclick.includes('"' + idModal + '"')
+    ) {
+      boton.classList.add("active");
+    }
+  });
+
+  // Activar específicamente el botón Sprint
+  const botonSprint = document.getElementById("linkSprint");
+
+  if (botonSprint) {
+    botonSprint.classList.add("active");
+  }
+
+  // Cargar el Kanban
+  if (typeof cargarKanvan === "function") {
+    cargarKanvan();
+  }
+
+  // Aplicar los permisos correspondientes
+  if (typeof aplicarPermisosInterfaz === "function") {
+    aplicarPermisosInterfaz();
+  }
+}
+
+
+// Función para actualizar las cabeceras
+function mostrarCabecera(idCabecera) {
+
+  const cabeceras = document.querySelectorAll(
+    "#contenedor-cabeceras .cabecera-default"
+  );
+
+  // Quitar la clase activa de todas las cabeceras
+  cabeceras.forEach(cabecera => {
+    cabecera.classList.remove("activa");
+  });
+
+  // Buscar la cabecera seleccionada
+  const cabeceraSeleccionada = document.getElementById(idCabecera);
+
+  if (cabeceraSeleccionada) {
+    cabeceraSeleccionada.classList.add("activa");
+  } else {
+    console.error("No se encontró la cabecera:", idCabecera);
+  }
+}
+
+function salirDelProyecto() {
+    console.log("Saliendo del proyecto actual...");
+    
+    // Si guardas el ID del proyecto activo, puedes removerlo:
+    sessionStorage.removeItem('proyectoActivo');
+    
+    // Redirigir a tu vista principal donde se listan los proyectos (ajusta la ruta según corresponda)
+    window.location.href = '/html/panelPrincipal.html'; 
 }
 
 //funcion prueba ale 
 window.cargarGrafica = async function (tipo) {
- if (tipo === "sprint") {
-  await cargarBurndownSprint();
-  return;
-}
+  if (tipo === "sprint") {
+    await cargarBurndownSprint();
+    return;
+  }
 
-if (tipo !== "product-backlog") return;
+  if (tipo !== "product-backlog") return;
 
   const contenedor =
     document.getElementById("contenedor-grafica-activa");
@@ -122,35 +291,35 @@ if (tipo !== "product-backlog") return;
      * Los cierres reales quedan vacíos hasta registrar su avance.
      * null significa "sin medición", NO cero horas.
      */
-    
-   /* const restantes = [
-      totalInicial,
-      ...sprints.map(() => null)
-    ];
-    */
 
-  const restantes = [
-  totalInicial,
-  ...sprints.map(sprint =>
-    sprint.horas_restantes == null
-      ? null
-      : Math.round(Number(sprint.horas_restantes))
-  )
-];
+    /* const restantes = [
+       totalInicial,
+       ...sprints.map(() => null)
+     ];
+     */
+
+    const restantes = [
+      totalInicial,
+      ...sprints.map(sprint =>
+        sprint.horas_restantes == null
+          ? null
+          : Math.round(Number(sprint.horas_restantes))
+      )
+    ];
 
     const planificadas = [
       0,
       ...sprints.map(s => Number(s.historias_planificadas))
     ];
 
-   const terminadas = [
-  0,
-  ...sprints.map(sprint =>
-    sprint.historias_terminadas == null
-      ? null
-      : Number(sprint.historias_terminadas)
-  )
-];
+    const terminadas = [
+      0,
+      ...sprints.map(sprint =>
+        sprint.historias_terminadas == null
+          ? null
+          : Number(sprint.historias_terminadas)
+      )
+    ];
 
     // Tabla junto a la gráfica.
     const tabla = document.createElement("table");
@@ -189,8 +358,8 @@ if (tipo !== "product-backlog") return;
           ? "Sin registro"
           : typeof valor === "number"
             ? valor.toLocaleString("es-MX", {
-                maximumFractionDigits: 2
-              })
+              maximumFractionDigits: 2
+            })
             : valor;
       });
     });
@@ -203,8 +372,8 @@ if (tipo !== "product-backlog") return;
 
     const aviso = document.createElement("p");
     aviso.textContent = sprints.some(sprint => sprint.es_prueba)
-  ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
-  : "Mediciones consultadas desde la BD.";
+      ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
+      : "Mediciones consultadas desde la BD.";
     areaDatos.replaceChildren(tabla, aviso);
 
     new Chart(canvas, {
@@ -467,73 +636,73 @@ async function cargarBurndownSprint() {
         }
 
         // Ideal: reducción uniforme al cierre de cada día.
-       // Ideal: redondeado al entero más cercano.
-const ideales = etiquetas.map((_, indice) =>
-  Math.round(totalInicial * (1 - indice / cantidadDias))
-);
+        // Ideal: redondeado al entero más cercano.
+        const ideales = etiquetas.map((_, indice) =>
+          Math.round(totalInicial * (1 - indice / cantidadDias))
+        );
 
         /*
          * AVANCES DE PRUEBA POR DÍA.   
          * Los días sin valor se simulan con avance cero.
          */
-       const respuestaMediciones = await fetch(
-  `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
-);
+        const respuestaMediciones = await fetch(
+          `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
+        );
 
-if (!respuestaMediciones.ok) {
-  throw new Error(
-    `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
-  );
-}
+        if (!respuestaMediciones.ok) {
+          throw new Error(
+            `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
+          );
+        }
 
-const resultadoMediciones = await respuestaMediciones.json();
+        const resultadoMediciones = await respuestaMediciones.json();
 
-if (
-  !resultadoMediciones.ok ||
-  !Array.isArray(resultadoMediciones.datos)
-) {
-  throw new Error("Las mediciones diarias no tienen el formato esperado.");
-}
+        if (
+          !resultadoMediciones.ok ||
+          !Array.isArray(resultadoMediciones.datos)
+        ) {
+          throw new Error("Las mediciones diarias no tienen el formato esperado.");
+        }
 
-// Si se cambió el selector mientras cargaba, ignorar esta respuesta.
-if (selector.value !== String(sprint.id_sprint)) return;
+        // Si se cambió el selector mientras cargaba, ignorar esta respuesta.
+        if (selector.value !== String(sprint.id_sprint)) return;
 
-const mediciones = resultadoMediciones.datos;
+        const mediciones = resultadoMediciones.datos;
 
-const porFecha = new Map(
-  mediciones.map(medicion => [
-    medicion.fecha,
-    Number(medicion.horas_restantes)
-  ])
-);
+        const porFecha = new Map(
+          mediciones.map(medicion => [
+            medicion.fecha,
+            Number(medicion.horas_restantes)
+          ])
+        );
 
-const restantes = [totalInicial];
-const avancesAplicados = [0];
+        const restantes = [totalInicial];
+        const avancesAplicados = [0];
 
-for (let indice = 0; indice < cantidadDias; indice++) {
-  const fechaISO = new Date(
-    inicio + indice * milisegundosDia
-  ).toISOString().slice(0, 10);
+        for (let indice = 0; indice < cantidadDias; indice++) {
+          const fechaISO = new Date(
+            inicio + indice * milisegundosDia
+          ).toISOString().slice(0, 10);
 
-  const pendiente = porFecha.has(fechaISO)
-    ? porFecha.get(fechaISO)
-    : null;
+          const pendiente = porFecha.has(fechaISO)
+            ? porFecha.get(fechaISO)
+            : null;
 
-  const anterior = restantes[restantes.length - 1];
+          const anterior = restantes[restantes.length - 1];
 
-  // Solo calcular la reducción si ambos puntos tienen medición.
-  const reduccion =
-    pendiente !== null && anterior !== null
-      ? anterior - pendiente
-      : null;
+          // Solo calcular la reducción si ambos puntos tienen medición.
+          const reduccion =
+            pendiente !== null && anterior !== null
+              ? anterior - pendiente
+              : null;
 
-  restantes.push(pendiente);
-  avancesAplicados.push(reduccion);
-}
+          restantes.push(pendiente);
+          avancesAplicados.push(reduccion);
+        }
 
-aviso.textContent = mediciones.some(m => m.es_prueba)
-  ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
-  : "Mediciones diarias consultadas desde la BD.";
+        aviso.textContent = mediciones.some(m => m.es_prueba)
+          ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
+          : "Mediciones diarias consultadas desde la BD.";
 
         titulo.textContent =
           `Burndown del Sprint ${sprint.no_iteracion}`;
@@ -576,13 +745,13 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
             const celda = fila.insertCell();
 
             celda.textContent =
-                valor === null
-                    ? "Sin registro"
-                    : typeof valor === "number"
-                    ? valor.toLocaleString("es-MX", {
-                        maximumFractionDigits: 0
-                        })
-                    : valor;
+              valor === null
+                ? "Sin registro"
+                : typeof valor === "number"
+                  ? valor.toLocaleString("es-MX", {
+                    maximumFractionDigits: 0
+                  })
+                  : valor;
           });
         });
 
@@ -668,57 +837,91 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
     areaDatos.textContent = error.message;
   }
 }
-// Función específica que usa tu compañero para el Sprint
-async function mostrarModalSprint(idModal, idCabecera) {
-  // 1. Aquí dentro SÍ puedes usar await sin problemas
-  await asegurarModalSprintCargado();
 
-  // 2. Ocultar todos los modales principales
-  document.querySelectorAll(".modal-class").forEach(modal => {
-      modal.style.display = "none";
-  });
+function consoleSessionStorage() {
+  console.log("recuperando sessionStorage")
+  console.log("USUARIO------------")
+  console.log(sessionStorage.getItem('usuarioActivo'));
+  console.log("USUARIO------------")
+  console.log("------------")
+  console.log("Proyecto------------")
+  console.log(sessionStorage.getItem('proyectoActivo'));
+  console.log("Proyecto------------")
+  console.log("------------")
 
-  // 3. Mostrar el modal correspondiente
-  const modalSeleccionado = document.getElementById(idModal);
-  if (modalSeleccionado) {
-      modalSeleccionado.style.display = "block";
-  }
+  const nombreProyecto = JSON.parse(sessionStorage.getItem('proyectoActivo')).nombre;
+  console.log("nombre recuperado: " + nombreProyecto)
+}
 
-  // 4. Mostrar la cabecera
-  mostrarCabecera(idCabecera);
+//En construccion el script para las tarjetas de usuarios dentro de un proyecto
+/**
+ * Función para recuperar los usuarios desde el controlador
+ * @returns 
+ */
+async function obtenerUsuariosPorEquipo(id_proyecto) {
+    console.log("sessionStorage proyectoActivo:", sessionStorage.getItem('proyectoActivo'));
+    console.log("id enviado:", id_proyecto);
+    try {
+        const respuesta = await fetch(`/usuarios/scrumbird/${id_proyecto}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
 
-  // 5. Cargar el Kanban
-  if (typeof cargarKanvan === "function") {
-      cargarKanvan();
-  }
-  
-  if (typeof aplicarPermisosInterfaz === "function") {
-    aplicarPermisosInterfaz();
+        // Obtenemos los datos del JSON
+        const datos = await respuesta.json();
+        // Convertido a un array de usuarios
+        const usuarios = datos.data || [];
+
+        // Regresa el arreglo con los datos
+        //console.log(usuarios)
+        console.log("respuesta cruda:", datos);
+        return usuarios;
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Ocurrió un error de conexión");
+        return [];
     }
 }
 
-function mostrarCabecera(idCabecera){
-    document.querySelectorAll(".cabecera-default").forEach(modal => {
-        modal.style.display = "none";
-    });
-    const cabeceraSeleccionada = document.getElementById(idCabecera);
-    if(cabeceraSeleccionada){
-        cabeceraSeleccionada.style.display = "flex";
+
+/**
+ * Construcción de la lista de usuarios en el panel de miembros
+ */
+document.addEventListener("DOMContentLoaded", async () => {
+    //Lógica para solo listar los usuarios del panel Facilitador
+    const contFacilitador = document.getElementById("modal-usuariosF");
+    console.log('revisando lista del equipo')
+    if (!contFacilitador) return; // esta página no tiene la tabla, no hacemos nada
+
+    console.log('Listando miembros del equipo')
+    const idP = JSON.parse(sessionStorage.getItem('proyectoActivo')).id;
+    //Logica para mostrar el menú al seleccionar la opción
+    const usuarios = await obtenerUsuariosPorEquipo(idP);
+    const contenedorUsuarios = document.getElementById("contenedor-usuariosF");
+
+    console.log("Longitud de usuarios: " + usuarios.length)
+    if (usuarios.length === 0) {
+        contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
+        return;
     }
-}
+    console.log(usuarios)
+    const tarjetas = usuarios.map(usuario => `
+    <button class="tarjeta-usuario" data-id="${usuario.id}">
+        <span>${usuario.id}</span>
+        <span>${usuario.u_nombre}</span>
+    </button>
+    `).join("");
 
-function consoleSessionStorage(){
-    console.log("recuperando sessionStorage")
-    console.log("USUARIO------------")
-    console.log(sessionStorage.getItem('usuarioActivo'));
-    console.log("USUARIO------------")
-    console.log("------------")
-    console.log("Proyecto------------")
-    console.log(sessionStorage.getItem('proyectoActivo'));
-    console.log("Proyecto------------")
-    console.log("------------")
+    contenedorUsuarios.innerHTML = tarjetas;
 
-    const nombreProyecto = JSON.parse(sessionStorage.getItem('proyectoActivo')).nombre;
-    console.log("nombre recuperado: " + nombreProyecto)
-}
+    contenedorUsuarios.addEventListener('click', (evento) => {
+        const tarjeta = evento.target.closest('.tarjeta-usuario');
 
+        if (!tarjeta) return;
+
+        const idUsuario = tarjeta.dataset.id;
+        console.log("Click en el usuario con id: ", idUsuario);
+    })
+})

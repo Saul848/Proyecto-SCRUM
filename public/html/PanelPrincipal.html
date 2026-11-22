@@ -4,27 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/panelPrincipal.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="../css/mensajes.css">
+    <title>Panel Principal</title>
 </head>
 <body>
   <div id="contenedorMenuSuperior">
     <div id="contenedorFunciones">
       <button>Logo</button> <!--Provisional, cambiar por el logo con o sin función, segun lo que se requiera en el proyecto-->
       <h1>Gestor Scrum</h1>
-      <button>Notificaciones</button>
-      <button>Usuario</button>
-      <button>Cerrar sesion</button>
+      <button onclick="cerrarSesion()">Cerrar sesion</button>
     </div>
   </div>
 
   <div id="contenedor-principal">
     <div id="contenedorPanelLateral">
       <ul id="panelLateral">
-        <li><button>Panel principal</button></li> <!--Debe ser abierto por defecto cuando se pasa el login-->
         <li><button id="btn-proyectos">Mis proyectos</button></li>
         <li><button id="btn-miembros">Miembros</button></li>
-        <li>Mensajes</li>
-        <li><button id="btnSessionStorage" onclick="consoleSessionStorage()">sessionStorage</button></li>
+        <li><button id="btn-mensajes">Mensajes</button></li>
         <li><button id="btn-capacitacion">Capacitacion</button></li>
       </ul>
     </div>
@@ -34,6 +31,43 @@
       click en las opciones del menú lateral. No solo encimados unos sobre otros-->
 
       <!--Aqui van los modales de cada uno-->
+      <!-- MENSAJERÍA - PANEL PRINCIPAL -->
+       <div id="modal-mensajes" class="modal-class" style="display: none;">
+        <div class="mensajes-principal-encabezado">
+          <h2>Centro de comunicación</h2>
+          <p>Comunícate mediante mensajes privados con otros usuarios de ScrumBird.</p>
+        </div>
+        <div class="main-container-chat">
+          <!-- Panel izquierdo -->
+           <aside class="sidebar-mensajes">
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" id="inputBuscarChat" placeholder="Buscar usuario..."></div>
+              <p class="menu-seccion">USUARIOS</p>
+              <div id="listaContactosDirectos" class="lista-elementos">
+                <p>Selecciona un usuario para conversar.</p>
+              </div>
+            </aside>
+            <!-- Panel derecho -->
+             <section class="chat-area">
+              <div class="chat-header">
+                <div class="chat-header-info">
+                  <h3 id="tituloChatActual">Selecciona un usuario</h3>
+                  <span id="subInfoChat" class="sub-info-chat">Mensajes privados</span>
+                </div>
+              </div>
+              <!-- Historial -->
+               <div id="contenedorMensajesGeneral" class="chat-mensajes">
+                <p>Selecciona una conversación para comenzar.</p>
+              </div>
+              <!-- Envío de mensajes -->
+               <div class="chat-input-box">
+                <input type="text" id="inputMensajeGeneral" placeholder="Escribe tu mensaje...">
+                <button id="btnEnviarMensajeGeneral" type="button"> ➤ </button>
+              </div>
+            </section>
+          </div>
+        </div>
       <!--Modal para ver los proyectos y crear nuevos-->
       <div id="modal-proyectos" class="modal-class">
         <div class="top-actions">
@@ -46,16 +80,6 @@
             <!--Aqui van las tarjetas de proyectos-->
             <h2>Mis Proyectos</h2>
             <div class="lista-items"></div>
-          </div>
-
-          <div id="mis-invitaciones" class="panel-proyectos">
-            <h2>Invitaciones a proyectos</h2>
-            <div class="lista-items">
-                <div class="item-card item-card-invitacion">
-                    <span class="item-nombre">Rediseño web</span>
-                    <span class="badge badge-boton">Ver invitación</span>
-                </div>
-            </div>
           </div>
         </main>
         <!--Modal de creación de proyectos-->
@@ -111,7 +135,6 @@
         <h2>Capacitación en Scrumbird</h2>
         <div id="contenedor-blanco">
           <div id="contenedor-azul">
-
             <!-- Columna izquierda: lista de módulos -->
             <div id="contenedor-modulos">
               <!--Aquí se insertarán los modulos recuperados de la base de datos-->
@@ -124,16 +147,6 @@
             <!-- Columna derecha: contenido del módulo -->
             <div id="contenido-modulo">
               <!--Aquí se insertarán las secciones recuperadas de la base de datos-->
-              <h2>Modulo 1: ¿Qué es Scrum?</h2>
-              <p class="modulo-objetivo"><strong>Objetivo:</strong> información para...</p>
-
-              <div class="seccion-card">
-                <div class="seccion-info">
-                  <h3>Seccion 1: Concepto de Scrum</h3>
-                  <small>Duración: 2 páginas</small>
-                </div>
-                <button class="btn-estado btn-iniciar">▶ Iniciar</button>
-              </div>
             </div>
 
           </div>
@@ -142,9 +155,801 @@
       
     </section>
   </div>
+
+  <!-- Lector de las secciones del módulo 1 --------------------------->
+<dialog id="lector-intro-scrum"
+        aria-labelledby="lector-intro-scrum-titulo"
+        style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+  <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+    <div>
+      <strong>Módulo 1: ¿Qué es Scrum?</strong>
+      <h3 id="lector-intro-scrum-titulo"></h3>
+    </div>
+
+    <button id="cerrar-lector-intro-scrum"
+            type="button"
+            aria-label="Cerrar contenido">
+      ✕
+    </button>
+  </header>
+
+  <div id="pagina-intro-scrum"
+    style="min-height: 280px; padding: 20px 0;">
+  </div>
+
+  <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+    <button id="pagina-anterior-intro-scrum"
+            type="button"
+            aria-label="Página anterior">
+      ←
+    </button>
+
+    <span id="contador-paginas-intro-scrum"
+          aria-live="polite">
+    </span>
+
+    <button id="pagina-siguiente-intro-scrum"
+            type="button"
+            aria-label="Página siguiente">
+      →
+    </button>
+
+    <button id="terminar-seccion-intro-scrum"
+            type="button"
+            hidden>
+      ✓ Terminar
+    </button>
+  </footer>
+</dialog>
+
+<!-- Módulo 1, sección 1: Concepto de Scrum (2 páginas) -->
+<template id="intro-scrum-concepto">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <p>
+      Scrum es un marco de trabajo ágil (agile framework) diseñado para la gestión y desarrollo incremental de
+      proyectos complejos, especialmente en el ámbito del software. Se basa en un enfoque empírico
+      (adaptación, inspección y transparencia) donde el trabajo se divide en ciclos iterativos de corta duración
+      llamados Sprints (habitualmente de 1 a 4 semanas)[cite: 18].
+    </p>
+
+    <p>
+      Durante cada Sprint, un equipo multidisciplinario convierte un conjunto de requisitos prioritarios—definidos
+      en la lista de pendientes o Product Backlog—en un incremento de producto funcional y de valor realizable[cite: 18].
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <p>
+      Cada Sprint tiene como objetivo desarrollar una parte funcional del producto. Durante este periodo se
+      realizan las siguientes actividades[cite: 18]:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Planificación del Sprint:</strong> El equipo selecciona las historias de usuario o tareas que se trabajarán y
+        establece el objetivo del Sprint[cite: 18].
+      </li>
+      <li>
+        <strong>Desarrollo:</strong> Los desarrolladores realizan las actividades acordadas, dando seguimiento diario a su
+        progreso mediante reuniones breves (Daily Scrum)[cite: 18].
+      </li>
+      <li>
+        <strong>Revisión del Sprint:</strong> Se presenta el trabajo terminado para recibir comentarios y comprobar que cumple
+        con lo esperado[cite: 18].
+      </li>
+      <li>
+        <strong>Retrospectiva:</strong> El equipo analiza qué salió bien, qué problemas tuvo y qué puede mejorar para el
+        siguiente Sprint[cite: 18].
+      </li>
+    </ol>
+
+    <p>
+      Al finalizar un Sprint, se obtiene un incremento del producto. El ciclo vuelve a comenzar hasta completar los
+      objetivos del proyecto[cite: 18].
+    </p>
+  </article>
+
+</template>
+
+<!-- Módulo 1, sección 2: Los 3 Roles Esenciales (3 páginas) -->
+<template id="intro-scrum-roles">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Product Owner / Cliente</h3>
+
+    <p>
+      Es la persona encargada de representar los intereses del cliente y asegurar que el producto desarrollado
+      aporte valor. Se encarga de definir qué se necesita desarrollar y cuáles son las prioridades del proyecto[cite: 19].
+    </p>
+
+    <p><strong>Principales responsabilidades:</strong></p>
+    <ul>
+      <li>Definir y comunicar el objetivo del producto[cite: 19].</li>
+      <li>Crear, organizar y priorizar el Product Backlog[cite: 19].</li>
+      <li>Identificar las necesidades del cliente y los usuarios[cite: 19].</li>
+      <li>Asegurarse de que las historias de usuario estén claras[cite: 19].</li>
+      <li>Revisar que el producto cumpla con las expectativas[cite: 19].</li>
+    </ul>
+
+    <p>
+      <strong>Característica principal:</strong> Es responsable de maximizar el valor del producto[cite: 19].
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Scrum Master / Facilitador</h3>
+
+    <p>
+      Es quien guía al equipo para que Scrum se aplique correctamente. Su función principal es facilitar el trabajo,
+      promover la colaboración y ayudar a eliminar los obstáculos que puedan afectar el desarrollo del proyecto[cite: 19].
+    </p>
+
+    <p><strong>Principales responsabilidades:</strong></p>
+    <ul>
+      <li>Enseñar y promover los principios de Scrum[cite: 19].</li>
+      <li>Facilitar las reuniones y eventos de Scrum[cite: 19].</li>
+      <li>Ayudar a resolver impedimentos del equipo[cite: 19].</li>
+      <li>Fomentar la comunicación y el trabajo colaborativo[cite: 19].</li>
+      <li>Apoyar al Product Owner y a los Developers[cite: 19].</li>
+    </ul>
+
+    <p>
+      <strong>Característica principal:</strong> Es responsable de ayudar a que Scrum se comprenda y se aplique correctamente[cite: 19].
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Developer / Desarrollador</h3>
+
+    <p>
+      Son los integrantes del equipo encargados de construir el producto y convertir los elementos del Product
+      Backlog en incrementos funcionales. Se organizan y colaboran para alcanzar el objetivo de cada Sprint[cite: 20].
+    </p>
+
+    <p><strong>Principales responsabilidades:</strong></p>
+    <ul>
+      <li>Planificar el trabajo que realizarán durante el Sprint[cite: 20].</li>
+      <li>Desarrollar las funcionalidades del producto[cite: 20].</li>
+      <li>Mantener la calidad del trabajo[cite: 20].</li>
+      <li>Colaborar y comunicarse con los demás integrantes[cite: 20].</li>
+      <li>Revisar los avances y adaptar el trabajo cuando sea necesario[cite: 20].</li>
+      <li>Entregar un incremento funcional al finalizar el Sprint[cite: 20].</li>
+    </ul>
+
+    <p>
+      <strong>Característica principal:</strong> Son responsables de crear un incremento útil y de calidad en cada Sprint[cite: 20].
+    </p>
+  </article>
+
+</template>
+
+    <!-- Lector de las secciones del módulo 2 -------------------->
+  <dialog id="lector-herramientas"
+                aria-labelledby="lector-herramientas-titulo"; max-height: 85vh;
+                padding: 24px; border: 0; border-radius: 12px;
+                background: #edf4f6;">
+
+      <header style="display: flex; justify-content: space-between;
+                    align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 2: Herramientas de Scrum</strong>
+        <h3 id="lector-herramientas-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-herramientas"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-herramientas"
+        style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center;
+                  align-items: center; gap: 16px;">
+      <button id="pagina-anterior-herramientas"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-herramientas"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-herramientas"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+      <button id="terminar-seccion-herramientas"
+        type="button"
+            hidden>
+      ✓ Terminar
+    </button>
+    </footer>
+
+  </dialog>
+  <!-- Módulo 2, sección 1: Tareas -->
+<template id="herramientas-tareas">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Herramientas para gestionar las tareas</h3>
+
+    <p>
+      En ScrumBird existen diferentes herramientas que permiten
+      organizar y consultar el trabajo del proyecto:
+    </p>
+
+    <ul>
+      <li>Product Backlog: lista priorizada de historias de usuario.</li>
+      <li>Sprint Backlog: trabajo seleccionado para una iteración.</li>
+      <li>Tablero Kanban: seguimiento visual del estado del trabajo.</li>
+    </ul>
+
+    <p>
+      En las siguientes páginas conocerás la función de cada una.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <p>
+      Es la lista priorizada de requisitos e historias de usuario
+      del proyecto. En ScrumBird, el cliente participa en su
+      definición con apoyo del facilitador.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Historias de usuario:</strong>
+        describen lo que se necesita y sus criterios de aceptación.
+      </li>
+      <li>
+        <strong>Sprints:</strong>
+        organizan el trabajo en iteraciones.
+      </li>
+      <li>
+        <strong>Entregas:</strong>
+        permiten presentar los avances del proyecto.
+      </li>
+    </ul>
+
+    <p>
+      El Product Backlog puede actualizarse conforme cambian
+      las necesidades y se obtiene nueva información.
+      Las historias pueden incluir estimaciones de esfuerzo.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Sprint Backlog</h3>
+
+    <p>
+      Organiza el trabajo seleccionado para un sprint y las tareas
+      necesarias para desarrollar las historias de usuario.
+    </p>
+
+    <p>En ScrumBird, las tareas pueden incluir:</p>
+
+    <ul>
+      <li>Nombre.</li>
+      <li>Descripción.</li>
+      <li>Responsable.</li>
+      <li>Sprint asignado.</li>
+    </ul>
+
+    <p>
+      Durante el sprint, el equipo consulta y actualiza el trabajo.
+      Si queda trabajo pendiente, debe revisarse para decidir
+      cómo se atenderá en la siguiente planificación.
+    </p>
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Tablero Kanban</h3>
+
+    <p>
+      Permite visualizar el estado del trabajo y detectar
+      qué actividades siguen pendientes.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Por empezar:</strong>
+        todavía no se ha iniciado el trabajo.
+      </li>
+      <li>
+        <strong>En progreso:</strong>
+        el equipo está trabajando en la actividad.
+      </li>
+      <li>
+        <strong>En revisión:</strong>
+        el trabajo está siendo revisado.
+      </li>
+      <li>
+        <strong>Terminado:</strong>
+        el trabajo cumple los criterios acordados para finalizarlo.
+      </li>
+    </ul>
+
+    <p>
+      Mantener el tablero actualizado ayuda al equipo a conocer
+      el avance y coordinar sus actividades.
+    </p>
+  </article>
+
+</template>
+<!-- Módulo 2, sección 2: Definición de hecho -->
+<template id="herramientas-dod">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Criterios de definición de hecho (DoD)</h3>
+
+    <p>
+      La Definición de Hecho reúne las condiciones de calidad
+      que debe cumplir el trabajo para considerarse terminado.
+    </p>
+
+    <p>
+      El equipo utiliza estos criterios para comprobar que el
+      resultado está integrado, revisado y listo para formar
+      parte del producto.
+    </p>
+
+    <p>
+      No basta con terminar de programar: también deben realizarse
+      las revisiones, pruebas y documentación acordadas.
+    </p>
+
+    <p>
+      Los criterios de aceptación indican qué debe cumplir una
+      historia específica. La Definición de Hecho establece las
+      condiciones generales de calidad del trabajo terminado.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Ejemplos de criterios de definición de hecho</h3>
+
+    <ul>
+      <li>
+        Los cambios están integrados con el trabajo del equipo.
+      </li>
+      <li>
+        El código fue revisado por otro integrante del equipo.
+      </li>
+      <li>
+        La funcionalidad cumple sus criterios de aceptación.
+      </li>
+      <li>
+        Las pruebas acordadas se ejecutaron correctamente.
+      </li>
+      <li>
+        El trabajo cumple los requisitos de calidad y seguridad
+        establecidos.
+      </li>
+      <li>
+        La documentación necesaria está actualizada.
+      </li>
+      <li>
+        No quedan errores conocidos que impidan utilizar
+        la funcionalidad.
+      </li>
+    </ul>
+
+    <p>
+      Estos ejemplos deben adaptarse a los acuerdos y necesidades
+      del proyecto.
+    </p>
+  </article>
+
+</template>
+<!-- Módulo 2, sección 3: Estimación -->
+<template id="herramientas-estimacion">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Estimación del trabajo</h3>
+
+    <p>
+      Estimar permite al equipo conversar sobre el esfuerzo necesario
+      para desarrollar las historias de usuario y planificar el trabajo.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Planning Poker:</strong>
+        permite discutir y acordar una estimación para cada historia.
+      </li>
+      <li>
+        <strong>Burndown del Product Backlog:</strong>
+        muestra las horas pendientes del proyecto a través de los sprints.
+      </li>
+      <li>
+        <strong>Burndown del Sprint:</strong>
+        muestra las horas pendientes durante los días de un sprint.
+      </li>
+    </ul>
+
+    <p>
+      Una estimación es una referencia para planificar y puede
+      revisarse cuando se obtiene nueva información.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Planning Poker</h3>
+
+    <p>
+      El equipo revisa una historia, aclara dudas y propone una
+      estimación mediante cartas. Las estimaciones se revelan
+      al mismo tiempo y se discuten las diferencias.
+    </p>
+
+    <p>
+      Si existen opiniones muy distintas, el equipo explica sus
+      razones y vuelve a estimar hasta alcanzar un acuerdo.
+    </p>
+
+    <p>
+      En ScrumBird, la estimación se expresa en horas. El esfuerzo
+      calculado se obtiene multiplicando las horas estimadas
+      por el factor de complejidad configurado.
+    </p>
+
+    <div class="cartas-capacitacion"
+        aria-label="Ejemplo de cartas de Planning Poker">
+      <span>0</span>
+      <span>1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>5</span>
+      <span>8</span>
+      <span>13</span>
+      <span>21</span>
+      <span>34</span>
+      <span>55</span>
+      <span>89</span>
+      <span>?</span>
+    </div>
+
+    <p>
+      Las cartas de este ejemplo son ilustrativas; aquí no se
+      realiza una sesión de votación.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Burndown Chart del Product Backlog</h3>
+
+    <p>
+      Compara las horas pendientes del proyecto con una referencia
+      ideal a través de los sprints.
+    </p>
+
+    <ul>
+      <li><strong>Eje horizontal:</strong> sprints del proyecto.</li>
+      <li><strong>Eje vertical:</strong> horas pendientes.</li>
+      <li><strong>Línea ideal:</strong> descenso uniforme del esfuerzo.</li>
+      <li><strong>Línea de seguimiento:</strong> mediciones registradas.</li>
+    </ul>
+
+    <figure class="grafica-capacitacion">
+      <img
+        src="../img/ejemplo-burndown-producto.png"
+        alt="Ejemplo de burndown del proyecto: horas pendientes
+            comparadas con la línea ideal a través de cuatro sprints.">
+      <figcaption>
+        Ejemplo ilustrativo del avance de un proyecto por sprint.
+      </figcaption>
+    </figure>
   
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Burndown Chart del Sprint</h3>
+
+    <p>
+      Permite observar cómo cambian las horas pendientes dentro
+      de un sprint. Cada punto corresponde a una medición diaria.
+    </p>
+
+    <ul>
+      <li><strong>Eje horizontal:</strong> días del sprint.</li>
+      <li><strong>Eje vertical:</strong> horas pendientes.</li>
+      <li>
+        Si la línea de seguimiento está por encima de la ideal,
+        queda más trabajo pendiente del esperado.
+      </li>
+      <li>
+        Si está por debajo, queda menos trabajo pendiente del esperado.
+      </li>
+    </ul>
+
+    <figure class="grafica-capacitacion">
+      <img
+        src="../img/ejemplo-burndown-sprint.png"
+        alt="Ejemplo de burndown diario: horas restantes registradas
+            hasta el día cinco y línea ideal hasta el día doce.">
+      <figcaption>
+        Ejemplo ilustrativo del avance diario de un sprint.
+      </figcaption>
+    </figure>   
+
+    <p>
+      Un día sin medición significa “sin registro”,
+      no necesariamente cero horas pendientes.
+    </p>
+  </article>
+</template>
+
+  <!-- Lector de las secciones del módulo 3 --------------------------->
+  <dialog id="lector-reuniones"
+          aria-labelledby="lector-reuniones-titulo"
+          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 3: Reuniones</strong>
+        <h3 id="lector-reuniones-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-reuniones-scrum"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-reuniones"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-reuniones"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-reuniones"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-reuniones"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-reuniones"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
+
+
+  <!-- Módulo 3, sección 1: Sprint planning (2 páginas) -->
+  <template id="sprint-planning">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunion de Planificacion de iteración se realiza el primer dia, en esta participan el facilitador,
+        el cliente y el equipo de desarrollo. 
+      </p>
+
+      <p>
+        Se llevan a cabo dos fases, la primera denominada QUÉ, donde el cliente presenta la lista de requisitos 
+        del producto/proyecto y la segunda denominada CÓMO donde el equipo elabora la lista de tareas de la iteración 
+        (Sprint Backlog), esta segunda parte es el resultado que se va a obtener de esta reunión.
+      </p>
+    </article>
+
+    <!-- Página 2 -->    
+    <article class="pagina-capacitacion">
+      <h3>Fase 1: </h3>
+
+      <p>
+        La primera parte de la reunión se denomina como “Qué”, de sus principales características es que aqui se hace 
+        la selección de los requisitos, tiene una duración (timebox) estimada de 2 horas, contemplando si la iteración es de 2 semanas.
+      </p>
+
+      <p>
+        Durante esta primera parte, el cliente presenta al equipo la lista de requisitos priorizada del producto/proyecto, le asigna un 
+        nombre a la iteración y proponne los requisitos más prioritarios a desarrollar.
+      </p>
+
+      <p>
+        El equipo de desarrollo examina la lista, hace preguntas al cliente sobre las dudas que vayan surgiendo, añade condiciones de 
+        satisfacción y selecciona los objetivos más prioritarios que prevé completar en la iteración.
+      </p>
+    </article>
+
+    <!-- Página 3 -->    
+    <article class="pagina-capacitacion">
+      <h3>Fase 2: </h3>
+
+      <p>
+        La segunda parte de la reunión se denomina “Cómo”, en esta se hace la planificación de la iteración, tiene una duración(timebox) de 2 
+        horas.
+      </p>
+
+      <p>
+        En esta parte el equipo elabora una táctica que le permitia conseguir el mejor resultado con el mínimo esfuerzo, esta actividad la 
+        realiza unicamente el equipo ya que es el responsable de organizar su trabajo y es quien mejor conoce la manera de realizarlo.
+      </p>
+
+      <p>
+        Se definen las tareas para completar cada objetivo/requisito, entonces se crea la lista de tareas de la iteración (Sprint backlog) 
+        basándose en la definición de hecho (DoD).
+      </p>
+
+      <p>
+        Se realiza una estimación conjunta del esfuerzo que se va a realizar para cada tarea, los miembros se autoasignan las tareas, el 
+        trabajo se puede realizar en equipo o de manera individual, esto con la finalidad de resolver objetivos complejos.
+      </p>
+    </article>
+  </template>
+
+  <!-- Módulo 3, sección 2: Daily meeting (2 páginas) -->
+  <template id="daily-meeting">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        Las iteraciones tienen que proporcionar un resultado completo, de manera que cuando el cliente solicite una entrega, 
+        se debe de hacer un esfuerzo minimo para que el producto entregable sea usable, por lo que el equipo realiza ciertas actividades:
+      </p>
+
+      <p>
+        Cada día el equipo realiza una reunión de sincronización que tiene una duración de 15 minutos.
+      </p>
+
+      <ul>
+        <li>Cada miembro puede inspeccionar el trabajo realizado por los otros para realizar las adaptaciones necesarias.</li>
+        <li>Se comunican los impedimentos que han surgido.</li>
+        <li>Se actualiza el estado de la lista de tareas de la iteración (Sprint Backlog) y los gráfios de trabajo pendiente 
+          (Burndown charts).
+        </li>
+      </ul>
+
+      <p>
+        El facilitador se encarga de eliminar los obstaculos que el equipo no pueda resolver, además de que los protege de interrupciones 
+        externas que puedan afectar el objetivo de la iteración.
+      </p>
+    </article>
+
+    <!-- Página 2 -->    
+    <article class="pagina-capacitacion">
+      <p>
+        Usualmente la reunión diaria se realiza frente a un tablero físico o pizarra (Scrum Taskboard), el equipo inspecciona el 
+        trabajo de los demás para poder realizar adaptaciones que permitan cumplir con la entrega de la iteración. 
+      </p>
+
+      <p>
+        Durante la reunión cada miembro debe respondar tres preguntas:
+      </p>
+
+      <ul>
+        <li>¿Qué he hecho desde la última reunión de sincronización para ayudar al equipo a cumplir su objetivo?</li>
+        <li>¿Qué voy a hacer a partir de este momento para ayudar al equipo a cumplir su objetivo?</li>
+        <li>¿Qué impedimentos tengo o voy a tener que nos impidan conseguir nuestro objetivo?</li>
+      </ul>
+
+      <p>
+        La reunión permite identificar problemas a tiempo, además de que se hace visible si un miembro del equipo está realizando 
+        tareas por debajo del rendimiento esperado.
+      </p>
+    </article>
+  </template>
+  
+  <!-- Módulo 3, sección 3: Sprint review (1 página) -->
+  <template id="sprint-review">
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunión de revisión se realiza el último día de la iteración y va de la mano con la de retrospectva.
+      </p>
+
+      <p>
+        Tiene una duración(timebox) estimada de 1,5 horas, donde participan el facilitador, el cliente y el equipo de desarrollo.
+      </p>
+
+      <p>
+        Se considera una reunión informal, en esta el equipo revisa los resultados obtenidos respecto al objetivo de la iteración, 
+        los problemas identificadas y como se resolvieron. El equipo presenta al cliente los requisitos completados en la iteración.
+      </p>
+
+      <p>
+        De los resultados mostrados, la velocidad de desarrollo del equipo y los cambios que haya habido en el proyecto, el cliente 
+        identifica las adaptaciones necesarias replanificando el proyecto.
+      </p>
+    </article>
+  </template>
+
+  
+  <!-- Módulo 3, sección 4: Retrospectiva (2 páginas) -->
+  <template id="retrospectiva">
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <p>
+        La reunión de retrospectiva se realiza con el objetivo de mejorar la productividad y la calidad del producto que se esta 
+        desarrollando, además de la motivación del equipo, se ejecuta después de la reunión de demostración al cliente, esto para 
+        poder incorporar temas a tratar durante la reunión de retrospectiva.
+      </p>
+
+      <p>
+        Se realiza en un timebox de 1,5 horas, se debe considerar que cuanto más tiempo pasa, menos se recuerdan los problemas que más 
+        molestaron, que son los que se deben de tratar y mejorar.
+      </p>
+
+      <p>
+        El equipo analiza su manera de trabajar durante la iteración, porque esta consiguiendo o no los objetivos a los que se comprometió 
+        al inicio de la iteración y por qué el incremento de producto que acaba de demostrar al cliente era el esperada o no.
+      </p>
+    </article>
+
+    <!-- Página 2 -->
+    <article class="pagina-capacitacion">
+      <p>
+        De los aspectos que se abordan durante la reunión son:
+      </p>
+
+      <ul>
+        <li>Qué cosas han funcionado bien.</li>
+        <li>Cuales hay que mejorar.</li>
+        <li>Qué cosas quiere probar hacer en la siguiente iteración.</li>
+        <li>Qué ha aprendido.</li>
+        <li>Cuales son los problemas que podrían impedirle progresar adecuadamente.</li>
+      </ul>
+
+      <p>
+        Como resultado de la reunión se puede encontrar:
+      </p>
+
+      <ul>
+        <li>Plan de acciones de mejora</li>
+        <li>Nuevas best practices</li>
+        <li>Acuerdos de equipo actualizados</li>
+        <li>Impedimentos a escalar</li>
+      </ul>
+
+      <p>
+        El Facilitador se encargará de eliminar o escalar los obstáculos identificados.
+      </p>
+    </article>
+  </template>
+
+
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
+  <script src="../js/mensajesPrincipal.js"></script>
+  <script src="../js/seccionesC.js"></script>
+  <script src="../js/modulosC.js"></script>
+  <script src="../js/PanelPrincipal.js"></script>
   <script>
     function consoleSessionStorage(){
       console.log("recuperando sessionStorage")

@@ -97,14 +97,78 @@ class reunionDAO{
     }
 
     async finalizarReunion(idReunion) {
+        const { rowCount } = await this.pool.query(
+            `UPDATE scrumbird.reunion 
+            SET estado = 'Finalizada' 
+            WHERE id = $1;`,
+            [idReunion]
+        );
+        return rowCount;
+    }
+
+    //funciones para la reunión de revisión
+
+    //verifica que haya una reunión de planificación terminada del sprint
+    async verificarPlanningConcluido(idSprint) {
+        const { rows } = await this.pool.query(
+            `SELECT COUNT(*) AS total 
+            FROM scrumbird.reunion 
+            WHERE id_sprint = $1 
+            AND id_tipo_reunion = 2 
+            AND estado = 'Finalizada';`,
+            [idSprint]
+        );
+        return Number(rows[0].total) > 0;
+    }
+    
+    //se obtienen las funciones que fueron terminadas en el sprint
+    async obtenerHistoriasRevisionPorSprint(idSprint, idProyecto) {
+        const { rows } = await this.pool.query(
+            `SELECT h.id, 
+                    h.numero_de_historia AS "numeroDeHistoria", 
+                    h.nombre, 
+                    h.descripcion, 
+                    h.valor, 
+                    h.horas_estimadas, 
+                    h.factor_de_complejidad, 
+                    h.asignado_al_sprint AS id_sprint,
+                    COALESCE(
+                        (SELECT json_agg(json_build_object('id', c.id, 'descripcion', c.criterios_de_aceptacion))
+                         FROM scrumbird.criterios_de_aceptacion c 
+                         WHERE c.id_historia = h.id), 
+                        '[]'::json
+                    ) AS criterios
+            FROM scrumbird.historia_de_usuario h
+            WHERE h.asignado_al_sprint = $1::integer
+              AND ($2::integer IS NULL OR h.id_proyecto = $2::integer)
+            ORDER BY h.numero_de_historia ASC;`,
+            [idSprint, idProyecto || null]
+        );
+        return rows;
+    }
+
+    //añade el comentario del cliente
+    async actualizarRevisionHistoria(idHistoria, estadoRevision, comentario, idEmisor, idReunion, idProyecto) {
+        if (comentario && comentario.trim() !== '') {
+            await this.pool.query(
+                `INSERT INTO scrumbird.comentario (emisor, id_historia, fecha_ultima_modificacion, contenido, id_proyecto)
+                 VALUES ($1, $2, NOW(), $3, $4);`,
+                [idEmisor, idHistoria, comentario, idProyecto]
+            );
+        }
+    }
+
+    async devolverHistoriaAProductBacklog(idHistoria) {
+    //marcamos la historia como pendiente y desvinculamos del sprint asginado
     const { rowCount } = await this.pool.query(
-        `UPDATE scrumbird.reunion 
-         SET estado = 'Finalizada' 
+        `UPDATE scrumbird.historia_de_usuario
+         SET pendiente = true,
+             asignado_al_sprint = NULL
          WHERE id = $1;`,
-        [idReunion]
+        [idHistoria]
     );
     return rowCount;
-}
+    }
 }
 
 module.exports = reunionDAO;

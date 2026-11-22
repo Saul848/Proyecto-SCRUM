@@ -46,6 +46,23 @@ class ProyectosDAO {
                     await client.query(queryColab, [colab.id_usuario, proyectoId, colab.rol || 'Developer']);
                 }
             }
+            // 4. Crear automáticamente el canal general del proyecto
+            const queryCanalGeneral = `
+            INSERT INTO scrumbird.canal (id_proyecto, nombre, descripcion)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (id_proyecto) DO NOTHING
+            RETURNING id;
+           `;
+
+            const resCanal = await client.query(queryCanalGeneral, [
+            proyectoId,
+            'general',
+            'Canal general del proyecto'
+              ]);
+
+            console.log(
+            `Canal general creado para el proyecto ${proyectoId}`
+            );
 
             await client.query('COMMIT'); // Confirmamos la transacción
             return nuevoProyecto;

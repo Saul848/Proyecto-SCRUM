@@ -29,3 +29,19 @@
 #btn-registro-tiempos.activo {
     background-color: #f24f5c;
 }
+
+#barra-registro {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+#cronometro {
+    font-family: "Courier New", monospace;
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #f24f5c;
+    min-width: 110px;
+    letter-spacing: 1px;
+}

@@ -5,6 +5,7 @@ const btnRegistro = document.getElementById('btn-registro-tiempos');
 const cuerpoTabla = document.getElementById('cuerpo-tabla-tiempos');
 
 function formatearHora(fechaISO) {
+    if (!fechaISO) return '—';
     return new Date(fechaISO).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
@@ -15,6 +16,7 @@ function formatearFecha(fechaISO) {
 function formatearIntervalo(intervalo) {
     // PostgreSQL devuelve el INTERVAL como objeto {hours, minutes, seconds} vía pg,
     // o como string "HH:MM:SS" dependiendo del driver/configuración. Cubrimos ambos:
+    if (!intervalo) return '—';
     if (typeof intervalo === 'string') return intervalo;
     const h = String(intervalo.hours || 0).padStart(2, '0');
     const m = String(intervalo.minutes || 0).padStart(2, '0');
@@ -113,6 +115,7 @@ btnRegistro.addEventListener('click', async () => {
         try {
             const registro = await crearRegistroTiempo(actividad, usuarioActivo.id, proyectoActivo.id);
             idRegistroActual = registro.id_registro;
+            iniciarCronometro(new Date());
 
             cronometroActivo = true;
             btnRegistro.textContent = "Detener registro de tiempos";
@@ -129,6 +132,7 @@ btnRegistro.addEventListener('click', async () => {
 
         try {
             const registro = await finalizarRegistroTiempo(idRegistroActual, hecho, pendiente);
+            detenerCronometro(); 
             agregarFilaATabla(registro);
 
             cronometroActivo = false;
@@ -142,23 +146,12 @@ btnRegistro.addEventListener('click', async () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
-    const proyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo'));
-    console.log(usuarioActivo);
-
-    if (!usuarioActivo) {
-        console.error("No hay usuario activo en sessionStorage.");
-        return;
-    }
-
-    listarRegistros(usuarioActivo.id, proyectoActivo.id);
-});
 
 document.addEventListener("DOMContentLoaded", () => {
     const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
     const proyectoActivo = JSON.parse(sessionStorage.getItem('proyectoActivo'));
-
+    console.log("usuarioActivo: ", usuarioActivo)
+    console.log("proyectoActivo: ", proyectoActivo)
     if (!usuarioActivo) {
         console.error("No hay usuario activo en sessionStorage.");
         return;
@@ -171,3 +164,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     listarRegistros(usuarioActivo.id, proyectoActivo.id);
 });
+
+let intervaloCronometro = null;
+let inicioCronometro = null;
+
+const cronometro = document.getElementById('cronometro');
+
+function formatearCronometro(ms) {
+    const totalSeg = Math.floor(ms / 1000);
+    const h = String(Math.floor(totalSeg / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSeg % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSeg % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+function iniciarCronometro(horaInicio = new Date()) {
+    detenerCronometro(); // evita intervalos duplicados
+    inicioCronometro = new Date(horaInicio).getTime();
+
+    cronometro.style.display = 'inline';
+    cronometro.textContent = formatearCronometro(Date.now() - inicioCronometro);
+
+    intervaloCronometro = setInterval(() => {
+        cronometro.textContent = formatearCronometro(Date.now() - inicioCronometro);
+    }, 1000);
+}
+
+function detenerCronometro() {
+    clearInterval(intervaloCronometro);
+    intervaloCronometro = null;
+    cronometro.style.display = 'none';
+    cronometro.textContent = '00:00:00';
+}
