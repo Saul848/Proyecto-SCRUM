@@ -36,7 +36,8 @@ class historiaUsuarioDAO {
                 t_historias.nombre, 
                 t_historias.descripcion, 
                 t_historias.valor,
-                t_historias.horas_estimadas, 
+                t_historias.horas_estimadas,
+                t_historias.pendiente, 
                 t_historias.asignado_al_sprint, 
                 t_criterios.id AS id_criterio, 
                 t_criterios.numero_de_criterio, 
@@ -81,6 +82,7 @@ class historiaUsuarioDAO {
                         descripcion: row.descripcion,
                         valor: row.valor,
                         horas: row.horas_estimadas,
+                        pendiente: row.pendiente,
                         asignado_al_sprint: row.asignado_al_sprint,
                         criterios: [] // Arreglo para los criterios de esta historia
                     };

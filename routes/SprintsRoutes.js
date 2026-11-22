@@ -28,4 +28,9 @@ router.put('/actualizar/:sprintId/:idProyecto', (req, res) => controlador.modifi
  */
 router.delete('/eliminar/:sprintId/:idProyecto', (req, res) => controlador.eliminarSprint(req, res));
 
+/**
+ * Actualiza el estado de un sprint
+ */
+router.put('/estado/:sprintId/:idProyecto', (req, res) => controlador.actualizarEstadoSprint(req, res));
+
 module.exports = router;

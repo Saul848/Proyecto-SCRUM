@@ -589,6 +589,16 @@ body {
    ESTILOS PARA MODALES DE GESTIÓN DE SPRINTS
    ========================================================== */
 
+
+#divOpccionesSprint {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+
 /* Capa de superposición del modal */
 #modalAgregarSprint,
 #modalModificarSprint {
@@ -607,6 +617,36 @@ body {
 #modalAgregarSprint.activo,
 #modalModificarSprint.activo {
   display: flex !important;
+}
+
+/* Estilo base y variantes para los botones de Iniciar / Terminar Sprint */
+.btn-estado-sprint {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: none; /* Ocultos por defecto hasta que se seleccione un sprint válido */
+}
+
+.btn-iniciar {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.btn-iniciar:hover {
+  background-color: #059669 !important;
+}
+
+.btn-terminar {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.btn-terminar:hover {
+  background-color: #d97706 !important;
 }
 
 /* Contenedor principal de la ventana modal dual */
