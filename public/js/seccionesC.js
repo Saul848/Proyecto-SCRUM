@@ -98,6 +98,8 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
           abrirSeccionIntroScrum(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 2) {
           abrirSeccionHerramientas(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 5) {
+          abrirSeccionModulo5(modulo, seccion);
         } else {
           alert("El lector de este módulo aún no está configurado en la interfaz.");
         }
@@ -302,6 +304,52 @@ async function abrirSeccionIntroScrum(modulo, seccion) {
       siguienteId: "pagina-siguiente-intro-scrum",
       cerrarId: "cerrar-lector-intro-scrum",
       terminarId: "terminar-seccion-intro-scrum"
+    }
+  });
+}
+
+async function abrirSeccionModulo5(modulo, seccion) {
+  const plantillasModulo5 = {
+    1: "guia-pantallas-y-secciones"
+  };
+
+  const idPlantilla = plantillasModulo5[Number(seccion.numero_seccion)];
+  console.log(idPlantilla);
+  const plantilla = idPlantilla ? document.getElementById(idPlantilla) : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  let progresoActual;
+  try {
+    progresoActual = await consultarProgresoCapacitacion();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
+  const puedeTerminar =
+    !progresoActual.guia_terminada &&
+    Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+    Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+  paginarPlantillaCapacitacion({
+    modulo,
+    seccion,
+    plantilla,
+    progresoActual,
+    puedeTerminar,
+    ids: {
+      dialogId: "lector-modulo-5",
+      tituloId: "lector-modulo-5-titulo",
+      paginaId: "pagina-modulo-5",
+      contadorId: "contador-paginas-modulo-5",
+      anteriorId: "pagina-anterior-modulo-5",
+      siguienteId: "pagina-siguiente-modulo-5",
+      cerrarId: "cerrar-lector-modulo-5",
+      terminarId: "terminar-seccion-modulo-5"
     }
   });
 }
