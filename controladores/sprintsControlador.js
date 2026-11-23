@@ -210,6 +210,42 @@ class sprintControlador {
         console.error('Error en sprintControlador:', err.message);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
+    async cerrarSprint(req, res) {
+    const idSprint = Number(req.params.sprintId);
+    const idProyecto = Number(req.params.idProyecto);
+
+    if (
+        !Number.isInteger(idSprint) || idSprint <= 0 ||
+        !Number.isInteger(idProyecto) || idProyecto <= 0
+    ) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: "Sprint o proyecto inválidos."
+        });
+    }
+
+    try {
+        const resultado = await this.dao.cerrarSprint(
+            idSprint,
+            idProyecto
+        );
+
+        return res.json(resultado);
+    } catch (error) {
+        console.error("Error cerrando sprint:", error);
+
+        const estadoHTTP = [404, 409].includes(error.status)
+            ? error.status
+            : 500;
+
+        return res.status(estadoHTTP).json({
+            ok: false,
+            mensaje: estadoHTTP === 500
+                ? "No se pudo cerrar el sprint."
+                : error.message
+        });
+    }
+}
 }
 
 module.exports = sprintControlador;

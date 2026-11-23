@@ -61,6 +61,9 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     COUNT(h.id)::integer AS historias_planificadas,
     COALESCE(SUM(h.horas_calculadas), 0) AS total_horas,
     COALESCE(SUM(h.puntos_de_historia), 0) AS total_puntos,
+    COALESCE(SUM(h.horas_estimadas), 0) AS horas_estimadas,
+    SUM(h.horas_reales) AS horas_reales_registradas,
+    COUNT(h.horas_reales)::integer AS historias_con_horas_reales,
     c.horas_restantes,
     c.puntos_restantes,
     c.historias_terminadas,
@@ -81,13 +84,43 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     c.es_prueba
   ORDER BY s.no_iteracion, s.id;
 `, [idProyecto]);
+ const totales = await pool.query(`
+  SELECT
+    COUNT(*)::integer AS historias,
+    COALESCE(SUM(horas_calculadas), 0) AS horas_calculadas,
+    COALESCE(SUM(puntos_de_historia), 0) AS puntos,
+    COALESCE(SUM(horas_estimadas), 0) AS horas_estimadas,
+    SUM(horas_reales) AS horas_reales_registradas,
+    COUNT(horas_reales)::integer AS historias_con_horas_reales
+  FROM scrumbird.historia_de_usuario
+  WHERE id_proyecto = $1
+`, [idProyecto]);
+
+const total = totales.rows[0];
 
     res.json({
   ok: true,
+  totales_proyecto: {
+  historias: Number(total.historias),
+  horas_calculadas: Number(total.horas_calculadas),
+  puntos: Number(total.puntos),
+  horas_estimadas: Number(total.horas_estimadas),
+  horas_reales_registradas:
+    total.horas_reales_registradas == null
+      ? null
+      : Number(total.horas_reales_registradas),
+  historias_con_horas_reales:
+    Number(total.historias_con_horas_reales)
+},
   datos: rows.map(fila => ({
   ...fila,
   total_horas: Number(fila.total_horas),
   total_puntos: Number(fila.total_puntos),
+  horas_estimadas: Number(fila.horas_estimadas),
+  horas_reales_registradas: fila.horas_reales_registradas == null
+    ? null
+    : Number(fila.horas_reales_registradas),
+  historias_con_horas_reales: Number(fila.historias_con_horas_reales),
   puntos_restantes: fila.puntos_restantes == null
     ? null
     : Number(fila.puntos_restantes)
@@ -145,8 +178,7 @@ router.get(
           AND s.id_proyecto = $2
           AND d.fecha BETWEEN s.fecha_inicio AND s.fecha_fin
         ORDER BY d.fecha;
-      `, [idSprint, idProyecto]);
-
+      `, [idSprint, idProyecto]); 
       res.json({
         ok: true,
         datos: rows

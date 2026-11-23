@@ -367,6 +367,14 @@ class historiaUsuarioDAO {
 
     try {
         await cliente.query("BEGIN");
+        // Evitar mediciones inconsistentes si cambian varias historias a la vez.
+        await cliente.query(
+            `SELECT id
+            FROM scrumbird.proyecto
+            WHERE id = $1
+            FOR UPDATE`,
+            [idProyecto]
+        );
 
         const historia = await cliente.query(
             `SELECT id
@@ -397,7 +405,62 @@ class historiaUsuarioDAO {
                 [horasReales, idHistoria, idProyecto]
             );
         }
-
+        // Medición del día: sumar estimaciones de historias aún no terminadas.
+            await cliente.query(
+                `WITH sprint_actual AS (
+                    SELECT s.id
+                    FROM scrumbird.sprint s
+                    JOIN scrumbird.historia_de_usuario h
+                    ON h.asignado_al_sprint = s.id
+                    AND h.id_proyecto = s.id_proyecto
+                    WHERE h.id = $1
+                    AND s.id_proyecto = $2
+                    AND (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')::date
+                        BETWEEN s.fecha_inicio AND s.fecha_fin
+                ),
+                pendientes AS (
+                    SELECT h.horas_calculadas, h.puntos_de_historia
+                    FROM scrumbird.historia_de_usuario h
+                    JOIN sprint_actual s ON s.id = h.asignado_al_sprint
+                    WHERE h.id_proyecto = $2
+                    AND NOT (
+                        EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                                AND t.id_proyecto = h.id_proyecto
+                                AND t.estado = 'terminado'
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                                AND t.id_proyecto = h.id_proyecto
+                                AND t.estado IS DISTINCT FROM 'terminado'
+                        )
+                    )
+                )
+                INSERT INTO scrumbird.burndown_diario (
+                    id_sprint,
+                    fecha,
+                    horas_restantes,
+                    puntos_restantes,
+                    es_prueba
+                )
+                SELECT
+                    s.id,
+                    (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')::date,
+                    COALESCE((SELECT SUM(horas_calculadas) FROM pendientes), 0),
+                    COALESCE((SELECT SUM(puntos_de_historia) FROM pendientes), 0),
+                    false
+                FROM sprint_actual s
+                ON CONFLICT (id_sprint, fecha)
+                DO UPDATE SET
+                    horas_restantes = EXCLUDED.horas_restantes,
+                    puntos_restantes = EXCLUDED.puntos_restantes,
+                    es_prueba = false`,
+                [idHistoria, idProyecto]
+            );
         await cliente.query("COMMIT");
 
         return {

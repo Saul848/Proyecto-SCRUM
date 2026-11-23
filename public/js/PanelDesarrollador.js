@@ -206,12 +206,12 @@ function salirDelProyecto() {
 
 //funcion prueba ale 
 window.cargarGrafica = async function (tipo) {
-  if (tipo === "sprint") {
-    await cargarBurndownSprint();
-    return;
-  }
+ if (tipo === "sprint") {
+  await cargarBurndownSprint();
+  return;
+}
 
-  if (tipo !== "product-backlog") return;
+if (tipo !== "product-backlog") return;
 
   const contenedor =
     document.getElementById("contenedor-grafica-activa");
@@ -285,41 +285,58 @@ window.cargarGrafica = async function (tipo) {
         (totalInicial * (1 - indice / sprints.length)).toFixed(2)
       )
     );
+    const totalPuntosInicial = sprints.reduce(
+      (suma, sprint) => suma + Number(sprint.total_puntos),
+      0
+    );
+
+    const puntosIdeales = etiquetas.map((_, indice) =>
+      Number(
+        (totalPuntosInicial * (1 - indice / sprints.length)).toFixed(2)
+      )
+    );
+
+    const puntosRestantes = [
+      totalPuntosInicial,
+      ...sprints.map(sprint =>
+        sprint.puntos_restantes == null
+          ? null
+          : Number(sprint.puntos_restantes)
+      )
+    ];
 
     /*
      * Inicio: esfuerzo planificado inicial.
      * Los cierres reales quedan vacíos hasta registrar su avance.
      * null significa "sin medición", NO cero horas.
      */
-
-    /* const restantes = [
-       totalInicial,
-       ...sprints.map(() => null)
-     ];
-     */
-
-    const restantes = [
+   /* const restantes = [
       totalInicial,
-      ...sprints.map(sprint =>
-        sprint.horas_restantes == null
-          ? null
-          : Math.round(Number(sprint.horas_restantes))
-      )
+      ...sprints.map(() => null)
     ];
+    */
+  const restantes = [
+  totalInicial,
+  ...sprints.map(sprint =>
+    sprint.horas_restantes == null
+      ? null
+      : Math.round(Number(sprint.horas_restantes))
+  )
+];
 
     const planificadas = [
       0,
       ...sprints.map(s => Number(s.historias_planificadas))
     ];
 
-    const terminadas = [
-      0,
-      ...sprints.map(sprint =>
-        sprint.historias_terminadas == null
-          ? null
-          : Number(sprint.historias_terminadas)
-      )
-    ];
+   const terminadas = [
+  0,
+  ...sprints.map(sprint =>
+    sprint.historias_terminadas == null
+      ? null
+      : Number(sprint.historias_terminadas)
+  )
+];
 
     // Tabla junto a la gráfica.
     const tabla = document.createElement("table");
@@ -329,12 +346,14 @@ window.cargarGrafica = async function (tipo) {
     const encabezado = tabla.createTHead().insertRow();
 
     [
-      "Sprint",
-      "Horas restantes",
-      "Historias terminadas",
-      "Historias planificadas",
-      "Ideal"
-    ].forEach(texto => {
+    "Sprint",
+    "Horas restantes",
+    "Horas ideales",
+    "Puntos restantes",
+    "Puntos ideales",
+    "Historias terminadas",
+    "Historias planificadas"
+  ].forEach(texto => {
       const th = document.createElement("th");
       th.textContent = texto;
       encabezado.append(th);
@@ -348,9 +367,11 @@ window.cargarGrafica = async function (tipo) {
       [
         etiqueta,
         restantes[indice],
+        ideales[indice],
+        puntosRestantes[indice],
+        puntosIdeales[indice],
         terminadas[indice],
-        planificadas[indice],
-        ideales[indice]
+        planificadas[indice]
       ].forEach(valor => {
         const celda = fila.insertCell();
 
@@ -358,8 +379,8 @@ window.cargarGrafica = async function (tipo) {
           ? "Sin registro"
           : typeof valor === "number"
             ? valor.toLocaleString("es-MX", {
-              maximumFractionDigits: 2
-            })
+                maximumFractionDigits: 2
+              })
             : valor;
       });
     });
@@ -372,10 +393,44 @@ window.cargarGrafica = async function (tipo) {
 
     const aviso = document.createElement("p");
     aviso.textContent = sprints.some(sprint => sprint.es_prueba)
-      ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
-      : "Mediciones consultadas desde la BD.";
-    areaDatos.replaceChildren(tabla, aviso);
+  ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones consultadas desde la BD.";
+    const estimadas = sprints.reduce(
+  (suma, sprint) => suma + Number(sprint.horas_estimadas),
+  0
+);
 
+const historiasTotales = sprints.reduce(
+  (suma, sprint) => suma + Number(sprint.historias_planificadas),
+  0
+);
+
+const historiasRegistradas = sprints.reduce(
+  (suma, sprint) => suma + Number(sprint.historias_con_horas_reales),
+  0
+);
+
+const reales = sprints.reduce(
+  (suma, sprint) =>
+    suma + Number(sprint.horas_reales_registradas ?? 0),
+  0
+);
+
+const formato = valor =>
+  valor.toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const resumenHoras = document.createElement("p");
+
+resumenHoras.textContent =
+  `Historias asignadas a sprints: ${historiasTotales}. ` +
+  `Horas estimadas: ${formato(estimadas)}. ` +
+  `Horas reales registradas: ${
+    historiasRegistradas === 0 ? "Sin registro" : formato(reales)
+  } (${historiasRegistradas} de ${historiasTotales} historias con registro).`;
+
+areaDatos.replaceChildren(resumenHoras, tabla, aviso);
     new Chart(canvas, {
       type: "bar",
 
@@ -397,7 +452,7 @@ window.cargarGrafica = async function (tipo) {
           },
           {
             type: "line",
-            label: "Ideal",
+            label: "Horas Ideales",
             data: ideales,
             borderColor: "#0284c7",
             backgroundColor: "#0284c7",
@@ -407,20 +462,29 @@ window.cargarGrafica = async function (tipo) {
             order: 0
           },
           {
-            type: "bar",
-            label: "Historias planificadas",
-            data: planificadas,
-            backgroundColor: "#38bdf8",
-            yAxisID: "historias",
-            order: 1
+            type: "line",
+            label: "Puntos restantes",
+            data: puntosRestantes,
+            borderColor: "#9333ea",
+            backgroundColor: "#9333ea",
+            pointStyle: "rectRot",
+            pointRadius: 5,
+            tension: 0,
+            spanGaps: false,
+            yAxisID: "puntos",
+            order: 0
           },
           {
-            type: "bar",
-            label: "Historias terminadas",
-            data: terminadas,
-            backgroundColor: "#86efac",
-            yAxisID: "historias",
-            order: 1
+            type: "line",
+            label: "Puntos ideales",
+            data: puntosIdeales,
+            borderColor: "#f97316",
+            backgroundColor: "#f97316",
+            borderDash: [6, 4],
+            pointRadius: 3,
+            tension: 0,
+            yAxisID: "puntos",
+            order: 0
           }
         ]
       },
@@ -453,11 +517,11 @@ window.cargarGrafica = async function (tipo) {
             beginAtZero: true,
             title: {
               display: true,
-              text: "Horas calculadas"
+              text: "Horas pendientes"
             }
           },
 
-          historias: {
+          puntos: {
             type: "linear",
             position: "right",
             beginAtZero: true,
@@ -469,7 +533,7 @@ window.cargarGrafica = async function (tipo) {
             },
             title: {
               display: true,
-              text: "Cantidad de historias"
+              text: "Puntos de historia pendientes"
             }
           }
         }
@@ -479,8 +543,7 @@ window.cargarGrafica = async function (tipo) {
     console.error("Error cargando burndown:", error);
     areaDatos.textContent = error.message;
   }
-};
-async function cargarBurndownSprint() {
+};async function cargarBurndownSprint() {
   const contenedor =
     document.getElementById("contenedor-grafica-activa");
   const titulo =
@@ -558,6 +621,7 @@ async function cargarBurndownSprint() {
     const zonaTabla = document.createElement("div");
     zonaTabla.style.maxHeight = "280px";
     zonaTabla.style.overflowY = "auto";
+    zonaTabla.style.overflowX = "auto";
 
     const aviso = document.createElement("p");
     aviso.textContent =
@@ -584,7 +648,11 @@ async function cargarBurndownSprint() {
         }
 
         const totalInicial = Number(sprint.total_horas);
+        const totalPuntosInicial = Number(sprint.total_puntos);
 
+          if (!Number.isFinite(totalPuntosInicial) || totalPuntosInicial < 0) {
+            throw new Error("Los puntos del sprint no son válidos.");
+          }
         if (!Number.isFinite(totalInicial) || totalInicial < 0) {
           throw new Error("Las horas del sprint no son válidas.");
         }
@@ -636,95 +704,130 @@ async function cargarBurndownSprint() {
         }
 
         // Ideal: reducción uniforme al cierre de cada día.
-        // Ideal: redondeado al entero más cercano.
-        const ideales = etiquetas.map((_, indice) =>
-          Math.round(totalInicial * (1 - indice / cantidadDias))
-        );
+       // Ideal: redondeado al entero más cercano.
+const ideales = etiquetas.map((_, indice) =>
+  Number(
+    (totalInicial * (1 - indice / cantidadDias)).toFixed(2)
+  )
+);
+const puntosIdeales = etiquetas.map((_, indice) =>
+  Number(
+    (totalPuntosInicial * (1 - indice / cantidadDias)).toFixed(2)
+  )
+);
+
 
         /*
          * AVANCES DE PRUEBA POR DÍA.   
          * Los días sin valor se simulan con avance cero.
          */
-        const respuestaMediciones = await fetch(
-          `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
-        );
+       const respuestaMediciones = await fetch(
+  `/proyectos/burndown-diario/${idProyecto}/${sprint.id_sprint}`
+);
 
-        if (!respuestaMediciones.ok) {
-          throw new Error(
-            `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
-          );
-        }
+if (!respuestaMediciones.ok) {
+  throw new Error(
+    `Error HTTP ${respuestaMediciones.status} al consultar mediciones`
+  );
+}
 
-        const resultadoMediciones = await respuestaMediciones.json();
+const resultadoMediciones = await respuestaMediciones.json();
 
-        if (
-          !resultadoMediciones.ok ||
-          !Array.isArray(resultadoMediciones.datos)
-        ) {
-          throw new Error("Las mediciones diarias no tienen el formato esperado.");
-        }
+if (
+  !resultadoMediciones.ok ||
+  !Array.isArray(resultadoMediciones.datos)
+) {
+  throw new Error("Las mediciones diarias no tienen el formato esperado.");
+}
 
-        // Si se cambió el selector mientras cargaba, ignorar esta respuesta.
-        if (selector.value !== String(sprint.id_sprint)) return;
+// Si se cambió el selector mientras cargaba, ignorar esta respuesta.
+if (selector.value !== String(sprint.id_sprint)) return;
 
-        const mediciones = resultadoMediciones.datos;
+const mediciones = resultadoMediciones.datos;
 
-        const porFecha = new Map(
-          mediciones.map(medicion => [
-            medicion.fecha,
-            Number(medicion.horas_restantes)
-          ])
-        );
+const porFecha = new Map(
+  mediciones.map(medicion => [
+    medicion.fecha,
+    Number(medicion.horas_restantes)
+  ])
+);
+const puntosPorFecha = new Map(
+  mediciones.map(medicion => [
+    medicion.fecha,
+    medicion.puntos_restantes == null
+      ? null
+      : Number(medicion.puntos_restantes)
+  ])
+);
 
-        const restantes = [totalInicial];
-        const avancesAplicados = [0];
+const puntosRestantes = [totalPuntosInicial];
+const restantes = [totalInicial];
+const avancesAplicados = [0];
 
-        for (let indice = 0; indice < cantidadDias; indice++) {
-          const fechaISO = new Date(
-            inicio + indice * milisegundosDia
-          ).toISOString().slice(0, 10);
+for (let indice = 0; indice < cantidadDias; indice++) {
+  const fechaISO = new Date(
+    inicio + indice * milisegundosDia
+  ).toISOString().slice(0, 10);
 
-          const pendiente = porFecha.has(fechaISO)
-            ? porFecha.get(fechaISO)
-            : null;
+  const pendiente = porFecha.has(fechaISO)
+    ? porFecha.get(fechaISO)
+    : null;
 
-          const anterior = restantes[restantes.length - 1];
+  const anterior = restantes[restantes.length - 1];
 
-          // Solo calcular la reducción si ambos puntos tienen medición.
-          const reduccion =
-            pendiente !== null && anterior !== null
-              ? anterior - pendiente
-              : null;
+  // Solo calcular la reducción si ambos puntos tienen medición.
+  const reduccion =
+    pendiente !== null && anterior !== null
+      ? anterior - pendiente
+      : null;
 
-          restantes.push(pendiente);
-          avancesAplicados.push(reduccion);
-        }
+  restantes.push(pendiente);
+  puntosRestantes.push(puntosPorFecha.get(fechaISO) ?? null);
+  avancesAplicados.push(reduccion);
+}
 
-        aviso.textContent = mediciones.some(m => m.es_prueba)
-          ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
-          : "Mediciones diarias consultadas desde la BD.";
+aviso.textContent = mediciones.some(m => m.es_prueba)
+  ? "Mediciones diarias consultadas desde la BD. Incluye datos de prueba."
+  : "Mediciones diarias consultadas desde la BD.";
 
         titulo.textContent =
           `Burndown del Sprint ${sprint.no_iteracion}`;
 
-        detalle.textContent =
-          `Horas iniciales: ${totalInicial}. ` +
-          `Duración: ${cantidadDias} días calendario. ` +
-          `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
+        const formatearHoras = valor =>
+  Number(valor).toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const horasRealesTexto = sprint.horas_reales_registradas == null
+  ? "Sin registro"
+  : formatearHoras(sprint.horas_reales_registradas);
+
+detalle.textContent =
+  `Horas estimadas: ${formatearHoras(sprint.horas_estimadas)}. ` +
+  `Horas reales registradas: ${horasRealesTexto} ` +
+  `(${sprint.historias_con_horas_reales} de ` +
+  `${sprint.historias_planificadas} historias con registro). ` +
+  `Estimación ajustada para el burndown: ${formatearHoras(totalInicial)} h. ` +
+  `Duración: ${cantidadDias} días calendario. ` +
+  `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
 
         const tabla = document.createElement("table");
         tabla.style.width = "100%";
         tabla.style.borderCollapse = "collapse";
+        tabla.style.fontSize = "13px";
+        areaDatos.style.overflowX = "auto";
 
         const encabezado = tabla.createTHead().insertRow();
 
-        [
-          "Día",
-          "Fecha",
-          "Reducción de pendientes (h)",
-          "Horas restantes",
-          "Ideal"
-        ].forEach(texto => {
+       [
+        "Día",
+        "Fecha",
+        "Reducción de pendientes (h)",
+        "Horas restantes",
+        "Horas ideales",
+        "Puntos restantes",
+        "Puntos ideales"
+      ].forEach(texto => {
           const th = document.createElement("th");
           th.textContent = texto;
           encabezado.append(th);
@@ -734,24 +837,25 @@ async function cargarBurndownSprint() {
 
         etiquetas.forEach((etiqueta, indice) => {
           const fila = cuerpo.insertRow();
-
-          [
-            etiqueta,
-            fechas[indice],
-            avancesAplicados[indice],
-            restantes[indice],
-            ideales[indice]
-          ].forEach(valor => {
+           [
+          etiqueta,
+          fechas[indice],
+          avancesAplicados[indice],
+          restantes[indice],
+          ideales[indice],
+          puntosRestantes[indice],
+          puntosIdeales[indice]
+        ].forEach(valor => {
             const celda = fila.insertCell();
 
             celda.textContent =
-              valor === null
-                ? "Sin registro"
-                : typeof valor === "number"
-                  ? valor.toLocaleString("es-MX", {
-                    maximumFractionDigits: 0
-                  })
-                  : valor;
+                valor === null
+                    ? "Sin registro"
+                    : typeof valor === "number"
+                    ? valor.toLocaleString("es-MX", {
+                        maximumFractionDigits: 2
+                        })
+                    : valor;
           });
         });
 
@@ -769,25 +873,50 @@ async function cargarBurndownSprint() {
           data: {
             labels: etiquetas,
             datasets: [
-              {
-                label: "Horas restantes",
-                data: restantes,
-                borderColor: "#22c55e",
-                backgroundColor: "#22c55e",
-                pointRadius: 3,
-                tension: 0,
-                fill: false,
-                spanGaps: false
-              },
-              {
-                label: "Ideal",
-                data: ideales,
-                borderColor: "#0284c7",
-                backgroundColor: "#0284c7",
-                pointRadius: 3,
-                tension: 0,
-                fill: false
-              }
+             {
+              label: "Horas restantes",
+              data: restantes,
+              borderColor: "#22c55e",
+              backgroundColor: "#22c55e",
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              spanGaps: false,
+              yAxisID: "horas"
+            },
+            {
+              label: "Horas ideales",
+              data: ideales,
+              borderColor: "#0284c7",
+              backgroundColor: "#0284c7",
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              yAxisID: "horas"
+            },
+            {
+              label: "Puntos restantes",
+              data: puntosRestantes,
+              borderColor: "#9333ea",
+              backgroundColor: "#9333ea",
+              pointStyle: "rectRot",
+              pointRadius: 5,
+              tension: 0,
+              fill: false,
+              spanGaps: false,
+              yAxisID: "puntos"
+            },
+            {
+              label: "Puntos ideales",
+              data: puntosIdeales,
+              borderColor: "#f97316",
+              backgroundColor: "#f97316",
+              borderDash: [6, 4],
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              yAxisID: "puntos"
+            }
             ]
           },
 
@@ -812,13 +941,30 @@ async function cargarBurndownSprint() {
                   text: "Días del sprint"
                 }
               },
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Horas pendientes"
+              horas: {
+                  type: "linear",
+                  position: "left",
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Horas pendientes"
+                  }
+                },
+                puntos: {
+                  type: "linear",
+                  position: "right",
+                  beginAtZero: true,
+                  ticks: {
+                    precision: 0
+                  },
+                  grid: {
+                    drawOnChartArea: false
+                  },
+                  title: {
+                    display: true,
+                    text: "Puntos de historia pendientes"
+                  }
                 }
-              }
             }
           }
         });
