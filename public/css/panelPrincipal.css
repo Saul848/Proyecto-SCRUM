@@ -1080,6 +1080,8 @@ body {
     #pagina-modulo-5 .pagina-capacitacion {
         font-size: 14px;
     }
+}
+
 #terminar-seccion-intro-scrum:disabled {
   opacity: 0.6;
   cursor: wait;
@@ -1246,4 +1248,172 @@ dialog.lector-capacitacion::backdrop {
   font-size: 12px;
   line-height: 1.4;
   color: #526477;
+}
+
+/* =====================================================
+   MÓDULO 6: TUTORIAL DESARROLLADOR
+   ===================================================== */
+
+/* Ventana principal del tutorial */
+#lector-modulo-6 {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    box-sizing: border-box;
+    width: min(900px, 92vw);
+    max-height: 85vh;
+    padding: 24px;
+    border: 8px solid #fff;
+    border-radius: 12px;
+    background: #edf4f6;
+    color: #172334;
+    box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+}
+
+#lector-modulo-6[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+#lector-modulo-6::backdrop {
+    background: rgb(15 23 42 / 40%);
+}
+
+/* Encabezado */
+#lector-modulo-6 > header {
+    flex-shrink: 0;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #fff;
+}
+
+#lector-modulo-6 > header strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #526477;
+}
+
+#lector-modulo-6-titulo {
+    margin: 6px 0 0;
+    font-size: 20px;
+}
+
+/* Botón para cerrar */
+#cerrar-lector-modulo-6 {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: #172334;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+/* Área de contenido */
+#pagina-modulo-6 {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 28px 16px;
+}
+
+#pagina-modulo-6 .pagina-capacitacion {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+#pagina-modulo-6 h3 {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#pagina-modulo-6 p {
+    margin: 0 0 16px;
+}
+
+/* Pie del lector */
+#lector-modulo-6 > footer {
+    flex-shrink: 0;
+    padding-top: 16px;
+    border-top: 2px solid #fff;
+}
+
+/* Botones de navegación */
+#pagina-anterior-modulo-6,
+#pagina-siguiente-modulo-6 {
+    width: 44px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: #172334;
+    color: #fff;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+#pagina-anterior-modulo-6:disabled,
+#pagina-siguiente-modulo-6:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+/* Contador de páginas */
+#contador-paginas-modulo-6 {
+    min-width: 80px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Botón Terminar */
+#terminar-seccion-modulo-6 {
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 20px;
+    background: #38a9f5;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#terminar-seccion-modulo-6[hidden] {
+    display: none;
+}
+
+#terminar-seccion-modulo-6:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 600px) {
+    #lector-modulo-6 {
+        padding: 16px;
+    }
+
+    #pagina-modulo-6 {
+        padding: 20px 0;
+    }
+
+    #pagina-modulo-6 .pagina-capacitacion {
+        font-size: 14px;
+    }
+}
+/* Imágenes del tutorial desarrollador */
+#pagina-modulo-6 .imagen-sistema img {
+    max-width: min(100%, 600px);
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
 }

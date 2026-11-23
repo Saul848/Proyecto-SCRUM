@@ -1161,6 +1161,178 @@
 
     
   </template>
+  <!-- MÓDULO 6: TUTORIAL DESARROLLADOR -->
+  <!-- Lector de capacitación del desarrollador -->
+  <dialog
+    id="lector-modulo-6"
+    aria-labelledby="lector-modulo-6-titulo">
+    <!-- Encabezado -->
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 6: Tutorial Desarrollador</strong>
+        <h3 id="lector-modulo-6-titulo"></h3>
+      </div>
+
+      <button
+        id="cerrar-lector-modulo-6"
+        type="button"
+        aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+    <!-- Contenido de las páginas -->
+    <div id="pagina-modulo-6"></div>
+
+    <!-- Navegación del tutorial -->
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+
+      <button
+        id="pagina-anterior-modulo-6"
+        type="button"
+        aria-label="Página anterior">
+        ←
+      </button>
+      <span
+        id="contador-paginas-modulo-6"
+        aria-live="polite">
+      </span>
+
+      <button
+        id="pagina-siguiente-modulo-6"
+        type="button"
+        aria-label="Página siguiente">
+        →
+      </button>
+
+      <button
+        id="terminar-seccion-modulo-6"
+        type="button"
+        hidden>
+        ✓ Terminar
+      </button>
+
+    </footer>
+  </dialog>
+
+<!-- MÓDULO 6 - SECCIÓN 1: TUTORIAL DESARROLLADOR  -->
+<template id="tutorial-desarrollador">
+
+  <!-- PÁGINA 1: MI EQUIPO -->
+  <article class="pagina-capacitacion">
+    <h3>Mi equipo</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_mi_equipo.png"
+           alt="Vista de Mi equipo del panel desarrollador">
+      <figcaption>Lista de integrantes del equipo Scrum.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar a los integrantes de tu equipo Scrum. Se muestra una lista con el identificador
+      y nombre de cada miembro, lo que permite reconocer a las personas con quienes colaborarás en el proyecto.
+    </p>
+  </article>
+
+  <!-- PÁGINA 2: MENSAJES -->
+  <article class="pagina-capacitacion">
+    <h3>Mensajes</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_mensajes.png"
+           alt="Vista de Mensajes del panel desarrollador">
+      <figcaption>Herramientas de comunicación del equipo.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite comunicarte con otros integrantes del proyecto. Puedes consultar conversaciones, enviar
+      mensajes privados y participar en los grupos o canales disponibles para facilitar la colaboración del equipo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 3: PRODUCT BACKLOG -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_product_backlog.png"
+           alt="Vista del Product Backlog">
+      <figcaption>Historias de usuario y requerimientos del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      En el Product Backlog puedes consultar las historias de usuario y los requerimientos del proyecto.
+      Esta sección te ayuda a conocer las funcionalidades que se deben desarrollar y la información relacionada
+      con cada elemento del trabajo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 4: SPRINT BACKLOG -->
+  <article class="pagina-capacitacion">
+    <h3>Sprint Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_sprint_backlog.png"
+           alt="Vista del Sprint Backlog">
+      <figcaption>Actividades planificadas para el sprint.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar el trabajo correspondiente al sprint. Permite identificar
+      las actividades planificadas y dar seguimiento a las tareas que forman parte del desarrollo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 5: REUNIRSE -->
+  <article class="pagina-capacitacion">
+    <h3>Reunirse</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_reunirse.png"
+           alt="Vista de Reunirse del panel desarrollador">
+      <figcaption>Espacio de reuniones del equipo Scrum.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite acceder a las herramientas de reuniones del proyecto. Facilita la coordinación
+      entre los integrantes y la consulta de información relacionada con las reuniones del equipo Scrum.
+    </p>
+  </article>
+
+  <!-- PÁGINA 6: GRÁFICAS -->
+  <article class="pagina-capacitacion">
+    <h3>Gráficas</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_graficas.png"
+           alt="Vista de Gráficas del panel desarrollador">
+      <figcaption>Representaciones visuales del progreso del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar gráficas relacionadas con el avance del proyecto.
+      Estas representaciones ayudan a comprender el progreso de las actividades y el trabajo
+      realizado durante los sprints.
+    </p>
+  </article>
+
+  <!-- PÁGINA 7: REGISTRO DE TIEMPOS -->
+  <article class="pagina-capacitacion">
+    <h3>Registro de tiempos</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_registro_tiempos.png"
+           alt="Vista de Registro de tiempos">
+      <figcaption>Seguimiento del tiempo dedicado a las actividades.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite registrar y consultar el tiempo dedicado a las actividades del proyecto.
+      La información ayuda a llevar un control del esfuerzo realizado y a dar seguimiento
+      al trabajo durante cada sprint.
+    </p>
+  </article>
+
+</template>
 
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
