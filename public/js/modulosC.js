@@ -30,11 +30,21 @@ async function cargarModulosCapacitacion() {
       lista.textContent = "No hay módulos disponibles.";
       return;
     }
+    const avances = await calcularProgresoModulos(modulos);
+
+    function mostrarAvance(elemento, avance) {
+      elemento.textContent = avance.porcentaje === null
+        ? avance.estado
+        : `${avance.estado} · ${avance.porcentaje} %`;
+
+      elemento.title = `${avance.terminadas} de ${avance.total} secciones terminadas`;
+    }
 
     for (const modulo of modulos) {
       const boton = document.createElement("button");
       boton.type = "button";
       boton.className = "modulo-btn";
+      boton.dataset.moduloId = modulo.id;
 
       const nombre = document.createElement("span");
       nombre.textContent = `Módulo ${modulo.numero_modulo}: ${modulo.nombre}`;
@@ -43,9 +53,22 @@ async function cargarModulosCapacitacion() {
       flecha.className = "flecha";
       flecha.textContent = "▶";
 
-      boton.append(nombre, flecha);
+      const detalle = document.createElement("div");
+      detalle.className = "modulo-detalle";
 
-      boton.addEventListener("click", () => {
+      const resumen = document.createElement("small");
+      resumen.className = "modulo-progreso";
+
+      const avance = avances.find(
+        elemento => elemento.id === Number(modulo.id)
+      );
+
+      mostrarAvance(resumen, avance);
+
+      detalle.append(nombre, resumen);
+      boton.append(detalle, flecha);
+
+      boton.addEventListener("click", async () => {
         lista.querySelectorAll(".modulo-btn").forEach((elemento) => {
           elemento.classList.remove("activo");
         });
@@ -66,8 +89,27 @@ async function cargarModulosCapacitacion() {
 
         contenido.replaceChildren(titulo, objetivo);
 
-        // Cargar secciones para cualquier módulo disponible
-        cargarSeccionesCapacitacion(modulo, contenido);
+        await cargarSeccionesCapacitacion(modulo, contenido);
+
+        // Actualizar los porcentajes, también después de terminar una sección.
+        try {
+          const avancesActualizados = await calcularProgresoModulos(modulos);
+
+          lista.querySelectorAll(".modulo-btn").forEach(elemento => {
+            const avance = avancesActualizados.find(
+              dato => dato.id === Number(elemento.dataset.moduloId)
+            );
+
+            if (avance) {
+              mostrarAvance(
+                elemento.querySelector(".modulo-progreso"),
+                avance
+              );
+            }
+          });
+        } catch (error) {
+          console.error("No se pudieron actualizar los porcentajes:", error);
+        }
       });
 
       lista.append(boton);

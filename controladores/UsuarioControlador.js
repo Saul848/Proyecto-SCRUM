@@ -231,9 +231,9 @@ async actualizarModuloCapacitacion(req, res) {
     );
 
     if (!progreso) {
-      return res.status(404).json({
+      return res.status(409).json({
         ok: false,
-        error: "No existe progreso registrado para este usuario."
+        error: "No se pudo cambiar el módulo: el usuario no tiene progreso o el módulo no tiene secciones."
       });
     }
 
@@ -266,9 +266,9 @@ async actualizarSeccionCapacitacion(req, res) {
     );
 
     if (!progreso) {
-      return res.status(404).json({
+      return res.status(409).json({
         ok: false,
-        error: "No existe progreso registrado para este usuario."
+        error: "No se pudo cambiar la sección: el usuario no tiene progreso o la sección no pertenece a su módulo actual."
       });
     }
 
