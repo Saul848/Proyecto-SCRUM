@@ -105,6 +105,8 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
           abrirSeccionModulo5(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 6) {
           abrirSeccionModulo6(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 7) {
+          abrirSeccionModulo7(modulo, seccion);
         } else {
           alert("El lector de este módulo aún no está configurado en la interfaz.");
         }
@@ -654,3 +656,49 @@ async function abrirSeccionModulo6(modulo, seccion) {
     }
   });
 }
+async function abrirSeccionModulo7(modulo, seccion) {
+  const plantillas = {
+    1: "cliente-guia-panel"
+  };
+
+  const idPlantilla = plantillas[Number(seccion.numero_seccion)];
+  const plantilla = idPlantilla
+    ? document.getElementById(idPlantilla)
+    : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  try {
+    const progresoActual = await consultarProgresoCapacitacion();
+
+    const puedeTerminar =
+      !progresoActual.guia_terminada &&
+      Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+      Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+    paginarPlantillaCapacitacion({
+      modulo,
+      seccion,
+      plantilla,
+      progresoActual,
+      puedeTerminar,
+      ids: {
+        dialogId: "lector-modulo-7",
+        tituloId: "lector-modulo-7-titulo",
+        paginaId: "pagina-modulo-7",
+        contadorId: "contador-paginas-modulo-7",
+        anteriorId: "pagina-anterior-modulo-7",
+        siguienteId: "pagina-siguiente-modulo-7",
+        cerrarId: "cerrar-lector-modulo-7",
+        terminarId: "terminar-seccion-modulo-7"
+      }
+    });
+  } catch (error) {
+    console.error("Error abriendo el tutorial del Cliente:", error);
+    alert(error.message);
+  }
+}
+

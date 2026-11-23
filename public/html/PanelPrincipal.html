@@ -1333,6 +1333,171 @@
   </article>
 
 </template>
+<!-- Módulo 7: Tutorial del Cliente -->
+<dialog id="lector-modulo-7"
+        class="lector-capacitacion"
+        aria-labelledby="lector-modulo-7-titulo">
+
+  <header style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+    <div>
+      <strong>Módulo 7: Cliente</strong>
+      <h3 id="lector-modulo-7-titulo"></h3>
+    </div>
+
+    <button id="cerrar-lector-modulo-7"
+            type="button"
+            aria-label="Cerrar contenido">
+      ✕
+    </button>
+  </header>
+
+  <div id="pagina-modulo-7"></div>
+
+  <footer style="display:flex; justify-content:center; align-items:center; gap:16px;">
+    <button id="pagina-anterior-modulo-7"
+            type="button"
+            aria-label="Página anterior">
+      ←
+    </button>
+
+    <span id="contador-paginas-modulo-7"
+          aria-live="polite"></span>
+
+    <button id="pagina-siguiente-modulo-7"
+            type="button"
+            aria-label="Página siguiente">
+      →
+    </button>
+
+    <button id="terminar-seccion-modulo-7"
+            type="button"
+            hidden>
+      ✓ Terminar
+    </button>
+  </footer>
+</dialog>
+
+<template id="cliente-guia-panel">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Mi equipo</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_mi_equipo.png"
+           alt="Panel del Cliente con la lista de integrantes del equipo Scrum.">
+      <figcaption>Consulta de los integrantes del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      Este apartado permite consultar quiénes forman parte del equipo
+      Scrum del proyecto. En la lista central se muestra el identificador
+      y el nombre de cada integrante.
+    </p>
+
+    <p>
+      El menú lateral permite acceder a los demás apartados del Cliente.
+      El botón “Regresar a panel principal” vuelve a la pantalla general
+      del sistema.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Mensajes</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_mensajes.png"
+           alt="Centro de comunicación del Cliente con contactos, canales y área de mensajes.">
+      <figcaption>Comunicación con los integrantes del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      El centro de comunicación reúne los contactos, canales y grupos
+      del proyecto. Selecciona una conversación en el panel izquierdo
+      para consultar sus mensajes.
+    </p>
+
+    <p>
+      En la parte inferior puedes escribir un mensaje y enviarlo con
+      el botón de flecha. También se muestran opciones para iniciar
+      una conversación y consultar sus detalles.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_product_backlog.png"
+           alt="Product Backlog del Cliente con filtros, columnas de historias y apartado de Definición de Hecho.">
+      <figcaption>Consulta de las historias de usuario del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      Permite consultar las historias de usuario, su descripción,
+      criterios de aceptación, valor y sprint asignado.
+      Los filtros superiores ayudan a buscar por identificador,
+      nombre, valor o sprint. El botón “Limpiar” restablece los filtros.
+    </p>
+
+    <p>
+      En la parte inferior se encuentra la Definición de Hecho (DoD),
+      que describe las condiciones acordadas para considerar terminado
+      el trabajo. Si no hay historias disponibles o ninguna coincide
+      con los filtros, se muestra un aviso.
+    </p>
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Reunirse</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_reunirse.png"
+           alt="Apartado Reunirse del Cliente con las pestañas de reuniones activas e historial de finalizadas.">
+      <figcaption>Consulta de las reuniones del equipo.</figcaption>
+    </figure>
+
+    <p>
+      Este apartado permite consultar las reuniones programadas para
+      el proyecto. La pestaña “Reuniones Activas” muestra las reuniones
+      que siguen activas y su cantidad.
+    </p>
+
+    <p>
+      La pestaña “Historial Finalizadas” permite consultar las reuniones
+      que ya concluyeron. Cuando no existen reuniones en la categoría
+      seleccionada, se muestra un aviso.
+    </p>
+  </article>
+
+  <!-- Página 5 -->
+  <article class="pagina-capacitacion">
+    <h3>Gráficas</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_graficas.png"
+           alt="Apartado de métricas del Cliente con las opciones de burndown del Product Backlog y del Sprint.">
+      <figcaption>Selección de las gráficas de seguimiento.</figcaption>
+    </figure>
+
+    <p>
+      Las gráficas permiten consultar el avance del trabajo del proyecto.
+      Selecciona una tarjeta para abrir la gráfica correspondiente
+      y revisar la información disponible.
+    </p>
+
+    <p>
+      El burndown del Product Backlog presenta el seguimiento del trabajo
+      pendiente del proyecto. El burndown del Sprint permite consultar
+      el trabajo pendiente durante la iteración seleccionada.
+      Su información depende de los datos y mediciones registrados.
+    </p>
+  </article>
+
+</template>
 
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>
