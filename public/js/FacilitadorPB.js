@@ -137,16 +137,17 @@ if (tipo !== "product-backlog") return;
     }
 
     const sprints = resultado.datos;
+    const totalesProyecto = resultado.totales_proyecto;
 
+if (!totalesProyecto) {
+  throw new Error("No se recibieron los totales del proyecto.");
+}
     if (sprints.length === 0) {
       areaDatos.textContent = "Este proyecto todavía no tiene sprints.";
       return;
     }
 
-    const totalInicial = sprints.reduce(
-      (suma, sprint) => suma + Number(sprint.total_horas),
-      0
-    );
+    const totalInicial = Number(totalesProyecto.horas_calculadas);
 
     const etiquetas = [
       "Inicio",
@@ -159,10 +160,7 @@ if (tipo !== "product-backlog") return;
         (totalInicial * (1 - indice / sprints.length)).toFixed(2)
       )
     );
-    const totalPuntosInicial = sprints.reduce(
-      (suma, sprint) => suma + Number(sprint.total_puntos),
-      0
-    );
+    const totalPuntosInicial = Number(totalesProyecto.puntos);
 
     const puntosIdeales = etiquetas.map((_, indice) =>
       Number(
@@ -271,8 +269,30 @@ if (tipo !== "product-backlog") return;
     aviso.textContent = sprints.some(sprint => sprint.es_prueba)
   ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
   : "Mediciones consultadas desde la BD.";
-    areaDatos.replaceChildren(tabla, aviso);
+    const estimadas = Number(totalesProyecto.horas_estimadas);
+const historiasTotales = Number(totalesProyecto.historias);
+const historiasRegistradas = Number(
+  totalesProyecto.historias_con_horas_reales
+);
+const reales = Number(
+  totalesProyecto.horas_reales_registradas ?? 0
+);
 
+const formato = valor =>
+  valor.toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const resumenHoras = document.createElement("p");
+
+resumenHoras.textContent =
+  `Historias del proyecto: ${historiasTotales}. ` +
+  `Horas estimadas: ${formato(estimadas)}. ` +
+  `Horas reales registradas: ${
+    historiasRegistradas === 0 ? "Sin registro" : formato(reales)
+  } (${historiasRegistradas} de ${historiasTotales} historias con registro).`;
+
+areaDatos.replaceChildren(resumenHoras, tabla, aviso);
     new Chart(canvas, {
       type: "bar",
 
@@ -386,6 +406,7 @@ if (tipo !== "product-backlog") return;
     areaDatos.textContent = error.message;
   }
 };
+
 async function cargarBurndownSprint() {
   const contenedor =
     document.getElementById("contenedor-grafica-activa");
@@ -549,7 +570,9 @@ async function cargarBurndownSprint() {
         // Ideal: reducción uniforme al cierre de cada día.
        // Ideal: redondeado al entero más cercano.
 const ideales = etiquetas.map((_, indice) =>
-  Math.round(totalInicial * (1 - indice / cantidadDias))
+  Number(
+    (totalInicial * (1 - indice / cantidadDias)).toFixed(2)
+  )
 );
 const puntosIdeales = etiquetas.map((_, indice) =>
   Number(
@@ -634,10 +657,23 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
         titulo.textContent =
           `Burndown del Sprint ${sprint.no_iteracion}`;
 
-        detalle.textContent =
-          `Horas iniciales: ${totalInicial}. ` +
-          `Duración: ${cantidadDias} días calendario. ` +
-          `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
+        const formatearHoras = valor =>
+  Number(valor).toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const horasRealesTexto = sprint.horas_reales_registradas == null
+  ? "Sin registro"
+  : formatearHoras(sprint.horas_reales_registradas);
+
+detalle.textContent =
+  `Horas estimadas: ${formatearHoras(sprint.horas_estimadas)}. ` +
+  `Horas reales registradas: ${horasRealesTexto} ` +
+  `(${sprint.historias_con_horas_reales} de ` +
+  `${sprint.historias_planificadas} historias con registro). ` +
+  `Estimación ajustada para el burndown: ${formatearHoras(totalInicial)} h. ` +
+  `Duración: ${cantidadDias} días calendario. ` +
+  `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
 
         const tabla = document.createElement("table");
         tabla.style.width = "100%";
