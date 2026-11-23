@@ -1,13 +1,14 @@
-const pool = require('../poolDb'); // aqui mismo en las rutas se exporta { pool } 
+const pool = require('../poolDb'); // aqui mismo en las rutas se exporta { pool }
 const HistoriaUsuarioDAO = require('../dao/historiaUsuarioDAO');
 
 const historiaDao = new HistoriaUsuarioDAO(pool);
 
-// server.js (o tu archivo principal del backend)
-const { Server } = require("socket.io");
-
-function setupPlanningPokerSockets(server) {
-    const io = new Server(server, { cors: { origin: "*" } });
+/**
+ * Registra los eventos de Planning Poker sobre una instancia de Socket.IO
+ * ya creada en server.js (NO crea su propio Server).
+ * @param {import("socket.io").Server} io
+ */
+function setupPlanningPokerSockets(io) {
     const activeSessions = {};
 
     io.on("connection", (socket) => {
@@ -15,20 +16,34 @@ function setupPlanningPokerSockets(server) {
 
         // 1. Unirse e inicializar sesión
         socket.on("join-planning-session", async ({ sprintId, user, role, stories }) => {
-            socket.join(sprintId);
-            socket.sprintId = sprintId;
+            if (!user) return;
 
-            if (!activeSessions[sprintId]) {
-                activeSessions[sprintId] = {
+            let session = activeSessions[sprintId];
+
+            if (!session) {
+                // Solo el facilitador puede crear la sesión
+                if (role !== 'facilitador') {
+                    socket.emit(
+                        "session-not-found",
+                        "Aún no hay una sesión de Planning Poker activa. Espera a que el facilitador la inicie."
+                    );
+                    return;
+                }
+
+                session = activeSessions[sprintId] = {
                     currentStoryIndex: 0,
                     stories: stories || [],
                     status: "VOTING",
                     votes: {},
                     participants: []
                 };
+            } else if (role === 'facilitador' && stories?.length && session.stories.length === 0) {
+                // Por si la sesión existiera sin historias
+                session.stories = stories;
             }
 
-            const session = activeSessions[sprintId];
+            socket.join(sprintId);
+            socket.sprintId = sprintId;
 
             const existingParticipant = session.participants.find(p => p.id === user.id);
             if (!existingParticipant) {
@@ -64,12 +79,12 @@ function setupPlanningPokerSockets(server) {
             if (!session || session.status !== "VOTING") return;
 
             const participant = session.participants.find(p => p.id === userId);
-            
+
             // Si el usuario no existe o no es desarrollador, rechazamos el voto
             if (!participant || participant.role !== 'desarrollador') return;
 
             session.votes[userId] = { userId, name: participant.name, vote: voteValue, hasVoted: true };
-            
+
             const totalVoted = Object.keys(session.votes).length;
             const desarrolladores = session.participants.filter(p => p.role === 'desarrollador');
 
@@ -99,7 +114,7 @@ function setupPlanningPokerSockets(server) {
             });
         });
 
-        // 3. Revelar cartas (Actualizado con conteo estadístico y recomendación automática)
+        // 3. Revelar cartas (con conteo estadístico y recomendación automática)
         socket.on("reveal-cards", ({ sprintId }) => {
             const session = activeSessions[sprintId];
             if (!session) return;
@@ -107,7 +122,7 @@ function setupPlanningPokerSockets(server) {
             session.status = "REVEALED";
             const voteValues = Object.values(session.votes).map(v => v.vote);
             const numericVotes = voteValues.filter(v => !isNaN(v) && v !== 'UNKNOWN' && v !== 'BREAK' && v !== '?' && v !== '☕');
-            
+
             let average = 0;
             if (numericVotes.length > 0) {
                 const sum = numericVotes.reduce((acc, val) => acc + parseFloat(val), 0);
@@ -130,7 +145,7 @@ function setupPlanningPokerSockets(server) {
                 }
             });
 
-            // Generar recomendación basada en el menor y mayor puntaje numérico votado
+            // Recomendación basada en el menor y mayor puntaje numérico votado
             let recomendacionTexto = "Todos votaron similar o no hay suficientes votos numéricos.";
             if (numericVotes.length > 0) {
                 const nums = numericVotes.map(Number).sort((a, b) => a - b);
@@ -139,7 +154,7 @@ function setupPlanningPokerSockets(server) {
                 if (minVal !== maxVal) {
                     recomendacionTexto = `Pidan a quienes votaron ${minVal} y ${maxVal} que expliquen su razonamiento.`;
                 } else {
-                    recomendacionTexto = `¡Consenso absoluto en ${minVal} puntos! Pueden confirmar la estimación.`;
+                    recomendacionTexto = `¡Consenso absoluto en ${minVal}! Pueden confirmar la estimación.`;
                 }
             }
 
@@ -156,13 +171,21 @@ function setupPlanningPokerSockets(server) {
         });
 
         // 4. Siguiente historia (Confirmar y pasar)
-        socket.on("next-story", async ({ sprintId, finalPoints }) => {
+        socket.on("next-story", async ({ sprintId, finalStoryPoints, finalHours }) => {
             const session = activeSessions[sprintId];
             if (!session) return;
 
             const currentStory = session.stories[session.currentStoryIndex];
-            if (currentStory && currentStory.id && finalPoints !== undefined) {
-                await historiaDao.actualizarPuntosHistoria(currentStory.id, finalPoints);
+            if (currentStory && currentStory.id &&
+                finalStoryPoints !== undefined && finalHours !== undefined) {
+                try {
+                    await historiaDao.actualizarEstimacionHistoria(currentStory.id, {
+                        puntos: finalStoryPoints,
+                        horas: finalHours
+                    });
+                } catch (error) {
+                    console.error("Error al guardar la estimación de la historia:", error);
+                }
             }
 
             session.votes = {};
@@ -172,7 +195,7 @@ function setupPlanningPokerSockets(server) {
             const desarrolladores = session.participants.filter(p => p.role === 'desarrollador');
 
             if (session.currentStoryIndex >= session.stories.length) {
-                // ¡Fin de todas las historias!
+                // Fin de todas las historias
                 io.to(sprintId).emit("session-finished");
                 delete activeSessions[sprintId];
             } else {

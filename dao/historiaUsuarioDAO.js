@@ -347,26 +347,15 @@ class historiaUsuarioDAO {
         }
     }
 
-    /**
-     * Actualiza las horas_estimadas de una historia de usuario en la base de datos
-     * 
-     * @async
-     * @function actualizarPuntosHistoria
-     * @param {number} idHistoria - Identificador único de la historia de usuario a actualizar.
-     * @param {number} horas_estimadas - Horas estimadas para asignar a la historia.
-     * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
-     * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
-     */
-    async actualizarPuntosHistoria(idHistoria, horas_estimadas) {
-        try {
-            const query = 'UPDATE scrumbird.historia_de_usuario SET horas_estimadas = $2 WHERE id = $1;';
-            await this.pool.query(query, [idHistoria, horas_estimadas]);
-            return { success: true, message: "Horas asignadas correctamente" };
-        } catch (error) {
-            console.error("Error al actualizar las horas estimadas de la historia:", error);
-            throw error;
-        }
-    }
+    async actualizarEstimacionHistoria(idHistoria, { puntos, horas }) {
+    await this.pool.query(
+        `UPDATE scrumbird.historia_de_usuario
+            SET puntos_de_historia = $1,
+                horas_estimadas = $2
+          WHERE id = $3`,
+        [puntos, horas, idHistoria]
+    );
+}
 
 
 }
