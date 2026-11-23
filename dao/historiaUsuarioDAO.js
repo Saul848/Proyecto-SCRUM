@@ -336,16 +336,81 @@ class historiaUsuarioDAO {
      * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
      * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
      */
-    async actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
-        try {
-            const query = 'CALL scrumbird.sp_actualizar_estado_historia($1, $2, $3);';
-            await this.pool.query(query, [idHistoria, idProyecto, nuevoEstado]);
-            return { success: true, message: "Estado actualizado correctamente" };
-        } catch (error) {
-            console.error("Error al actualizar el estado de la historia:", error);
+    async actualizarEstadoHistoria(
+    idHistoria,
+    idProyecto,
+    nuevoEstado,
+    horasReales = null
+) {
+    const requiereHoras = nuevoEstado === "en-revision";
+
+    if (
+        requiereHoras &&
+        (
+            typeof horasReales !== "number" ||
+            !Number.isFinite(horasReales) ||
+            horasReales < 0 ||
+            horasReales > 99999999.99 ||
+            Math.abs(
+                horasReales * 100 - Math.round(horasReales * 100)
+            ) > 0.000001
+        )
+    ) {
+        const error = new Error(
+            "Ingresa las horas reales totales con máximo dos decimales."
+        );
+        error.status = 400;
+        throw error;
+    }
+
+    const cliente = await this.pool.connect();
+
+    try {
+        await cliente.query("BEGIN");
+
+        const historia = await cliente.query(
+            `SELECT id
+             FROM scrumbird.historia_de_usuario
+             WHERE id = $1 AND id_proyecto = $2
+             FOR UPDATE`,
+            [idHistoria, idProyecto]
+        );
+
+        if (historia.rows.length === 0) {
+            const error = new Error(
+                "La historia no pertenece al proyecto indicado."
+            );
+            error.status = 404;
             throw error;
         }
+
+        await cliente.query(
+            "CALL scrumbird.sp_actualizar_estado_historia($1, $2, $3)",
+            [idHistoria, idProyecto, nuevoEstado]
+        );
+
+        if (requiereHoras) {
+            await cliente.query(
+                `UPDATE scrumbird.historia_de_usuario
+                 SET horas_reales = $1
+                 WHERE id = $2 AND id_proyecto = $3`,
+                [horasReales, idHistoria, idProyecto]
+            );
+        }
+
+        await cliente.query("COMMIT");
+
+        return {
+            success: true,
+            message: "Estado actualizado correctamente"
+        };
+    } catch (error) {
+        await cliente.query("ROLLBACK");
+        throw error;
+    } finally {
+        cliente.release();
     }
+}
 
     async actualizarEstimacionHistoria(idHistoria, { puntos, horas }) {
     await this.pool.query(

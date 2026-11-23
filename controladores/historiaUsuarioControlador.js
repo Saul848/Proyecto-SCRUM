@@ -338,19 +338,59 @@ class historiaUsuarioControlador {
      * @returns {Promise<void>} Responde con un JSON indicando si se actualizó el estado.
      */
     async actualizarEstadoHistoria(req, res) {
-        try {
-            const { idHistoria, idProyecto } = req.params;
+    const idHistoria = Number(req.params.idHistoria);
+    const idProyecto = Number(req.params.idProyecto);
 
-            const { nuevoEstado } = req.body;
+    const { nuevoEstado, horasReales } = req.body || {};
 
-            const resultado = await this.dao.actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado);
-
-            res.json(resultado);
-        } catch (err) {
-            console.log("Error al actualizar el estado de la historia");
-            this.#error(res, err);
-        }
+    if (
+        !Number.isInteger(idHistoria) || idHistoria <= 0 ||
+        !Number.isInteger(idProyecto) || idProyecto <= 0
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: "Historia o proyecto inválidos."
+        });
     }
+
+    const estadosValidos = [
+        "por-empezar",
+        "en-progreso",
+        "en-revision",
+        "terminado"
+    ];
+
+    if (!estadosValidos.includes(nuevoEstado)) {
+        return res.status(400).json({
+            success: false,
+            message: "El estado indicado no es válido."
+        });
+    }
+
+    try {
+        const resultado = await this.dao.actualizarEstadoHistoria(
+            idHistoria,
+            idProyecto,
+            nuevoEstado,
+            horasReales
+        );
+
+        return res.json(resultado);
+    } catch (error) {
+        console.error("Error actualizando la historia:", error);
+
+        const estadoHTTP = [400, 404].includes(error.status)
+            ? error.status
+            : 500;
+
+        return res.status(estadoHTTP).json({
+            success: false,
+            message: estadoHTTP === 500
+                ? "No se pudo guardar el estado de la historia."
+                : error.message
+        });
+    }
+}
 
     async obtenerEvidenciasHistoria(req, res) {
         try {
