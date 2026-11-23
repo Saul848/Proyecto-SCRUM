@@ -49,9 +49,9 @@ function inicializarPlanningPokerFacilitador(contenedor) {
     const btnConfirmar = contenedor.querySelector("#btn-pp-confirm");
 
     // Control de la estimación final.
-    const selectEstimacion = contenedor.querySelector(
-        "#rA-select-estimateFinal"
-    );
+    const selectEstimacion = contenedor.querySelector("#rA-select-estimateFinal");   // horas (ya existía)
+    const selectPuntos = contenedor.querySelector("#rA-select-estimatePoints");      // puntos de historia (nuevo)
+
 
     // Elementos del chat.
     const btnEnviarMensaje = contenedor.querySelector("#btn-pp-sentMessage");
@@ -138,21 +138,23 @@ function inicializarPlanningPokerFacilitador(contenedor) {
      * Valida la estimación elegida por el facilitador y solicita guardarla.
      */
     function confirmarEstimacion() {
-        const estimacion = selectEstimacion?.value;
+        const horas = selectEstimacion?.value;
+        const puntos = selectPuntos?.value;
 
-        if (!estimacion) {
-            alert("Selecciona una estimación antes de continuar.");
+        if (!puntos || !horas) {
+            alert("Selecciona los puntos de historia y las horas estimadas antes de continuar.");
             return;
         }
 
         if (!window.confirm(
-            `¿Confirmas la estimación final de ${estimacion} puntos?`
+            `¿Confirmas ${puntos} puntos de historia y ${horas} horas estimadas?`
         )) {
             return;
         }
 
         emitirAccion("confirmar-estimacion", {
-            estimacion: Number(estimacion)
+            puntos: Number(puntos),
+            horas: Number(horas)
         });
     }
 
@@ -309,7 +311,7 @@ function inicializarPlanningPokerFacilitador(contenedor) {
         if (cardResultsVoting) cardResultsVoting.style.display = "none";
         if (cardResultStatistics) cardResultStatistics.style.display = "none";
         if (cardResultActions) cardResultActions.style.display = "none";
-        
+
         // Limpiar tabla estadística si existe
         const tabla = contenedor.querySelector("#statistics-cont-table table");
         if (tabla) {
@@ -396,7 +398,7 @@ function inicializarPlanningPokerFacilitador(contenedor) {
         if (tablaEstadistica && data.voteCounts) {
             const headers = tablaEstadistica.querySelectorAll("tr:first-child th");
             const rowData = tablaEstadistica.querySelectorAll("tr:last-child td");
-            
+
             headers.forEach((th, index) => {
                 const key = th.textContent.trim();
                 if (rowData[index]) {
