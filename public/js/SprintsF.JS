@@ -77,6 +77,17 @@ async function renderizarSprints() {
                 <label>${fechaFin}</label>
                 <div class="div-acciones-sprint" style="display: flex; gap: 6px; justify-content: center;">
                     <button type="button" class="btn-toggle-sprint" title="Ver historias asignadas" onclick="toggleDetalleSprint(${sprintId})" style="background:#0d8bf2; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">📖</button>
+                    ${estado !== "terminado" ? `
+                <button
+                    type="button"
+                    class="btn-accion-sprint"
+                    title="Cerrar sprint y registrar pendiente"
+                    onclick="cerrarSprintDesdePanel(${sprintId}, this)"
+                    style="background:#176b45; color:#fff; border:none;
+                        padding:6px 10px; border-radius:6px; cursor:pointer;">
+                    Cerrar
+                </button>
+` : ""}
                     <button type="button" class="btn-accion-sprint" title="Eliminar Sprint" onclick="confirmarEliminarSprint(${sprintId})" style="background:#ff4444; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
                 </div>
             `;
@@ -467,3 +478,45 @@ window.addEventListener('click', (e) => {
     if (e.target === modalAgregarSprint) modalAgregarSprint.classList.remove('activo');
     if (e.target === modalModificarSprint) modalModificarSprint.classList.remove('activo');
 });
+
+async function cerrarSprintDesdePanel(idSprint, boton) {
+    if (boton.disabled) return;
+
+    const confirmado = window.confirm(
+        "¿Cerrar este sprint?\n\n" +
+        "Se marcará como terminado y se guardará el trabajo " +
+        "pendiente del proyecto para el burndown.\n\n" +
+        "Las historias pendientes conservarán su estado. " +
+        "Este cierre no podrá repetirse desde esta opción."
+    );
+
+    if (!confirmado) return;
+
+    boton.disabled = true;
+
+    try {
+        const respuesta = await fetch(
+            `/sprints/cerrar/${idSprint}/${idProyectoActivo}`,
+            {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok || !resultado.ok) {
+            throw new Error(
+                resultado.mensaje || "No se pudo cerrar el sprint."
+            );
+        }
+
+        alert(resultado.mensaje);
+        await renderizarSprints();
+    } catch (error) {
+        console.error("Error cerrando sprint:", error);
+        alert(error.message);
+    } finally {
+        boton.disabled = false;
+    }
+}
