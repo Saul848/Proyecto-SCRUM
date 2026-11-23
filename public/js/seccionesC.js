@@ -103,6 +103,8 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
           abrirSeccionReuniones(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 5) {
           abrirSeccionModulo5(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 6) {
+          abrirSeccionModulo6(modulo, seccion);
         } else {
           alert("El lector de este módulo aún no está configurado en la interfaz.");
         }
@@ -597,4 +599,58 @@ async function calcularProgresoModulos(modulos) {
   );
 
   return resultados;
+}
+
+async function abrirSeccionModulo6(modulo, seccion) {
+  // Nuestro módulo solamente tiene la sección 1: Tutorial.
+  const plantillasModulo6 = {
+    1: "tutorial-desarrollador"
+  };
+
+  const idPlantilla =
+    plantillasModulo6[Number(seccion.numero_seccion)];
+
+  const plantilla = idPlantilla
+    ? document.getElementById(idPlantilla)
+    : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  let progresoActual;
+
+  try {
+    progresoActual = await consultarProgresoCapacitacion();
+  } catch (error) {
+    console.error("Error consultando el progreso:", error);
+    alert(error.message);
+    return;
+  }
+
+  // Solamente se puede terminar la sección actual.
+  const puedeTerminar =
+    !progresoActual.guia_terminada &&
+    Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+    Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+  // Reutilizamos el lector genérico de capacitación.
+  paginarPlantillaCapacitacion({
+    modulo,
+    seccion,
+    plantilla,
+    progresoActual,
+    puedeTerminar,
+    ids: {
+      dialogId: "lector-modulo-6",
+      tituloId: "lector-modulo-6-titulo",
+      paginaId: "pagina-modulo-6",
+      contadorId: "contador-paginas-modulo-6",
+      anteriorId: "pagina-anterior-modulo-6",
+      siguienteId: "pagina-siguiente-modulo-6",
+      cerrarId: "cerrar-lector-modulo-6",
+      terminarId: "terminar-seccion-modulo-6"
+    }
+  });
 }
