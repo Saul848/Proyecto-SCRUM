@@ -446,24 +446,70 @@ function mostrarNotificacionKanban(mensaje, tipo = "error") {
     }, 3500);
 }
 
-async function actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
+async function actualizarEstadoHistoria(
+    idHistoria,
+    idProyecto,
+    nuevoEstado
+) {
+    const datos = { nuevoEstado };
+
+    if (nuevoEstado === "en-revision") {
+        let horasValidas = false;
+
+        while (!horasValidas) {
+            const entrada = window.prompt(
+                "Ingresa las horas reales TOTALES trabajadas en esta historia.\n" +
+                "Si hubo correcciones, incluye también las horas anteriores.\n" +
+                "Puedes usar hasta dos decimales. Ejemplo: 8.50"
+            );
+
+            // Cancelar: no enviar la petición ni cambiar el estado.
+            if (entrada === null) return false;
+
+            const texto = entrada.trim().replace(",", ".");
+            const horas = Number(texto);
+
+            if (
+                !/^\d+(?:\.\d{1,2})?$/.test(texto) ||
+                !Number.isFinite(horas) ||
+                horas > 99999999.99
+            ) {
+                alert(
+                    "Ingresa un número mayor o igual a cero, " +
+                    "con máximo dos decimales."
+                );
+                continue;
+            }
+
+            datos.horasReales = horas;
+            horasValidas = true;
+        }
+    }
+
     try {
-        const respuesta = await fetch(`/historias/estado/${idHistoria}/${idProyecto}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({ nuevoEstado })
-        });
+        const respuesta = await fetch(
+            `/historias/estado/${idHistoria}/${idProyecto}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(datos)
+            }
+        );
 
         const resultado = await respuesta.json();
+
         if (!respuesta.ok || resultado.success === false) {
-            alert(resultado.mensaje || resultado.message || "Error al actualizar el estado.");
+            alert(
+                resultado.mensaje ||
+                resultado.message ||
+                "Error al actualizar el estado."
+            );
             return false;
         }
 
-        alert("Estado actualizado correctamente. Actualice la pagina si no visualiza los cambios");
         return true;
     } catch (error) {
         console.error("Error al guardar modificaciones:", error);
