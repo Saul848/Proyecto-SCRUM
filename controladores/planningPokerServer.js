@@ -35,7 +35,8 @@ function setupPlanningPokerSockets(io) {
                     stories: stories || [],
                     status: "VOTING",
                     votes: {},
-                    participants: []
+                    participants: [],
+                    chat: []
                 };
             } else if (role === 'facilitador' && stories?.length && session.stories.length === 0) {
                 // Por si la sesión existiera sin historias
@@ -65,6 +66,8 @@ function setupPlanningPokerSockets(io) {
                     participants: desarrolladores,
                     votes: session.votes
                 });
+
+                socket.emit("chat-history", session.chat);
             }
 
             io.to(sprintId).emit("update-session-users", {
@@ -232,6 +235,25 @@ function setupPlanningPokerSockets(io) {
                     votes: session.votes
                 });
             }
+        });
+
+        //6. Mensajes dentro de chats
+        socket.on("send-chat-message", ({ sprintId, mensaje }) => {
+            const session = activeSessions[sprintId];
+            if (!session) return;
+
+            const texto = String(mensaje || "").trim().slice(0, 1000);
+            if (!texto) return;
+
+            const participante = session.participants.find(p => p.socketId === socket.id);
+            const entrada = {
+                userId: participante?.id,
+                emisor: participante?.name || "Participante",
+                mensaje: texto
+            };
+
+            session.chat.push(entrada);
+            socket.to(sprintId).emit("chat-message", entrada);   // a todos menos al emisor
         });
 
         socket.on("disconnect", () => {

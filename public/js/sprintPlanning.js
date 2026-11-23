@@ -409,6 +409,19 @@ async function abrirPlanningPokerParaFacilitador() {
       window.location.href = `panelFacilitador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
     });
 
+    socketPP.on("chat-message", (data) => {
+      contenedor?.planningPokerFacilitador?.mostrarMensaje(data.emisor, data.mensaje, false);
+    });
+
+    // opcional (historial)
+    socketPP.on("chat-history", (mensajes) => {
+      mensajes.forEach(m =>
+        contenedor?.planningPokerFacilitador?.mostrarMensaje(
+          m.emisor, m.mensaje, m.userId === usuarioActual.id
+        )
+      );
+    });
+
     if (contenedor) {
       contenedor.addEventListener("planning-poker:accion", (evento) => {
         const { accion, ...datos } = evento.detail;
@@ -425,6 +438,8 @@ async function abrirPlanningPokerParaFacilitador() {
             finalStoryPoints: datos.puntos,
             finalHours: datos.horas
           });
+        } else if (accion === "enviar-mensaje") {
+          socketPP.emit("send-chat-message", { sprintId, mensaje: datos.mensaje });
         }
       });
     }
@@ -547,16 +562,27 @@ async function abrirPlanningPokerParaDesarrollador() {
       window.location.href = `PanelDesarrollador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
     });
 
+    socketPP.on("chat-message", (data) => {
+      contenedor?.planningPokerDesarrollador?.mostrarMensaje(data.emisor, data.mensaje, false);
+    });
+
+    // opcional (historial)
+    socketPP.on("chat-history", (mensajes) => {
+      mensajes.forEach(m =>
+        contenedor?.planningPokerDesarrollador?.mostrarMensaje(
+          m.emisor, m.mensaje, m.userId === usuarioActual.id
+        )
+      );
+    });
+
     if (contenedor) {
       contenedor.addEventListener("planning-poker:accion", (evento) => {
         const { accion, ...datos } = evento.detail;
 
         if (accion === "enviar-voto") {
-          socketPP.emit("submit-vote", {
-            sprintId,
-            userId: usuarioActual.id,
-            voteValue: datos.valor
-          });
+          socketPP.emit("submit-vote", { sprintId, userId: usuarioActual.id, voteValue: datos.valor });
+        } else if (accion === "enviar-mensaje") {
+          socketPP.emit("send-chat-message", { sprintId, mensaje: datos.mensaje });
         }
       });
     }
@@ -838,42 +864,21 @@ function calcularRestante() {
   txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
 }
 
-let socketReunion = null;
-
-function inicializarSocketsReunion(idSprint) {
-  if (!socketReunion) {
-    socketReunion = io();
-
-    window.solicitarHistoria = (idHistoria) => {
-      const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
-
-      socketReunion.emit("solicitar-historia", {
-        sprintId: idSprint,
-        idHistoria: idHistoria,
-        idDesarrollador: usuarioActual.id,
-        nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
-      });
-    };
-
-    socketReunion.on("notificar-solicitud", (data) => {
-      solicitudesPendientes.push(data);
-      renderizarPanelSolicitudes();
-      if (document.getElementById("vista-fase2").style.display === "block") {
-        cargarAsignacionFase2();
-      }
-    });
-
-    socketReunion.on("actualizar-estado-asignacion", (data) => {
-      const historia = window.requisitos.find(h => h.id === data.idHistoria);
-      if (historia) {
-        historia.asignado_a = data.aceptada ? data.nombreDesarrollador : null;
-      }
-      solicitudesPendientes = solicitudesPendientes.filter(s => s.idHistoria !== data.idHistoria);
-
-      cargarAsignacionFase2();
-    });
+window.solicitarHistoria = (idHistoria) => {
+  if (!socketAsignacion) {
+    console.error("El socket de asignación aún no está inicializado.");
+    return;
   }
-}
+
+  const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
+
+  socketAsignacion.emit("solicitar-historia", {
+    sprintId: window.ID_SPRINT,
+    idHistoria: idHistoria,
+    idDesarrollador: usuarioActual.id,
+    nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
+  });
+};
 
 function renderizarPanelSolicitudes() {
   const contenedorSolicitudes = document.getElementById("listaSolicitudes");
@@ -900,15 +905,15 @@ function renderizarPanelSolicitudes() {
 }
 
 window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
-  if (socketReunion) {
-    socketReunion.emit("gestionar-solicitud", {
-      sprintId: window.ID_SPRINT,
-      idHistoria,
-      idDesarrollador,
-      aceptada,
-      nombreDesarrollador
-    });
-  }
+  if (!socketAsignacion) return;
+
+  socketAsignacion.emit("gestionar-solicitud", {
+    sprintId: window.ID_SPRINT,
+    idHistoria,
+    idDesarrollador,
+    aceptada,
+    nombreDesarrollador
+  });
 };
 
 let socketAsignacion = null;
