@@ -37,11 +37,15 @@ class historiaUsuarioDAO {
                 t_historias.descripcion, 
                 t_historias.valor,
                 t_historias.horas_estimadas,
-                t_historias.pendiente, 
-                t_historias.asignado_al_sprint, 
+                t_historias.pendiente,
+                t_historias.asignado_al_sprint,
+                t_historias.estado,
+                t_historias.puntos_de_historia,
+                t_epicas.nombre AS epica_asignada, 
                 t_criterios.id AS id_criterio, 
-                t_criterios.numero_de_criterio, 
+                t_criterios.numero_de_criterio,
                 t_criterios.criterios_de_aceptacion
+                
             FROM 
                 scrumbird.historia_de_usuario t_historias
             LEFT JOIN 
@@ -51,6 +55,14 @@ class historiaUsuarioDAO {
                 scrumbird.criterios_de_aceptacion t_criterios 
                 ON t_historias.id = t_criterios.id_historia 
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
+            LEFT JOIN 
+                scrumbird.trabajando_en_historia t_trabajando
+                ON t_historias.id = t_trabajando.id_historia
+                AND t_historias.id_proyecto = t_trabajando.id_proyecto
+            LEFT JOIN 
+                scrumbird.epicas t_epicas
+                ON t_historias.epica_asignada = t_epicas.id
+                AND t_historias.id_proyecto = t_epicas.id_proyecto
             WHERE 
                 t_historias.id_proyecto = $1
             ORDER BY 
@@ -88,6 +100,9 @@ class historiaUsuarioDAO {
                         pendiente: row.pendiente,
                         asignado_al_sprint: row.asignado_al_sprint,
                         no_iteracion: row.no_iteracion,
+                        estado: row.estado,
+                        puntos_de_historia: row.puntos_de_historia,
+                        epica_asignada: row.epica_asignada,                       
                         criterios: [] // Arreglo para los criterios de esta historia
                     };
                 }
@@ -132,26 +147,31 @@ class historiaUsuarioDAO {
      * @param {descripcion} String Descripcion de la historia de usuario 
      * @param {criterios} Array Criterios de aceptacion de la historia de usuario 
      * @param {valor} Int Valor de la historia de usuario
-     * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario  
+     * @param {idEpica} Int Id de la epica asiganada a la historia
+     * @param {puntos_de_historia} Int puntos de historia asignados a la historia. 
+     * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario 
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({nombre, descripcion, criterios, valor, horas, idProyecto }){
+    async agregarHistoria({nombre, descripcion, criterios, valor, horas, puntos_de_historia, idEpica, idProyecto}){
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
             //Empezar la transaccion
             await client.query('BEGIN');
+            //Se preprara la linea de insercion de la historia
             const insercionHistoria = 
-                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, id_proyecto) 
-                VALUES ($1, $2, $3, $4, $5)
+                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, puntos_de_historia, epica_asignada, id_proyecto) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING id;
              `;
-            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, idProyecto]);
+            //Ejecutamos la linea de inscercion
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, puntos_de_historia, idEpica, idProyecto]);
+            //Recuperamos el id
             const idGenerado = resultadoHistoria.rows[0].id;
-
+            //Se define la linea de insercion de los criterios d aceptacion
             const insercionCriterio = `INSERT INTO scrumbird.criterios_de_aceptacion (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)
             VALUES ($1, $2, $3, $4);`;
-            let numeroCriteriosInsertados;
+
             criterios.forEach((element, index) => {
                 const resultadoCriterio = client.query(insercionCriterio, [index + 1, element.criterio, idGenerado, idProyecto])
             });
@@ -201,7 +221,7 @@ class historiaUsuarioDAO {
      * @param {Object} datos - Objeto con nombre, descripcion, criterios, valor y horas actualizadas
      * @returns {Promise<Object>} Objeto con estado ok y mensaje compatible con el controlador
      */
-    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas }) {
+    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas, puntos_de_historia, idEpica }) {
         const client = await this.pool.connect();
         try {
             // Iniciar la transaccion
@@ -213,16 +233,20 @@ class historiaUsuarioDAO {
                 SET nombre = $1, 
                     descripcion = $2, 
                     valor = $3, 
-                    horas_estimadas = $4
-                WHERE id = $5 AND id_proyecto = $6;
+                    horas_estimadas = $4,
+                    puntos_de_historia = $5,
+                    epica_asignada = $6
+                WHERE id = $7 AND id_proyecto = $8;
             `;
             const resultadoHistoria = await client.query(actualizacionHistoria, [
                 nombre,
                 descripcion,
                 valor,
                 horas,
+                puntos_de_historia, 
+                idEpica,
                 idHistoria,
-                idProyecto
+                idProyecto,
             ]);
 
             if (resultadoHistoria.rowCount === 0) {

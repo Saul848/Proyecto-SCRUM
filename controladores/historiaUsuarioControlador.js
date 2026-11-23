@@ -67,7 +67,7 @@ class historiaUsuarioControlador {
      * @returns
      */
     async agregarHistoria(req, res) {
-        const { nombre, descripcion, criterios, valor, horas, idProyecto} = req.body;
+        const { nombre, descripcion, criterios, valor, horas, puntosDeHistoria, idEpica, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
             if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || !idProyecto) {
@@ -83,12 +83,13 @@ class historiaUsuarioControlador {
                     mensaje: "No se han registrado criterios de aceptacion para la historia"
                 })
             }
-            // Se verifica que el valor sea un numero
-            if (isNaN(valor) || typeof valor !== 'number') {
-                return res.status(404).json({
+            // Verificar que el valor sea entero
+            const valorNum = Number(valor);
+            if (!Number.isInteger(valorNum)) {
+                return res.status(400).json({
                     ok: false,
                     mensaje: "El valor enviado para la historia no es numerico"
-                })       
+                });
             }
             // Se verifica que el valor este dentro del rango estimado
             if(valor < 0 || valor > 4000){
@@ -102,6 +103,21 @@ class historiaUsuarioControlador {
                     ok: false,
                     mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
             })
+            }
+            // Verificar que puntosDeHistoria sea entero
+            const puntosNum = Number(puntosDeHistoria);
+            if (!Number.isInteger(puntosNum)) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Los puntos de historia deben ser un número entero"
+                });
+            }
+            // Verificar que idEpica no tenga length 0
+            if (idEpica === undefined || idEpica === null || String(idEpica).trim().length === 0) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Debe seleccionar una épica para la historia de usuario"
+                });
             }
 
         //Fase de insercion
