@@ -14,32 +14,31 @@ if (typeof window.ID_PROYECTO === 'undefined') {
 if (typeof window.ID_SPRINT === 'undefined') window.ID_SPRINT = 1;
 if (typeof window.ID_REUNION === 'undefined') window.ID_REUNION = 1;
 
-//funcion de rol
+// funcion de rol
 function obtenerRolActual() {
   const urlParams = new URLSearchParams(window.location.search);
   const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
   const esClientePorRuta = window.location.pathname.toLowerCase().includes('cliente');
 
   let rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
-  
+
   if (!rolSesion) {
     try {
       const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
       if (usuarioActivo && usuarioActivo.rol) {
         rolSesion = usuarioActivo.rol;
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
-  const rolFinal = urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion || 
-                   (esDevPorRuta ? 'desarrollador' : (esClientePorRuta ? 'cliente' : 'facilitador'));
-                   
+  const rolFinal = urlParams.get("usuario") || window.ROL_ACTUAL || rolSesion ||
+    (esDevPorRuta ? 'desarrollador' : (esClientePorRuta ? 'cliente' : 'facilitador'));
+
   return rolFinal.toLowerCase();
 }
 
 function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoParam, idTipoReunionParam) {
   const urlParams = new URLSearchParams(window.location.search);
-  
   const rol = obtenerRolActual();
 
   window.ID_PROYECTO = Number(idProyectoParam) || Number(urlParams.get("proyecto")) || 1;
@@ -60,19 +59,16 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   const inpFechaFin = document.getElementById("inpFechaFin");
 
   if (rol === 'desarrollador') {
-    //se ocultan todos los botones de control exclusivo del facilitador
     if (btnContinuar) btnContinuar.style.display = "none";
     if (btnContinuarFase2) btnContinuarFase2.style.display = "none";
     if (btnVolverFase1) btnVolverFase1.style.display = "none";
     if (btnConfirmarSprint) btnConfirmarSprint.style.display = "none";
-    
-    //Restricción: Solo el facilitador puede poner/modificar las fechas
+
     if (inpFechaInicio) inpFechaInicio.disabled = true;
     if (inpFechaFin) inpFechaFin.disabled = true;
   }
 
   if (rol === 'cliente') {
-    // El cliente solo observa: no controla el avance de la reunión
     [btnContinuar, btnContinuarFase2, btnVolverFase1, btnConfirmarSprint].forEach(b => {
       if (b) b.style.display = "none";
     });
@@ -80,7 +76,6 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     if (inpFechaFin) inpFechaFin.disabled = true;
   }
 
-  //Sincronización y control de fechas en tiempo real (Facilitador -> Desarrollador)
   if (inpFechaInicio) {
     inpFechaInicio.onchange = () => {
       calcularRestante();
@@ -109,7 +104,7 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
 
   if (btnContinuar) {
     btnContinuar.addEventListener("click", async () => {
-      const rolActual = rol;
+      const rolActual = obtenerRolActual();
       if (rolActual === 'cliente') return;
 
       if (rolActual === 'facilitador' && socketAsignacion) {
@@ -121,7 +116,7 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   }
 
   if (btnContinuarFase2) {
-    btnContinuarFase2.onclick = () =>{
+    btnContinuarFase2.onclick = () => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'facilitador' && socketAsignacion) {
         socketAsignacion.emit("disparar-fase-2", { sprintId: window.ID_SPRINT });
@@ -143,7 +138,7 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   if (btnSalir) {
     btnSalir.onclick = () => {
       if (!confirm("¿Salir de la reunión?")) return;
-      mostrarAvisoFase2Cliente(false); // por si el cliente tenía el aviso en pantalla
+      mostrarAvisoFase2Cliente(false);
       document.getElementById("vista-sprintPlanning").style.display = "none";
       document.getElementById("modal-reuniones").style.display = "block";
     };
@@ -152,17 +147,17 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   if (btnConfirmarSprint) {
     btnConfirmarSprint.onclick = async () => {
       try {
-        await fetch(`/reuniones/${ID_REUNION}/finalizar`, {
+        await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sprint: ID_SPRINT })
+          body: JSON.stringify({ sprint: window.ID_SPRINT })
         });
 
         if (socketAsignacion) {
-          socketAsignacion.emit("disparar-confirmar-sprint", { 
-            sprintId: window.ID_SPRINT, 
-            reunionId: ID_REUNION, 
-            proyectoId: ID_PROYECTO 
+          socketAsignacion.emit("disparar-confirmar-sprint", {
+            sprintId: window.ID_SPRINT,
+            reunionId: window.ID_REUNION,
+            proyectoId: window.ID_PROYECTO
           });
         }
 
@@ -201,36 +196,447 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   }
 }
 
-//se cargan las historias del sprint
+let promesaHistoriasSprint = null;
+
+// se cargan las historias del sprint
 async function cargarHistoriasSprint() {
-  try {
-    const respuesta = await fetch(`/reuniones/sprint/${ID_SPRINT}/historias`, {
-      headers: { "Accept": "application/json" }
-    });
-    const datos = await respuesta.json();
-    requisitos = datos.data || [];
+  promesaHistoriasSprint = (async () => {
+    try {
+      const respuesta = await fetch(`/reuniones/sprint/${window.ID_SPRINT}/historias`, {
+        headers: { "Accept": "application/json" }
+      });
+      const datos = await respuesta.json();
+      window.requisitos = Array.isArray(datos.data) ? datos.data : [];
 
-    //lista de requisitos
-    const cuerpoHistorias = document.getElementById('cuerpoHistorias');
-    if (cuerpoHistorias) {
-      cuerpoHistorias.innerHTML = requisitos.length > 0
-        ? requisitos.map(h => `
-            <tr>
-              <td><strong>${h.nombre}</strong><br><small>${h.descripcion || ''}</small></td>
-              <td>${h.valor || 0}</td>
-            </tr>
-          `).join('')
-        : '<tr><td colspan="2" style="text-align: center;">No hay historias asignadas a este sprint.</td></tr>';
+      const cuerpoHistorias = document.getElementById('cuerpoHistorias');
+      if (cuerpoHistorias) {
+        cuerpoHistorias.innerHTML = window.requisitos.length > 0
+          ? window.requisitos.map(h => `
+              <tr>
+                <td><strong>${h.nombre}</strong><br><small>${h.descripcion || ''}</small></td>
+                <td>${h.valor || 0}</td>
+              </tr>
+            `).join('')
+          : '<tr><td colspan="2" style="text-align: center;">No hay historias asignadas a este sprint.</td></tr>';
+      }
+      poblarTablaDetalles();
+      return window.requisitos;
+    } catch (err) {
+      console.error('Error al cargar historias:', err);
+      window.requisitos = [];
+      return [];
     }
-    //se agrega también en la tabla de detalles
-    poblarTablaDetalles();
+  })();
 
-  } catch (err) {
-    console.error('Error al cargar historias:', err);
+  return promesaHistoriasSprint;
+}
+
+function mapearHistoriasPlanningPoker(lista) {
+  if (!Array.isArray(lista) || lista.length === 0) return null;
+
+  return lista.map((h, idx) => ({
+    id: h.id ?? idx + 1,
+    titulo: h.nombre || h.titulo || `Historia ${idx + 1}`,
+    descripcion: h.descripcion || ""
+  }));
+}
+
+async function obtenerHistoriasParaPlanningPoker(sprintId) {
+  if (promesaHistoriasSprint) {
+    await promesaHistoriasSprint;
+  }
+
+  if (!Array.isArray(window.requisitos) || window.requisitos.length === 0) {
+    try {
+      const resp = await fetch(`/reuniones/sprint/${sprintId}/historias`, {
+        headers: { "Accept": "application/json" }
+      });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (Array.isArray(json.data) && json.data.length > 0) {
+          window.requisitos = json.data;
+        }
+      }
+    } catch (err) {
+      console.warn("No se pudieron cargar historias frescas para Planning Poker:", err);
+    }
+  }
+
+  return mapearHistoriasPlanningPoker(window.requisitos);
+}
+
+// =====================================================================
+// PLANNING POKER (INTEGRACIÓN CON ROL Y VARIABLES GLOBALES DE REUNIÓN)
+// =====================================================================
+let ppCargando = false;
+let ppScriptFacilitadorPromise = null;
+let ppScriptDesarrolladorPromise = null;
+
+function asegurarEstilosPlanningPoker(rol) {
+  const cssRuta = rol === 'desarrollador'
+    ? '../css/planningPokerDesarrollador.css'
+    : '../css/planningPokerFacilitador.css';
+
+  let linkCss = document.getElementById('dinamic-planning-css');
+  if (!linkCss) {
+    linkCss = document.createElement('link');
+    linkCss.id = 'dinamic-planning-css';
+    linkCss.rel = 'stylesheet';
+    document.head.appendChild(linkCss);
+  }
+  linkCss.href = cssRuta;
+}
+
+function asegurarScriptPlanningPoker(rol) {
+  if (rol === 'desarrollador') {
+    if (!ppScriptDesarrolladorPromise) {
+      ppScriptDesarrolladorPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "../js/planningPokerDesarrollador.js";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+      });
+    }
+    return ppScriptDesarrolladorPromise;
+  }
+
+  if (!ppScriptFacilitadorPromise) {
+    ppScriptFacilitadorPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "../js/planningPokerFacilitador.js";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+  return ppScriptFacilitadorPromise;
+}
+
+function obtenerZonaTrabajoPlanningPoker() {
+  return (
+    document.getElementById("zonaDeTrabajo") ||
+    document.querySelector("#area-trabajo .area-fondo") ||
+    document.getElementById("area-trabajo") ||
+    document.getElementById("vista-sprintPlanning")
+  );
+}
+
+function mostrarModalPlanningPoker(idModal) {
+  if (typeof mostrarModal === "function") {
+    mostrarModal(idModal);
+  } else {
+    const modal = document.getElementById(idModal);
+    if (modal) modal.style.display = "block";
   }
 }
 
-//cabeceras
+async function abrirPlanningPokerParaFacilitador() {
+  const sprintId = Number(window.ID_SPRINT) || 1;
+  const reunionId = Number(window.ID_REUNION) || 1;
+  const proyectoId = Number(window.ID_PROYECTO) || 1;
+  const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, name: "Facilitador Pruebas" };
+  const role = 'facilitador';
+
+  const zonaDeTrabajo = obtenerZonaTrabajoPlanningPoker();
+  if (!zonaDeTrabajo || ppCargando) return;
+  ppCargando = true;
+
+  try {
+    asegurarEstilosPlanningPoker(role);
+
+    if (!document.getElementById("modal-planning-poker-facilitador")) {
+      const respuesta = await fetch("./planningPokerFacilitador.html");
+      const html = await respuesta.text();
+      zonaDeTrabajo.insertAdjacentHTML("beforeend", html);
+    }
+
+    await asegurarScriptPlanningPoker(role);
+
+    const contenedor = document.getElementById("cont-planning-poker");
+    if (window.inicializarPlanningPokerFacilitador) {
+      window.inicializarPlanningPokerFacilitador(contenedor);
+    }
+    mostrarModalPlanningPoker("modal-planning-poker-facilitador");
+
+    const socketPP = io();
+
+    const historiasDesdeSprint = await obtenerHistoriasParaPlanningPoker(sprintId);
+
+    const historiasDePrueba = [
+      { id: 1, titulo: "Autenticación", descripcion: "Permitir iniciar sesión" },
+      { id: 2, titulo: "Splash Screen", descripcion: "Mostrar pantalla de carga" },
+      { id: 3, titulo: "Exportar PDF", descripcion: "Exportar datos a formato PDF" },
+      { id: 4, titulo: "Generar PB", descripcion: "LOREM" },
+      { id: 5, titulo: "Colocar Musica a la aplicacion", descripcion: "Musica relajante para el cliente" },
+      { id: 6, titulo: "Prueba", descripcion: "Lorem" },
+      { id: 7, titulo: "Registro de Usuarios", descripcion: "Permitir registrar nuevos usuarios en el sistema" }
+    ];
+
+    const historiasFinales = Array.isArray(historiasDesdeSprint) && historiasDesdeSprint.length > 0
+      ? historiasDesdeSprint
+      : historiasDePrueba;
+
+    socketPP.emit("join-planning-session", {
+      sprintId,
+      user: usuarioActual,
+      role,
+      stories: historiasFinales
+    });
+
+    socketPP.on("sync-session-state", (data) => {
+      actualizarUIHistoriaFacilitador(contenedor, data);
+      contenedor?.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+    });
+
+    socketPP.on("load-next-story", (data) => {
+      actualizarUIHistoriaFacilitador(contenedor, data);
+      contenedor?.planningPokerFacilitador?.reiniciarVistaVotacion();
+      if (data.participants && data.votes) {
+        contenedor?.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+      }
+    });
+
+    socketPP.on("vote-reset", (data) => {
+      contenedor?.planningPokerFacilitador?.reiniciarVistaVotacion();
+      if (data.participants && data.votes) {
+        contenedor?.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+      }
+    });
+
+    socketPP.on("vote-progress", (data) => {
+      contenedor?.planningPokerFacilitador?.actualizarEstadoVotacion({
+        votados: data.totalVoted,
+        total: data.totalParticipants,
+        titulo: "¡Votando!"
+      });
+      contenedor?.planningPokerFacilitador?.renderizarTarjetasVotando(data.participants, data.votes);
+    });
+
+    socketPP.on("cards-revealed", (data) => {
+      contenedor?.planningPokerFacilitador?.renderizarResultados(data);
+    });
+
+    socketPP.on("session-finished", () => {
+      alert("¡Se han terminado todas las historias del Planning Poker!");
+      const modal = document.getElementById("modal-planning-poker-facilitador");
+      if (modal) modal.style.display = "none";
+      socketPP.disconnect();
+
+      window.location.href = `panelFacilitador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
+    });
+
+    socketPP.on("chat-message", (data) => {
+      contenedor?.planningPokerFacilitador?.mostrarMensaje(data.emisor, data.mensaje, false);
+    });
+
+    // opcional (historial)
+    socketPP.on("chat-history", (mensajes) => {
+      mensajes.forEach(m =>
+        contenedor?.planningPokerFacilitador?.mostrarMensaje(
+          m.emisor, m.mensaje, m.userId === usuarioActual.id
+        )
+      );
+    });
+
+    if (contenedor) {
+      contenedor.addEventListener("planning-poker:accion", (evento) => {
+        const { accion, ...datos } = evento.detail;
+
+        if (accion === "revelar-cartas") {
+          socketPP.emit("reveal-cards", { sprintId });
+        } else if (accion === "repetir-votacion") {
+          socketPP.emit("repeat-vote", { sprintId });
+        } else if (accion === "saltar-historia") {
+          socketPP.emit("skip-story", { sprintId });
+        } else if (accion === "confirmar-estimacion") {
+          socketPP.emit("next-story", {
+            sprintId,
+            finalStoryPoints: datos.puntos,
+            finalHours: datos.horas
+          });
+        } else if (accion === "enviar-mensaje") {
+          socketPP.emit("send-chat-message", { sprintId, mensaje: datos.mensaje });
+        }
+      });
+    }
+
+    const btnPracticaDetalles = document.getElementById("btn-pp-practicaDetalles");
+    if (btnPracticaDetalles) {
+      btnPracticaDetalles.addEventListener("click", () => {
+        if (socketAsignacion) {
+          socketAsignacion.emit("disparar-volver-detalles", {
+            sprintId,
+            reunionId,
+            proyectoId
+          });
+        }
+        window.location.href = `panelFacilitador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
+      });
+    }
+  } catch (error) {
+    console.error("Error al iniciar Planning Poker:", error);
+    ppScriptFacilitadorPromise = null;
+  } finally {
+    ppCargando = false;
+  }
+}
+
+function actualizarUIHistoriaFacilitador(contenedor, data) {
+  if (contenedor && contenedor.planningPokerFacilitador && data?.currentStory) {
+    contenedor.planningPokerFacilitador.actualizarHistoria({
+      titulo: data.currentStory.titulo,
+      descripcion: data.currentStory.descripcion,
+      numero: data.storyIndex + 1,
+      total: data.totalStories,
+      sprint: "Sprint Actual"
+    });
+  }
+}
+
+async function abrirPlanningPokerParaDesarrollador() {
+  const sprintId = Number(window.ID_SPRINT) || 1;
+  const reunionId = Number(window.ID_REUNION) || 1;
+  const proyectoId = Number(window.ID_PROYECTO) || 1;
+  const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
+  const role = "desarrollador";
+
+  const zonaDeTrabajo = obtenerZonaTrabajoPlanningPoker();
+  if (!zonaDeTrabajo || ppCargando) return;
+  ppCargando = true;
+
+  try {
+    asegurarEstilosPlanningPoker(role);
+
+    if (!document.getElementById("modal-planning-poker-desarrollador")) {
+      const respuesta = await fetch("./planningPokerDesarrollador.html");
+      const html = await respuesta.text();
+      zonaDeTrabajo.insertAdjacentHTML("beforeend", html);
+    }
+
+    await asegurarScriptPlanningPoker(role);
+
+    const contenedor = document.getElementById("cont-planning-poker");
+    if (window.inicializarPlanningPokerDesarrollador) {
+      window.inicializarPlanningPokerDesarrollador(contenedor);
+    } else {
+      console.warn("No se encontró window.inicializarPlanningPokerDesarrollador en planningPokerDesarrollador.js");
+    }
+    mostrarModalPlanningPoker("modal-planning-poker-desarrollador");
+
+    const socketPP = io();
+
+    socketPP.emit("join-planning-session", {
+      sprintId,
+      user: usuarioActual,
+      role
+    });
+
+    socketPP.on("session-not-found", (mensaje) => {
+      alert(mensaje || "Aún no hay una sesión de Planning Poker activa. Espera a que el facilitador la inicie.");
+      const modal = document.getElementById("modal-planning-poker-desarrollador");
+      if (modal) modal.style.display = "none";
+      socketPP.disconnect();
+    });
+
+    socketPP.on("sync-session-state", (data) => {
+      actualizarUIHistoriaDesarrollador(contenedor, data);
+      contenedor?.planningPokerDesarrollador?.renderizarTarjetasVotando(data.participants, data.votes);
+    });
+
+    socketPP.on("load-next-story", (data) => {
+      actualizarUIHistoriaDesarrollador(contenedor, data);
+      contenedor?.planningPokerDesarrollador?.reiniciarVistaVotacion();
+      if (data.participants && data.votes) {
+        contenedor?.planningPokerDesarrollador?.renderizarTarjetasVotando(data.participants, data.votes);
+      }
+    });
+
+    socketPP.on("vote-reset", (data) => {
+      contenedor?.planningPokerDesarrollador?.reiniciarVistaVotacion();
+      if (data.participants && data.votes) {
+        contenedor?.planningPokerDesarrollador?.renderizarTarjetasVotando(data.participants, data.votes);
+      }
+    });
+
+    socketPP.on("vote-progress", (data) => {
+      contenedor?.planningPokerDesarrollador?.actualizarEstadoVotacion(
+        `${data.totalVoted} de ${data.totalParticipants} desarrolladores ya votaron`
+      );
+      contenedor?.planningPokerDesarrollador?.renderizarTarjetasVotando(data.participants, data.votes);
+    });
+
+    socketPP.on("cards-revealed", (data) => {
+      contenedor?.planningPokerDesarrollador?.renderizarResultados(data);
+    });
+
+    socketPP.on("session-finished", () => {
+      alert("El facilitador ha finalizado la sesión de Planning Poker.");
+      const modal = document.getElementById("modal-planning-poker-desarrollador");
+      if (modal) modal.style.display = "none";
+      socketPP.disconnect();
+
+      window.location.href = `PanelDesarrollador.html?sprint=${sprintId}&reunion=${reunionId}&proyecto=${proyectoId}&seccion=reuniones&vista=detalles`;
+    });
+
+    socketPP.on("chat-message", (data) => {
+      contenedor?.planningPokerDesarrollador?.mostrarMensaje(data.emisor, data.mensaje, false);
+    });
+
+    // opcional (historial)
+    socketPP.on("chat-history", (mensajes) => {
+      mensajes.forEach(m =>
+        contenedor?.planningPokerDesarrollador?.mostrarMensaje(
+          m.emisor, m.mensaje, m.userId === usuarioActual.id
+        )
+      );
+    });
+
+    if (contenedor) {
+      contenedor.addEventListener("planning-poker:accion", (evento) => {
+        const { accion, ...datos } = evento.detail;
+
+        if (accion === "enviar-voto") {
+          socketPP.emit("submit-vote", { sprintId, userId: usuarioActual.id, voteValue: datos.valor });
+        } else if (accion === "enviar-mensaje") {
+          socketPP.emit("send-chat-message", { sprintId, mensaje: datos.mensaje });
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error al iniciar Planning Poker para desarrollador:", error);
+    ppScriptDesarrolladorPromise = null;
+  } finally {
+    ppCargando = false;
+  }
+}
+
+function actualizarUIHistoriaDesarrollador(contenedor, data) {
+  if (contenedor && contenedor.planningPokerDesarrollador && data?.currentStory) {
+    contenedor.planningPokerDesarrollador.actualizarHistoria(
+      data.currentStory.titulo,
+      data.currentStory.descripcion
+    );
+
+    const infoSesion = contenedor.querySelector("#text-info-pp-title");
+    if (infoSesion) {
+      infoSesion.textContent = `Historia ${data.storyIndex + 1} de ${data.totalStories} · Sesión de estimación`;
+    }
+  }
+}
+
+async function cargarVistaPlanningPoker(rol) {
+  if (rol === 'desarrollador') {
+    await abrirPlanningPokerParaDesarrollador();
+  } else if (rol === 'facilitador') {
+    await abrirPlanningPokerParaFacilitador();
+  }
+}
+
+window.abrirPlanningPokerParaFacilitador = abrirPlanningPokerParaFacilitador;
+window.abrirPlanningPokerParaDesarrollador = abrirPlanningPokerParaDesarrollador;
+
+// cabeceras
 function ocultarTodasCabeceras() {
   ["historiasSprint", "historiasResumen", "historiasAsignacion", "historiasRevision", "historiasDaily", "historiasRetrospectiva"].forEach(id => {
     const el = document.getElementById(id);
@@ -247,7 +653,6 @@ function mostrarCabeceraR(id) {
 }
 
 function mostrarVista(idVista) {
-  // El cliente no participa en la Fase 2: se le muestra un aviso en lugar de la asignación
   if (obtenerRolActual() === 'cliente') {
     if (idVista === 'vista-fase2' || idVista === 'vistaDetalles') {
       ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview", "vista-dailyScrum", "vista-retrospectiva"].forEach(vId => {
@@ -259,7 +664,7 @@ function mostrarVista(idVista) {
       });
       mostrarCabeceraR("historiasSprint");
       mostrarAvisoFase2Cliente(true);
-      return; // nunca carga la asignación para el cliente
+      return;
     }
     mostrarAvisoFase2Cliente(false);
   }
@@ -313,7 +718,7 @@ function mostrarAvisoFase2Cliente(mostrar) {
       <div style="font-size: 40px; margin-bottom: 15px;">📋</div>
       <h3 style="color: #1e293b; font-size: 20px; margin-bottom: 10px;">Fase de Planificación en curso por el equipo</h3>
       <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
-        Como cliente, has validado y priorizado los requisitos de la iteración (Fase 1). 
+        Como cliente, has validado y priorizado los requisitos de la iteración (Fase 1).
         Actualmente el equipo de desarrollo se encuentra realizando la estimación y asignación de tareas.
       </p>
       <span style="display: inline-block; background: #eff6ff; color: #2563eb; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;">
@@ -326,90 +731,16 @@ function mostrarAvisoFase2Cliente(mostrar) {
   aviso.style.display = mostrar ? "block" : "none";
 }
 
-//cargar el HTML de Planning Poker según el rol
-async function cargarVistaPlanningPoker(rol) {
-  try {
-    const archivoPlanning = rol === 'desarrollador' 
-      ? 'planningPokerDesarrollador.html' 
-      : 'planningPokerFacilitador.html';
-
-    const respuesta = await fetch(archivoPlanning);
-    if (!respuesta.ok) throw new Error(`No se pudo cargar ${archivoPlanning}`);
-
-    const htmlPlanning = await respuesta.text();
-    const areaTrabajo = document.querySelector("#area-trabajo");
-    
-    if (areaTrabajo) {
-      areaTrabajo.innerHTML = htmlPlanning;
-
-      const cssRuta = rol === 'desarrollador' 
-        ? '../css/planningPokerDesarrollador.css' 
-        : '../css/planningPokerFacilitador.css';
-
-      let linkCss = document.getElementById('dinamic-planning-css');
-      if (!linkCss) {
-        linkCss = document.createElement('link');
-        linkCss.id = 'dinamic-planning-css';
-        linkCss.rel = 'stylesheet';
-        document.head.appendChild(linkCss);
-      }
-      linkCss.href = cssRuta;
-
-      const jsRuta = rol === 'desarrollador' 
-        ? '../js/planningPokerDesarrollador.js'
-        : '../js/planningPokerFacilitador.js';
-
-      let scriptTag = document.getElementById('dinamic-planning-js');
-      if (!scriptTag) {
-        scriptTag = document.createElement('script');
-        scriptTag.id = 'dinamic-planning-js';
-        document.body.appendChild(scriptTag);
-      }
-      scriptTag.src = jsRuta;
-
-      const idModalBusca = rol === 'desarrollador' 
-        ? 'modal-planning-poker-desarrollador'
-        : 'modal-planning-poker-facilitador';
-
-      const modalPP = document.getElementById(idModalBusca);
-      if (modalPP) {
-        modalPP.style.display = "block";
-      }
-
-      // Botón de redirección a detalles (para el facilitador)
-      const btnPracticaDetalles = document.getElementById("btn-pp-practicaDetalles");
-      if (btnPracticaDetalles) {
-        btnPracticaDetalles.addEventListener("click", () => {
-          if (socketAsignacion) {
-            socketAsignacion.emit("disparar-volver-detalles", {
-              sprintId: window.ID_SPRINT,
-              reunionId: window.ID_REUNION,
-              proyectoId: window.ID_PROYECTO
-            });
-          }
-
-          window.location.href = `panelFacilitador.html?sprint=${ID_SPRINT}&reunion=${ID_REUNION}&proyecto=${ID_PROYECTO}&seccion=reuniones&vista=detalles`;
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Error al cargar el Planning Poker:", err);
-    mostrarVista("vistaDetalles");
-  }
-}
-
-//tabla de detalles y calculo de esfuerzo con factores fijos
+// tabla de detalles y calculo de esfuerzo con factores fijos
 function poblarTablaDetalles() {
   const cuerpoTabla = document.getElementById("cuerpoTabla");
   if (!cuerpoTabla) return;
 
-  cuerpoTabla.innerHTML = requisitos.map(h => {
+  cuerpoTabla.innerHTML = window.requisitos.map(h => {
     const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
     const horasEstimadas = h.horas_estimadas ?? h.puntos_de_historia ?? 5;
-    
-    // Obtenemos el factor guardado o por defecto 0 (0% Ninguno)
     const factorSeleccionado = h.factor_complejidad !== undefined && h.factor_complejidad !== "" ? Number(h.factor_complejidad) : 0;
-    
+
     return `
       <tr data-id="${h.id}">
         <td>PB-${numMostrar}</td>
@@ -437,7 +768,6 @@ function poblarTablaDetalles() {
   calcularEsfuerzoTotal();
 }
 
-//funcion que notifica los cambios de factor u horas a los demás en tiempo real
 window.notificarCambioEstimacion = (idHistoria, elemento) => {
   const fila = elemento.closest("tr");
   const inpPuntos = fila.querySelector(".inp-puntos");
@@ -446,17 +776,14 @@ window.notificarCambioEstimacion = (idHistoria, elemento) => {
   const horas = Number(inpPuntos.value) || 0;
   const factor = Number(inpFactor.value) || 0;
 
-  //actualizar objeto en arreglo local
-  const historia = requisitos.find(h => h.id === idHistoria);
+  const historia = window.requisitos.find(h => h.id === idHistoria);
   if (historia) {
     historia.horas_estimadas = horas;
     historia.factor_complejidad = factor;
   }
 
-  //recalcular localmente
   calcularEsfuerzoTotal();
 
-  //emitir por WebSocket para sincronizar a todos los participantes
   if (socketAsignacion) {
     socketAsignacion.emit("actualizar-factor-historia", {
       sprintId: window.ID_SPRINT,
@@ -467,7 +794,6 @@ window.notificarCambioEstimacion = (idHistoria, elemento) => {
   }
 };
 
-//calculo: Horas estimadas * (1 + Factor de complejidad) con redondeo a entero
 function calcularEsfuerzoTotal() {
   const filas = document.querySelectorAll("#cuerpoTabla tr");
   let esfuerzoAcumulado = 0;
@@ -480,10 +806,8 @@ function calcularEsfuerzoTotal() {
     if (inpPuntos && inpFactor && lblEsfuerzo) {
       const horas = Number(inpPuntos.value) || 0;
       const factor = Number(inpFactor.value) || 0;
-
-      //multiplicación de horas por el factor fijo con redondeo estándar (.5 o superior sube al siguiente entero)
       const esfuerzoAjustado = Math.round(horas * (1 + factor));
-      
+
       lblEsfuerzo.textContent = esfuerzoAjustado;
       esfuerzoAcumulado += esfuerzoAjustado;
     }
@@ -492,7 +816,7 @@ function calcularEsfuerzoTotal() {
 
 let solicitudesPendientes = [];
 
-//fase 2 - asignación de historias
+// fase 2 - asignación de historias
 function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
   if (!cuerpoAsignacion) return;
@@ -506,13 +830,13 @@ function cargarAsignacionFase2() {
     panelSolicitudes.style.display = (rol === 'facilitador') ? "block" : "none";
   }
 
-  cuerpoAsignacion.innerHTML = requisitos.map(h => {
+  cuerpoAsignacion.innerHTML = window.requisitos.map(h => {
     const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
     const esfuerzo = h.horas_calculadas || h.horas_estimadas || 5;
 
-    const asignadoA = h.asignado_a || null; 
+    const asignadoA = h.asignado_a || null;
     const estaEnEspera = solicitudesPendientes.find(s => s.idHistoria === h.id && s.idDesarrollador === usuarioActual.id);
-    
+
     let htmlAccion = '';
 
     if (rol === 'desarrollador') {
@@ -524,12 +848,11 @@ function cargarAsignacionFase2() {
         htmlAccion = `<button class="btn-solicitar" onclick="solicitarHistoria(${h.id})" style="background: #2563eb; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">Solicitar</button>`;
       }
     } else {
-      //vista para facilitador
-      htmlAccion = asignadoA 
-        ? `<span>${asignadoA}</span>` 
+      htmlAccion = asignadoA
+        ? `<span>${asignadoA}</span>`
         : `<span style="color: #64748b;">Sin asignar</span>`;
     }
-    
+
     return `
       <tr data-id="${h.id}">
         <td><strong>PB-${numMostrar}</strong> ${h.nombre}</td>
@@ -539,7 +862,6 @@ function cargarAsignacionFase2() {
     `;
   }).join('');
 
-  //se renderiza el panel lateral de solicitudes
   if (rol === 'facilitador') {
     renderizarPanelSolicitudes();
   }
@@ -564,49 +886,21 @@ function calcularRestante() {
   txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
 }
 
-let socketReunion = null;
-
-function inicializarSocketsReunion(idSprint) {
-  //conectamos al servidor de Socket.IO si no está conectado
-  if (!socketReunion) {
-    socketReunion = io();
-
-    //el desarrollador solicita una historia
-    window.solicitarHistoria = (idHistoria) => {
-      const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
-      
-      socketReunion.emit("solicitar-historia", {
-        sprintId: idSprint,
-        idHistoria: idHistoria,
-        idDesarrollador: usuarioActual.id,
-        nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
-      });
-    };
-
-    //entra una nueva solicitud
-    socketReunion.on("notificar-solicitud", (data) => {
-      solicitudesPendientes.push(data);
-      renderizarPanelSolicitudes();
-      //actualizamos la tabla si estamos en la fase 2
-      if (document.getElementById("vista-fase2").style.display === "block") {
-        cargarAsignacionFase2();
-      }
-    });
-
-    //cuando el facilitador acepta o rechaza una solicitud
-    socketReunion.on("actualizar-estado-asignacion", (data) => {
-      //actualizamos el estado de la historia localmente en el arreglo 'requisitos'
-      const historia = requisitos.find(h => h.id === data.idHistoria);
-      if (historia) {
-        historia.asignado_a = data.aceptada ? data.nombreDesarrollador : null;
-      }
-      //removemos de pendientes
-      solicitudesPendientes = solicitudesPendientes.filter(s => s.idHistoria !== data.idHistoria);
-      
-      cargarAsignacionFase2();
-    });
+window.solicitarHistoria = (idHistoria) => {
+  if (!socketAsignacion) {
+    console.error("El socket de asignación aún no está inicializado.");
+    return;
   }
-}
+
+  const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
+
+  socketAsignacion.emit("solicitar-historia", {
+    sprintId: window.ID_SPRINT,
+    idHistoria: idHistoria,
+    idDesarrollador: usuarioActual.id,
+    nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
+  });
+};
 
 function renderizarPanelSolicitudes() {
   const contenedorSolicitudes = document.getElementById("listaSolicitudes");
@@ -632,19 +926,17 @@ function renderizarPanelSolicitudes() {
   `).join('');
 }
 
-//función que ejecuta el facilitador al dar clic en Aceptar o Rechazar
 window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
-  if (socketReunion) {
-    socketReunion.emit("gestionar-solicitud", {
-      sprintId: window.ID_SPRINT,
-      idHistoria,
-      idDesarrollador,
-      aceptada,
-      nombreDesarrollador
-    });
-  }
-};
+  if (!socketAsignacion) return;
 
+  socketAsignacion.emit("gestionar-solicitud", {
+    sprintId: window.ID_SPRINT,
+    idHistoria,
+    idDesarrollador,
+    aceptada,
+    nombreDesarrollador
+  });
+};
 
 let socketAsignacion = null;
 
@@ -652,21 +944,17 @@ function inicializarSocketsAsignacion(idSprint) {
   if (!socketAsignacion) {
     socketAsignacion = io();
 
-    // Cada vez que el socket se conecte o RECONECTE, volver a unirse a la sala
     socketAsignacion.on("connect", () => {
       console.log("Socket conectado:", socketAsignacion.id, "| sprint:", window.ID_SPRINT);
       socketAsignacion.emit("join-asignacion-sprint", { sprintId: window.ID_SPRINT });
     });
 
     socketAsignacion.on("abrir-planning-poker-cliente", () => {
-      const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
-      const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
       const rolActual = obtenerRolActual();
 
       if (rolActual === 'desarrollador') {
         cargarVistaPlanningPoker('desarrollador');
       } else if (rolActual === 'cliente') {
-        //al entra en Planning Poker, el cliente debe ver el aviso de espera
         ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
           const v = document.getElementById(vId);
           if (v) {
@@ -679,27 +967,21 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //escucha la señal para regresar a la sección de reuniones
     socketAsignacion.on("volver-detalles-cliente", () => {
-      const esDevPorRuta = window.location.pathname.toLowerCase().includes('desarrollador');
-      const rolSesion = sessionStorage.getItem('rol') || sessionStorage.getItem('rolActual');
-      const rolActual = (window.ROL_ACTUAL || rolSesion || (esDevPorRuta ? 'desarrollador' : 'facilitador')).toLowerCase();
+      const rolActual = obtenerRolActual();
 
       if (rolActual === 'desarrollador') {
-        // Redirigir al desarrollador a su panel en la sección de reuniones y vista de detalles
         window.location.href = `PanelDesarrollador.html?sprint=${window.ID_SPRINT}&reunion=${window.ID_REUNION}&proyecto=${window.ID_PROYECTO}&seccion=reuniones&vista=detalles`;
       }
     });
 
-    //escuchar cuando alguien cambia horas o factor de complejidad en tiempo real
     socketAsignacion.on("cambio-factor-historia-cliente", (data) => {
-      const historia = requisitos.find(h => h.id === data.idHistoria);
+      const historia = window.requisitos.find(h => h.id === data.idHistoria);
       if (historia) {
         historia.horas_estimadas = data.horas;
         historia.factor_complejidad = data.factor;
       }
 
-      // Actualizar los inputs en la tabla si se encuentran en pantalla
       const fila = document.querySelector(`#cuerpoTabla tr[data-id="${data.idHistoria}"]`);
       if (fila) {
         const inpPuntos = fila.querySelector(".inp-puntos");
@@ -711,7 +993,6 @@ function inicializarSocketsAsignacion(idSprint) {
       calcularEsfuerzoTotal();
     });
 
-    //escuchar cuando el facilitador actualiza las fechas en tiempo real
     socketAsignacion.on("cambio-fechas-cliente", (data) => {
       const inpFechaInicio = document.getElementById("inpFechaInicio");
       const inpFechaFin = document.getElementById("inpFechaFin");
@@ -722,9 +1003,7 @@ function inicializarSocketsAsignacion(idSprint) {
       calcularRestante();
     });
 
-    //escuchar si alguien solicita una historia (Facilitador)
     socketAsignacion.on("notificar-solicitud", (data) => {
-      //evitamos duplicados si ya existe en la lista local
       const existe = solicitudesPendientes.some(s => s.idHistoria === data.idHistoria && s.idDesarrollador === data.idDesarrollador);
       if (!existe) {
         solicitudesPendientes.push(data);
@@ -735,13 +1014,11 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //escucha cuando el facilitador pasa a la Fase 2
     socketAsignacion.on("fase-2-cliente", () => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'desarrollador') {
-        mostrarVista("vista-fase2"); // para el cliente muestra el aviso
+        mostrarVista("vista-fase2");
       } else if (rolActual === 'cliente') {
-        //ocultar la Fase 1 y mostrar el banner de espera de Fase 2
         ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
           const v = document.getElementById(vId);
           if (v) {
@@ -754,16 +1031,14 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //escucha cuando el facilitador vuelve a la Fase 1
     socketAsignacion.on("fase-1-cliente", () => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'desarrollador' || rolActual === 'cliente') {
-        mostrarAvisoFase2Cliente(false); //se oculta el banner de espera
-        mostrarVista("vista-fase1");      // Volver a mostrar la Fase 1
+        mostrarAvisoFase2Cliente(false);
+        mostrarVista("vista-fase1");
       }
     });
 
-    //escucha cuando el facilitador confirma y finaliza el Sprint Backlog
     socketAsignacion.on("confirmar-sprint-cliente", (data) => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'desarrollador') {
@@ -777,39 +1052,33 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //escuchar cuando el facilitador acepta/rechaza (Desarrollador y Facilitador)
     socketAsignacion.on("actualizar-estado-asignacion", (data) => {
-      const historia = requisitos.find(h => h.id === data.idHistoria);
+      const historia = window.requisitos.find(h => h.id === data.idHistoria);
       if (historia) {
         historia.asignado_a = data.aceptada ? data.nombreDesarrollador : null;
       }
       solicitudesPendientes = solicitudesPendientes.filter(s => s.idHistoria !== data.idHistoria);
-      
+
       renderizarPanelSolicitudes();
       cargarAsignacionFase2();
     });
 
-    //escuchar cuando al desarrollador se le asigna una tarea
     socketAsignacion.on("notificacion-asignacion-exitosa", (data) => {
       const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1 };
       const rolActual = obtenerRolActual();
 
-      // Si el rol es desarrollador y coincide el ID del usuario al que le aceptaron la tarea
       if (rolActual === 'desarrollador' && Number(usuarioActual.id) === Number(data.idDesarrollador)) {
         mostrarModalNotificacion(`Se te ha asignado la tarea "${data.nombreHistoria}" con éxito. Revisa tus responsabilidades.`);
       }
     });
 
-    //escuchar cuando el cliente termina la revisión de las historias
     socketAsignacion.on("acta-revision-cerrada-cliente", () => {
       const rolActual = obtenerRolActual();
       if (rolActual === 'facilitador' || rolActual === 'desarrollador') {
-          //se oculta el aviso de espera
-          const bannerEspera = document.getElementById("bannerEsperaCliente");
-          if (bannerEspera) bannerEspera.classList.add("oculto");
+        const bannerEspera = document.getElementById("bannerEsperaCliente");
+        if (bannerEspera) bannerEspera.classList.add("oculto");
 
-          //se recargan las tarjetas para mostrar los estados ACEPTADO/RECHAZADO y botones correspondientes
-          cargarHistoriasRevision();
+        cargarHistoriasRevision();
       }
     });
 
@@ -832,7 +1101,6 @@ function inicializarSocketsAsignacion(idSprint) {
   socketAsignacion.emit("join-asignacion-sprint", { sprintId: idSprint });
 }
 
-//funcion que evalua el rol para cargar la vista de revisión y aplicar las restricciones correspondientes
 function aplicarRestriccionesRevision(rol) {
   const rolActual = rol.toLowerCase();
 

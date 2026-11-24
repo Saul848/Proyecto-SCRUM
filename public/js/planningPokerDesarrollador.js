@@ -29,7 +29,7 @@ function inicializarPlanningPokerDesarrollador(contenedor) {
     const informacionVotacion = contenedor.querySelector("#text-info-pp-pV-info");
     const promedioVotacion = contenedor.querySelector("#title-pp-rV-promedy");
     const informacionPromedio = contenedor.querySelector("#text-info-pp-rV-info");
-    
+
     const botonesCartas = contenedor.querySelectorAll("#card-pp-choice-cont-buttons .card-choice");
     const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 2, name: "Desarrollador Pruebas" };
     const nombreDesarrollador = usuarioActual.nombre;
@@ -111,13 +111,25 @@ function inicializarPlanningPokerDesarrollador(contenedor) {
 
     function mostrarMensaje(emisor, texto, propio = false) {
         if (!contenedorMensajes) return;
+
         const mensaje = document.createElement("div");
         mensaje.classList.add("cont-message", propio ? "message-sent" : "message-received");
 
-        mensaje.innerHTML = `
-            <div class="message-emisor"><p class="text-info-message-emisor-name">${emisor}</p></div>
-            <div class="message-data"><p class="text-info-planning-poker-message-data">${texto}</p></div>
-        `;
+        const encabezado = document.createElement("div");
+        encabezado.classList.add("message-emisor");
+        const nombre = document.createElement("p");
+        nombre.classList.add("text-info-message-emisor-name");
+        nombre.textContent = emisor;
+        encabezado.appendChild(nombre);
+
+        const contenido = document.createElement("div");
+        contenido.classList.add("message-data");
+        const textoMensaje = document.createElement("p");
+        textoMensaje.classList.add("text-info-planning-poker-message-data");
+        textoMensaje.textContent = texto;
+        contenido.appendChild(textoMensaje);
+
+        mensaje.append(encabezado, contenido);
         contenedorMensajes.appendChild(mensaje);
         contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
     }
@@ -140,7 +152,7 @@ function inicializarPlanningPokerDesarrollador(contenedor) {
         if (cardProcessVoting) cardProcessVoting.style.display = "block";
         if (cardResultsVoting) cardResultsVoting.style.display = "none";
         if (cardResultStatistics) cardResultStatistics.style.display = "none";
-        
+
         const tabla = contenedor.querySelector("#statistics-cont-table table");
         if (tabla) {
             const rowData = tabla.querySelectorAll("tr:last-child td");
@@ -215,7 +227,7 @@ function inicializarPlanningPokerDesarrollador(contenedor) {
         if (tabla && data.voteCounts) {
             const headers = tabla.querySelectorAll("tr:first-child th");
             const rowData = tabla.querySelectorAll("tr:last-child td");
-            
+
             headers.forEach((th, index) => {
                 const key = th.textContent.trim();
                 if (rowData[index]) {

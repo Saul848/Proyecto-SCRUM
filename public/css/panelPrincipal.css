@@ -755,402 +755,791 @@ body {
 .btn-estado:hover:not(.btn-pendiente) {
     filter: brightness(0.93);
 }
-/* Lector de capacitación: módulo Herramientas */
-#lector-herramientas {
-  position: fixed;
-  inset: 0;
-  margin: auto;
-  box-sizing: border-box;
-  width: min(900px, 92vw);
-  max-height: 85vh;
-  padding: 24px;
-  border: 8px solid #fff;
-  border-radius: 12px;
-  background: #edf4f6;
-  color: #172334;
-  box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+
+#contenido-modulo .estado-btn {
+    padding: 7px 16px;
+    border: 0;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
 }
 
-/* Flex únicamente cuando está abierto */
-#lector-herramientas[open] {
-  display: flex;
-  flex-direction: column;
-}
-
-#lector-herramientas::backdrop {
-  background: rgb(15 23 42 / 40%);
-}
-
-#lector-herramientas > header {
-  flex-shrink: 0;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #fff;
-}
-
-#lector-herramientas > header strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: #526477;
-}
-
-#lector-herramientas-titulo {
-  margin: 6px 0 0;
-  font-size: 20px;
-}
-
-#cerrar-lector-herramientas {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: #172334;
-  color: #fff;
-  font-size: 19px;
-  cursor: pointer;
-}
-
-#pagina-herramientas {
-  flex: 1;
-  min-height: 0 !important;
-  overflow-y: auto;
-  padding: 28px 16px !important;
-}
-
-#pagina-herramientas .pagina-capacitacion {
-  max-width: 720px;
-  margin: 0 auto;
-  font-size: 16px;
-  line-height: 1.7;
-}
-
-#pagina-herramientas h3 {
-  margin: 0 0 20px;
-  text-align: center;
-  font-size: 20px;
-}
-
-#pagina-herramientas p {
-  margin: 0 0 16px;
-}
-
-#pagina-herramientas ul {
-  padding-left: 24px;
-  margin: 16px 0;
-}
-
-#pagina-herramientas li {
-  margin-bottom: 12px;
-}
-
-#lector-herramientas > footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 2px solid #fff;
-}
-
-#pagina-anterior-herramientas,
-#pagina-siguiente-herramientas {
-  width: 44px;
-  height: 32px;
-  border: 0;
-  border-radius: 8px;
-  background: #172334;
-  color: #fff;
-  font-size: 21px;
-  cursor: pointer;
-}
-
-#pagina-anterior-herramientas:disabled,
-#pagina-siguiente-herramientas:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-#contador-paginas-herramientas {
-  min-width: 80px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: #fff;
-  text-align: center;
-  font-size: 14px;
-}
-
-/* Botones de las tarjetas de capacitación */
 #contenido-modulo .estado-btn.iniciar {
-  padding: 7px 16px;
-  border: 0;
-  border-radius: 20px;
-  background: #2563eb;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
+    background: #22c55e;
 }
 
 #contenido-modulo .estado-btn.iniciar:hover {
-  background: #1d4ed8;
+    background: #16a34a;
 }
 
-@media (max-width: 600px) {
-  #lector-herramientas {
-    padding: 16px;
-  }
+#contenido-modulo .estado-btn.hecho {
+    background: #60b8ff;
+}
 
-  #pagina-herramientas {
-    padding: 20px 0 !important;
-  }
+#contenido-modulo .estado-btn.pendiente {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
 
-  #pagina-herramientas .pagina-capacitacion {
+/* ===== Lector genérico extensible por ID de diálogo ===== */
+#lector-herramientas,
+#lector-intro-scrum,
+#lector-modulo-5 {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    box-sizing: border-box;
+    width: min(900px, 92vw);
+    max-height: 85vh;
+    padding: 24px;
+    border: 8px solid #fff;
+    border-radius: 12px;
+    background: #edf4f6;
+    color: #172334;
+    box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+}
+
+#lector-herramientas[open],
+#lector-intro-scrum[open],
+#lector-modulo-5[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+#lector-herramientas::backdrop,
+#lector-intro-scrum::backdrop,
+#lector-modulo-5::backdrop {
+    background: rgb(15 23 42 / 40%);
+}
+
+/* Encabezado y botón cerrar */
+#lector-herramientas > header,
+#lector-intro-scrum > header,
+#lector-modulo-5 > header {
+    flex-shrink: 0;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #fff;
+}
+
+#lector-herramientas > header strong,
+#lector-intro-scrum > header strong,
+#lector-modulo-5 > header strong {
+    display: block;
     font-size: 14px;
-  }
+    font-weight: 500;
+    color: #526477;
 }
+
+#lector-herramientas-titulo,
+#lector-intro-scrum-titulo,
+#lector-modulo-5-titulo {
+    margin: 6px 0 0;
+    font-size: 20px;
+}
+
+#cerrar-lector-herramientas,
+#cerrar-lector-intro-scrum,
+#cerrar-lector-modulo-5 {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: #172334;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+/* Área de páginas y tipografía */
+#pagina-herramientas,
+#pagina-intro-scrum,
+#pagina-modulo-5 {
+    flex: 1;
+    min-height: 0 !important;
+    overflow-y: auto;
+    padding: 28px 16px !important;
+}
+
+#pagina-herramientas .pagina-capacitacion,
+#pagina-intro-scrum .pagina-capacitacion,
+#pagina-modulo-5 .pagina-capacitacion {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+#pagina-herramientas h3,
+#pagina-intro-scrum h3,
+#pagina-modulo-5 h3 {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#pagina-herramientas p,
+#pagina-intro-scrum p,
+#pagina-modulo-5 p,
+#pagina-intro-scrum ol,
+#pagina-modulo-5 ol,
+#pagina-herramientas ul,
+#pagina-intro-scrum ul,
+#pagina-modulo-5 ul {
+    margin: 0 0 16px;
+}
+
+#pagina-herramientas ul,
+#pagina-intro-scrum ul,
+#pagina-modulo-5 ul,
+#pagina-intro-scrum ol,
+#pagina-modulo-5 ol {
+    padding-left: 24px;
+}
+
+#pagina-herramientas li,
+#pagina-intro-scrum li,
+#pagina-modulo-5 li {
+    margin-bottom: 10px;
+}
+
+/* Pie de lector, paginación y botón Terminar */
+#lector-herramientas > footer,
+#lector-intro-scrum > footer,
+#lector-modulo-5 > footer {
+    flex-shrink: 0;
+    padding-top: 16px;
+    border-top: 2px solid #fff;
+}
+
+#pagina-anterior-herramientas,
+#pagina-siguiente-herramientas,
+#pagina-anterior-intro-scrum,
+#pagina-siguiente-intro-scrum,
+#pagina-anterior-modulo-5,
+#pagina-siguiente-modulo-5 {
+    width: 44px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: #172334;
+    color: #fff;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+#pagina-anterior-herramientas:disabled,
+#pagina-siguiente-herramientas:disabled,
+#pagina-anterior-intro-scrum:disabled,
+#pagina-siguiente-intro-scrum:disabled,
+#pagina-anterior-modulo-5:disabled,
+#pagina-siguiente-modulo-5:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+#contador-paginas-herramientas,
+#contador-paginas-intro-scrum,
+#contador-paginas-modulo-5 {
+    min-width: 80px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+
+#terminar-seccion-herramientas,
+#terminar-seccion-intro-scrum,
+#terminar-seccion-modulo-5 {
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 20px;
+    background: #38a9f5;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#terminar-seccion-herramientas[hidden],
+#terminar-seccion-intro-scrum[hidden],
+#terminar-seccion-modulo-5[hidden] {
+    display: none;
+}
+
+#terminar-seccion-herramientas:disabled,
+#terminar-seccion-intro-scrum:disabled,
+#terminar-seccion-modulo-5:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* ----- Elementos visuales específicos dentro de las páginas ----- */
 #pagina-herramientas .cartas-capacitacion {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
 }
 
 #pagina-herramientas .cartas-capacitacion span {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 54px;
-  border: 2px solid #2587ed;
-  border-radius: 7px;
-  background: #fff;
-  color: #176bc0;
-  font-weight: bold;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 54px;
+    border: 2px solid #2587ed;
+    border-radius: 7px;
+    background: #fff;
+    color: #176bc0;
+    font-weight: bold;
 }
 
 #pagina-herramientas .ejemplo-burndown {
-  width: 100%;
-  margin: 20px 0;
-  border-collapse: collapse;
-  background: #fff;
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+    background: #fff;
 }
 
 #pagina-herramientas .ejemplo-burndown caption {
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #526477;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #526477;
 }
 
 #pagina-herramientas .ejemplo-burndown th,
 #pagina-herramientas .ejemplo-burndown td {
-  padding: 8px;
-  border-bottom: 1px solid #dbe4ed;
-  text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #dbe4ed;
+    text-align: center;
 }
+
 #pagina-herramientas .grafica-capacitacion {
-  margin: 20px auto;
-  text-align: center;
+    margin: 20px auto;
+    text-align: center;
 }
 
 #pagina-herramientas .grafica-capacitacion img {
-  display: block;
-  width: 100%;
-  max-width: 740px;
-  height: auto;
-  margin: auto;
-  border-radius: 8px;
+    display: block;
+    width: 100%;
+    max-width: 740px;
+    height: auto;
+    margin: auto;
+    border-radius: 8px;
 }
 
 #pagina-herramientas .grafica-capacitacion figcaption {
-  margin-top: 8px;
-  color: #526477;
-  font-size: 13px;
-}
-#contenido-modulo .estado-btn {
-  padding: 7px 16px;
-  border: 0;
-  border-radius: 20px;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
+    margin-top: 8px;
+    color: #526477;
+    font-size: 13px;
 }
 
-#contenido-modulo .estado-btn.iniciar {
-  background: #22c55e;
+/* PARA MODULO 5 IMAGENES */
+.imagen-sistema {
+    margin: 16px auto;
+    text-align: center;
 }
 
-#contenido-modulo .estado-btn.iniciar:hover {
-  background: #16a34a;
+.imagen-sistema img {
+    display: block;
+    width: auto;
+    max-width: min(100%, 540px); /* Ajusta a 450px o 600px según prefieras */
+    max-height: 320px;          /* Evita que las capturas altas empujen el botón Terminar */
+    height: auto;
+    object-fit: contain;
+    margin: auto;
+    border-radius: 8px;
 }
 
-#contenido-modulo .estado-btn.hecho {
-  background: #60b8ff;
+.imagen-sistema figcaption {
+    margin-top: 8px;
+    color: #526477;
+    font-size: 13px;
 }
 
-#contenido-modulo .estado-btn.pendiente {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-#terminar-seccion-herramientas {
-  padding: 8px 18px;
-  border: 0;
-  border-radius: 20px;
-  background: #38a9f5;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
+@media (max-width: 600px) {
+    #lector-herramientas,
+    #lector-intro-scrum,
+    #lector-modulo-5 {
+        padding: 16px;
+    }
 
-#terminar-seccion-herramientas[hidden] {
-  display: none;
-}
+    #pagina-herramientas,
+    #pagina-intro-scrum,
+    #pagina-modulo-5 {
+        padding: 20px 0 !important;
+    }
 
-#terminar-seccion-herramientas:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
-/* Reutilizar estilos del lector para Módulo 1 */
-#lector-intro-scrum {
-  position: fixed;
-  inset: 0;
-  margin: auto;
-  box-sizing: border-box;
-  width: min(900px, 92vw);
-  max-height: 85vh;
-  padding: 24px;
-  border: 8px solid #fff;
-  border-radius: 12px;
-  background: #edf4f6;
-  color: #172334;
-  box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
-}
-
-#lector-intro-scrum[open] {
-  display: flex;
-  flex-direction: column;
-}
-
-#lector-intro-scrum::backdrop {
-  background: rgb(15 23 42 / 40%);
-}
-
-#lector-intro-scrum > header {
-  flex-shrink: 0;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #fff;
-}
-
-#lector-intro-scrum > header strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: #526477;
-}
-
-#lector-intro-scrum-titulo {
-  margin: 6px 0 0;
-  font-size: 20px;
-}
-
-#cerrar-lector-intro-scrum {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: #172334;
-  color: #fff;
-  font-size: 19px;
-  cursor: pointer;
-}
-
-#pagina-intro-scrum {
-  flex: 1;
-  min-height: 0 !important;
-  overflow-y: auto;
-  padding: 28px 16px !important;
-}
-
-#pagina-intro-scrum .pagina-capacitacion {
-  max-width: 720px;
-  margin: 0 auto;
-  font-size: 16px;
-  line-height: 1.7;
-}
-
-#pagina-intro-scrum h3 {
-  margin: 0 0 20px;
-  text-align: center;
-  font-size: 20px;
-}
-
-#pagina-intro-scrum p,
-#pagina-intro-scrum ol,
-#pagina-intro-scrum ul {
-  margin: 0 0 16px;
-}
-
-#pagina-intro-scrum ol,
-#pagina-intro-scrum ul {
-  padding-left: 24px;
-}
-
-#pagina-intro-scrum li {
-  margin-bottom: 10px;
-}
-
-#lector-intro-scrum > footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 2px solid #fff;
-}
-
-#pagina-anterior-intro-scrum,
-#pagina-siguiente-intro-scrum {
-  width: 44px;
-  height: 32px;
-  border: 0;
-  border-radius: 8px;
-  background: #172334;
-  color: #fff;
-  font-size: 21px;
-  cursor: pointer;
-}
-
-#pagina-anterior-intro-scrum:disabled,
-#pagina-siguiente-intro-scrum:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-#contador-paginas-intro-scrum {
-  min-width: 80px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: #fff;
-  text-align: center;
-  font-size: 14px;
-}
-
-#terminar-seccion-intro-scrum {
-  padding: 8px 18px;
-  border: 0;
-  border-radius: 20px;
-  background: #38a9f5;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-#terminar-seccion-intro-scrum[hidden] {
-  display: none;
+    #pagina-herramientas .pagina-capacitacion,
+    #pagina-intro-scrum .pagina-capacitacion,
+    #pagina-modulo-5 .pagina-capacitacion {
+        font-size: 14px;
+    }
 }
 
 #terminar-seccion-intro-scrum:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+/* Diseño compartido para lectores de capacitación */
+dialog.lector-capacitacion {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(900px, 92vw);
+  max-width: 92vw;
+  max-height: 85vh;
+  padding: 24px;
+  border: 8px solid #fff !important;
+  border-radius: 12px;
+  background: #edf4f6;
+  color: #172334;
+  box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+}
+
+dialog.lector-capacitacion[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.lector-capacitacion::backdrop {
+  background: rgb(15 23 42 / 40%);
+}
+
+.lector-capacitacion > header {
+  flex-shrink: 0;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #fff;
+}
+
+.lector-capacitacion > header strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #526477;
+}
+
+.lector-capacitacion > header h3 {
+  margin: 6px 0 0;
+  font-size: 20px;
+}
+
+.lector-capacitacion > header button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #172334;
+  color: #fff;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.lector-capacitacion > div {
+  flex: 1;
+  min-height: 0 !important;
+  overflow-y: auto;
+  padding: 28px 16px !important;
+}
+
+.lector-capacitacion .pagina-capacitacion {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.lector-capacitacion .pagina-capacitacion h3 {
+  margin: 0 0 20px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.lector-capacitacion .pagina-capacitacion p,
+.lector-capacitacion .pagina-capacitacion ul,
+.lector-capacitacion .pagina-capacitacion ol {
+  margin: 0 0 16px;
+}
+
+.lector-capacitacion .pagina-capacitacion ul,
+.lector-capacitacion .pagina-capacitacion ol {
+  padding-left: 24px;
+}
+
+.lector-capacitacion .pagina-capacitacion li {
+  margin-bottom: 10px;
+}
+
+.lector-capacitacion > footer {
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 2px solid #fff;
+}
+
+.lector-capacitacion > footer button {
+  min-width: 44px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #172334;
+  color: #fff;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+.lector-capacitacion > footer button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lector-capacitacion > footer span {
+  min-width: 80px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+  font-size: 14px;
+}
+
+.lector-capacitacion > footer button[id^="terminar-seccion-"] {
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: #38a9f5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lector-capacitacion [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  dialog.lector-capacitacion {
+    padding: 16px !important;
+  }
+
+  .lector-capacitacion > div {
+    padding: 20px 0 !important;
+  }
+
+  .lector-capacitacion .pagina-capacitacion {
+    font-size: 14px;
+  }
+}
+.modulo-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.modulo-progreso {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #526477;
+}
+
+/* =====================================================
+   MÓDULO 6: TUTORIAL DESARROLLADOR
+   ===================================================== */
+
+/* Ventana principal del tutorial */
+#lector-modulo-6 {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    box-sizing: border-box;
+    width: min(900px, 92vw);
+    max-height: 85vh;
+    padding: 24px;
+    border: 8px solid #fff;
+    border-radius: 12px;
+    background: #edf4f6;
+    color: #172334;
+    box-shadow: 0 20px 60px rgb(15 23 42 / 25%);
+}
+
+#lector-modulo-6[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+#lector-modulo-6::backdrop {
+    background: rgb(15 23 42 / 40%);
+}
+
+/* Encabezado */
+#lector-modulo-6 > header {
+    flex-shrink: 0;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #fff;
+}
+
+#lector-modulo-6 > header strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #526477;
+}
+
+#lector-modulo-6-titulo {
+    margin: 6px 0 0;
+    font-size: 20px;
+}
+
+/* Botón para cerrar */
+#cerrar-lector-modulo-6 {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: #172334;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+/* Área de contenido */
+#pagina-modulo-6 {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 28px 16px;
+}
+
+#pagina-modulo-6 .pagina-capacitacion {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+#pagina-modulo-6 h3 {
+    margin: 0 0 20px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#pagina-modulo-6 p {
+    margin: 0 0 16px;
+}
+
+/* Pie del lector */
+#lector-modulo-6 > footer {
+    flex-shrink: 0;
+    padding-top: 16px;
+    border-top: 2px solid #fff;
+}
+
+/* Botones de navegación */
+#pagina-anterior-modulo-6,
+#pagina-siguiente-modulo-6 {
+    width: 44px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: #172334;
+    color: #fff;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+#pagina-anterior-modulo-6:disabled,
+#pagina-siguiente-modulo-6:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+/* Contador de páginas */
+#contador-paginas-modulo-6 {
+    min-width: 80px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Botón Terminar */
+#terminar-seccion-modulo-6 {
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 20px;
+    background: #38a9f5;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#terminar-seccion-modulo-6[hidden] {
+    display: none;
+}
+
+#terminar-seccion-modulo-6:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 600px) {
+    #lector-modulo-6 {
+        padding: 16px;
+    }
+
+    #pagina-modulo-6 {
+        padding: 20px 0;
+    }
+
+    #pagina-modulo-6 .pagina-capacitacion {
+        font-size: 14px;
+    }
+}
+/* Imágenes del tutorial desarrollador */
+#pagina-modulo-6 .imagen-sistema img {
+    max-width: min(100%, 600px);
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/*Estilos de la barra de busqueda*/
+/* ===== Barra de búsqueda de usuarios ===== */
+#contenedor-busqueda {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    margin-bottom: 18px;
+}
+
+#contenedor-busqueda .icono-busqueda {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95em;
+    opacity: 0.55;
+    pointer-events: none;   /* el clic pasa al input */
+}
+
+#barra-busqueda-usuarios {
+    width: 100%;
+    padding: 12px 18px 12px 44px;   /* espacio a la izquierda para la lupa */
+    background-color: #ffffff;
+    border: 1px solid #b5b5b5;
+    border-radius: 24px;
+    font-size: 0.95em;
+    color: #222;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#barra-busqueda-usuarios::placeholder {
+    color: #8a8a8a;
+}
+
+#barra-busqueda-usuarios:focus {
+    border-color: #2f8fe0;
+    box-shadow: 0 0 0 3px rgba(47, 143, 224, 0.2);
+}
+
+/* ===== Filtro de proyectos ===== */
+.encabezado-proyectos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#filtro-proyectos {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background-color: #e3edf8;
+    border: 1px solid #b9cfe8;
+    border-radius: 24px;
+}
+
+.filtro-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #0b5fc4;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.filtro-btn:hover {
+    background-color: rgba(11, 95, 196, 0.12);
+}
+
+.filtro-btn.activo {
+    background-color: #0b5fc4;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.filtro-btn:focus-visible {
+    outline: 2px solid #0b5fc4;
+    outline-offset: 2px;
+}
+
+/* Tarjetas de proyectos eliminados */
+.item-card.eliminado {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.badge-gris {
+    background-color: #d9d9d9;
+    color: #555;
+}
+
+.item-card.eliminado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    cursor: default;
+}
+
+.item-card.eliminado .item-nombre,
+.item-card.eliminado .badge {
+    opacity: 0.6;
+}
+
+.btn-restaurar {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    background-color: #34c759;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85em;
+    cursor: pointer;
+}
+
+.btn-restaurar:hover {
+    filter: brightness(0.93);
 }

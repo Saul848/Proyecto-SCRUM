@@ -15,8 +15,10 @@ router.get('/listarProyectos', (req, res)=> controlador.listarProyectos(req, res
 router.get('/listarDODProyectos/:id', (req, res)=> controlador.listarDODProyectoPorID(req, res))
 router.get('/listarProyectosDeUsuario/:id', (req, res)=> controlador.listarProyectosDeUsuario(req,res))
 router.get('/listarSprints/:idProyecto', (req, res)=> controlador.listarSprintsProyecto(req,res))
+router.put('/eliminar/:id', (req, res) => controlador.eliminarProyecto(req, res));
+router.put('/restaurar/:id', (req, res) => controlador.restaurarProyecto(req, res));
+router.put('/dod/:id', (req, res) => controlador.actualizarDOD(req, res));
 
- 
 // NUEVA RUTA: Endpoint que procesa el Aceptar o Rechazar desde el correo
 router.get('/invitacion/responder', (req, res) => controlador.responderInvitacion(req, res));
 router.get('/contactos-proyecto/:idProyecto/:idUsuarioActual', async (req, res) => {
@@ -60,7 +62,12 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     TO_CHAR(s.fecha_fin, 'YYYY-MM-DD') AS fecha_fin,
     COUNT(h.id)::integer AS historias_planificadas,
     COALESCE(SUM(h.horas_calculadas), 0) AS total_horas,
+    COALESCE(SUM(h.puntos_de_historia), 0) AS total_puntos,
+    COALESCE(SUM(h.horas_estimadas), 0) AS horas_estimadas,
+    SUM(h.horas_reales) AS horas_reales_registradas,
+    COUNT(h.horas_reales)::integer AS historias_con_horas_reales,
     c.horas_restantes,
+    c.puntos_restantes,
     c.historias_terminadas,
     c.es_prueba
   FROM scrumbird.sprint s
@@ -74,17 +81,52 @@ router.get("/product-backlog-por-sprint/:idProyecto", async (req, res) => {
     s.id,
     s.no_iteracion,
     c.horas_restantes,
+    c.puntos_restantes,
     c.historias_terminadas,
     c.es_prueba
   ORDER BY s.no_iteracion, s.id;
 `, [idProyecto]);
+ const totales = await pool.query(`
+  SELECT
+    COUNT(*)::integer AS historias,
+    COALESCE(SUM(horas_calculadas), 0) AS horas_calculadas,
+    COALESCE(SUM(puntos_de_historia), 0) AS puntos,
+    COALESCE(SUM(horas_estimadas), 0) AS horas_estimadas,
+    SUM(horas_reales) AS horas_reales_registradas,
+    COUNT(horas_reales)::integer AS historias_con_horas_reales
+  FROM scrumbird.historia_de_usuario
+  WHERE id_proyecto = $1
+`, [idProyecto]);
+
+const total = totales.rows[0];
 
     res.json({
   ok: true,
+  totales_proyecto: {
+  historias: Number(total.historias),
+  horas_calculadas: Number(total.horas_calculadas),
+  puntos: Number(total.puntos),
+  horas_estimadas: Number(total.horas_estimadas),
+  horas_reales_registradas:
+    total.horas_reales_registradas == null
+      ? null
+      : Number(total.horas_reales_registradas),
+  historias_con_horas_reales:
+    Number(total.historias_con_horas_reales)
+},
   datos: rows.map(fila => ({
-    ...fila,
-    total_horas: Number(fila.total_horas)
-  }))
+  ...fila,
+  total_horas: Number(fila.total_horas),
+  total_puntos: Number(fila.total_puntos),
+  horas_estimadas: Number(fila.horas_estimadas),
+  horas_reales_registradas: fila.horas_reales_registradas == null
+    ? null
+    : Number(fila.horas_reales_registradas),
+  historias_con_horas_reales: Number(fila.historias_con_horas_reales),
+  puntos_restantes: fila.puntos_restantes == null
+    ? null
+    : Number(fila.puntos_restantes)
+}))
 });
   } catch (error) {
     console.error("Error consultando burndown:", error);
@@ -130,6 +172,7 @@ router.get(
         SELECT
           TO_CHAR(d.fecha, 'YYYY-MM-DD') AS fecha,
           d.horas_restantes,
+          d.puntos_restantes,
           d.es_prueba
         FROM scrumbird.burndown_diario d
         JOIN scrumbird.sprint s ON s.id = d.id_sprint
@@ -137,8 +180,7 @@ router.get(
           AND s.id_proyecto = $2
           AND d.fecha BETWEEN s.fecha_inicio AND s.fecha_fin
         ORDER BY d.fecha;
-      `, [idSprint, idProyecto]);
-
+      `, [idSprint, idProyecto]); 
       res.json({
         ok: true,
         datos: rows

@@ -218,28 +218,26 @@ async function obtenerUsuariosPorEquipo(id_proyecto) {
     }
 }
 
-
 /**
  * Construcción de la lista de usuarios en el panel de miembros
  */
 document.addEventListener("DOMContentLoaded", async () => {
+    //Cargar la definicion de hecho
+    cargarDefinicionDeHecho(JSON.parse(sessionStorage.getItem('proyectoActivo')).id);
     //Lógica para solo listar los usuarios del panel Facilitador
     const contFacilitador = document.getElementById("modal-usuariosF");
-    console.log('revisando lista del equipo')
     if (!contFacilitador) return; // esta página no tiene la tabla, no hacemos nada
 
-    console.log('Listando miembros del equipo')
     const idP = JSON.parse(sessionStorage.getItem('proyectoActivo')).id;
     //Logica para mostrar el menú al seleccionar la opción
     const usuarios = await obtenerUsuariosPorEquipo(idP);
     const contenedorUsuarios = document.getElementById("contenedor-usuariosF");
 
-    console.log("Longitud de usuarios: " + usuarios.length)
     if (usuarios.length === 0) {
         contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
         return;
     }
-    console.log(usuarios)
+
     const tarjetas = usuarios.map(usuario => `
     <button class="tarjeta-usuario" data-id="${usuario.id}">
         <span>${usuario.id}</span>
@@ -258,3 +256,127 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Click en el usuario con id: ", idUsuario);
     })
 })
+
+
+document.getElementById("btnEliminarProyecto").addEventListener("click", async () => {
+    console.log("ELIMINADOOOOOOOOOO")
+    const proyecto = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+    if (!proyecto) {
+        alert("No hay un proyecto activo.");
+        return;
+    }
+
+    const confirmar = confirm(
+        `¿Seguro que deseas eliminar el proyecto "${proyecto.nombre}"?`
+    );
+    if (!confirmar) return;
+
+    try {
+        const respuesta = await fetch(`/proyectos/eliminar/${proyecto.id}`, {
+            method: "PUT",
+            headers: { "Accept": "application/json" }
+        });
+        const resultado = await respuesta.json();
+
+
+        if (!respuesta.ok || !resultado.ok) {
+            alert(resultado.mensaje || "No se pudo eliminar el proyecto.");
+            return;
+        }
+
+        sessionStorage.removeItem('proyectoActivo');
+        window.location.href = '/html/PanelPrincipal.html';
+    } catch (error) {
+        console.error("Error al eliminar el proyecto:", error);
+        alert("Ocurrió un error de conexión.");
+    }
+});
+
+
+async function obtenerDOD(idProyecto) {
+    try {
+        const respuesta = await fetch(`/proyectos/listarDODProyectos/${idProyecto}`,{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+        // Obtenemos los datos del JSON
+        const datos = await respuesta.json();
+        
+        return datos.dod;
+    } catch (error) {
+        console.error("Error al obtener el DOD: ", error)
+        return null;
+    }
+}
+
+async function cargarDefinicionDeHecho(idProyecto){
+    const dod = await obtenerDOD(idProyecto);
+    
+    const labelDOD = document.getElementById("dodTexto");
+
+    
+    if (dod) {
+        labelDOD.textContent = dod;
+        labelDOD.dataset.vacio = "false";
+    } else {
+        labelDOD.textContent = "No hay una definición de hecho registrada.";
+        labelDOD.dataset.vacio = "true";
+    }
+}
+
+const dodTexto = document.getElementById("dodTexto");
+const dodEditor = document.getElementById("dodEditor");
+const btnEditDOD = document.getElementById("editDOD");
+const btnGuardarDOD = document.getElementById("guardarDOD");
+const btnCancelarDOD = document.getElementById("cancelarDOD");
+
+function modoEdicionDOD(activo) {
+    dodTexto.style.display = activo ? "none" : "block";
+    dodEditor.style.display = activo ? "block" : "none";
+    btnEditDOD.style.display = activo ? "none" : "inline-block";
+    btnGuardarDOD.style.display = activo ? "inline-block" : "none";
+    btnCancelarDOD.style.display = activo ? "inline-block" : "none";
+}
+
+btnEditDOD.addEventListener("click", () => {
+    const actual = dodTexto.dataset.vacio === "true" ? "" : dodTexto.textContent;
+    dodEditor.value = actual;
+    modoEdicionDOD(true);
+    dodEditor.focus();
+});
+
+btnCancelarDOD.addEventListener("click", () => modoEdicionDOD(false));
+
+btnGuardarDOD.addEventListener("click", async () => {
+    const nuevoDod = dodEditor.value.trim();
+    if (!nuevoDod) {
+        alert("La definición de hecho no puede estar vacía.");
+        return;
+    }
+
+    const proyecto = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+    try {
+        const respuesta = await fetch(`/proyectos/dod/${proyecto.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ dod: nuevoDod })
+        });
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok || !resultado.ok) {
+            alert(resultado.mensaje || "No se pudo guardar el DOD.");
+            return;
+        }
+
+        dodTexto.textContent = resultado.data.dod;
+        dodTexto.dataset.vacio = "false";
+        modoEdicionDOD(false);
+    } catch (error) {
+        console.error("Error al guardar el DOD:", error);
+        alert("Ocurrió un error de conexión.");
+    }
+});

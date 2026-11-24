@@ -88,21 +88,19 @@ async function obtenerUsuarios() {
     }
 }
 
-/**
- * Construcción de la lista de usuarios en el panel de miembros
- */
-document.getElementById("btn-miembros").addEventListener('click', async ()=>{
-    mostrarModal("modal-usuarios");
-    //Logica para mostrar el menú al seleccionar la opción
-    const usuarios= await obtenerUsuarios();
-    const contenedorUsuarios = document.getElementById("contenedor-usuarios");
+let todosLosUsuarios = [];
 
-    if(usuarios.length === 0) {
+const contenedorUsuarios = document.getElementById("contenedor-usuarios");
+const barraBusqueda = document.getElementById("barra-busqueda-usuarios");
+
+/** Pinta una lista de usuarios como tarjetas */
+function pintarUsuarios(lista) {
+    if (lista.length === 0) {
         contenedorUsuarios.innerHTML = "<p>No hay usuarios para mostrar</p>";
         return;
     }
 
-    const tarjetas = usuarios.map(usuario =>`
+    contenedorUsuarios.innerHTML = lista.map(usuario => `
     <button class="tarjeta-usuario" data-id="${usuario.id}" data-nombre="${usuario.nombre}" data-email="${usuario.correo_electronico}" data-username="${usuario.nombre_de_usuario}">
         <span>${usuario.id}</span>
         <span>${usuario.nombre}</span>
@@ -110,56 +108,96 @@ document.getElementById("btn-miembros").addEventListener('click', async ()=>{
         <span>${usuario.nombre_de_usuario}</span>
     </button>
     `).join("");
-    console.log("filas construidas");
-    contenedorUsuarios.innerHTML = tarjetas;
+}
 
-    contenedorUsuarios.addEventListener('click', async (evento)=>{
-        const tarjeta= evento.target.closest('.tarjeta-usuario');
+/** Minúsculas y sin acentos, para que "perez" encuentre "Pérez" */
+function normalizar(texto) {
+    return String(texto ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
 
-        if(!tarjeta) return;
+function filtrarUsuarios() {
+    const termino = normalizar(barraBusqueda.value.trim());
 
-        const idUsuario = tarjeta.dataset.id;
-        const name = tarjeta.dataset.nombre;
-        const email = tarjeta.dataset.email;
-        const username = tarjeta.dataset.username;
-        console.log("Click en el usuario con id: ", idUsuario);
-        const proyectos = await listarProyectosUsuario(idUsuario);
-        /**Contenido de cada tarjeta para usuario individual - plantilla: añadir lógica todavía y css */
-        const tarjetasProyectos = proyectos.length === 0
-            ? "<p>Este usuario no participa en ningún proyecto.</p>"
-            : proyectos.map(p => `
-                <div class="item-card">
-                    <span class="item-nombre">${p.nombre}</span>
-                    <span class="badge badge-azul">${p.rol}</span>
-                </div>
-            `).join("");
+    if (termino === "") {
+        pintarUsuarios(todosLosUsuarios);
+        return;
+    }
 
-        const detalles = `
-        <div id="cont-detalles-usuario" class="modal-overlay active">
-            <div class="detalles-card">
-                <button type="button" id="btn-cerrar-detalles">&times;</button>
-                <h2>Detalles de ${username}</h2>
+    const filtrados = todosLosUsuarios.filter(u =>
+        normalizar(u.nombre).includes(termino) ||
+        normalizar(u.correo_electronico).includes(termino) ||
+        normalizar(u.nombre_de_usuario).includes(termino) ||
+        String(u.id) === termino
+    );
 
-                <div id="detalles-usuario">
-                    <p><strong>Nombre:</strong> ${name}</p>
-                    <p><strong>Usuario:</strong> ${username}</p>
-                    <p><strong>ID:</strong> ${idUsuario}</p>
-                    <p><strong>Correo:</strong> ${email}</p>
-                </div>
+    pintarUsuarios(filtrados);
+}
 
-                <h3>Proyectos actuales:</h3>
-                <div id="projects-usuario">${tarjetasProyectos}</div>
+barraBusqueda.addEventListener("input", filtrarUsuarios);
+
+
+/**
+ * Construcción de la lista de usuarios en el panel de miembros
+ */
+document.getElementById("btn-miembros").addEventListener('click', async () => {
+    mostrarModal("modal-usuarios");
+
+    todosLosUsuarios = await obtenerUsuarios();
+    barraBusqueda.value = "";
+    pintarUsuarios(todosLosUsuarios);
+});
+
+/** Clic en una tarjeta: se registra UNA sola vez (delegación de eventos) */
+contenedorUsuarios.addEventListener('click', async (evento) => {
+    const tarjeta = evento.target.closest('.tarjeta-usuario');
+    if (!tarjeta) return;
+
+    const idUsuario = tarjeta.dataset.id;
+    const name = tarjeta.dataset.nombre;
+    const email = tarjeta.dataset.email;
+    const username = tarjeta.dataset.username;
+
+    const proyectos = await listarProyectosUsuario(idUsuario);
+
+    const tarjetasProyectos = proyectos.length === 0
+        ? "<p>Este usuario no participa en ningún proyecto.</p>"
+        : proyectos.map(p => `
+            <div class="item-card">
+                <span class="item-nombre">${p.nombre}</span>
+                <span class="badge badge-azul">${p.rol}</span>
             </div>
-        </div>
-        `;
+        `).join("");
 
-        document.body.insertAdjacentHTML('beforeend', detalles);
-        
-        document.getElementById('btn-cerrar-detalles').addEventListener('click', () => {
-            document.getElementById('cont-detalles-usuario').remove();
-        });
-    })    
-})
+    const detalles = `
+    <div id="cont-detalles-usuario" class="modal-overlay active">
+        <div class="detalles-card">
+            <button type="button" id="btn-cerrar-detalles">&times;</button>
+            <h2>Detalles de ${username}</h2>
+
+            <div id="detalles-usuario">
+                <p><strong>Nombre:</strong> ${name}</p>
+                <p><strong>Usuario:</strong> ${username}</p>
+                <p><strong>ID:</strong> ${idUsuario}</p>
+                <p><strong>Correo:</strong> ${email}</p>
+            </div>
+
+            <h3>Proyectos actuales:</h3>
+            <div id="projects-usuario">${tarjetasProyectos}</div>
+        </div>
+    </div>
+    `;
+
+    // Si ya había un panel abierto, se quita antes de insertar otro
+    document.getElementById('cont-detalles-usuario')?.remove();
+    document.body.insertAdjacentHTML('beforeend', detalles);
+
+    document.getElementById('btn-cerrar-detalles').addEventListener('click', () => {
+        document.getElementById('cont-detalles-usuario').remove();
+    });
+});
 
 async function listarProyectosUsuario(idUsuario) {
     try{

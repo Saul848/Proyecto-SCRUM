@@ -77,8 +77,12 @@
         </div>
         <main class="content-area">
           <div id="mis-proyectos" class="panel-proyectos">
-            <!--Aqui van las tarjetas de proyectos-->
             <h2>Mis Proyectos</h2>
+            <div id="filtro-proyectos" role="group" aria-label="Filtrar proyectos">
+              <button type="button" class="filtro-btn activo" data-filtro="activos">Activos</button>
+              <button type="button" class="filtro-btn" data-filtro="eliminados">Eliminados</button>
+              <button type="button" class="filtro-btn" data-filtro="todos">Todos</button>
+            </div>
             <div class="lista-items"></div>
           </div>
         </main>
@@ -121,6 +125,12 @@
       <!--Modal para visualizar la lista de usuarios de la empresa-->
       <div id="modal-usuarios" class="modal-class">
         <h2>Lista de miembros de la organización</h2>
+        <div id="contenedor-busqueda">
+          <span class="icono-busqueda" aria-hidden="true">🔍</span>
+          <input id="barra-busqueda-usuarios" type="search"
+                placeholder="Buscar por nombre, correo o usuario..." autocomplete="off">
+        </div>
+
         <div id="contenedor-blanco">
           <div id="contenedor-azul">
             <h3>Miembros</h3>
@@ -705,8 +715,9 @@
 
   <!-- Lector de las secciones del módulo 3 --------------------------->
   <dialog id="lector-reuniones"
-          aria-labelledby="lector-reuniones-titulo"
-          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+        class="lector-capacitacion"
+        aria-labelledby="lector-reuniones-titulo"
+        style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
 
     <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
       <div>
@@ -943,6 +954,690 @@
     </article>
   </template>
 
+  <!-- Lector de las secciones del módulo 4 --------------------------->
+  <dialog id="lector-reuniones"
+        class="lector-capacitacion"
+        aria-labelledby="lector-reuniones-titulo"
+        style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 4: Proyectos en Scrumbird</strong>
+        <h3 id="lector-reuniones-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-reuniones-scrum"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-reuniones"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-reuniones"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-proyectos"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-proyectos"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-proyectos"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
+
+
+
+  <!-- Lector de las secciones del módulo 5 --------------------------->
+  <dialog id="lector-modulo-5"
+          aria-labelledby="lector-modulo-5-titulo"
+          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 5: Tutorial facilitador</strong>
+        <h3 id="lector-modulo-5-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-modulo-5"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-modulo-5"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-modulo-5"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-modulo-5"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-modulo-5"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-modulo-5"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
+
+  <!-- Módulo 4, sección 1: Guia de proyectos scrumbird (4 páginas) -->
+  <template id="guia-pantallas-y-secciones">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <h3>Mis proyectos</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyectos_principal.png"
+          alt="Captura descriptiva de la seccion Mis proyectos de Scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Mis proyectos de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar los proyectos propios o crear nuevos. Se muestra el rol que se tiene en cada uno; cuando se crea un Proyecto
+        se pasa a ser el SCRUM MASTER de ese proyecto, se pueden seleccionar colaboradores al crear un proyecto y otorgarles un rol 
+        (Developer o Cliente/Product Owner)
+      </p>
+    
+    </article>
+
+    <!-- Página 2 -->
+    <article class="pagina-capacitacion">
+      <h3>Miembros de la organización</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_usuarios.png"
+          alt="Captura descriptiva de la seccion Lista de miembros de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Lista de miembros de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar a todos los usuarios registrados en el proyecto; se puede dar clic a cualquier para ver sus detalles
+        y los proyectos en los que está actualmente.
+      </p>
+    
+    </article>
+
+    <!-- Página 3 -->
+    <article class="pagina-capacitacion">
+      <h3>Mensajes generales</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_mensajes.png"
+          alt="Captura descriptiva de la seccion Mensajes del panel Principal de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la sección Mensajes del panel Principal de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite enviar mensajes a otros usuarios y recibirlos de igual manera. Los mensajes aquí no están sujetos a ningún grupo y se podrán
+        visualizar siempre que se requiera
+      </p>
+    
+    </article>
+
+    <!-- Página 4 -->
+    <article class="pagina-capacitacion">
+      <h3>Capacitación de SCRUM</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_capacitacion.png"
+          alt="Captura descriptiva de la seccion Capacitación de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Capacitación de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite realizar y dar seguimiento individual a la capacitación sobre los contenidos de SCRUM y las funcionalidades del sistema
+      </p>
+    
+    </article>
+    
+  </template>
+
+
+  <!-- Módulo 5, sección 1: Guia pantallas y secciones (8 páginas) -->
+  <template id="guia-pantallas-y-secciones">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <h3>Equipo de trabajo</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_mi_equipo.png"
+          alt="Captura descriptiva de la seccion mi equipo de Scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion mi equipo de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar a los integrantes que conforman el equipo Scrum.
+        De esta manera, los usuarios pueden identificar quiénes participan en el equipo
+        y conocer la organización y composición del mismo.
+      </p>
+    
+    </article>
+
+    <!-- Página 2 -->
+    <article class="pagina-capacitacion">
+      <h3>Centro de comunicacion</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_mensajes.png"
+          alt="Captura descriptiva de la seccion mensajes de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion mensajes de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite mantener la comunicación entre los integrantes del equipo Scrum mediante conversaciones individuales y
+        grupales. Los usuarios pueden intercambiar mensajes, compartir información y coordinar actividades relacionadas con el
+        proyecto, facilitando la colaboración y el trabajo en equipo.
+      </p>
+    
+    </article>
+
+    <!-- Página 3 -->
+    <article class="pagina-capacitacion">
+      <h3>Gestion del Product Backlog</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_product_backlog.png"
+          alt="Captura descriptiva de la seccion product backlog de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion product backlog de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite gestionar las historias de usuario del proyecto, incluyendo su creación, consulta, modificación y seguimiento.
+        Asimismo, facilita la definición de los criterios de aceptación que establecen las condiciones que debe cumplir cada
+        historia para considerarse completada, así como la definición de hecho (Definition of Done), que establece los
+        requisitos y estándares que deben cumplirse para dar por finalizado un trabajo.
+      </p>
+    
+    </article>
+
+    <!-- Página 4 -->
+    <article class="pagina-capacitacion">
+      <h3>Gestion de Sprint Backlog I</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_sprint_backlog.png"
+          alt="Captura descriptiva de la seccion sprint backlog de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion sprint backlog de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite organizar las historias de usuario seleccionadas para formar parte de un sprint, estableciendo el conjunto de
+        actividades y objetivos que el equipo deberá atender durante su desarrollo.
+      </p>
+    
+    </article>
+
+    <!-- Página 5 -->
+    <article class="pagina-capacitacion">
+      <h3>Gestion de Sprint Backlog II</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_sprint_backlog2.png"
+          alt="Captura descriptiva de la seccion sprint backlog 2 de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion sprint backlog 2 de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar la informacion de cada sprint/iteracion, consultando el estado y avance de cada historia
+        mediante la visualizacion de sus detalles y evidencias navegando al interior de cada una.
+      </p>
+    
+    </article>
+
+    <!-- Página 6 -->
+    <article class="pagina-capacitacion">
+      <h3>Reuniones del equipo</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_reunirse.png"
+          alt="Captura descriptiva de la seccion reunirse de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion reunirse de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite consultar y organizar las reuniones relacionadas con el proyecto Scrum, facilitando la programación y
+        administración de los encuentros del equipo. A través de esta pantalla, los usuarios pueden revisar la información de
+        las reuniones, como su fecha, hora y propósito, para mantenerse informados y coordinar su participación en las
+        distintas actividades de seguimiento y planificación del proyecto.
+      </p>
+    
+    </article>
+
+    <!-- Página 7 -->
+    <article class="pagina-capacitacion">
+      <h3>Metricas del proyecto</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_graficas.png"
+          alt="Captura descriptiva de la seccion graficas de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion graficas de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite consultar el avance general del proyecto y evaluar el rendimiento de los diferentes sprints mediante
+        indicadores y representaciones gráficas. Facilita la comparación del trabajo planificado con el realizado. De esta
+        manera, el equipo puede identificar retrasos, evaluar su desempeño y tomar decisiones para mejorar el desarrollo del
+        proyecto.
+      </p>
+    
+    </article>
+
+    <!-- Página 8 -->
+    <article class="pagina-capacitacion">
+      <h3>Seguimiento del tiempo</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/facilitador_registro_tiempos.png"
+          alt="Captura descriptiva de la seccion registro de tiempos de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion registro de tiempos de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite registrar las actividades realizadas durante el desarrollo del proyecto, indicando el
+        tiempo dedicado a cada una. Esta información facilita el seguimiento del trabajo individual y del equipo, permite
+        llevar un control de las horas invertidas en las distintas tareas y proporciona datos para evaluar el esfuerzo y el
+        progreso durante cada sprint.
+      </p>
+    
+    </article>
+
+    
+  </template>
+
+  <!-- MÓDULO 6: TUTORIAL DESARROLLADOR -->
+  <!-- Lector de capacitación del desarrollador -->
+  <dialog
+    id="lector-modulo-6"
+    aria-labelledby="lector-modulo-6-titulo">
+    <!-- Encabezado -->
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 6: Tutorial Desarrollador</strong>
+        <h3 id="lector-modulo-6-titulo"></h3>
+      </div>
+
+      <button
+        id="cerrar-lector-modulo-6"
+        type="button"
+        aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+    <!-- Contenido de las páginas -->
+    <div id="pagina-modulo-6"></div>
+
+    <!-- Navegación del tutorial -->
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+
+      <button
+        id="pagina-anterior-modulo-6"
+        type="button"
+        aria-label="Página anterior">
+        ←
+      </button>
+      <span
+        id="contador-paginas-modulo-6"
+        aria-live="polite">
+      </span>
+
+      <button
+        id="pagina-siguiente-modulo-6"
+        type="button"
+        aria-label="Página siguiente">
+        →
+      </button>
+
+      <button
+        id="terminar-seccion-modulo-6"
+        type="button"
+        hidden>
+        ✓ Terminar
+      </button>
+
+    </footer>
+  </dialog>
+
+<!-- MÓDULO 6 - SECCIÓN 1: TUTORIAL DESARROLLADOR  -->
+<template id="tutorial-desarrollador">
+
+  <!-- PÁGINA 1: MI EQUIPO -->
+  <article class="pagina-capacitacion">
+    <h3>Mi equipo</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_mi_equipo.png"
+           alt="Vista de Mi equipo del panel desarrollador">
+      <figcaption>Lista de integrantes del equipo Scrum.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar a los integrantes de tu equipo Scrum. Se muestra una lista con el identificador
+      y nombre de cada miembro, lo que permite reconocer a las personas con quienes colaborarás en el proyecto.
+    </p>
+  </article>
+
+  <!-- PÁGINA 2: MENSAJES -->
+  <article class="pagina-capacitacion">
+    <h3>Mensajes</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_mensajes.png"
+           alt="Vista de Mensajes del panel desarrollador">
+      <figcaption>Herramientas de comunicación del equipo.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite comunicarte con otros integrantes del proyecto. Puedes consultar conversaciones, enviar
+      mensajes privados y participar en los grupos o canales disponibles para facilitar la colaboración del equipo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 3: PRODUCT BACKLOG -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_product_backlog.png"
+           alt="Vista del Product Backlog">
+      <figcaption>Historias de usuario y requerimientos del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      En el Product Backlog puedes consultar las historias de usuario y los requerimientos del proyecto.
+      Esta sección te ayuda a conocer las funcionalidades que se deben desarrollar y la información relacionada
+      con cada elemento del trabajo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 4: SPRINT BACKLOG -->
+  <article class="pagina-capacitacion">
+    <h3>Sprint Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_sprint_backlog.png"
+           alt="Vista del Sprint Backlog">
+      <figcaption>Actividades planificadas para el sprint.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar el trabajo correspondiente al sprint. Permite identificar
+      las actividades planificadas y dar seguimiento a las tareas que forman parte del desarrollo.
+    </p>
+  </article>
+
+  <!-- PÁGINA 5: REUNIRSE -->
+  <article class="pagina-capacitacion">
+    <h3>Reunirse</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_reunirse.png"
+           alt="Vista de Reunirse del panel desarrollador">
+      <figcaption>Espacio de reuniones del equipo Scrum.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite acceder a las herramientas de reuniones del proyecto. Facilita la coordinación
+      entre los integrantes y la consulta de información relacionada con las reuniones del equipo Scrum.
+    </p>
+  </article>
+
+  <!-- PÁGINA 6: GRÁFICAS -->
+  <article class="pagina-capacitacion">
+    <h3>Gráficas</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_graficas.png"
+           alt="Vista de Gráficas del panel desarrollador">
+      <figcaption>Representaciones visuales del progreso del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      En esta sección puedes consultar gráficas relacionadas con el avance del proyecto.
+      Estas representaciones ayudan a comprender el progreso de las actividades y el trabajo
+      realizado durante los sprints.
+    </p>
+  </article>
+
+  <!-- PÁGINA 7: REGISTRO DE TIEMPOS -->
+  <article class="pagina-capacitacion">
+    <h3>Registro de tiempos</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/desarrollador_registro_tiempos.png"
+           alt="Vista de Registro de tiempos">
+      <figcaption>Seguimiento del tiempo dedicado a las actividades.</figcaption>
+    </figure>
+
+    <p>
+      Esta sección permite registrar y consultar el tiempo dedicado a las actividades del proyecto.
+      La información ayuda a llevar un control del esfuerzo realizado y a dar seguimiento
+      al trabajo durante cada sprint.
+    </p>
+  </article>
+
+</template>
+<!-- Módulo 7: Tutorial del Cliente -->
+<dialog id="lector-modulo-7"
+        class="lector-capacitacion"
+        aria-labelledby="lector-modulo-7-titulo">
+
+  <header style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+    <div>
+      <strong>Módulo 7: Cliente</strong>
+      <h3 id="lector-modulo-7-titulo"></h3>
+    </div>
+
+    <button id="cerrar-lector-modulo-7"
+            type="button"
+            aria-label="Cerrar contenido">
+      ✕
+    </button>
+  </header>
+
+  <div id="pagina-modulo-7"></div>
+
+  <footer style="display:flex; justify-content:center; align-items:center; gap:16px;">
+    <button id="pagina-anterior-modulo-7"
+            type="button"
+            aria-label="Página anterior">
+      ←
+    </button>
+
+    <span id="contador-paginas-modulo-7"
+          aria-live="polite"></span>
+
+    <button id="pagina-siguiente-modulo-7"
+            type="button"
+            aria-label="Página siguiente">
+      →
+    </button>
+
+    <button id="terminar-seccion-modulo-7"
+            type="button"
+            hidden>
+      ✓ Terminar
+    </button>
+  </footer>
+</dialog>
+
+<template id="cliente-guia-panel">
+
+  <!-- Página 1 -->
+  <article class="pagina-capacitacion">
+    <h3>Mi equipo</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_mi_equipo.png"
+           alt="Panel del Cliente con la lista de integrantes del equipo Scrum.">
+      <figcaption>Consulta de los integrantes del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      Este apartado permite consultar quiénes forman parte del equipo
+      Scrum del proyecto. En la lista central se muestra el identificador
+      y el nombre de cada integrante.
+    </p>
+
+    <p>
+      El menú lateral permite acceder a los demás apartados del Cliente.
+      El botón “Regresar a panel principal” vuelve a la pantalla general
+      del sistema.
+    </p>
+  </article>
+
+  <!-- Página 2 -->
+  <article class="pagina-capacitacion">
+    <h3>Mensajes</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_mensajes.png"
+           alt="Centro de comunicación del Cliente con contactos, canales y área de mensajes.">
+      <figcaption>Comunicación con los integrantes del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      El centro de comunicación reúne los contactos, canales y grupos
+      del proyecto. Selecciona una conversación en el panel izquierdo
+      para consultar sus mensajes.
+    </p>
+
+    <p>
+      En la parte inferior puedes escribir un mensaje y enviarlo con
+      el botón de flecha. También se muestran opciones para iniciar
+      una conversación y consultar sus detalles.
+    </p>
+  </article>
+
+  <!-- Página 3 -->
+  <article class="pagina-capacitacion">
+    <h3>Product Backlog</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_product_backlog.png"
+           alt="Product Backlog del Cliente con filtros, columnas de historias y apartado de Definición de Hecho.">
+      <figcaption>Consulta de las historias de usuario del proyecto.</figcaption>
+    </figure>
+
+    <p>
+      Permite consultar las historias de usuario, su descripción,
+      criterios de aceptación, valor y sprint asignado.
+      Los filtros superiores ayudan a buscar por identificador,
+      nombre, valor o sprint. El botón “Limpiar” restablece los filtros.
+    </p>
+
+    <p>
+      En la parte inferior se encuentra la Definición de Hecho (DoD),
+      que describe las condiciones acordadas para considerar terminado
+      el trabajo. Si no hay historias disponibles o ninguna coincide
+      con los filtros, se muestra un aviso.
+    </p>
+  </article>
+
+  <!-- Página 4 -->
+  <article class="pagina-capacitacion">
+    <h3>Reunirse</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_reunirse.png"
+           alt="Apartado Reunirse del Cliente con las pestañas de reuniones activas e historial de finalizadas.">
+      <figcaption>Consulta de las reuniones del equipo.</figcaption>
+    </figure>
+
+    <p>
+      Este apartado permite consultar las reuniones programadas para
+      el proyecto. La pestaña “Reuniones Activas” muestra las reuniones
+      que siguen activas y su cantidad.
+    </p>
+
+    <p>
+      La pestaña “Historial Finalizadas” permite consultar las reuniones
+      que ya concluyeron. Cuando no existen reuniones en la categoría
+      seleccionada, se muestra un aviso.
+    </p>
+  </article>
+
+  <!-- Página 5 -->
+  <article class="pagina-capacitacion">
+    <h3>Gráficas</h3>
+
+    <figure class="imagen-sistema">
+      <img src="../img/cliente_graficas.png"
+           alt="Apartado de métricas del Cliente con las opciones de burndown del Product Backlog y del Sprint.">
+      <figcaption>Selección de las gráficas de seguimiento.</figcaption>
+    </figure>
+
+    <p>
+      Las gráficas permiten consultar el avance del trabajo del proyecto.
+      Selecciona una tarjeta para abrir la gráfica correspondiente
+      y revisar la información disponible.
+    </p>
+
+    <p>
+      El burndown del Product Backlog presenta el seguimiento del trabajo
+      pendiente del proyecto. El burndown del Sprint permite consultar
+      el trabajo pendiente durante la iteración seleccionada.
+      Su información depende de los datos y mediciones registrados.
+    </p>
+  </article>
+
+</template>
 
   <script src="../js/usuarios.js"></script>
   <script src="../js/proyecto.js"></script>

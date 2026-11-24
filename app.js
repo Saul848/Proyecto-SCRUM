@@ -13,6 +13,7 @@ const path = require('path');
 const express = require("express");
 
 const app = express();
+
 /**
  * Middleware para procesar cuerpos de solicitud en formato JSON.
  */
@@ -39,10 +40,15 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
 /**
+ * Rutas de epicas
+ */
+app.use('/epicas', require('./routes/epicasRoutes'));
+
+
+/**
  * Rutas de sprints
  */
 app.use('/sprints', require('./routes/sprintsRoutes'));
-
 
 /**
  * Rutas de material adicional general.
@@ -115,11 +121,11 @@ const server = https.createServer(opciones, app);
  * 2. IMPORTANTE: Inicializamos y acoplamos Socket.IO al servidor HTTPS
  * (Asegúrate de importar tu archivo de sockets que hicimos antes)
  */
-const setupPlanningPokerSockets = require('./controladores/planningPokerServer.js'); // Ajusta la ruta a tu archivo de sockets
-setupPlanningPokerSockets(server);
+const { Server } = require("socket.io");
+const io = new Server(server, { cors: { origin: "*" } });
 
-const setupAsignacionTareasSockets = require('./controladores/asignacionTareasServer.js'); // (Ajusta la ruta según donde hayas guardado tu archivo)
-setupAsignacionTareasSockets(server);
+require('./controladores/planningPokerServer.js')(io);
+require('./controladores/asignacionTareasServer.js')(io);
 
 /**
  * 3. Ponemos a escuchar el servidor HTTPS en el puerto 8443
