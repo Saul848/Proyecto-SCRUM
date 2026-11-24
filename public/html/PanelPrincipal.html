@@ -944,6 +944,54 @@
     </article>
   </template>
 
+  <!-- Lector de las secciones del módulo 4 --------------------------->
+  <dialog id="lector-reuniones"
+        class="lector-capacitacion"
+        aria-labelledby="lector-reuniones-titulo"
+        style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 4: Proyectos en Scrumbird</strong>
+        <h3 id="lector-reuniones-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-reuniones-scrum"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-reuniones"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-reuniones"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-proyectos"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-proyectos"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-proyectos"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
+
 
 
   <!-- Lector de las secciones del módulo 5 --------------------------->
@@ -992,6 +1040,87 @@
       </button>
     </footer>
   </dialog>
+
+  <!-- Módulo 4, sección 1: Guia de proyectos scrumbird (4 páginas) -->
+  <template id="guia-pantallas-y-secciones">
+
+    <!-- Página 1 -->
+    <article class="pagina-capacitacion">
+      <h3>Mis proyectos</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyectos_principal.png"
+          alt="Captura descriptiva de la seccion Mis proyectos de Scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Mis proyectos de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar los proyectos propios o crear nuevos. Se muestra el rol que se tiene en cada uno; cuando se crea un Proyecto
+        se pasa a ser el SCRUM MASTER de ese proyecto, se pueden seleccionar colaboradores al crear un proyecto y otorgarles un rol 
+        (Developer o Cliente/Product Owner)
+      </p>
+    
+    </article>
+
+    <!-- Página 2 -->
+    <article class="pagina-capacitacion">
+      <h3>Miembros de la organización</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_usuarios.png"
+          alt="Captura descriptiva de la seccion Lista de miembros de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Lista de miembros de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite visualizar a todos los usuarios registrados en el proyecto; se puede dar clic a cualquier para ver sus detalles
+        y los proyectos en los que está actualmente.
+      </p>
+    
+    </article>
+
+    <!-- Página 3 -->
+    <article class="pagina-capacitacion">
+      <h3>Mensajes generales</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_mensajes.png"
+          alt="Captura descriptiva de la seccion Mensajes del panel Principal de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la sección Mensajes del panel Principal de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite enviar mensajes a otros usuarios y recibirlos de igual manera. Los mensajes aquí no están sujetos a ningún grupo y se podrán
+        visualizar siempre que se requiera
+      </p>
+    
+    </article>
+
+    <!-- Página 4 -->
+    <article class="pagina-capacitacion">
+      <h3>Capacitación de SCRUM</h3>
+    
+      <figure class="imagen-sistema">
+        <img src="../img/imagen_proyecto_capacitacion.png"
+          alt="Captura descriptiva de la seccion Capacitación de scrumbird, aplicacion web.">
+        <figcaption>
+          Ejemplo ilustrativo de la seccion Capacitación de Scrumbird.
+        </figcaption>
+      </figure>
+    
+      <p>
+        Permite realizar y dar seguimiento individual a la capacitación sobre los contenidos de SCRUM y las funcionalidades del sistema
+      </p>
+    
+    </article>
+    
+  </template>
 
 
   <!-- Módulo 5, sección 1: Guia pantallas y secciones (8 páginas) -->
@@ -1161,6 +1290,7 @@
 
     
   </template>
+
   <!-- MÓDULO 6: TUTORIAL DESARROLLADOR -->
   <!-- Lector de capacitación del desarrollador -->
   <dialog
