@@ -142,21 +142,74 @@ body {
 }
 
 #contenedorFunciones h1 {
-    font-size: 1.4em;
+    font-size: 2em;
     margin-right: auto; /* empuja el resto de botones a la derecha */
 }
 
-/* Botón "Logo" como círculo */
-#contenedorFunciones button:first-child {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #2fd6e8;
+/*CSS del botón del logo----------------------------------------*/
+
+#logo-link,
+#btn-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    background: none;       /* quita el círculo azul */
     border: none;
-    color: #000;
-    font-weight: bold;
-    font-size: 1.2em;
+    border-radius: 50%;     /* solo si quieres recortar el logo en círculo */
     cursor: pointer;
+    overflow: hidden;
+}
+
+#logo-link img,
+#btn-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;    /* evita que se deforme */
+    display: block;
+}
+
+#btn-logo {
+    width: 52px;
+    height: 52px;
+    padding: 4px;
+    background-color: #ffffff;
+    border: 2px solid #29b6f6;   /* azul del logo */
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+#btn-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+#btn-logo:hover {
+    box-shadow: 0 0 0 3px rgba(41, 182, 246, 0.25);
+}
+
+#btn-logo:focus-visible {
+    outline: 2px solid #0b5fc4;
+    outline-offset: 2px;
+}
+
+@keyframes aleteo {
+    0%   { transform: rotate(0deg) translateY(0); }
+    20%  { transform: rotate(-18deg) translateY(-6px); }
+    40%  { transform: rotate(14deg) translateY(-10px); }
+    60%  { transform: rotate(-10deg) translateY(-4px); }
+    80%  { transform: rotate(6deg) translateY(-1px); }
+    100% { transform: rotate(0deg) translateY(0); }
+}
+
+#btn-logo.animando img {
+    animation: aleteo 0.7s ease-in-out;
 }
 
 /* Botones Notificaciones / Usuario (estilo texto, sin fondo) */
@@ -1542,4 +1595,44 @@ dialog.lector-capacitacion::backdrop {
 
 .btn-restaurar:hover {
     filter: brightness(0.93);
+}
+
+/* ===== Barra de búsqueda de proyectos ===== */
+#contenedor-busqueda-proyectos {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    margin-bottom: 18px;
+}
+
+#contenedor-busqueda-proyectos .icono-busqueda {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95em;
+    opacity: 0.55;
+    pointer-events: none;   /* el clic pasa al input */
+}
+
+#barra-busqueda-proyectos {
+    width: 100%;
+    padding: 12px 18px 12px 44px;   /* espacio a la izquierda para la lupa */
+    background-color: #ffffff;
+    border: 1px solid #b5b5b5;
+    border-radius: 24px;
+    font-size: 0.95em;
+    color: #222;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#barra-busqueda-proyectos::placeholder {
+    color: #8a8a8a;
+}
+
+#barra-busqueda-proyectos:focus {
+    border-color: #2f8fe0;
+    box-shadow: 0 0 0 3px rgba(47, 143, 224, 0.2);
 }

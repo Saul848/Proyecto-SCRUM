@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/panelPrincipal.css">
     <link rel="stylesheet" href="../css/mensajes.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Press+Start+2P&family=Bangers&family=Permanent+Marker&family=Orbitron&family=Playfair+Display:wght@700&family=Caveat:wght@700&family=Righteous&family=Special+Elite&family=Monoton&display=swap" rel="stylesheet">
     <title>Panel Principal</title>
 </head>
 <body>
   <div id="contenedorMenuSuperior">
     <div id="contenedorFunciones">
-      <button>Logo</button> <!--Provisional, cambiar por el logo con o sin función, segun lo que se requiera en el proyecto-->
-      <h1>Gestor Scrum</h1>
+      <button id="btn-logo" type="button" aria-label="Ir al inicio">
+        <img src="../img/birdscrum_logo.png  " alt="Logo de Gestor Scrum">
+      </button>
+      <h1 id="titulo-app">Gestor Scrum</h1>
       <button onclick="cerrarSesion()">Cerrar sesion</button>
     </div>
   </div>
@@ -78,11 +83,19 @@
         <main class="content-area">
           <div id="mis-proyectos" class="panel-proyectos">    
             <h2>Mis Proyectos</h2>
+            
+            <div id="contenedor-busqueda-proyectos">
+              <span class="icono-busqueda" aria-hidden="true">🔍</span>
+              <input id="barra-busqueda-proyectos" type="search"
+                    placeholder="Buscar proyecto por nombre..." autocomplete="off">
+            </div>
+
             <div id="filtro-proyectos" role="group" aria-label="Filtrar proyectos">
               <button type="button" class="filtro-btn activo" data-filtro="activos">Activos</button>
               <button type="button" class="filtro-btn" data-filtro="eliminados">Eliminados</button>
               <button type="button" class="filtro-btn" data-filtro="todos">Todos</button>
             </div>
+
             <div class="lista-items"></div>
           </div>
         </main>
@@ -1643,6 +1656,7 @@
   <script src="../js/seccionesC.js"></script>
   <script src="../js/modulosC.js"></script>
   <script src="../js/PanelPrincipal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
     function consoleSessionStorage(){
       console.log("recuperando sessionStorage")

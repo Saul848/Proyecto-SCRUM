@@ -177,16 +177,20 @@ function proyectosSegunFiltro() {
 }
 
 function pintarProyectos() {
+    
     const contenedor = document.querySelector("#mis-proyectos .lista-items");
     const lista = proyectosSegunFiltro();
 
     if (lista.length === 0) {
+        const hayBusqueda = barraBusquedaProyectos.value.trim() !== "";
         const mensajes = {
             activos: "Sin proyectos aún, ¡prueba a crear uno!",
             eliminados: "No tienes proyectos eliminados.",
             todos: "Sin proyectos."
         };
-        contenedor.innerHTML = `<p>${mensajes[filtroActual]}</p>`;
+        contenedor.innerHTML = `<p>${hayBusqueda
+        ? "Ningún proyecto coincide con tu búsqueda."
+        : mensajes[filtroActual]}</p>`;
         return;
     }
 
@@ -224,6 +228,7 @@ async function mostrarProyectos() {
     todosLosProyectos = await obtenerProyectosDeUsuario(idUser);
     console.log("Proyectos recibidos:", todosLosProyectos);
 
+    barraBusquedaProyectos.value = "";
     pintarProyectos();
 }
 
@@ -318,3 +323,29 @@ async function restaurarProyecto(idProyecto) {
         alert("Ocurrió un error de conexión.");
     }
 }
+
+/** Minúsculas y sin acentos, para que "perez" encuentre "Pérez" */
+function normalizar(texto) {
+    return String(texto ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+const barraBusquedaProyectos = document.getElementById("barra-busqueda-proyectos");
+
+function proyectosSegunFiltro() {
+    let lista;
+    switch (filtroActual) {
+        case "eliminados": lista = todosLosProyectos.filter(p => p.eliminado); break;
+        case "todos":      lista = todosLosProyectos; break;
+        default:           lista = todosLosProyectos.filter(p => !p.eliminado);
+    }
+
+    const termino = normalizar(barraBusquedaProyectos.value.trim());
+    if (termino === "") return lista;
+
+    return lista.filter(p => normalizar(p.nombre).includes(termino));
+}
+
+barraBusquedaProyectos.addEventListener("input", pintarProyectos);
