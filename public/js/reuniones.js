@@ -35,15 +35,24 @@ function renderizarSeccionReuniones() {
                     sessionStorage.getItem('rol') || 
                     sessionStorage.getItem('rolActual') || '';
                
-  const esNoFacilitador = rolActual.toLowerCase().includes('desarrollador') || 
-                          rolActual.toLowerCase().includes('cliente') ||
-                          window.location.pathname.toLowerCase().includes('desarrollador') ||
-                          window.location.pathname.toLowerCase().includes('cliente');
+  const rolMinuscula = rolActual.toLowerCase();
+  const esCliente = rolMinuscula.includes('cliente') || window.location.pathname.toLowerCase().includes('cliente');
+  const esNoFacilitador = rolMinuscula.includes('desarrollador') ||
+                          esCliente ||
+                          window.location.pathname.toLowerCase().includes('desarrollador');
+
+  const reunionesFiltradasRol = cacheReuniones.filter(r => {
+  if (esCliente) {
+    // El cliente no participa ni en Retrospectiva (3) ni en Daily Scrum (1)
+    return Number(r.id_tipo_reunion) !== 3 && Number(r.id_tipo_reunion) !== 1;
+  }
+  return true;
+});
 
   // Filtramos según el estado
-  const actasFinalizadas = cacheReuniones.filter(r => r.estado && r.estado.toLowerCase() === 'finalizada');
-  const actasActivas = cacheReuniones.filter(r => !r.estado || r.estado.toLowerCase() !== 'finalizada');
-
+  const actasFinalizadas = reunionesFiltradasRol.filter(r => r.estado && r.estado.toLowerCase() === 'finalizada');
+  const actasActivas = reunionesFiltradasRol.filter(r => !r.estado || r.estado.toLowerCase() !== 'finalizada');
+  
   const listaAMostrar = vistaActualReuniones === 'activas' ? actasActivas : actasFinalizadas;
 
   // Pestañas superiores para alternar
@@ -92,9 +101,16 @@ function renderizarSeccionReuniones() {
         </section>
       `;
     } else {
+      const btnEliminarHTML = !esNoFacilitador
+        ? `<button onclick="eliminarReunion(${r.id})" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 13px;">[Eliminar X]</button>`
+        : '';
+
       return `
         <section class="tarjeta-reunion" data-id="${r.id}" style="background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <h2>${r.nombre}</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h2 style="margin: 0;">${r.nombre}</h2>
+              ${btnEliminarHTML}
+            </div>
             <p class="detalle">Fecha: ${new Date(r.fecha_inicio).toLocaleDateString()} · Tipo ID: ${r.id_tipo_reunion}</p>
             <p class="estado ${r.estado.toLowerCase().replace(' ', '-')}">● Estado: ${r.estado}</p>
             <button class="btn-entrar" onclick="entrarReunion(${r.id}, ${r.id_sprint}, ${r.id_tipo_reunion})">Entrar</button>
@@ -130,7 +146,7 @@ function cambiarVistaReuniones(vista) {
 }
 
 //despliega panel lateral de detalles con las historias
-async function verDetallesReunion(idSprint, nombre, fecha, estado) {
+async function verDetallesReunion(idReunion, idSprint, nombre, fecha, estado) {
   const panelLateral = document.getElementById("panelDetallesReunionLateral");
   if (!panelLateral) return;
 
@@ -196,10 +212,27 @@ function cerrarDetallesReunion() {
 }
 
 //elimina reunion localmente del arreglo
-function eliminarReunion(idReunion) {
-  if (!confirm("¿Deseas eliminar esta reunión del historial?")) return;
-  cacheReuniones = cacheReuniones.filter(r => r.id !== idReunion);
-  renderizarSeccionReuniones();
+async function eliminarReunion(idReunion) {
+  if (!confirm("¿Deseas eliminar esta reunión? Esta acción no se puede deshacer.")) return;
+
+  try {
+    const resp = await fetch(`/reuniones/${idReunion}`, {
+      method: "DELETE",
+      headers: { "Accept": "application/json" }
+    });
+    const res = await resp.json();
+
+    if (!resp.ok || !res.ok) {
+      alert(res.error || "No se pudo eliminar la reunión.");
+      return;
+    }
+
+    cerrarDetallesReunion();
+    await cargarReuniones();
+  } catch (err) {
+    console.error("Error al eliminar reunión:", err);
+    alert("Ocurrió un error al intentar eliminar la reunión.");
+  }
 }
 
 
@@ -207,6 +240,17 @@ function eliminarReunion(idReunion) {
 async function entrarReunion(idReunion, idSprint, idTipoReunion) {
   try {
     const tipoReal = idTipoReunion ? Number(idTipoReunion) : 2;
+    const rolMinuscula = ((typeof ROL_ACTUAL !== 'undefined' ? ROL_ACTUAL : '') ||
+      sessionStorage.getItem('rol') ||
+      sessionStorage.getItem('rolActual') || '').toLowerCase();
+
+    if (
+      (tipoReal === 3 || tipoReal === 1) &&
+      (rolMinuscula.includes('cliente') || window.location.pathname.toLowerCase().includes('cliente'))
+    ) {
+      alert("No tienes acceso a esta reunión.");
+      return;
+    }
 
     //se actualiza el estado en la bd, pasa 'En curso'
     await fetch(`/reuniones/${idReunion}/iniciar`, {
