@@ -101,6 +101,8 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
           abrirSeccionHerramientas(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 3) {
           abrirSeccionReuniones(modulo, seccion);
+        } else if ((Number(modulo.numero_modulo) === 4)){
+          abrirSeccionPanelPrincipal(modulo, seccion)
         } else if (Number(modulo.numero_modulo) === 5) {
           abrirSeccionModulo5(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 6) {
@@ -349,8 +351,8 @@ async function abrirSeccionPanelPrincipal(modulo, seccion) {
     progresoActual,
     puedeTerminar,
     ids: {
-      dialogId: "lector-reuniones",
-      tituloId: "lector-reuniones-titulo",
+      dialogId: "lector-modulo-4",
+      tituloId: "lector-modulo-4-titulo",
       paginaId: "pagina-modulo-4",
       contadorId: "contador-paginas-modulo-4",
       anteriorId: "pagina-anterior-modulo-4",
