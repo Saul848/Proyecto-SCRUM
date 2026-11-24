@@ -77,8 +77,12 @@
         </div>
         <main class="content-area">
           <div id="mis-proyectos" class="panel-proyectos">
-            <!--Aqui van las tarjetas de proyectos-->
             <h2>Mis Proyectos</h2>
+            <div id="filtro-proyectos" role="group" aria-label="Filtrar proyectos">
+              <button type="button" class="filtro-btn activo" data-filtro="activos">Activos</button>
+              <button type="button" class="filtro-btn" data-filtro="eliminados">Eliminados</button>
+              <button type="button" class="filtro-btn" data-filtro="todos">Todos</button>
+            </div>
             <div class="lista-items"></div>
           </div>
         </main>
@@ -121,6 +125,12 @@
       <!--Modal para visualizar la lista de usuarios de la empresa-->
       <div id="modal-usuarios" class="modal-class">
         <h2>Lista de miembros de la organización</h2>
+        <div id="contenedor-busqueda">
+          <span class="icono-busqueda" aria-hidden="true">🔍</span>
+          <input id="barra-busqueda-usuarios" type="search"
+                placeholder="Buscar por nombre, correo o usuario..." autocomplete="off">
+        </div>
+
         <div id="contenedor-blanco">
           <div id="contenedor-azul">
             <h3>Miembros</h3>

@@ -124,7 +124,7 @@ class ProyectosDAO {
      */
     async listarProyectosDeUsuario(idUsuario){
         const { rows } = await this.pool.query(
-            'SELECT p.id, p.nombre, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1',
+            'SELECT p.id, p.nombre, p.eliminado, tep.rol FROM scrumbird.proyecto p JOIN scrumbird.trabajando_en_proyecto tep ON p.id = tep.id_proyecto WHERE tep.id_usuario = $1;',
             [idUsuario]
         );
         return rows;
@@ -136,6 +136,26 @@ class ProyectosDAO {
             [idProyecto]
         );
         return rows;
+    }
+
+    async eliminarProyecto(idProyecto) {
+        const { rowCount } = await this.pool.query(
+            `UPDATE scrumbird.proyecto
+            SET eliminado = true
+            WHERE id = $1 AND eliminado = false;`,
+            [idProyecto]
+        );
+        return rowCount > 0;
+    }
+
+    async restaurarProyecto(idProyecto) {
+        const { rowCount } = await this.pool.query(
+            `UPDATE scrumbird.proyecto
+            SET eliminado = false
+            WHERE id = $1 AND eliminado = true;`,
+            [idProyecto]
+        );
+        return rowCount > 0;
     }
 }
 

@@ -258,3 +258,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Click en el usuario con id: ", idUsuario);
     })
 })
+
+
+document.getElementById("btnEliminarProyecto").addEventListener("click", async () => {
+    console.log("ELIMINADOOOOOOOOOO")
+    const proyecto = JSON.parse(sessionStorage.getItem('proyectoActivo'));
+
+    if (!proyecto) {
+        alert("No hay un proyecto activo.");
+        return;
+    }
+
+    const confirmar = confirm(
+        `¿Seguro que deseas eliminar el proyecto "${proyecto.nombre}"?`
+    );
+    if (!confirmar) return;
+
+    try {
+        const respuesta = await fetch(`/proyectos/eliminar/${proyecto.id}`, {
+            method: "PUT",
+            headers: { "Accept": "application/json" }
+        });
+        const resultado = await respuesta.json();
+        
+
+        if (!respuesta.ok || !resultado.ok) {
+            alert(resultado.mensaje || "No se pudo eliminar el proyecto.");
+            return;
+        }
+
+        sessionStorage.removeItem('proyectoActivo');
+        window.location.href = '/html/PanelPrincipal.html';
+    } catch (error) {
+        console.error("Error al eliminar el proyecto:", error);
+        alert("Ocurrió un error de conexión.");
+    }
+});

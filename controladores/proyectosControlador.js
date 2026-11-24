@@ -158,6 +158,44 @@ class ProyectosControlador {
         
     }
 
+    async eliminarProyecto(req, res) {
+        try {
+            const { id } = req.params;
+            const eliminado = await this.dao.eliminarProyecto(id);
+
+            if (!eliminado) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Proyecto no encontrado o ya eliminado"
+                });
+            }
+
+            res.status(200).json({ ok: true, mensaje: "Proyecto eliminado correctamente" });
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err.message);
+            res.status(500).json({ ok: false, mensaje: "Error al eliminar el proyecto" });
+        }
+    }
+
+    async restaurarProyecto(req, res) {
+        try {
+            const { id } = req.params;
+            const restaurado = await this.dao.restaurarProyecto(id);
+
+            if (!restaurado) {
+                return res.status(404).json({
+                    ok: false,
+                    mensaje: "Proyecto no encontrado o no está eliminado"
+                });
+            }
+
+            res.status(200).json({ ok: true, mensaje: "Proyecto restaurado correctamente" });
+        } catch (err) {
+            console.error("Error al restaurar el proyecto:", err.message);
+            res.status(500).json({ ok: false, mensaje: "Error al restaurar el proyecto" });
+        }
+    }
+
     /** Métodos privados*/
     #error(res, err) {
         if (err.code === '23505') { // violación de unicidad en PostgreSQL
