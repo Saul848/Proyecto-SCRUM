@@ -19,6 +19,12 @@ body {
     margin-right: auto;
 }
 
+#modalAgregarHistoria .modal-contenido,
+#modalModificarHistoria .modal-contenido {
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
 /* ===================================================
    BLOQUE SUPERIOR / CABECERA
    =================================================== */

@@ -7,7 +7,6 @@ const ID_TIPO_PLANNING = 2;
 const ID_TIPO_RETROSPECTIVA = 3;
 const ID_TIPO_REVIEW = 4;
 
-
 if (typeof window.ID_PROYECTO === 'undefined') {
   window.ID_PROYECTO = proyectoGuardadoSession?.id || Number(urlParamsGlobal.get("proyecto")) || 1;
 }
@@ -162,8 +161,10 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
         }
 
         alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
-        document.getElementById("vista-sprintPlanning").style.display = "none";
-        document.getElementById("modal-reuniones").style.display = "block";
+        sessionStorage.setItem("ULTIMA_REUNION_CONFIRMADA", String(window.ID_REUNION));
+        sessionStorage.removeItem("ID_REUNION_ACTIVA");
+        sessionStorage.removeItem("TIPO_REUNION_ACTIVA");
+        navegarASprintBacklog(window.ID_SPRINT, window.ID_PROYECTO);
       } catch (err) {
         console.error("Error al confirmar el sprint:", err);
         alert("Ocurrió un error al finalizar la reunión.");
@@ -532,6 +533,11 @@ async function abrirPlanningPokerParaDesarrollador() {
       role
     });
 
+    if (socketAsignacion) {
+      socketAsignacion.emit("registrar-rol-reunion", { rol: obtenerRolActual() });
+      socketAsignacion.emit("join-asignacion-sprint", { sprintId });
+    }
+
     socketPP.on("session-not-found", (mensaje) => {
       alert(mensaje || "Aún no hay una sesión de Planning Poker activa. Espera a que el facilitador la inicie.");
       const modal = document.getElementById("modal-planning-poker-desarrollador");
@@ -644,12 +650,78 @@ function ocultarTodasCabeceras() {
   });
 }
 
+const TITULOS_CABECERA_REUNION = {
+  historiasSprint: {
+    titulo: "Planificación de la iteración",
+    subtitulo: "Fase 1: definición de requisitos priorizados y estimación."
+  },
+  historiasResumen: {
+    titulo: "Tareas a realizar en la iteración",
+    subtitulo: "Duración, estimaciones y esfuerzo calculado del sprint."
+  },
+  historiasAsignacion: {
+    titulo: "Asignación de historias",
+    subtitulo: "Fase 2: distribución de historias y solicitudes del equipo."
+  },
+  historiasRevision: {
+    titulo: "Revisión de entregables del Sprint",
+    subtitulo: "Evaluación de historias terminadas, criterios y observaciones."
+  },
+  historiasDaily: {
+    titulo: "Daily Scrum - Sincronización Diaria",
+    subtitulo: "Seguimiento diario de avances, plan del día e impedimentos."
+  },
+  historiasRetrospectiva: {
+    titulo: "Sprint Retrospective - Retrospectiva del Sprint",
+    subtitulo: "Reflexión sobre qué salió bien, qué mejorar y acciones."
+  }
+};
+
+let cabeceraReunionOriginal = null;
+
+function sincronizarCabeceraPanelSuperior(idCabeceraReunion) {
+  const cabeceraPanel = document.querySelector("#contenedor-cabeceras .cabecera-default.activa")
+    || document.getElementById("cabecera-springPlanning");
+  if (!cabeceraPanel) return;
+
+  const h2 = cabeceraPanel.querySelector(".info-cabecera h2");
+  const p = cabeceraPanel.querySelector(".info-cabecera p");
+  if (!h2 || !p) return;
+
+  if (!cabeceraReunionOriginal) {
+    cabeceraReunionOriginal = { titulo: h2.textContent, subtitulo: p.textContent };
+  }
+
+  const info = TITULOS_CABECERA_REUNION[idCabeceraReunion];
+  if (info) {
+    h2.textContent = info.titulo;
+    p.textContent = info.subtitulo;
+  }
+
+  // Oculta la barra duplicada interna de sprintPlanning cuando ya está dentro del panel
+  const planningSuperior = document.getElementById("planningSuperior");
+  if (planningSuperior) {
+    planningSuperior.style.display = "none";
+  }
+}
+
+function restaurarCabeceraReuniones() {
+  const cabeceraReunion = document.getElementById("cabecera-springPlanning");
+  if (cabeceraReunion && cabeceraReunionOriginal) {
+    const h2 = cabeceraReunion.querySelector(".info-cabecera h2");
+    const p = cabeceraReunion.querySelector(".info-cabecera p");
+    if (h2) h2.textContent = cabeceraReunionOriginal.titulo;
+    if (p) p.textContent = cabeceraReunionOriginal.subtitulo;
+  }
+}
+
 function mostrarCabeceraR(id) {
   ocultarTodasCabeceras();
   const el = document.getElementById(id);
   if (el) {
     el.classList.remove("oculto");
   }
+  sincronizarCabeceraPanelSuperior(id);
 }
 
 function mostrarVista(idVista) {
@@ -886,6 +958,7 @@ function calcularRestante() {
   txtRestante.textContent = dias < 0 ? "⚠ Fecha fin errónea" : `${dias} días`;
 }
 
+// función que ejecuta el desarrollador al hacer clic en "Solicitar"
 window.solicitarHistoria = (idHistoria) => {
   if (!socketAsignacion) {
     console.error("El socket de asignación aún no está inicializado.");
@@ -901,6 +974,74 @@ window.solicitarHistoria = (idHistoria) => {
     nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
   });
 };
+
+function limpiarParametrosReunionActiva() {
+  sessionStorage.removeItem("ID_REUNION_ACTIVA");
+  sessionStorage.removeItem("TIPO_REUNION_ACTIVA");
+
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("seccion");
+    url.searchParams.delete("vista");
+    url.searchParams.delete("reunion");
+    window.history.replaceState({}, "", url.toString());
+  } catch (e) {}
+}
+
+function navegarASprintBacklog(sprintId, proyectoId) {
+  limpiarParametrosReunionActiva();
+  if (sprintId) {
+    sessionStorage.setItem("ID_SPRINT_ACTIVO", String(sprintId));
+  }
+
+  const vistaPlanning = document.getElementById("vista-sprintPlanning");
+  if (vistaPlanning) {
+    vistaPlanning.style.display = "none";
+    vistaPlanning.innerHTML = "";
+  }
+
+  ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview", "vista-dailyScrum", "vista-retrospectiva"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.setProperty("display", "none", "important");
+      el.classList.add("oculto");
+    }
+  });
+
+  if (typeof mostrarSeccion === "function") {
+    mostrarSeccion("sprint-backlog");
+    return;
+  }
+
+  const triggerBacklog = document.querySelector(
+    '[data-seccion*="backlog" i], [onclick*="Backlog" i], #btnSprintBacklog, #nav-sprint-backlog'
+  );
+  if (triggerBacklog) {
+    triggerBacklog.click();
+    return;
+  }
+
+  const seccionBacklog =
+    document.getElementById("modal-sprint-backlog") ||
+    document.getElementById("vista-sprintBacklog") ||
+    document.getElementById("seccion-sprint-backlog");
+
+  if (seccionBacklog) {
+    document.querySelectorAll(".modal-class").forEach(m => {
+      m.style.display = "none";
+    });
+    seccionBacklog.classList.remove("oculto");
+    seccionBacklog.style.display = "block";
+    return;
+  }
+
+  const esDev = obtenerRolActual() === "desarrollador";
+  const destinoBase = esDev ? "PanelDesarrollador.html" : "panelFacilitador.html";
+  const query = new URLSearchParams();
+  if (sprintId) query.set("sprint", sprintId);
+  if (proyectoId) query.set("proyecto", proyectoId);
+  window.location.href = `${destinoBase}?${query.toString()}`;
+}
 
 function renderizarPanelSolicitudes() {
   const contenedorSolicitudes = document.getElementById("listaSolicitudes");
@@ -926,6 +1067,7 @@ function renderizarPanelSolicitudes() {
   `).join('');
 }
 
+// función que ejecuta el facilitador al dar "Aceptar" o "Rechazar" cuando un desarrollador pide una historia
 window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
   if (!socketAsignacion) return;
 
@@ -946,6 +1088,7 @@ function inicializarSocketsAsignacion(idSprint) {
 
     socketAsignacion.on("connect", () => {
       console.log("Socket conectado:", socketAsignacion.id, "| sprint:", window.ID_SPRINT);
+      socketAsignacion.emit("registrar-rol-reunion", { rol: obtenerRolActual() });
       socketAsignacion.emit("join-asignacion-sprint", { sprintId: window.ID_SPRINT });
     });
 
@@ -1041,15 +1184,10 @@ function inicializarSocketsAsignacion(idSprint) {
 
     socketAsignacion.on("confirmar-sprint-cliente", (data) => {
       const rolActual = obtenerRolActual();
-      if (rolActual === 'desarrollador') {
-        alert("El facilitador ha confirmado el Sprint Backlog. La reunión ha finalizado.");
-        window.location.href = `PanelDesarrollador.html?sprint=${data.sprintId}&reunion=${data.reunionId}&proyecto=${data.proyectoId}&seccion=reuniones`;
-      } else if (rolActual === 'cliente') {
-        mostrarAvisoFase2Cliente(false);
-        alert("El facilitador ha confirmado el Sprint Backlog. La reunión ha finalizado.");
-        document.getElementById("vista-sprintPlanning").style.display = "none";
-        document.getElementById("modal-reuniones").style.display = "block";
-      }
+      if (rolActual === 'cliente') return;
+
+      alert("El facilitador ha confirmado el Sprint Backlog. La reunión ha finalizado.");
+      navegarASprintBacklog(data?.sprintId || window.ID_SPRINT, data?.proyectoId || window.ID_PROYECTO);
     });
 
     socketAsignacion.on("actualizar-estado-asignacion", (data) => {
@@ -1082,7 +1220,7 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //alguien publicó su daily: refresca el muro si estoy viendo esa reunión
+    // alguien publicó su daily: refresca el muro si estoy viendo esa reunión
     socketAsignacion.on("daily-actualizada", (data) => {
       const vista = document.getElementById("vista-dailyScrum");
       if (vista && vista.style.display === "block" && Number(data.reunionId) === Number(dailyReunionVista)) {
@@ -1090,7 +1228,7 @@ function inicializarSocketsAsignacion(idSprint) {
       }
     });
 
-    //el facilitador finalizó la daily
+    // el facilitador finalizó la daily
     socketAsignacion.on("daily-finalizada-cliente", (data) => {
       if (obtenerRolActual() === 'facilitador') return;
       if (Number(data.reunionId) !== Number(window.ID_REUNION)) return;
@@ -1098,6 +1236,8 @@ function inicializarSocketsAsignacion(idSprint) {
       salirDeDaily();
     });
   }
+
+  socketAsignacion.emit("registrar-rol-reunion", { rol: obtenerRolActual() });
   socketAsignacion.emit("join-asignacion-sprint", { sprintId: idSprint });
 }
 
@@ -1155,254 +1295,222 @@ function aplicarRestriccionesRevision(rol) {
 }
 
 const btnCerrarActaSprint = document.getElementById("btnCerrarActaSprint");
-  if (btnCerrarActaSprint) {
-    btnCerrarActaSprint.onclick = async () => {
-      const rolActual = obtenerRolActual();
+if (btnCerrarActaSprint) {
+  btnCerrarActaSprint.onclick = async () => {
+    const rolActual = obtenerRolActual();
 
-      if (rolActual === 'cliente') {
-        if (!confirm("¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo.")) return;
+    if (rolActual === 'cliente') {
+      if (!confirm("¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo.")) return;
 
-        try {
-          const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          const resultado = await respuesta.json();
-
-          if (resultado.ok) {
-            if (socketAsignacion) {
-              socketAsignacion.emit("cliente-cerro-acta-revision", {
-                sprintId: window.ID_SPRINT,
-                reunionId: window.ID_REUNION
-              });
-            }
-
-            alert("¡Acta de revisión cerrada con éxito!");
-            document.getElementById("vista-sprintPlanning").style.display = "none";
-            document.getElementById("modal-reuniones").style.display = "block";
-            if (typeof cargarReuniones === "function") cargarReuniones();
-          } else {
-            alert("Error al finalizar la reunión.");
-          }
-        } catch (err) {
-          console.error("Error al cerrar el acta:", err);
-        }
-      } else if (rolActual === 'facilitador') {
-        if (!confirm("¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?")) return;
-
-        try {
-          const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          const resultado = await respuesta.json();
-
-          if (resultado.ok) {
-            alert("Reunión finalizada correctamente.");
-            document.getElementById("vista-sprintPlanning").style.display = "none";
-            document.getElementById("modal-reuniones").style.display = "block";
-            if (typeof cargarReuniones === "function") cargarReuniones();
-          } else {
-            alert("Error al finalizar la reunión.");
-          }
-        } catch (err) {
-          console.error("Error al finalizar la reunión:", err);
-        }
-      }
-    };
-  }
-
-  async function cargarHistoriasRevision() {
-    try {
-        //se obtienen las historias terminadas del sprint actual
-        const respuesta = await fetch(`/reuniones/sprint/${window.ID_SPRINT}/historias-revision?idProyecto=${window.ID_PROYECTO}`, {
-            headers: { "Accept": "application/json" }
-        });
-        const resultado = await respuesta.json();
-        const historias = resultado.data || [];
-
-        const contenedor = document.getElementById('contenedorTarjetasReview');
-        if (!contenedor) return;
-
-        if (historias.length === 0) {
-            contenedor.innerHTML = `<p style="text-align: center; color: #64748b; grid-column: span 3;">No hay historias terminadas registradas para revisar en este sprint.</p>`;
-            return;
-        }
-
-        //se obtiene el rol actual para mostrar lo correspondiente
-        const rolActual = obtenerRolActual();
-        aplicarRestriccionesRevision(rolActual);
-
-        //si la reunión esta finalizada se oculta el banner
-        const bannerEspera = document.getElementById("bannerEsperaCliente");
-        if (bannerEspera) {
-          if (rolActual === 'cliente' || window.ESTADO_REUNION === 'Finalizada') {
-            bannerEspera.classList.add("oculto");
-          } else {
-            bannerEspera.classList.remove("oculto");
-          }
-        }
-
-        //cada tarjeta con sus criterios
-        contenedor.innerHTML = historias.map(h => {
-            const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
-            const estadoRevision = h.estado_revision || 'PENDIENTE';
-            const claseEstado = estadoRevision === 'ACEPTADO' ? 'estado-aceptado' : (estadoRevision === 'RECHAZADO' ? 'estado-rechazado' : 'estado-pendiente');
-
-            const listaCriteriosHTML = h.criterios && h.criterios.length > 0 
-                ? h.criterios.map((c, index) => `
-                    <li>
-                        <label>
-                            <input type="checkbox" class="chk-criterio" ${c.cumplido ? 'checked' : ''} ${rolActual !== 'cliente' ? 'disabled' : ''}>
-                            <span>Criterio ${index + 1}: ${c.descripcion || c}</span>
-                        </label>
-                    </li>
-                `).join('')
-                : '<li><small style="color: #64748b;">Sin criterios definidos</small></li>';
-
-            return `
-                <article class="tarjeta-historia-review" id="tarjeta-historia-${h.id}" data-historia-id="${h.id}">
-                    <div class="tarjeta-header-blanco">
-                        <strong class="historia-codigo">SB-${numMostrar}:</strong>
-                        <p class="historia-descripcion">${h.descripcion || h.nombre}</p>
-                    </div>
-
-                    <div class="tarjeta-criterios">
-                        <div class="criterios-cabecera-accion">
-                            <h4>Criterios de Aceptación</h4>
-                            <button type="button" class="btn-azul btn-devolver-backlog ${rolActual === 'facilitador' && estadoRevision === 'RECHAZADO' ? '' : 'oculto'}" onclick="devolverAProductBacklog(${h.id})">
-                                Devolver al product backlog
-                            </button>
-                        </div>
-                        <ul class="lista-criterios">
-                            ${listaCriteriosHTML}
-                        </ul>
-                    </div>
-
-                    <div class="tarjeta-comentario">
-                        <label for="comentario-${h.id}">Comentario:</label>
-                        <textarea id="comentario-${h.id}" class="txt-comentario-review" rows="3" placeholder="Escribe observaciones..." ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? 'disabled' : ''}>${h.comentario || ''}</textarea>
-                    </div>
-
-                    <div class="tarjeta-footer-estado">
-                        <div class="grupo-botones-cliente ${rolActual === 'cliente' && estadoRevision === 'PENDIENTE' ? '' : 'oculto'}">
-                            <button type="button" class="btn-verde" onclick="guardarRevisionHistoria(${h.id}, 'ACEPTADO')">Aprobar</button>
-                            <button type="button" class="btn-rojo" onclick="guardarRevisionHistoria(${h.id}, 'RECHAZADO')">Rechazar</button>
-                        </div>
-
-                        <div class="grupo-estado-final ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? '' : 'oculto'}">
-                            <span class="badge-estado ${claseEstado}">
-                                ${estadoRevision === 'ACEPTADO' ? '✓ Aprobado' : (estadoRevision === 'RECHAZADO' ? '✕ Rechazado' : 'Pendiente')}
-                            </span>
-                        </div>
-                    </div>
-                </article>
-            `;
-        }).join('');
-
-        actualizarContadoresResumen();
-
-    } catch (err) {
-        console.error('Error al cargar las historias de revisión:', err);
-    }
-  }
-
-  function aplicarRestriccionesPorRol() {
-    const rol = obtenerRolActual();
-    document.querySelectorAll('[data-rol]').forEach(el => {
-      const permitidos = el.dataset.rol.split(',').map(r => r.trim().toLowerCase());
-      el.style.display = permitidos.includes(rol) ? '' : 'none';
-    });
-  }
-
-  //función que muestra cuando una notificación cuando se le ha asignado una historia a un desarrollador
-  function mostrarModalNotificacion(mensaje) {
-    //evitar duplicados si ya hay una abierta
-    const modalExistente = document.getElementById("overlayNotificacionCustom");
-    if (modalExistente) modalExistente.remove();
-
-    const overlay = document.createElement("div");
-    overlay.id = "overlayNotificacionCustom";
-    overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; animation: fadeIn 0.2s ease;";
-
-    const cajaModal = document.createElement("div");
-    cajaModal.style.cssText = "background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); width: 400px; text-align: center; font-family: inherit;";
-
-    cajaModal.innerHTML = `
-      <div style="font-size: 40px; margin-bottom: 12px;">🔔</div>
-      <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 18px; font-weight: 600;">Notificación de Asignación</h3>
-      <p style="color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">${mensaje}</p>
-      <button id="btnAceptarNoti" style="background: #2563eb; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; transition: background 0.2s;">Aceptar</button>
-    `;
-
-    overlay.appendChild(cajaModal);
-    document.body.appendChild(overlay);
-
-    //botón para cerrar la ventana emergente
-    document.getElementById("btnAceptarNoti").onclick = () => {
-      overlay.remove();
-    };
-  }
-
-
-//función que ejecuta el desarrollador al hacer clic en "Solicitar"
-window.solicitarHistoria = (idHistoria) => {
-  if (socketAsignacion) {
-    const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
-    socketAsignacion.emit("solicitar-historia", {
-      sprintId: window.ID_SPRINT,
-      idHistoria: idHistoria,
-      idDesarrollador: usuarioActual.id,
-      nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
-    });
-  }
-};
-
-//función que ejecuta el facilitador al dar "Aceptar" o "Rechazar" cuando un desarrollador pide una historia
-window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
-  if (socketAsignacion) {
-    socketAsignacion.emit("gestionar-solicitud", {
-      sprintId: window.ID_SPRINT,
-      idHistoria,
-      idDesarrollador,
-      aceptada,
-      nombreDesarrollador
-    });
-  }
-};
-
-//función que devuelve la historia al product backlog
-window.devolverAProductBacklog = async (idHistoria) => {
-  if (!confirm("¿Estás seguro de devolver esta historia al Product Backlog? Se marcará como pendiente para el siguiente sprint.")) {
-      return;
-  }
-
-  try {
-      const respuesta = await fetch(`/reuniones/historia/${idHistoria}/devolver`, {
+      try {
+        const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' }
-      });
-      const resultado = await respuesta.json();
+        });
+        const resultado = await respuesta.json();
 
-      if (resultado.ok) {
-          alert("¡Historia devuelta al Product Backlog exitosamente!");
-          cargarHistoriasRevision(); // Recargar la vista para reflejar los cambios
-      } else {
-          alert("Error al procesar la solicitud.");
+        if (resultado.ok) {
+          if (socketAsignacion) {
+            socketAsignacion.emit("cliente-cerro-acta-revision", {
+              sprintId: window.ID_SPRINT,
+              reunionId: window.ID_REUNION
+            });
+          }
+
+          alert("¡Acta de revisión cerrada con éxito!");
+          document.getElementById("vista-sprintPlanning").style.display = "none";
+          document.getElementById("modal-reuniones").style.display = "block";
+          if (typeof cargarReuniones === "function") cargarReuniones();
+        } else {
+          alert("Error al finalizar la reunión.");
+        }
+      } catch (err) {
+        console.error("Error al cerrar el acta:", err);
       }
+    } else if (rolActual === 'facilitador') {
+      if (!confirm("¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?")) return;
+
+      try {
+        const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const resultado = await respuesta.json();
+
+        if (resultado.ok) {
+          alert("Reunión finalizada correctamente.");
+          document.getElementById("vista-sprintPlanning").style.display = "none";
+          document.getElementById("modal-reuniones").style.display = "block";
+          if (typeof cargarReuniones === "function") cargarReuniones();
+        } else {
+          alert("Error al finalizar la reunión.");
+        }
+      } catch (err) {
+        console.error("Error al finalizar la reunión:", err);
+      }
+    }
+  };
+}
+
+async function cargarHistoriasRevision() {
+  try {
+    // se obtienen las historias terminadas del sprint actual
+    const respuesta = await fetch(`/reuniones/sprint/${window.ID_SPRINT}/historias-revision?idProyecto=${window.ID_PROYECTO}`, {
+      headers: { "Accept": "application/json" }
+    });
+    const resultado = await respuesta.json();
+    const historias = resultado.data || [];
+
+    const contenedor = document.getElementById('contenedorTarjetasReview');
+    if (!contenedor) return;
+
+    if (historias.length === 0) {
+      contenedor.innerHTML = `<p style="text-align: center; color: #64748b; grid-column: span 3;">No hay historias terminadas registradas para revisar en este sprint.</p>`;
+      return;
+    }
+
+    // se obtiene el rol actual para mostrar lo correspondiente
+    const rolActual = obtenerRolActual();
+    aplicarRestriccionesRevision(rolActual);
+
+    // si la reunión esta finalizada se oculta el banner
+    const bannerEspera = document.getElementById("bannerEsperaCliente");
+    if (bannerEspera) {
+      if (rolActual === 'cliente' || window.ESTADO_REUNION === 'Finalizada') {
+        bannerEspera.classList.add("oculto");
+      } else {
+        bannerEspera.classList.remove("oculto");
+      }
+    }
+
+    // cada tarjeta con sus criterios
+    contenedor.innerHTML = historias.map(h => {
+      const numMostrar = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+      const estadoRevision = h.estado_revision || 'PENDIENTE';
+      const claseEstado = estadoRevision === 'ACEPTADO' ? 'estado-aceptado' : (estadoRevision === 'RECHAZADO' ? 'estado-rechazado' : 'estado-pendiente');
+
+      const listaCriteriosHTML = h.criterios && h.criterios.length > 0
+        ? h.criterios.map((c, index) => `
+            <li>
+              <label>
+                <input type="checkbox" class="chk-criterio" ${c.cumplido ? 'checked' : ''} ${rolActual !== 'cliente' ? 'disabled' : ''}>
+                <span>Criterio ${index + 1}: ${c.descripcion || c}</span>
+              </label>
+            </li>
+          `).join('')
+        : '<li><small style="color: #64748b;">Sin criterios definidos</small></li>';
+
+      return `
+        <article class="tarjeta-historia-review" id="tarjeta-historia-${h.id}" data-historia-id="${h.id}">
+          <div class="tarjeta-header-blanco">
+            <strong class="historia-codigo">SB-${numMostrar}:</strong>
+            <p class="historia-descripcion">${h.descripcion || h.nombre}</p>
+          </div>
+
+          <div class="tarjeta-criterios">
+            <div class="criterios-cabecera-accion">
+              <h4>Criterios de Aceptación</h4>
+              <button type="button" class="btn-azul btn-devolver-backlog ${rolActual === 'facilitador' && estadoRevision === 'RECHAZADO' ? '' : 'oculto'}" onclick="devolverAProductBacklog(${h.id})">
+                Devolver al product backlog
+              </button>
+            </div>
+            <ul class="lista-criterios">
+              ${listaCriteriosHTML}
+            </ul>
+          </div>
+
+          <div class="tarjeta-comentario">
+            <label for="comentario-${h.id}">Comentario:</label>
+            <textarea id="comentario-${h.id}" class="txt-comentario-review" rows="3" placeholder="Escribe observaciones..." ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? 'disabled' : ''}>${h.comentario || ''}</textarea>
+          </div>
+
+          <div class="tarjeta-footer-estado">
+            <div class="grupo-botones-cliente ${rolActual === 'cliente' && estadoRevision === 'PENDIENTE' ? '' : 'oculto'}">
+              <button type="button" class="btn-verde" onclick="guardarRevisionHistoria(${h.id}, 'ACEPTADO')">Aprobar</button>
+              <button type="button" class="btn-rojo" onclick="guardarRevisionHistoria(${h.id}, 'RECHAZADO')">Rechazar</button>
+            </div>
+
+            <div class="grupo-estado-final ${rolActual !== 'cliente' || estadoRevision !== 'PENDIENTE' ? '' : 'oculto'}">
+              <span class="badge-estado ${claseEstado}">
+                ${estadoRevision === 'ACEPTADO' ? '✓ Aprobado' : (estadoRevision === 'RECHAZADO' ? '✕ Rechazado' : 'Pendiente')}
+              </span>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    actualizarContadoresResumen();
   } catch (err) {
-      console.error("Error en la petición de devolución:", err);
+    console.error('Error al cargar las historias de revisión:', err);
+  }
+}
+
+function aplicarRestriccionesPorRol() {
+  const rol = obtenerRolActual();
+  document.querySelectorAll('[data-rol]').forEach(el => {
+    const permitidos = el.dataset.rol.split(',').map(r => r.trim().toLowerCase());
+    el.style.display = permitidos.includes(rol) ? '' : 'none';
+  });
+}
+
+// función que muestra cuando una notificación cuando se le ha asignado una historia a un desarrollador
+function mostrarModalNotificacion(mensaje) {
+  const modalExistente = document.getElementById("overlayNotificacionCustom");
+  if (modalExistente) modalExistente.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "overlayNotificacionCustom";
+  overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; animation: fadeIn 0.2s ease;";
+
+  const cajaModal = document.createElement("div");
+  cajaModal.style.cssText = "background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); width: 400px; text-align: center; font-family: inherit;";
+
+  cajaModal.innerHTML = `
+    <div style="font-size: 40px; margin-bottom: 12px;">🔔</div>
+    <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 18px; font-weight: 600;">Notificación de Asignación</h3>
+    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">${mensaje}</p>
+    <button id="btnAceptarNoti" style="background: #2563eb; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; transition: background 0.2s;">Aceptar</button>
+  `;
+
+  overlay.appendChild(cajaModal);
+  document.body.appendChild(overlay);
+
+  document.getElementById("btnAceptarNoti").onclick = () => {
+    overlay.remove();
+  };
+}
+
+// función que devuelve la historia al product backlog
+window.devolverAProductBacklog = async (idHistoria) => {
+  if (!confirm("¿Estás seguro de devolver esta historia al Product Backlog? Se marcará como pendiente para el siguiente sprint.")) {
+    return;
+  }
+
+  try {
+    const respuesta = await fetch(`/reuniones/historia/${idHistoria}/devolver`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const resultado = await respuesta.json();
+
+    if (resultado.ok) {
+      alert("¡Historia devuelta al Product Backlog exitosamente!");
+      cargarHistoriasRevision();
+    } else {
+      alert("Error al procesar la solicitud.");
+    }
+  } catch (err) {
+    console.error("Error en la petición de devolución:", err);
   }
 };
 
-//función que ejecuta el cliente al hacer clic en "Aprobar" o "Rechazar"
+// función que ejecuta el cliente al hacer clic en "Aprobar" o "Rechazar"
 window.guardarRevisionHistoria = async (idHistoria, estado) => {
   try {
-    //obtenemos el comentario escrito en el textarea de esta historia específica
     const textareaComentario = document.getElementById(`comentario-${idHistoria}`);
     const comentario = textareaComentario ? textareaComentario.value : '';
 
-    //obtenemos el ID del usuario actual desde la sesión
     const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1 };
 
     let idProyecto = window.ID_PROYECTO;
@@ -1419,40 +1527,35 @@ window.guardarRevisionHistoria = async (idHistoria, estado) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        estado: estado,              // 'ACEPTADO' o 'RECHAZADO'
-        comentario: comentario,      // El texto del textarea
-        idEmisor: usuarioActual.id,  // Quién realiza la revisión
-        idReunion: window.ID_REUNION, // ID de la reunión activa
-        idProyecto: idProyecto //se envia el id del proyecto
+        estado: estado,
+        comentario: comentario,
+        idEmisor: usuarioActual.id,
+        idReunion: window.ID_REUNION,
+        idProyecto: idProyecto
       })
     });
 
     const resultado = await respuesta.json();
 
     if (resultado.ok) {
-      //cambio directo en la tarjeta
       const tarjeta = document.getElementById(`tarjeta-historia-${idHistoria}`);
       if (tarjeta) {
-        //se deshabilita en textarea de comentarios
         if (textareaComentario) textareaComentario.disabled = true;
 
-        //se busca el contenedor de botones de decisión y se reemplaza por el badge de estado
         const contenedorBotones = tarjeta.querySelector('.grupo-botones-cliente');
         if (contenedorBotones) {
           const claseBadge = estado === 'ACEPTADO' ? 'estado-aceptado' : 'estado-rechazado';
           const textoBadge = estado === 'ACEPTADO' ? '✓ Aprobado' : '✕ Rechazado';
-          
+
           contenedorBotones.innerHTML = `<span class="badge-estado ${claseBadge}">${textoBadge}</span>`;
         }
       }
       if (typeof actualizarContadoresResumen === 'function') {
         actualizarContadoresResumen();
       }
-
-      } else {
+    } else {
       alert("Error al guardar la revisión: " + (resultado.error || "Desconocido"));
     }
-
   } catch (err) {
     console.error("Error en la petición de revisión:", err);
     alert("Ocurrió un error al procesar la revisión.");
@@ -1461,9 +1564,9 @@ window.guardarRevisionHistoria = async (idHistoria, estado) => {
 
 // ================= DAILY SCRUM =================
 
-let dailyReunionVista = null;   //la daily que se está mostrando (puede ser una anterior)
-let dailyHistorial = [];        //dailies del sprint, para navegar por fechas
-let dailyLectura = false;       //el formulario está en modo lectura (ya publicó)
+let dailyReunionVista = null;
+let dailyHistorial = [];
+let dailyLectura = false;
 
 function salirDeDaily() {
   document.getElementById("vista-sprintPlanning").style.display = "none";
@@ -1485,12 +1588,10 @@ async function inicializarDailyScrum() {
   document.getElementById("txtDailySprint").textContent = window.ID_SPRINT;
   document.getElementById("txtNombreDevDaily").textContent = usuario.nombre || usuario.name || "--";
 
-  //permisos por rol, solo dentro de la vista de la daily
   document.querySelectorAll('#vista-dailyScrum [data-rol]').forEach(el => {
     const permitidos = el.dataset.rol.split(',').map(r => r.trim().toLowerCase());
     el.style.display = permitidos.includes(rol) ? '' : 'none';
   });
-  //facilitador y cliente: el muro ocupa todo el ancho
   if (rol !== 'desarrollador') {
     document.querySelector('#vista-dailyScrum .contenido-daily').style.gridTemplateColumns = '1fr';
   }
@@ -1509,7 +1610,6 @@ async function inicializarDailyScrum() {
     }
   };
 
-  //las historias del sprint llenan el selector de impedimento
   await cargarHistoriasSprint();
   selHist.innerHTML = '<option value="">Historia afectada...</option>' +
     requisitos.map(h => {
@@ -1517,9 +1617,8 @@ async function inicializarDailyScrum() {
       return `<option value="${h.id}">PB-${num} ${escaparHTMLDaily(h.nombre)}</option>`;
     }).join('');
 
-  //publicar / editar
   document.getElementById("btnPublicarDaily").onclick = async () => {
-    if (dailyLectura) { //"Editar mi reporte de hoy"
+    if (dailyLectura) {
       cambiarModoFormularioDaily(false);
       return;
     }
@@ -1546,7 +1645,6 @@ async function inicializarDailyScrum() {
       const res = await resp.json();
       if (!res.ok) return alert(res.error || "No se pudo publicar.");
 
-      // Si marcó que tiene impedimento y aún no se ha enviado en esta sesión/reporte de hoy:
       if (chk.checked && impedimento && idHistoria && !window._impDailyEnviadoEnReporte) {
         try {
           const respImp = await fetch("/impedimentos/crear", {
@@ -1579,7 +1677,6 @@ async function inicializarDailyScrum() {
     }
   };
 
-  //navegación por fechas
   const moverDaily = (delta) => {
     const i = dailyHistorial.findIndex(d => Number(d.id) === Number(dailyReunionVista));
     const destino = dailyHistorial[i + delta];
@@ -1588,7 +1685,6 @@ async function inicializarDailyScrum() {
   document.getElementById("btnDailyAnterior").onclick = () => moverDaily(-1);
   document.getElementById("btnDailySiguiente").onclick = () => moverDaily(1);
 
-  //finalizar (facilitador)
   document.getElementById("btnFinalizarDaily").onclick = async () => {
     if (!confirm("¿Finalizar la Daily Scrum?")) return;
     try {
@@ -1614,7 +1710,6 @@ function escaparHTMLDaily(t) {
   return d.innerHTML;
 }
 
-//formulario en modo lectura (ya publicó) o edición
 function cambiarModoFormularioDaily(lectura) {
   dailyLectura = lectura;
   const chk = document.getElementById("chkImpedimento");
@@ -1626,7 +1721,6 @@ function cambiarModoFormularioDaily(lectura) {
     lectura ? "Editar mi reporte de hoy" : "Publicar actualización";
 }
 
-//carga el muro de una daily (la actual o una anterior)
 async function cargarMuroDaily(idReunion) {
   const muro = document.getElementById("muroDaily");
   const tpl = document.getElementById("tplTarjetaDaily");
@@ -1641,19 +1735,16 @@ async function cargarMuroDaily(idReunion) {
     dailyReunionVista = reunion.id;
     dailyHistorial = historial;
 
-    //fecha y flechas
     document.getElementById("txtDailyFecha").textContent = formatearFechaDaily(reunion.fecha);
     const i = historial.findIndex(d => Number(d.id) === Number(reunion.id));
     document.getElementById("btnDailyAnterior").disabled = i <= 0;
     document.getElementById("btnDailySiguiente").disabled = i < 0 || i >= historial.length - 1;
 
-    //resumen
     const conImpedimento = respuestas.filter(r => r.tieneImpedimento).length;
     document.getElementById("resumenDaily").textContent =
       `${respuestas.length} de ${totalDesarrolladores} desarrolladores reportaron | ` +
       `${conImpedimento} impedimento${conImpedimento === 1 ? '' : 's'} activo${conImpedimento === 1 ? '' : 's'}`;
 
-    //tarjetas (textContent: lo que escriben los usuarios nunca se interpreta como HTML)
     muro.innerHTML = '';
     document.getElementById("msjMuroVacio").classList.toggle("oculto", respuestas.length > 0);
 
@@ -1676,7 +1767,6 @@ async function cargarMuroDaily(idReunion) {
       muro.appendChild(nodo);
     });
 
-    //formulario: solo editable en la daily a la que entré
     const panel = document.getElementById("panelReporteDaily");
     const esDev = obtenerRolActual() === 'desarrollador';
     const esLaMia = Number(reunion.id) === Number(window.ID_REUNION);
@@ -1706,12 +1796,10 @@ async function cargarMuroDaily(idReunion) {
   }
 }
 
-
 // ================= SPRINT RETROSPECTIVE =================
 
-let notasRetroLocal = []; // Arreglo temporal en memoria mientras conectas tu API
+let notasRetroLocal = [];
 
-// Al pulsar "Continuar a reuniones (Retrospectiva)" en Sprint Review, regresa al módulo de Reuniones
 document.addEventListener("click", (e) => {
   if (e.target && e.target.id === "btnIrRetrospectiva") {
     document.getElementById("vista-sprintPlanning").style.display = "none";
@@ -1725,7 +1813,6 @@ document.addEventListener("click", (e) => {
 function inicializarRetrospectiva() {
   const rol = obtenerRolActual();
 
-  // El cliente no participa en la Retrospectiva
   if (rol === 'cliente') {
     alert("La reunión de Retrospectiva es exclusiva del equipo Scrum.");
     document.getElementById("vista-sprintPlanning").style.display = "none";
@@ -1739,10 +1826,9 @@ function inicializarRetrospectiva() {
 
   const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Integrante" };
 
-  // Tanto facilitador como desarrolladores pueden agregar notas
   document.querySelectorAll(".btn-agregar-nota").forEach(btn => {
     btn.onclick = () => {
-      const categoria = btn.dataset.target; // 'bien' | 'mejorar' | 'acciones'
+      const categoria = btn.dataset.target;
       const mapaInputs = {
         bien: "inpNotaBien",
         mejorar: "inpNotaMejorar",
@@ -1768,7 +1854,6 @@ function inicializarRetrospectiva() {
     };
   });
 
-  // Solo el facilitador puede guardar y cerrar oficialmente la retrospectiva
   const btnCerrar = document.getElementById("btnCerrarRetrospectiva");
   if (btnCerrar) {
     btnCerrar.style.display = (rol === 'facilitador') ? '' : 'none';
