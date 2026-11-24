@@ -39,9 +39,9 @@ class historiaUsuarioDAO {
                 t_historias.horas_estimadas,
                 t_historias.pendiente,
                 t_historias.asignado_al_sprint,
-                t_historias.estado,
                 t_historias.puntos_de_historia,
-                t_epicas.nombre AS epica_asignada, 
+                t_epicas.nombre AS epica_asignada,
+                t_trabajando.estado, 
                 t_criterios.id AS id_criterio, 
                 t_criterios.numero_de_criterio,
                 t_criterios.criterios_de_aceptacion
@@ -57,7 +57,7 @@ class historiaUsuarioDAO {
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
             LEFT JOIN 
                 scrumbird.trabajando_en_historia t_trabajando
-                ON t_historias.id = t_trabajando.id_historia
+                ON t_historias.id = t_trabajando.historia_asignada
                 AND t_historias.id_proyecto = t_trabajando.id_proyecto
             LEFT JOIN 
                 scrumbird.epicas t_epicas
@@ -141,7 +141,7 @@ class historiaUsuarioDAO {
         return rows [0] || null;
     }
 
-    /**
+/**
      * Funcion para guardar una nueva historia de usuario con criterios de aceptacion en el sistema mediante una transaccion
      * @param {nombre} String Nombre de la historia de usuario
      * @param {descripcion} String Descripcion de la historia de usuario 
@@ -152,10 +152,13 @@ class historiaUsuarioDAO {
      * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario 
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({nombre, descripcion, criterios, valor, horas, puntos_de_historia, idEpica, idProyecto}){
+    async agregarHistoria({nombre, descripcion, criterios, valor, horas, puntos_de_historia, puntosDeHistoria, idEpica, idProyecto}){
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
+            const rawPuntosAdd = puntos_de_historia ?? puntosDeHistoria ?? 0;
+            const puntosFinalesAdd = Number.isInteger(Number(rawPuntosAdd)) && Number(rawPuntosAdd) >= 0 ? Number(rawPuntosAdd) : 0;
+
             //Empezar la transaccion
             await client.query('BEGIN');
             //Se preprara la linea de insercion de la historia
@@ -165,7 +168,7 @@ class historiaUsuarioDAO {
                 RETURNING id;
              `;
             //Ejecutamos la linea de inscercion
-            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, puntos_de_historia, idEpica, idProyecto]);
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, puntosFinalesAdd, idEpica, idProyecto]);
             //Recuperamos el id
             const idGenerado = resultadoHistoria.rows[0].id;
             //Se define la linea de insercion de los criterios d aceptacion
@@ -214,16 +217,19 @@ class historiaUsuarioDAO {
         }
     }
 
-    /**
+   /**
      * Metodo para modificar una historia de usuario y actualizar sus criterios de aceptacion mediante una transaccion
      * @param {number} idHistoria - Id de la historia de usuario a modificar
      * @param {number} idProyecto - Id del proyecto al que pertenece la historia
      * @param {Object} datos - Objeto con nombre, descripcion, criterios, valor y horas actualizadas
      * @returns {Promise<Object>} Objeto con estado ok y mensaje compatible con el controlador
      */
-    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas, puntos_de_historia, idEpica }) {
+    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas, puntos_de_historia, puntosDeHistoria, idEpica }) {
         const client = await this.pool.connect();
         try {
+            const rawPuntosMod = puntos_de_historia ?? puntosDeHistoria ?? 0;
+            const puntosFinalesMod = Number.isInteger(Number(rawPuntosMod)) && Number(rawPuntosMod) >= 0 ? Number(rawPuntosMod) : 0;
+
             // Iniciar la transaccion
             await client.query('BEGIN');
 
@@ -243,7 +249,7 @@ class historiaUsuarioDAO {
                 descripcion,
                 valor,
                 horas,
-                puntos_de_historia, 
+                puntosFinalesMod, 
                 idEpica,
                 idHistoria,
                 idProyecto,

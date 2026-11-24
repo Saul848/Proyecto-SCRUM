@@ -229,80 +229,106 @@ body {
   border-radius: 4px;
 }
 
-/* Encabezados y filas alineados con la misma proporción de columnas */
+/* Encabezados y filas alineados en fila de izquierda a derecha (11 columnas) */
 #DivEncabezados,
 .DivFilaHistoria {
   display: grid;
-  grid-template-columns: 50px 1.2fr 1.5fr 1.5fr 0.8fr 1fr 130px 50px;
+  grid-template-columns: 46px minmax(110px, 1.2fr) minmax(130px, 1.4fr) minmax(175px, 1.8fr) 64px 72px 64px minmax(90px, 1fr) 88px minmax(88px, 1fr) 44px;
   align-items: center;
   text-align: center;
   gap: 6px;
+  min-width: 980px;
+  box-sizing: border-box;
+}
+
+#DivEncabezados {
+  font-weight: bold;
+  font-size: 12px;
+  padding: 8px 12px;
+  color: #000000;
+}
+
+.DivFilaHistoria {
+  flex-direction: row;
+  padding: 8px 12px;
   background-color: #ffffff;
   border: 1px solid #000000;
   border-radius: 10px;
 }
 
+#DivHistoria {
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-right: 6px;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .DivFilaHistoria label {
-  color: #a0a0a0;
-  font-weight: bold;
-  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+  font-size: 12px;
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
   word-break: break-word;
-  padding: 0 4px;
+  padding: 0 2px;
+  min-width: 0;
 }
 
 .DivFilaHistoria .LabelID {
   color: #000000;
+  font-weight: 700;
 }
 
-/* Alineación vertical centrada para los elementos internos y etiquetas */
+/* Alineación horizontal y vertical en cada celda de fila */
 #DivEncabezados label,
+#DivEncabezados .espacioAcciones,
 .DivFilaHistoria label,
 .DivFilaHistoria .criterio-fila-wrapper,
 .DivFilaHistoria div[class*="DivBtn"] {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  min-width: 0;
 }
 
-/* ===================================================
-   CRITERIOS DE ACEPTACIÓN EN FILAS PRINCIPALES
-   ================================================   */
-
-/* Contenedor que ocupa exactamente el espacio de la columna en la grilla */
+/* Contenedor de criterios en fila horizontal: [◀] [textarea] [▶] */
 .criterio-fila-wrapper {
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: stretch;
   width: 100%;
-  height: 60px; /* Altura controlada para alinearse con la fila */
+  height: 56px;
+  min-width: 0;
   box-sizing: border-box;
 }
 
-/* Área de los textarea dentro de la celda */
 .criterios-fila-columna {
   position: relative;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   height: 100%;
   display: flex;
   align-items: center;
 }
 
-/* Textarea sin capacidad para redimensionarse y adaptados a la fila */
 .criterios-fila-columna textarea.criterio-input-fila {
   display: none;
   width: 100%;
   height: 100%;
-  resize: none !important; /* Sin capacidad para redimensionarse */
+  resize: none !important;
   box-sizing: border-box;
-  padding: 4px 28px; /* Espacio interno para no estorbar con los botones laterales */
-  font-size: 12px;
+  padding: 4px 6px;
+  font-size: 11px;
   font-family: 'DM Sans', sans-serif;
   border: 1px solid #cbd5e1;
-  border-radius: 4px;
+  border-radius: 0;
   background-color: #f8fafc;
   color: #334155;
   outline: none;
@@ -312,12 +338,11 @@ body {
   display: block;
 }
 
-/* Botones laterales tan altos como la fila a cada costado */
 .btn-fila-lateral {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 24px;
+  position: static;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 100%;
   background-color: #e2e8f0;
   border: 1px solid #cbd5e1;
   font-size: 10px;
@@ -335,14 +360,11 @@ body {
 }
 
 .btn-fila-izq {
-  left: 0;
-  background-origin: padding-box;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
 
 .btn-fila-der {
-  right: 0;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
@@ -896,6 +918,111 @@ body {
 .lista-historias-container::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
+}
+
+#contenedorFiltrosPB {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filtro-epicas {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.btn-epica-accion {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.btn-epica-accion:hover {
+  filter: brightness(0.92);
+  transform: scale(1.05);
+}
+
+.btn-epica-add,
+.btn-epica-mod {
+  background-color: #2563eb;
+}
+
+.btn-epica-del {
+  background-color: #dc2626;
+}
+
+.DivFilaHistoria .LabelPuntosHistoria,
+.DivFilaHistoria .LabelEpicaAsignada,
+.DivFilaHistoria .LabelEstadoHistoria {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.modal-epica-overlay {
+  display: none;
+  position: fixed;
+  z-index: 1050;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-epica-overlay.activo {
+  display: flex;
+}
+
+.modal-epica-contenido {
+  width: 400px;
+  max-width: 90%;
+}
+
+.btn-guardar-epica {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-guardar-epica:hover {
+  background-color: #1d4ed8;
+}
+
+.btn.btnCancelar {
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn.btnCancelar:hover {
+  background-color: #dc2626;
 }
 
 /* ===================================================
@@ -1897,4 +2024,116 @@ ul#panelLateral button.active {
     .info-cabecera p {
         font-size: 11px;
     }
+}
+/* Botón de regreso en Gestión de Sprints */
+.barra-superior-sprints {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.btn-regresar-pb {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-regresar-pb:hover {
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
+  transform: translateX(-2px);
+}
+
+/* Contador compacto 1 / n en la parte superior de criterios por fila */
+.criterios-fila-columna {
+  position: relative;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+.criterio-contador-fila {
+  align-self: flex-end;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #475569;
+  background-color: #e2e8f0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  user-select: none;
+}
+
+/* Estilos unificados para botones simples del panelFacilitador */
+#btnAgregarHistoria,
+#btnGestionarSprints,
+#btnAgregarSprint,
+#btnModSprint,
+#btn-registro-tiempos,
+#btnGuardarModalAdd,
+#btnGuardarModalMod {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 10px 18px !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+#btnAgregarHistoria,
+#btnAgregarSprint,
+#btnGuardarModalAdd,
+#btnGuardarModalMod {
+  background-color: #0088ff !important;
+}
+
+#btnAgregarHistoria:hover,
+#btnAgregarSprint:hover,
+#btnGuardarModalAdd:hover,
+#btnGuardarModalMod:hover {
+  background-color: #0284c7 !important;
+}
+
+#btnGestionarSprints,
+#btnModSprint,
+#btn-registro-tiempos {
+  background-color: #2563eb !important;
+}
+
+#btnGestionarSprints:hover,
+#btnModSprint:hover,
+#btn-registro-tiempos:hover {
+  background-color: #1d4ed8 !important;
+}
+
+#btnCerrarModalAdd,
+#btnCerrarModalMod {
+  font-family: 'DM Sans', sans-serif !important;
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 10px 18px !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#btnCerrarModalAdd:hover,
+#btnCerrarModalMod:hover {
+  background-color: #dc2626 !important;
 }

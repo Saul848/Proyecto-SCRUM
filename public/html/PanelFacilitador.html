@@ -199,6 +199,12 @@
             <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
             <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint"
               placeholder="Filtrar sprint...">
+            <select id="selectEpicas" class="filtro-select filtro-epicas">
+            <option value="">Todas las épicas</option>
+            </select>
+            <button type="button" id="btnAddEpica" class="btn-epica-accion btn-epica-add" title="Agregar épica">+</button>
+            <button type="button" id="btnModEpica" class="btn-epica-accion btn-epica-mod" title="Modificar épica">#</button>
+            <button type="button" id="btnDelEpica" class="btn-epica-accion btn-epica-del" title="Eliminar épica">-</button>
             <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
           </div>
 
@@ -206,10 +212,13 @@
           <div id="DivEncabezados">
             <label id="LabelID">ID</label>
             <label id="LabelNombreHistoria">Historias de usuario</label>
-            <label id="LabelDescripccion">Descripccion</label>
-            <label id="LabelCriterios">Criterios de acpetacion</label>
+            <label id="LabelDescripccion">Descripción</label>
+            <label id="LabelCriterios">Criterios de aceptación</label>
             <label id="LabelValor">Valor</label>
             <label id="LabelHorasEstimadas">Horas estimadas</label>
+            <label id="LabelPuntosHistoria">Puntos</label>
+            <label id="LabelEpicaAsignada">Épica</label>
+            <label id="LabelEstadoHistoria">Estado</label>
             <label id="LabelSprintAsginado">Sprint asignado</label>
             <div class="espacioAcciones"></div>
           </div>
@@ -291,7 +300,21 @@
                 <input type="number" id="inpAddHoras" maxlength="2" placeholder="0 - 100">
               </div>
 
+              <!-- Campo 6: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="inpAddPuntos">Puntos de historia</label>
+                <input type="number" id="inpAddPuntos" placeholder="Puntos de historia">
+              </div>
+              
+              <!-- Campo 7: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="selectAddEpica">Épica asignada</label>
+                <select id="selectAddEpica">
+                  <option value="">Ninguna</option>
+                </select>
+              </div>
               <div class="modal-botones">
+
                 <button id="btnGuardarModalAdd">Guardar</button>
                 <button id="btnCerrarModalAdd">Cancelar</button>
               </div>
@@ -353,6 +376,20 @@
                 <input type="number" id="inpModHoras" maxlength="2" placeholder="0 - 100">
               </div>
 
+              <!-- Campo 6: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="inpModPuntos">Puntos de historia</label>
+                <input type="number" id="inpModPuntos" placeholder="Puntos de historia">
+              </div>
+
+              <!-- Campo 7: Horas Estimadas -->
+              <div class="entradaInp">
+                <label for="selectModEpica">Épica asignada</label>
+                <select id="selectModEpica">
+                  <option value="">Selecciona una épica</option>
+                </select>
+              </div>
+
               <div class="modal-botones">
                 <button id="btnGuardarModalMod">Guardar</button>
                 <button id="btnCerrarModalMod">Cancelar</button>
@@ -374,11 +411,46 @@
         </div>
       </div>
 
+      <!-- Modal Agregar Épica -->
+      <div id="modalAgregarEpica" class="modal-epica-overlay">
+        <div class="modal-contenido modal-epica-contenido">
+          <h3>Agregar Épica</h3>
+          <div class="entradaInp">
+            <label for="inpAddNombreEpica">Nombre de la épica</label>
+            <input type="text" id="inpAddNombreEpica" placeholder="Ingresa el nombre de la épica">
+          </div>
+          <div class="modal-botones">
+            <button type="button" id="btnGuardarEpica" class="btn-guardar-epica">Guardar Épica</button>
+            <button type="button" id="btnCancelarAgregarEpica" class="btn btnCancelar">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Modificar Épica -->
+      <div id="modalModificarEpica" class="modal-epica-overlay">
+        <div class="modal-contenido modal-epica-contenido">
+          <h3>Modificar Épica</h3>
+          <div class="entradaInp">
+            <label for="inpModNombreEpica">Nombre de la épica</label>
+            <input type="text" id="inpModNombreEpica" placeholder="Modifica el nombre de la épica">
+          </div>
+          <div class="modal-botones">
+            <button type="button" id="btnGuardarCambios" class="btn-guardar-epica">Guardar cambios</button>
+            <button type="button" id="btnCancelarModificarEpica" class="btn btnCancelar">Cancelar</button>
+          </div>
+        </div>
+      </div>
+      
       <!-- ============================= -->
       <!-- SECCIÓN DE GESTION DE SPRINTS -->
       <!-- ============================= -->
       <div id="modal-gestion-sprints" class="modal-class" style="display: none;">
         <div id="DivContSprints">
+          <div class="barra-superior-sprints">
+            <button type="button" id="btnRegresarPB" class="btn-regresar-pb" onclick="regresarAProductBacklog()" title="Regresar al Product Backlog">
+              ← Volver al Product Backlog
+            </button>
+          </div>
           <!-- Encabezados de los sprints -->
           <div id="DivEncabezadosSprint">
             <label id="NoSprint">No. De sprint</label>
