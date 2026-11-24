@@ -76,7 +76,7 @@
           <button class="btn-primary" id="btnAbrirModal">+ Crear nuevo proyecto</button>
         </div>
         <main class="content-area">
-          <div id="mis-proyectos" class="panel-proyectos">
+          <div id="mis-proyectos" class="panel-proyectos">    
             <h2>Mis Proyectos</h2>
             <div id="filtro-proyectos" role="group" aria-label="Filtrar proyectos">
               <button type="button" class="filtro-btn activo" data-filtro="activos">Activos</button>
@@ -966,84 +966,35 @@
         <h3 id="lector-reuniones-titulo"></h3>
       </div>
 
-      <button id="cerrar-lector-reuniones-scrum"
+      <button id="cerrar-lector-modulo-4"
               type="button"
               aria-label="Cerrar contenido">
         ✕
       </button>
     </header>
 
-    <div id="pagina-reuniones"
+    <div id="pagina-modulo-4"
       style="min-height: 280px; padding: 20px 0;">
     </div>
 
     <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
-      <button id="pagina-anterior-reuniones"
+      <button id="pagina-anterior-modulo-4"
               type="button"
               aria-label="Página anterior">
         ←
       </button>
 
-      <span id="contador-paginas-proyectos"
+      <span id="contador-paginas-modulo-4"
             aria-live="polite">
       </span>
 
-      <button id="pagina-siguiente-proyectos"
+      <button id="pagina-siguiente-modulo-4"
               type="button"
               aria-label="Página siguiente">
         →
       </button>
 
-      <button id="terminar-seccion-proyectos"
-              type="button"
-              hidden>
-        ✓ Terminar
-      </button>
-    </footer>
-  </dialog>
-
-
-
-  <!-- Lector de las secciones del módulo 5 --------------------------->
-  <dialog id="lector-modulo-5"
-          aria-labelledby="lector-modulo-5-titulo"
-          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
-
-    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-      <div>
-        <strong>Módulo 5: Tutorial facilitador</strong>
-        <h3 id="lector-modulo-5-titulo"></h3>
-      </div>
-
-      <button id="cerrar-lector-modulo-5"
-              type="button"
-              aria-label="Cerrar contenido">
-        ✕
-      </button>
-    </header>
-
-    <div id="pagina-modulo-5"
-      style="min-height: 280px; padding: 20px 0;">
-    </div>
-
-    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
-      <button id="pagina-anterior-modulo-5"
-              type="button"
-              aria-label="Página anterior">
-        ←
-      </button>
-
-      <span id="contador-paginas-modulo-5"
-            aria-live="polite">
-      </span>
-
-      <button id="pagina-siguiente-modulo-5"
-              type="button"
-              aria-label="Página siguiente">
-        →
-      </button>
-
-      <button id="terminar-seccion-modulo-5"
+      <button id="terminar-seccion-modulo-4"
               type="button"
               hidden>
         ✓ Terminar
@@ -1052,7 +1003,7 @@
   </dialog>
 
   <!-- Módulo 4, sección 1: Guia de proyectos scrumbird (4 páginas) -->
-  <template id="guia-pantallas-y-secciones">
+  <template id="guia-pantalla-principal">
 
     <!-- Página 1 -->
     <article class="pagina-capacitacion">
@@ -1132,6 +1083,53 @@
     
   </template>
 
+
+  <!-- Lector de las secciones del módulo 5 --------------------------->
+  <dialog id="lector-modulo-5"
+          aria-labelledby="lector-modulo-5-titulo"
+          style="max-height: 85vh; padding: 24px; border: 0; border-radius: 12px; background: #edf4f6;">
+
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <strong>Módulo 5: Tutorial facilitador</strong>
+        <h3 id="lector-modulo-5-titulo"></h3>
+      </div>
+
+      <button id="cerrar-lector-modulo-5"
+              type="button"
+              aria-label="Cerrar contenido">
+        ✕
+      </button>
+    </header>
+
+    <div id="pagina-modulo-5"
+      style="min-height: 280px; padding: 20px 0;">
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+      <button id="pagina-anterior-modulo-5"
+              type="button"
+              aria-label="Página anterior">
+        ←
+      </button>
+
+      <span id="contador-paginas-modulo-5"
+            aria-live="polite">
+      </span>
+
+      <button id="pagina-siguiente-modulo-5"
+              type="button"
+              aria-label="Página siguiente">
+        →
+      </button>
+
+      <button id="terminar-seccion-modulo-5"
+              type="button"
+              hidden>
+        ✓ Terminar
+      </button>
+    </footer>
+  </dialog>
 
   <!-- Módulo 5, sección 1: Guia pantallas y secciones (8 páginas) -->
   <template id="guia-pantallas-y-secciones">

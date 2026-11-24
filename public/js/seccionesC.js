@@ -315,6 +315,53 @@ async function abrirSeccionIntroScrum(modulo, seccion) {
   });
 }
 
+
+async function abrirSeccionPanelPrincipal(modulo, seccion) {
+  const plantillasModulo4 = {
+    1: "guia-pantalla-principal",
+  };
+
+  const idPlantilla = plantillasModulo4[Number(seccion.numero_seccion)];
+  const plantilla = idPlantilla ? document.getElementById(idPlantilla) : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  let progresoActual;
+  try {
+    progresoActual = await consultarProgresoCapacitacion();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
+  const puedeTerminar =
+    !progresoActual.guia_terminada &&
+    Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+    Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+  paginarPlantillaCapacitacion({
+    modulo,
+    seccion,
+    plantilla,
+    progresoActual,
+    puedeTerminar,
+    ids: {
+      dialogId: "lector-reuniones",
+      tituloId: "lector-reuniones-titulo",
+      paginaId: "pagina-modulo-4",
+      contadorId: "contador-paginas-modulo-4",
+      anteriorId: "pagina-anterior-modulo-4",
+      siguienteId: "pagina-siguiente-modulo-4",
+      cerrarId: "cerrar-lector-modulo-4",
+      terminarId: "terminar-seccion-modulo-4"
+    }
+  });
+}
+
+
 async function abrirSeccionModulo5(modulo, seccion) {
   const plantillasModulo5 = {
     1: "guia-pantallas-y-secciones"
