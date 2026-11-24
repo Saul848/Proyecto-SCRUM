@@ -1858,3 +1858,22 @@ ul#panelLateral button.active {
         font-size: 11px;
     }
 }
+
+#dodEditor {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #b5b5b5;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95em;
+    resize: vertical;
+}
+
+#dodEditor:focus {
+    outline: none;
+    border-color: #2f8fe0;
+    box-shadow: 0 0 0 3px rgba(47, 143, 224, 0.2);
+}
+
+#guardarDOD { background-color: #34c759; }
+#cancelarDOD { background-color: #b0b0b5; }

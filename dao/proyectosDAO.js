@@ -116,6 +116,17 @@ class ProyectosDAO {
         return rows;
     }
 
+    async actualizarDOD(idProyecto, dod) {
+        const { rows } = await this.pool.query(
+            `UPDATE scrumbird.proyecto
+            SET dod = $1
+            WHERE id = $2 AND eliminado = false
+            RETURNING id, dod;`,
+            [dod, idProyecto]
+        );
+        return rows[0];
+    }
+
     /**
      * Método que lista todos los proyectos de un usuario con el ID de este
      * GET /proyectos/listarProyectosDeUsuario/:id

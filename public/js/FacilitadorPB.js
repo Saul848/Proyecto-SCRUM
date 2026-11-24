@@ -1684,41 +1684,6 @@ btnLimpiarFiltros.addEventListener("click", () => {
     aplicarFiltros();
 });
 
-async function obtenerDOD(idProyecto) {
-    try {
-        const respuesta = await fetch(`/proyectos/listarDODProyectos/${idProyecto}`,{
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-        // Obtenemos los datos del JSON
-        const datos = await respuesta.json();
-        
-        return datos.dod;
-    } catch (error) {
-        console.error("Error al obtener el DOD: ", error)
-        return null;
-    }
-}
-
-async function cargarDefinicionDeHecho(idProyecto){
-    const dod = await obtenerDOD(idProyecto);
-    
-    const labelDOD = document.getElementById("dodTexto")
-    const btnAdd = document.getElementById("addDOD");
-    const btnEdit = document.getElementById("editDOD");
-
-    if (dod) {
-        labelDOD.textContent = dod;
-        btnAdd.style.display = "none";
-        btnEdit.style.display = "inline-block";
-    } else {
-        labelDOD.textContent = "No hay una definición de hecho registrada.";
-        btnAdd.style.display = "inline-block";
-        btnEdit.style.display = "none";
-    }
-}
 
 //////////////////////////////////////////////////////////////
 // Carga dinámica del modal de planning poker para facilitador
@@ -1867,10 +1832,6 @@ function actualizarUIHistoria(contenedor, data) {
 }
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-
-document.addEventListener("DOMContentLoaded", ()=>{
-    cargarDefinicionDeHecho(JSON.parse(sessionStorage.getItem('usuarioActivo').id));
-})
 
 document.getElementById("btn-storage").addEventListener('click', ()=>{
     console.log("presionado" + sessionStorage.getItem('usuarioActivo'))

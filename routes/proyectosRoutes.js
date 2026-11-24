@@ -17,6 +17,7 @@ router.get('/listarProyectosDeUsuario/:id', (req, res)=> controlador.listarProye
 router.get('/listarSprints/:idProyecto', (req, res)=> controlador.listarSprintsProyecto(req,res))
 router.put('/eliminar/:id', (req, res) => controlador.eliminarProyecto(req, res));
 router.put('/restaurar/:id', (req, res) => controlador.restaurarProyecto(req, res));
+router.put('/dod/:id', (req, res) => controlador.actualizarDOD(req, res));
 
 // NUEVA RUTA: Endpoint que procesa el Aceptar o Rechazar desde el correo
 router.get('/invitacion/responder', (req, res) => controlador.responderInvitacion(req, res));
