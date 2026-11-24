@@ -99,8 +99,8 @@
                             votacion</button>
                     </div>
                     <div class="resultActions-section" id="rA-lower">
-                        <label for="estimacion final">Estimacion final:</label>
-                        <select name="estimacion final" id="rA-select-estimateFinal">
+                        <label for="rA-select-estimatePoints">Puntos de historia:</label>
+                        <select name="puntos de historia" id="rA-select-estimatePoints">
                             <option value="0">0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -113,12 +113,28 @@
                             <option value="55">55</option>
                             <option value="89">89</option>
                         </select>
+
+                        <label for="rA-select-estimateFinal">Horas estimadas:</label>
+                        <select name="horas estimadas" id="rA-select-estimateFinal">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                            <option value="8">8</option>
+                            <option value="13">13</option>
+                            <option value="21">21</option>
+                            <option value="34">34</option>
+                            <option value="55">55</option>
+                            <option value="89">89</option>
+                        </select>
+
                         <button class="btn-planing-poker" id="btn-pp-confirm"
                             title="confirmar eleccion estimacion">Confirmar y pasar a la
                             siguiente historia</button>
 
                         <!--acceso rápido exclusivo para prácticas -->
-                        <button class="btn-planing-poker" id="btn-pp-practicaDetalles" 
+                        <button class="btn-planing-poker" id="btn-pp-practicaDetalles"
                             title="Acceso directo para pruebas">
                             [Práctica] Ir a Vista Detalles
                         </button>
@@ -131,92 +147,6 @@
                 <div class="panel-message" id="panel-message-cont">
                     <h2 class="title-planning-poker" id="title-pp-pM-title">Chat de la sesion</h2>
                     <div class="panel-message-cont-section" id="message-cont-section-messages">
-                        <div class="cont-message message-received" id="cont-message-user2">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Esta historia incluye las
-                                    prueba unitarias?</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-sent" id="cont-message-user5">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Raul Sola</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Si, esta especificado en los
-                                    requisitos</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-sent" id="cont-message-user5">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Raul Sola</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Si, esta especificado en los
-                                    requisitos</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-sent" id="cont-message-user5">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Raul Sola</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Si, esta especificado en los
-                                    requisitos</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-received" id="cont-message-user2">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-received" id="cont-message-user2">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-received" id="cont-message-user2">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-sent" id="cont-message-user5">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Raul Sola</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Si, esta especificado en los
-                                    requisitos</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-sent" id="cont-message-user5">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Raul Sola</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Si, esta especificado en los
-                                    requisitos</p>
-                            </div>
-                        </div>
-                        <div class="cont-message message-received" id="cont-message-user2">
-                            <div class="message-emisor ">
-                                <p class="text-info-message-emisor-name">Pedro Ramirez Versalles</p>
-                            </div>
-                            <div class="message-data">
-                                <p class="text-info-planning-poker-message-data">Gracias, lo revisare</p>
-                            </div>
-                        </div>
                     </div>
                     <div class="panel-message-cont-section" id="message-cont-section-actions">
                         <textarea id="message-to-sent" placeholder="Escribe tu mensaje..."></textarea>

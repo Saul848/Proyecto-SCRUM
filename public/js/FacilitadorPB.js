@@ -161,16 +161,17 @@ if (tipo !== "product-backlog") return;
     }
 
     const sprints = resultado.datos;
+    const totalesProyecto = resultado.totales_proyecto;
 
+if (!totalesProyecto) {
+  throw new Error("No se recibieron los totales del proyecto.");
+}
     if (sprints.length === 0) {
       areaDatos.textContent = "Este proyecto todavía no tiene sprints.";
       return;
     }
 
-    const totalInicial = sprints.reduce(
-      (suma, sprint) => suma + Number(sprint.total_horas),
-      0
-    );
+    const totalInicial = Number(totalesProyecto.horas_calculadas);
 
     const etiquetas = [
       "Inicio",
@@ -183,6 +184,22 @@ if (tipo !== "product-backlog") return;
         (totalInicial * (1 - indice / sprints.length)).toFixed(2)
       )
     );
+    const totalPuntosInicial = Number(totalesProyecto.puntos);
+
+    const puntosIdeales = etiquetas.map((_, indice) =>
+      Number(
+        (totalPuntosInicial * (1 - indice / sprints.length)).toFixed(2)
+      )
+    );
+
+    const puntosRestantes = [
+      totalPuntosInicial,
+      ...sprints.map(sprint =>
+        sprint.puntos_restantes == null
+          ? null
+          : Number(sprint.puntos_restantes)
+      )
+    ];
 
     /*
      * Inicio: esfuerzo planificado inicial.
@@ -227,12 +244,14 @@ if (tipo !== "product-backlog") return;
     const encabezado = tabla.createTHead().insertRow();
 
     [
-      "Sprint",
-      "Horas restantes",
-      "Historias terminadas",
-      "Historias planificadas",
-      "Ideal"
-    ].forEach(texto => {
+    "Sprint",
+    "Horas restantes",
+    "Horas ideales",
+    "Puntos restantes",
+    "Puntos ideales",
+    "Historias terminadas",
+    "Historias planificadas"
+  ].forEach(texto => {
       const th = document.createElement("th");
       th.textContent = texto;
       encabezado.append(th);
@@ -246,9 +265,11 @@ if (tipo !== "product-backlog") return;
       [
         etiqueta,
         restantes[indice],
+        ideales[indice],
+        puntosRestantes[indice],
+        puntosIdeales[indice],
         terminadas[indice],
-        planificadas[indice],
-        ideales[indice]
+        planificadas[indice]
       ].forEach(valor => {
         const celda = fila.insertCell();
 
@@ -272,8 +293,30 @@ if (tipo !== "product-backlog") return;
     aviso.textContent = sprints.some(sprint => sprint.es_prueba)
   ? "Mediciones consultadas desde la BD. Incluye datos de prueba."
   : "Mediciones consultadas desde la BD.";
-    areaDatos.replaceChildren(tabla, aviso);
+    const estimadas = Number(totalesProyecto.horas_estimadas);
+const historiasTotales = Number(totalesProyecto.historias);
+const historiasRegistradas = Number(
+  totalesProyecto.historias_con_horas_reales
+);
+const reales = Number(
+  totalesProyecto.horas_reales_registradas ?? 0
+);
 
+const formato = valor =>
+  valor.toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const resumenHoras = document.createElement("p");
+
+resumenHoras.textContent =
+  `Historias del proyecto: ${historiasTotales}. ` +
+  `Horas estimadas: ${formato(estimadas)}. ` +
+  `Horas reales registradas: ${
+    historiasRegistradas === 0 ? "Sin registro" : formato(reales)
+  } (${historiasRegistradas} de ${historiasTotales} historias con registro).`;
+
+areaDatos.replaceChildren(resumenHoras, tabla, aviso);
     new Chart(canvas, {
       type: "bar",
 
@@ -295,7 +338,7 @@ if (tipo !== "product-backlog") return;
           },
           {
             type: "line",
-            label: "Ideal",
+            label: "Horas Ideales",
             data: ideales,
             borderColor: "#0284c7",
             backgroundColor: "#0284c7",
@@ -305,20 +348,29 @@ if (tipo !== "product-backlog") return;
             order: 0
           },
           {
-            type: "bar",
-            label: "Historias planificadas",
-            data: planificadas,
-            backgroundColor: "#38bdf8",
-            yAxisID: "historias",
-            order: 1
+            type: "line",
+            label: "Puntos restantes",
+            data: puntosRestantes,
+            borderColor: "#9333ea",
+            backgroundColor: "#9333ea",
+            pointStyle: "rectRot",
+            pointRadius: 5,
+            tension: 0,
+            spanGaps: false,
+            yAxisID: "puntos",
+            order: 0
           },
           {
-            type: "bar",
-            label: "Historias terminadas",
-            data: terminadas,
-            backgroundColor: "#86efac",
-            yAxisID: "historias",
-            order: 1
+            type: "line",
+            label: "Puntos ideales",
+            data: puntosIdeales,
+            borderColor: "#f97316",
+            backgroundColor: "#f97316",
+            borderDash: [6, 4],
+            pointRadius: 3,
+            tension: 0,
+            yAxisID: "puntos",
+            order: 0
           }
         ]
       },
@@ -351,11 +403,11 @@ if (tipo !== "product-backlog") return;
             beginAtZero: true,
             title: {
               display: true,
-              text: "Horas calculadas"
+              text: "Horas pendientes"
             }
           },
 
-          historias: {
+          puntos: {
             type: "linear",
             position: "right",
             beginAtZero: true,
@@ -367,7 +419,7 @@ if (tipo !== "product-backlog") return;
             },
             title: {
               display: true,
-              text: "Cantidad de historias"
+              text: "Puntos de historia pendientes"
             }
           }
         }
@@ -378,6 +430,7 @@ if (tipo !== "product-backlog") return;
     areaDatos.textContent = error.message;
   }
 };
+
 async function cargarBurndownSprint() {
   const contenedor =
     document.getElementById("contenedor-grafica-activa");
@@ -456,6 +509,7 @@ async function cargarBurndownSprint() {
     const zonaTabla = document.createElement("div");
     zonaTabla.style.maxHeight = "280px";
     zonaTabla.style.overflowY = "auto";
+    zonaTabla.style.overflowX = "auto";
 
     const aviso = document.createElement("p");
     aviso.textContent =
@@ -482,7 +536,11 @@ async function cargarBurndownSprint() {
         }
 
         const totalInicial = Number(sprint.total_horas);
+        const totalPuntosInicial = Number(sprint.total_puntos);
 
+          if (!Number.isFinite(totalPuntosInicial) || totalPuntosInicial < 0) {
+            throw new Error("Los puntos del sprint no son válidos.");
+          }
         if (!Number.isFinite(totalInicial) || totalInicial < 0) {
           throw new Error("Las horas del sprint no son válidas.");
         }
@@ -536,8 +594,16 @@ async function cargarBurndownSprint() {
         // Ideal: reducción uniforme al cierre de cada día.
        // Ideal: redondeado al entero más cercano.
 const ideales = etiquetas.map((_, indice) =>
-  Math.round(totalInicial * (1 - indice / cantidadDias))
+  Number(
+    (totalInicial * (1 - indice / cantidadDias)).toFixed(2)
+  )
 );
+const puntosIdeales = etiquetas.map((_, indice) =>
+  Number(
+    (totalPuntosInicial * (1 - indice / cantidadDias)).toFixed(2)
+  )
+);
+
 
         /*
          * AVANCES DE PRUEBA POR DÍA.   
@@ -573,7 +639,16 @@ const porFecha = new Map(
     Number(medicion.horas_restantes)
   ])
 );
+const puntosPorFecha = new Map(
+  mediciones.map(medicion => [
+    medicion.fecha,
+    medicion.puntos_restantes == null
+      ? null
+      : Number(medicion.puntos_restantes)
+  ])
+);
 
+const puntosRestantes = [totalPuntosInicial];
 const restantes = [totalInicial];
 const avancesAplicados = [0];
 
@@ -595,6 +670,7 @@ for (let indice = 0; indice < cantidadDias; indice++) {
       : null;
 
   restantes.push(pendiente);
+  puntosRestantes.push(puntosPorFecha.get(fechaISO) ?? null);
   avancesAplicados.push(reduccion);
 }
 
@@ -605,24 +681,41 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
         titulo.textContent =
           `Burndown del Sprint ${sprint.no_iteracion}`;
 
-        detalle.textContent =
-          `Horas iniciales: ${totalInicial}. ` +
-          `Duración: ${cantidadDias} días calendario. ` +
-          `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
+        const formatearHoras = valor =>
+  Number(valor).toLocaleString("es-MX", {
+    maximumFractionDigits: 2
+  });
+
+const horasRealesTexto = sprint.horas_reales_registradas == null
+  ? "Sin registro"
+  : formatearHoras(sprint.horas_reales_registradas);
+
+detalle.textContent =
+  `Horas estimadas: ${formatearHoras(sprint.horas_estimadas)}. ` +
+  `Horas reales registradas: ${horasRealesTexto} ` +
+  `(${sprint.historias_con_horas_reales} de ` +
+  `${sprint.historias_planificadas} historias con registro). ` +
+  `Estimación ajustada para el burndown: ${formatearHoras(totalInicial)} h. ` +
+  `Duración: ${cantidadDias} días calendario. ` +
+  `Del ${fechas[1]} al ${fechas[fechas.length - 1]}.`;
 
         const tabla = document.createElement("table");
         tabla.style.width = "100%";
         tabla.style.borderCollapse = "collapse";
+        tabla.style.fontSize = "13px";
+        areaDatos.style.overflowX = "auto";
 
         const encabezado = tabla.createTHead().insertRow();
 
-        [
-          "Día",
-          "Fecha",
-          "Reducción de pendientes (h)",
-          "Horas restantes",
-          "Ideal"
-        ].forEach(texto => {
+       [
+        "Día",
+        "Fecha",
+        "Reducción de pendientes (h)",
+        "Horas restantes",
+        "Horas ideales",
+        "Puntos restantes",
+        "Puntos ideales"
+      ].forEach(texto => {
           const th = document.createElement("th");
           th.textContent = texto;
           encabezado.append(th);
@@ -632,14 +725,15 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
 
         etiquetas.forEach((etiqueta, indice) => {
           const fila = cuerpo.insertRow();
-
-          [
-            etiqueta,
-            fechas[indice],
-            avancesAplicados[indice],
-            restantes[indice],
-            ideales[indice]
-          ].forEach(valor => {
+           [
+          etiqueta,
+          fechas[indice],
+          avancesAplicados[indice],
+          restantes[indice],
+          ideales[indice],
+          puntosRestantes[indice],
+          puntosIdeales[indice]
+        ].forEach(valor => {
             const celda = fila.insertCell();
 
             celda.textContent =
@@ -647,7 +741,7 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
                     ? "Sin registro"
                     : typeof valor === "number"
                     ? valor.toLocaleString("es-MX", {
-                        maximumFractionDigits: 0
+                        maximumFractionDigits: 2
                         })
                     : valor;
           });
@@ -667,25 +761,50 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
           data: {
             labels: etiquetas,
             datasets: [
-              {
-                label: "Horas restantes",
-                data: restantes,
-                borderColor: "#22c55e",
-                backgroundColor: "#22c55e",
-                pointRadius: 3,
-                tension: 0,
-                fill: false,
-                spanGaps: false
-              },
-              {
-                label: "Ideal",
-                data: ideales,
-                borderColor: "#0284c7",
-                backgroundColor: "#0284c7",
-                pointRadius: 3,
-                tension: 0,
-                fill: false
-              }
+             {
+              label: "Horas restantes",
+              data: restantes,
+              borderColor: "#22c55e",
+              backgroundColor: "#22c55e",
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              spanGaps: false,
+              yAxisID: "horas"
+            },
+            {
+              label: "Horas ideales",
+              data: ideales,
+              borderColor: "#0284c7",
+              backgroundColor: "#0284c7",
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              yAxisID: "horas"
+            },
+            {
+              label: "Puntos restantes",
+              data: puntosRestantes,
+              borderColor: "#9333ea",
+              backgroundColor: "#9333ea",
+              pointStyle: "rectRot",
+              pointRadius: 5,
+              tension: 0,
+              fill: false,
+              spanGaps: false,
+              yAxisID: "puntos"
+            },
+            {
+              label: "Puntos ideales",
+              data: puntosIdeales,
+              borderColor: "#f97316",
+              backgroundColor: "#f97316",
+              borderDash: [6, 4],
+              pointRadius: 3,
+              tension: 0,
+              fill: false,
+              yAxisID: "puntos"
+            }
             ]
           },
 
@@ -710,13 +829,30 @@ aviso.textContent = mediciones.some(m => m.es_prueba)
                   text: "Días del sprint"
                 }
               },
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Horas pendientes"
+              horas: {
+                  type: "linear",
+                  position: "left",
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Horas pendientes"
+                  }
+                },
+                puntos: {
+                  type: "linear",
+                  position: "right",
+                  beginAtZero: true,
+                  ticks: {
+                    precision: 0
+                  },
+                  grid: {
+                    drawOnChartArea: false
+                  },
+                  title: {
+                    display: true,
+                    text: "Puntos de historia pendientes"
+                  }
                 }
-              }
             }
           }
         });
@@ -2044,41 +2180,6 @@ btnLimpiarFiltros.addEventListener("click", () => {
     aplicarFiltros();
 });
 
-async function obtenerDOD(idProyecto) {
-    try {
-        const respuesta = await fetch(`/proyectos/listarDODProyectos/${idProyecto}`,{
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-        // Obtenemos los datos del JSON
-        const datos = await respuesta.json();
-        
-        return datos.dod;
-    } catch (error) {
-        console.error("Error al obtener el DOD: ", error)
-        return null;
-    }
-}
-
-async function cargarDefinicionDeHecho(idProyecto){
-    const dod = await obtenerDOD(idProyecto);
-    
-    const labelDOD = document.getElementById("dodTexto")
-    const btnAdd = document.getElementById("addDOD");
-    const btnEdit = document.getElementById("editDOD");
-
-    if (dod) {
-        labelDOD.textContent = dod;
-        btnAdd.style.display = "none";
-        btnEdit.style.display = "inline-block";
-    } else {
-        labelDOD.textContent = "No hay una definición de hecho registrada.";
-        btnAdd.style.display = "inline-block";
-        btnEdit.style.display = "none";
-    }
-}
 
 //////////////////////////////////////////////////////////////
 // Carga dinámica del modal de planning poker para facilitador
@@ -2227,10 +2328,6 @@ function actualizarUIHistoria(contenedor, data) {
 }
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-
-document.addEventListener("DOMContentLoaded", ()=>{
-    cargarDefinicionDeHecho(JSON.parse(sessionStorage.getItem('usuarioActivo').id));
-})
 
 document.getElementById("btn-storage").addEventListener('click', ()=>{
     console.log("presionado" + sessionStorage.getItem('usuarioActivo'))

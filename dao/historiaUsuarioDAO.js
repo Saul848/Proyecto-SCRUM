@@ -368,37 +368,154 @@ class historiaUsuarioDAO {
      * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
      * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
      */
-    async actualizarEstadoHistoria(idHistoria, idProyecto, nuevoEstado) {
-        try {
-            const query = 'CALL scrumbird.sp_actualizar_estado_historia($1, $2, $3);';
-            await this.pool.query(query, [idHistoria, idProyecto, nuevoEstado]);
-            return { success: true, message: "Estado actualizado correctamente" };
-        } catch (error) {
-            console.error("Error al actualizar el estado de la historia:", error);
-            throw error;
-        }
+    async actualizarEstadoHistoria(
+    idHistoria,
+    idProyecto,
+    nuevoEstado,
+    horasReales = null
+) {
+    const requiereHoras = nuevoEstado === "en-revision";
+
+    if (
+        requiereHoras &&
+        (
+            typeof horasReales !== "number" ||
+            !Number.isFinite(horasReales) ||
+            horasReales < 0 ||
+            horasReales > 99999999.99 ||
+            Math.abs(
+                horasReales * 100 - Math.round(horasReales * 100)
+            ) > 0.000001
+        )
+    ) {
+        const error = new Error(
+            "Ingresa las horas reales totales con máximo dos decimales."
+        );
+        error.status = 400;
+        throw error;
     }
 
-    /**
-     * Actualiza las horas_estimadas de una historia de usuario en la base de datos
-     * 
-     * @async
-     * @function actualizarPuntosHistoria
-     * @param {number} idHistoria - Identificador único de la historia de usuario a actualizar.
-     * @param {number} horas_estimadas - Horas estimadas para asignar a la historia.
-     * @returns {Promise<Object>} Una promesa que resuelve con un objeto indicando el éxito de la operación y un mensaje.
-     * @throws {Error} Lanza un error si falla la ejecución de la consulta en la base de datos.
-     */
-    async actualizarPuntosHistoria(idHistoria, horas_estimadas) {
-        try {
-            const query = 'UPDATE scrumbird.historia_de_usuario SET horas_estimadas = $2 WHERE id = $1;';
-            await this.pool.query(query, [idHistoria, horas_estimadas]);
-            return { success: true, message: "Horas asignadas correctamente" };
-        } catch (error) {
-            console.error("Error al actualizar las horas estimadas de la historia:", error);
+    const cliente = await this.pool.connect();
+
+    try {
+        await cliente.query("BEGIN");
+        // Evitar mediciones inconsistentes si cambian varias historias a la vez.
+        await cliente.query(
+            `SELECT id
+            FROM scrumbird.proyecto
+            WHERE id = $1
+            FOR UPDATE`,
+            [idProyecto]
+        );
+
+        const historia = await cliente.query(
+            `SELECT id
+             FROM scrumbird.historia_de_usuario
+             WHERE id = $1 AND id_proyecto = $2
+             FOR UPDATE`,
+            [idHistoria, idProyecto]
+        );
+
+        if (historia.rows.length === 0) {
+            const error = new Error(
+                "La historia no pertenece al proyecto indicado."
+            );
+            error.status = 404;
             throw error;
         }
+
+        await cliente.query(
+            "CALL scrumbird.sp_actualizar_estado_historia($1, $2, $3)",
+            [idHistoria, idProyecto, nuevoEstado]
+        );
+
+        if (requiereHoras) {
+            await cliente.query(
+                `UPDATE scrumbird.historia_de_usuario
+                 SET horas_reales = $1
+                 WHERE id = $2 AND id_proyecto = $3`,
+                [horasReales, idHistoria, idProyecto]
+            );
+        }
+        // Medición del día: sumar estimaciones de historias aún no terminadas.
+            await cliente.query(
+                `WITH sprint_actual AS (
+                    SELECT s.id
+                    FROM scrumbird.sprint s
+                    JOIN scrumbird.historia_de_usuario h
+                    ON h.asignado_al_sprint = s.id
+                    AND h.id_proyecto = s.id_proyecto
+                    WHERE h.id = $1
+                    AND s.id_proyecto = $2
+                    AND (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')::date
+                        BETWEEN s.fecha_inicio AND s.fecha_fin
+                ),
+                pendientes AS (
+                    SELECT h.horas_calculadas, h.puntos_de_historia
+                    FROM scrumbird.historia_de_usuario h
+                    JOIN sprint_actual s ON s.id = h.asignado_al_sprint
+                    WHERE h.id_proyecto = $2
+                    AND NOT (
+                        EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                                AND t.id_proyecto = h.id_proyecto
+                                AND t.estado = 'terminado'
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                                AND t.id_proyecto = h.id_proyecto
+                                AND t.estado IS DISTINCT FROM 'terminado'
+                        )
+                    )
+                )
+                INSERT INTO scrumbird.burndown_diario (
+                    id_sprint,
+                    fecha,
+                    horas_restantes,
+                    puntos_restantes,
+                    es_prueba
+                )
+                SELECT
+                    s.id,
+                    (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')::date,
+                    COALESCE((SELECT SUM(horas_calculadas) FROM pendientes), 0),
+                    COALESCE((SELECT SUM(puntos_de_historia) FROM pendientes), 0),
+                    false
+                FROM sprint_actual s
+                ON CONFLICT (id_sprint, fecha)
+                DO UPDATE SET
+                    horas_restantes = EXCLUDED.horas_restantes,
+                    puntos_restantes = EXCLUDED.puntos_restantes,
+                    es_prueba = false`,
+                [idHistoria, idProyecto]
+            );
+        await cliente.query("COMMIT");
+
+        return {
+            success: true,
+            message: "Estado actualizado correctamente"
+        };
+    } catch (error) {
+        await cliente.query("ROLLBACK");
+        throw error;
+    } finally {
+        cliente.release();
     }
+}
+
+    async actualizarEstimacionHistoria(idHistoria, { puntos, horas }) {
+    await this.pool.query(
+        `UPDATE scrumbird.historia_de_usuario
+            SET puntos_de_historia = $1,
+                horas_estimadas = $2
+          WHERE id = $3`,
+        [puntos, horas, idHistoria]
+    );
+}
 
 
 }

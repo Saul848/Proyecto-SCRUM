@@ -165,98 +165,156 @@ function convertirRol(rol) {
     return roles[rol] || rol;
 }
 
+let todosLosProyectos = [];
+let filtroActual = "activos";
+
+function proyectosSegunFiltro() {
+    switch (filtroActual) {
+        case "eliminados": return todosLosProyectos.filter(p => p.eliminado);
+        case "todos":      return todosLosProyectos;
+        default:           return todosLosProyectos.filter(p => !p.eliminado);
+    }
+}
+
+function pintarProyectos() {
+    const contenedor = document.querySelector("#mis-proyectos .lista-items");
+    const lista = proyectosSegunFiltro();
+
+    if (lista.length === 0) {
+        const mensajes = {
+            activos: "Sin proyectos aún, ¡prueba a crear uno!",
+            eliminados: "No tienes proyectos eliminados.",
+            todos: "Sin proyectos."
+        };
+        contenedor.innerHTML = `<p>${mensajes[filtroActual]}</p>`;
+        return;
+    }
+
+    contenedor.innerHTML = lista.map(proyecto => {
+        if (proyecto.eliminado) {
+            const puedeRestaurar = proyecto.rol === "Scrum Master";
+            return `
+                <div class="item-card eliminado" data-id="${proyecto.id}">
+                    <span class="item-nombre">${proyecto.nombre}</span>
+                    <span class="badge badge-gris">Eliminado</span>
+                    ${puedeRestaurar
+                        ? `<button type="button" class="btn-restaurar" data-id="${proyecto.id}">Restaurar</button>`
+                        : ""}
+                </div>
+            `;
+        }
+        return `
+            <button class="item-card" data-id="${proyecto.id}">
+                <span class="item-nombre">${proyecto.nombre}</span>
+                <span class="badge badge-azul">${proyecto.rol}</span>
+            </button>
+        `;
+    }).join("");
+}
+
 /**
  * Método para mostrar el panel de proyectos.
  */
 async function mostrarProyectos() {
     mostrarModalP("modal-proyectos");
 
-    const usuarioActivo = JSON.parse(
-        sessionStorage.getItem('usuarioActivo')
-    );
-
+    const usuarioActivo = JSON.parse(sessionStorage.getItem('usuarioActivo'));
     const idUser = usuarioActivo.id;
 
-    const proyectos = await obtenerProyectosDeUsuario(idUser);
+    todosLosProyectos = await obtenerProyectosDeUsuario(idUser);
+    console.log("Proyectos recibidos:", todosLosProyectos);
 
-    console.log("Proyectos recibidos:", proyectos);
+    pintarProyectos();
+}
 
-    const contenedor = document.querySelector(
-        "#mis-proyectos .lista-items"
+document.querySelector("#mis-proyectos .lista-items").addEventListener('click', (evento) => {
+    const tarjetaP = evento.target.closest('.item-card');
+    if (!tarjetaP) return;
+
+    const idProyecto = Number(tarjetaP.dataset.id);
+    console.log(idProyecto);
+
+    const proyectoSeleccionado = todosLosProyectos.find(
+        proyecto => Number(proyecto.id) === idProyecto
     );
 
-    if (proyectos.length === 0) {
-        contenedor.innerHTML =
-            "<p>Sin proyectos aún, ¡prueba a crear uno!</p>";
+    if (!proyectoSeleccionado) {
+        console.error("No se encontró el proyecto seleccionado.");
         return;
     }
-    console.log(proyectos);
 
-    const tarjetasP = proyectos.map(proyecto => `
-        <button class="item-card" data-id="${proyecto.id}">
-            <span class="item-nombre">${proyecto.nombre}</span>
-            <span class="badge badge-azul">${proyecto.rol}</span>
-        </button>
-    `).join("");
+    const botonRestaurar = evento.target.closest('.btn-restaurar');
+    if (botonRestaurar) {
+        const idProyecto = Number(botonRestaurar.dataset.id);
+        restaurarProyecto(idProyecto);
+        return;
+    }
 
-    contenedor.innerHTML = tarjetasP;
+    // Los eliminados no son accesibles
+    if (proyectoSeleccionado.eliminado) return;
 
-    // Evitar agregar el mismo evento repetidamente.
-    contenedor.onclick = (evento) => {
-        const tarjetaP = evento.target.closest('.item-card');
+    const rolOriginal = proyectoSeleccionado.rol;
+    const rolConvertido = convertirRol(rolOriginal);
 
-        if (!tarjetaP) return;
+    sessionStorage.setItem('proyectoActivo', JSON.stringify({
+        id: proyectoSeleccionado.id,
+        nombre: proyectoSeleccionado.nombre,
+        rolOriginal: rolOriginal,
+        rol: rolConvertido
+    }));
 
-        const idProyecto = Number(tarjetaP.dataset.id);
-        console.log(idProyecto)
-        // Encontrar el proyecto seleccionado.
-        const proyectoSeleccionado = proyectos.find(
-            proyecto => Number(proyecto.id) === idProyecto
-        );
+    console.log("Proyecto activo:", JSON.parse(sessionStorage.getItem('proyectoActivo')));
 
-        if (!proyectoSeleccionado) {
-            console.error("No se encontró el proyecto seleccionado.");
-            return;
-        }
+    switch (rolConvertido) {
+        case "facilitador":
+            window.location.href = '/html/PanelFacilitador.html';
+            break;
+        case "desarrollador":
+            window.location.href = '/html/PanelDesarrollador.html';
+            break;
+        case "cliente":
+            window.location.href = '/html/PanelCliente.html';
+            break;
+        default:
+            console.error("Rol no reconocido:", rolOriginal);
+            alert("No se reconoce tu rol en este proyecto.");
+    }
+});
 
-        // Convertir el rol a los nombres de esta implementación.
-        const rolOriginal = proyectoSeleccionado.rol;
-        const rolConvertido = convertirRol(rolOriginal);
+document.getElementById("filtro-proyectos").addEventListener('click', (evento) => {
+    const boton = evento.target.closest('.filtro-btn');
+    if (!boton) return;
 
-        // Guardar el proyecto y el rol en la sesión.
-        sessionStorage.setItem('proyectoActivo', JSON.stringify({
-            id: proyectoSeleccionado.id,
-            nombre: proyectoSeleccionado.nombre,
-            rolOriginal: rolOriginal,
-            rol: rolConvertido
-        }));
+    filtroActual = boton.dataset.filtro;
+    document.querySelectorAll('#filtro-proyectos .filtro-btn')
+        .forEach(b => b.classList.toggle('activo', b === boton));
 
-        console.log(
-            "Proyecto activo:",
-            JSON.parse(sessionStorage.getItem('proyectoActivo'))
-        );
-
-        // Redirigir según el rol.//MODIFICAR A LOS PANELS PROPIOS DE CADA ROL
-        switch (rolConvertido) {
-            case "facilitador":
-                window.location.href = '/html/PanelFacilitador.html';
-                break;
-
-            case "desarrollador":
-                window.location.href = '/html/PanelDesarrollador.html';
-                break;
-
-            case "cliente":
-                window.location.href = '/html/PanelCliente.html';
-                break;
-
-            default:
-                console.error("Rol no reconocido:", rolOriginal);
-                alert("No se reconoce tu rol en este proyecto.");
-        }
-    };
-}
+    pintarProyectos();
+});
 
 document.getElementById("btn-proyectos").addEventListener('click', async () => {
     mostrarProyectos();
 });
+
+async function restaurarProyecto(idProyecto) {
+    try {
+        const respuesta = await fetch(`/proyectos/restaurar/${idProyecto}`, {
+            method: "PUT",
+            headers: { "Accept": "application/json" }
+        });
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok || !resultado.ok) {
+            alert(resultado.mensaje || "No se pudo restaurar el proyecto.");
+            return;
+        }
+
+        // Actualiza la lista en memoria y repinta, sin volver a pedir datos
+        const proyecto = todosLosProyectos.find(p => Number(p.id) === idProyecto);
+        if (proyecto) proyecto.eliminado = false;
+        pintarProyectos();
+    } catch (error) {
+        console.error("Error al restaurar el proyecto:", error);
+        alert("Ocurrió un error de conexión.");
+    }
+}

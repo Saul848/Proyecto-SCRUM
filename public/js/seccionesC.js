@@ -29,6 +29,17 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
     const seccionActualId = Number(progreso.seccion_actual);
     const moduloSeleccionadoId = Number(modulo.id);
 
+    const respuestaModuloActual = await fetch(`/modulos/${moduloActualId}`);
+
+    if (!respuestaModuloActual.ok) {
+      throw new Error("No se pudo consultar el módulo actual.");
+    }
+
+    const moduloActual = await respuestaModuloActual.json();
+
+    const ordenActual = Number(moduloActual.numero_modulo);
+    const ordenSeleccionado = Number(modulo.numero_modulo);
+
     // Buscar si la sección actual está dentro de este módulo
     const seccionActualEnModulo = secciones.find(
       (elem) => Number(elem.id) === seccionActualId
@@ -56,34 +67,24 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
 
       if (progreso.guia_terminada === true) {
         estado = "hecho";
-      } else if (moduloSeleccionadoId < moduloActualId) {
-        // Si el usuario ya avanzó a un módulo posterior, las secciones de módulos anteriores están hechas
+      } else if (ordenSeleccionado < ordenActual) {
         estado = "hecho";
       } else if (moduloSeleccionadoId === moduloActualId) {
-        const seccionId = Number(seccion.id);
-
-        if (seccionId === seccionActualId) {
-          estado = "iniciar";
-        } else if (seccionActualEnModulo) {
-          // Si encontramos la sección actual en este módulo, las anteriores por numero_seccion están hechas
-          if (Number(seccion.numero_seccion) < Number(seccionActualEnModulo.numero_seccion)) {
-            estado = "hecho";
-          } else {
-            estado = "pendiente";
-          }
-        } else {
-          // Respaldo por ID si seccion_actual no coincidió por numero_seccion
-          if (seccionId < seccionActualId) {
-            estado = "hecho";
-          } else {
-            estado = "pendiente";
-          }
+        if (!seccionActualEnModulo) {
+          throw new Error(
+            "El progreso es inconsistente: la sección actual no pertenece al módulo."
+          );
         }
-      } else {
-        // Módulo futuro respecto a modulo_actual
-        estado = "pendiente";
-      }
 
+        if (Number(seccion.id) === seccionActualId) {
+          estado = "iniciar";
+        } else if (
+          Number(seccion.numero_seccion) <
+          Number(seccionActualEnModulo.numero_seccion)
+        ) {
+          estado = "hecho";
+        }
+      }
       boton.className = `estado-btn ${estado}`;
       boton.disabled = estado === "pendiente";
 
@@ -98,6 +99,14 @@ async function cargarSeccionesCapacitacion(modulo, contenedor) {
           abrirSeccionIntroScrum(modulo, seccion);
         } else if (Number(modulo.numero_modulo) === 2) {
           abrirSeccionHerramientas(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 3) {
+          abrirSeccionReuniones(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 5) {
+          abrirSeccionModulo5(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 6) {
+          abrirSeccionModulo6(modulo, seccion);
+        } else if (Number(modulo.numero_modulo) === 7) {
+          abrirSeccionModulo7(modulo, seccion);
         } else {
           alert("El lector de este módulo aún no está configurado en la interfaz.");
         }
@@ -306,6 +315,52 @@ async function abrirSeccionIntroScrum(modulo, seccion) {
   });
 }
 
+async function abrirSeccionModulo5(modulo, seccion) {
+  const plantillasModulo5 = {
+    1: "guia-pantallas-y-secciones"
+  };
+
+  const idPlantilla = plantillasModulo5[Number(seccion.numero_seccion)];
+  console.log(idPlantilla);
+  const plantilla = idPlantilla ? document.getElementById(idPlantilla) : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  let progresoActual;
+  try {
+    progresoActual = await consultarProgresoCapacitacion();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
+  const puedeTerminar =
+    !progresoActual.guia_terminada &&
+    Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+    Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+  paginarPlantillaCapacitacion({
+    modulo,
+    seccion,
+    plantilla,
+    progresoActual,
+    puedeTerminar,
+    ids: {
+      dialogId: "lector-modulo-5",
+      tituloId: "lector-modulo-5-titulo",
+      paginaId: "pagina-modulo-5",
+      contadorId: "contador-paginas-modulo-5",
+      anteriorId: "pagina-anterior-modulo-5",
+      siguienteId: "pagina-siguiente-modulo-5",
+      cerrarId: "cerrar-lector-modulo-5",
+      terminarId: "terminar-seccion-modulo-5"
+    }
+  });
+}
+
 function paginarPlantillaCapacitacion({
   modulo,
   seccion,
@@ -415,3 +470,235 @@ function paginarPlantillaCapacitacion({
     lector.showModal();
   }
 }
+
+async function abrirSeccionReuniones(modulo, seccion) {
+  const plantillas = {
+    1: "sprint-planning",
+    2: "daily-meeting",
+    3: "sprint-review",
+    4: "retrospectiva"
+  };
+
+  const idPlantilla = plantillas[Number(seccion.numero_seccion)];
+  const plantilla = idPlantilla
+    ? document.getElementById(idPlantilla)
+    : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  try {
+    const progresoActual = await consultarProgresoCapacitacion();
+
+    const puedeTerminar =
+      !progresoActual.guia_terminada &&
+      Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+      Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+    paginarPlantillaCapacitacion({
+      modulo,
+      seccion,
+      plantilla,
+      progresoActual,
+      puedeTerminar,
+      ids: {
+        dialogId: "lector-reuniones",
+        tituloId: "lector-reuniones-titulo",
+        paginaId: "pagina-reuniones",
+        contadorId: "contador-paginas-reuniones",
+        anteriorId: "pagina-anterior-reuniones",
+        siguienteId: "pagina-siguiente-reuniones",
+        cerrarId: "cerrar-lector-reuniones-scrum",
+        terminarId: "terminar-seccion-reuniones"
+      }
+    });
+  } catch (error) {
+    console.error("Error abriendo la sección de reuniones:", error);
+    alert(error.message);
+  }
+}
+async function calcularProgresoModulos(modulos) {
+  const progreso = await consultarProgresoCapacitacion();
+
+  const moduloActual = modulos.find(
+    modulo => Number(modulo.id) === Number(progreso.modulo_actual)
+  );
+
+  if (!moduloActual) {
+    throw new Error("No se encontró el módulo actual del usuario.");
+  }
+
+  const resultados = await Promise.all(
+    modulos.map(async modulo => {
+      const respuesta = await fetch(`/secciones/modulo/${modulo.id}`);
+
+      if (!respuesta.ok) {
+        throw new Error(
+          `No se pudieron consultar las secciones del módulo ${modulo.numero_modulo}.`
+        );
+      }
+
+      const secciones = await respuesta.json();
+
+      if (!Array.isArray(secciones)) {
+        throw new Error("La respuesta de secciones no es válida.");
+      }
+
+      const total = secciones.length;
+      let terminadas = 0;
+      let estado = "Pendiente";
+
+      if (total === 0) {
+        return {
+          id: Number(modulo.id),
+          estado: "Sin contenido",
+          porcentaje: null,
+          terminadas: 0,
+          total: 0
+        };
+      }
+
+      if (
+        progreso.guia_terminada === true ||
+        Number(modulo.numero_modulo) <
+          Number(moduloActual.numero_modulo)
+      ) {
+        terminadas = total;
+        estado = "Concluido";
+      } else if (
+        Number(modulo.id) === Number(progreso.modulo_actual)
+      ) {
+        const seccionActual = secciones.find(
+          seccion =>
+            Number(seccion.id) === Number(progreso.seccion_actual)
+        );
+
+        if (!seccionActual) {
+          throw new Error(
+            "La sección actual no pertenece al módulo del usuario."
+          );
+        }
+
+        terminadas = secciones.filter(
+          seccion =>
+            Number(seccion.numero_seccion) <
+            Number(seccionActual.numero_seccion)
+        ).length;
+
+        estado = "En progreso";
+      }
+
+      return {
+        id: Number(modulo.id),
+        estado,
+        porcentaje: Math.round((terminadas / total) * 100),
+        terminadas,
+        total
+      };
+    })
+  );
+
+  return resultados;
+}
+
+async function abrirSeccionModulo6(modulo, seccion) {
+  // Nuestro módulo solamente tiene la sección 1: Tutorial.
+  const plantillasModulo6 = {
+    1: "tutorial-desarrollador"
+  };
+
+  const idPlantilla =
+    plantillasModulo6[Number(seccion.numero_seccion)];
+
+  const plantilla = idPlantilla
+    ? document.getElementById(idPlantilla)
+    : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  let progresoActual;
+
+  try {
+    progresoActual = await consultarProgresoCapacitacion();
+  } catch (error) {
+    console.error("Error consultando el progreso:", error);
+    alert(error.message);
+    return;
+  }
+
+  // Solamente se puede terminar la sección actual.
+  const puedeTerminar =
+    !progresoActual.guia_terminada &&
+    Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+    Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+  // Reutilizamos el lector genérico de capacitación.
+  paginarPlantillaCapacitacion({
+    modulo,
+    seccion,
+    plantilla,
+    progresoActual,
+    puedeTerminar,
+    ids: {
+      dialogId: "lector-modulo-6",
+      tituloId: "lector-modulo-6-titulo",
+      paginaId: "pagina-modulo-6",
+      contadorId: "contador-paginas-modulo-6",
+      anteriorId: "pagina-anterior-modulo-6",
+      siguienteId: "pagina-siguiente-modulo-6",
+      cerrarId: "cerrar-lector-modulo-6",
+      terminarId: "terminar-seccion-modulo-6"
+    }
+  });
+}
+async function abrirSeccionModulo7(modulo, seccion) {
+  const plantillas = {
+    1: "cliente-guia-panel"
+  };
+
+  const idPlantilla = plantillas[Number(seccion.numero_seccion)];
+  const plantilla = idPlantilla
+    ? document.getElementById(idPlantilla)
+    : null;
+
+  if (!plantilla) {
+    alert("El contenido de esta sección todavía está pendiente.");
+    return;
+  }
+
+  try {
+    const progresoActual = await consultarProgresoCapacitacion();
+
+    const puedeTerminar =
+      !progresoActual.guia_terminada &&
+      Number(progresoActual.modulo_actual) === Number(modulo.id) &&
+      Number(progresoActual.seccion_actual) === Number(seccion.id);
+
+    paginarPlantillaCapacitacion({
+      modulo,
+      seccion,
+      plantilla,
+      progresoActual,
+      puedeTerminar,
+      ids: {
+        dialogId: "lector-modulo-7",
+        tituloId: "lector-modulo-7-titulo",
+        paginaId: "pagina-modulo-7",
+        contadorId: "contador-paginas-modulo-7",
+        anteriorId: "pagina-anterior-modulo-7",
+        siguienteId: "pagina-siguiente-modulo-7",
+        cerrarId: "cerrar-lector-modulo-7",
+        terminarId: "terminar-seccion-modulo-7"
+      }
+    });
+  } catch (error) {
+    console.error("Error abriendo el tutorial del Cliente:", error);
+    alert(error.message);
+  }
+}
+

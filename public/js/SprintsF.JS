@@ -91,6 +91,17 @@ async function renderizarSprints() {
                 <label>${fechaFin}</label>
                 <div class="div-acciones-sprint" style="display: flex; gap: 6px; justify-content: center;">
                     <button type="button" class="btn-toggle-sprint" title="Ver historias asignadas" onclick="toggleDetalleSprint(${sprintId})" style="background:#0d8bf2; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">📖</button>
+                    ${estado !== "terminado" ? `
+                <button
+                    type="button"
+                    class="btn-accion-sprint"
+                    title="Cerrar sprint y registrar pendiente"
+                    onclick="cerrarSprintDesdePanel(${sprintId}, this)"
+                    style="background:#176b45; color:#fff; border:none;
+                        padding:6px 10px; border-radius:6px; cursor:pointer;">
+                    Cerrar
+                </button>
+` : ""}
                     <button type="button" class="btn-accion-sprint" title="Eliminar Sprint" onclick="confirmarEliminarSprint(${sprintId})" style="background:#ff4444; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
                 </div>
             `;

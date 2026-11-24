@@ -251,6 +251,117 @@ class sprintsDAO {
         );
         return rows[0] || null;
     }
+    async cerrarSprint(idSprint, idProyecto) {
+    const client = await this.pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        // Mismo bloqueo utilizado al actualizar historias.
+        await client.query(
+            `SELECT id FROM scrumbird.proyecto
+             WHERE id = $1 FOR UPDATE`,
+            [idProyecto]
+        );
+
+        const sprint = await client.query(
+            `SELECT id, estado
+             FROM scrumbird.sprint
+             WHERE id = $1 AND id_proyecto = $2
+             FOR UPDATE`,
+            [idSprint, idProyecto]
+        );
+
+        if (!sprint.rows.length) {
+            const error = new Error("No se encontró el sprint.");
+            error.status = 404;
+            throw error;
+        }
+
+        const cierreExistente = await client.query(
+            `SELECT id_sprint
+             FROM scrumbird.burndown_cierre
+             WHERE id_sprint = $1`,
+            [idSprint]
+        );
+
+        if (
+            sprint.rows[0].estado === "terminado" ||
+            cierreExistente.rows.length > 0
+        ) {
+            const error = new Error(
+                "El sprint ya está terminado o tiene un cierre registrado."
+            );
+            error.status = 409;
+            throw error;
+        }
+
+        // Una historia está terminada si todas sus asignaciones lo están.
+        const medicion = await client.query(
+            `WITH historias AS (
+                SELECT
+                    h.*,
+                    (
+                        EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                              AND t.id_proyecto = h.id_proyecto
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM scrumbird.trabajando_en_historia t
+                            WHERE t.historia_asignada = h.id
+                              AND t.id_proyecto = h.id_proyecto
+                              AND t.estado IS DISTINCT FROM 'terminado'
+                        )
+                    ) AS terminada
+                FROM scrumbird.historia_de_usuario h
+                WHERE h.id_proyecto = $2
+            )
+            INSERT INTO scrumbird.burndown_cierre (
+                id_sprint,
+                horas_restantes,
+                puntos_restantes,
+                historias_terminadas,
+                es_prueba
+            )
+            SELECT
+                $1,
+                COALESCE(SUM(horas_calculadas)
+                    FILTER (WHERE NOT terminada), 0),
+                COALESCE(SUM(puntos_de_historia)
+                    FILTER (WHERE NOT terminada), 0),
+                COUNT(*) FILTER (
+                    WHERE terminada AND asignado_al_sprint = $1
+                )::integer,
+                false
+            FROM historias
+            RETURNING *`,
+            [idSprint, idProyecto]
+        );
+
+        await client.query(
+            `UPDATE scrumbird.sprint
+             SET estado = 'terminado'
+             WHERE id = $1 AND id_proyecto = $2`,
+            [idSprint, idProyecto]
+        );
+
+        await client.query("COMMIT");
+
+        return {
+            ok: true,
+            mensaje: "Sprint cerrado y medición registrada.",
+            data: medicion.rows[0]
+        };
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+}
 }
 
 module.exports = sprintsDAO;

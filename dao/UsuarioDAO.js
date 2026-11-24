@@ -113,30 +113,42 @@ class UsuarioDAO {
 
     return rows[0] || null;
     }
+    async actualizarModuloCapacitacion(nuevoModulo, idUsuario) {
+      const { rows } = await this.pool.query(
+        `UPDATE scrumbird.progreso_capacitacion AS p
+        SET modulo_actual = primera.id_modulo,
+            seccion_actual = primera.id,
+            guia_terminada = false
+        FROM (
+          SELECT id, id_modulo
+          FROM scrumbird.secciones
+          WHERE id_modulo = $1
+          ORDER BY numero_seccion, id
+          LIMIT 1
+        ) AS primera
+        WHERE p.id_usuario = $2
+        RETURNING p.*`,
+        [nuevoModulo, idUsuario]
+      );
 
-    async actualizarModuloCapacitacion(new_modulo_actual, id_usuario) {
+      return rows[0] || null;
+    }
+
+  async actualizarSeccionCapacitacion(nuevaSeccion, idUsuario) {
     const { rows } = await this.pool.query(
-        `UPDATE scrumbird.progreso_capacitacion
-        SET modulo_actual = $1
-        WHERE id_usuario = $2
-        RETURNING id_usuario, modulo_actual, seccion_actual, guia_terminada`,
-        [new_modulo_actual, id_usuario]
+      `UPDATE scrumbird.progreso_capacitacion AS p
+      SET seccion_actual = s.id,
+          guia_terminada = false
+      FROM scrumbird.secciones AS s
+      WHERE p.id_usuario = $2
+        AND s.id = $1
+        AND s.id_modulo = p.modulo_actual
+      RETURNING p.*`,
+      [nuevaSeccion, idUsuario]
     );
 
     return rows[0] || null;
-    }
-
-    async actualizarSeccionCapacitacion(new_seccion_actual, id_usuario) {
-    const { rows } = await this.pool.query(
-        `UPDATE scrumbird.progreso_capacitacion
-        SET seccion_actual = $1
-        WHERE id_usuario = $2
-        RETURNING id_usuario, modulo_actual, seccion_actual, guia_terminada`,
-        [new_seccion_actual, id_usuario]
-    );
-
-    return rows[0] || null;
-    }
+  }
     async terminarSeccionCapacitacion(idUsuario, idSeccion) {
   const cliente = await this.pool.connect();
 
