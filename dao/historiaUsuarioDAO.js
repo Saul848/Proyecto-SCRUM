@@ -36,11 +36,16 @@ class historiaUsuarioDAO {
                 t_historias.nombre, 
                 t_historias.descripcion, 
                 t_historias.valor,
-                t_historias.horas_estimadas, 
-                t_historias.asignado_al_sprint, 
+                t_historias.horas_estimadas,
+                t_historias.pendiente,
+                t_historias.asignado_al_sprint,
+                t_historias.puntos_de_historia,
+                t_epicas.nombre AS epica_asignada,
+                t_trabajando.estado, 
                 t_criterios.id AS id_criterio, 
-                t_criterios.numero_de_criterio, 
+                t_criterios.numero_de_criterio,
                 t_criterios.criterios_de_aceptacion
+                
             FROM 
                 scrumbird.historia_de_usuario t_historias
             LEFT JOIN 
@@ -50,6 +55,14 @@ class historiaUsuarioDAO {
                 scrumbird.criterios_de_aceptacion t_criterios 
                 ON t_historias.id = t_criterios.id_historia 
                 AND t_historias.id_proyecto = t_criterios.id_proyecto
+            LEFT JOIN 
+                scrumbird.trabajando_en_historia t_trabajando
+                ON t_historias.id = t_trabajando.historia_asignada
+                AND t_historias.id_proyecto = t_trabajando.id_proyecto
+            LEFT JOIN 
+                scrumbird.epicas t_epicas
+                ON t_historias.epica_asignada = t_epicas.id
+                AND t_historias.id_proyecto = t_epicas.id_proyecto
             WHERE 
                 t_historias.id_proyecto = $1
             ORDER BY 
@@ -84,8 +97,12 @@ class historiaUsuarioDAO {
                         descripcion: row.descripcion,
                         valor: row.valor,
                         horas: row.horas_estimadas,
+                        pendiente: row.pendiente,
                         asignado_al_sprint: row.asignado_al_sprint,
                         no_iteracion: row.no_iteracion,
+                        estado: row.estado,
+                        puntos_de_historia: row.puntos_de_historia,
+                        epica_asignada: row.epica_asignada,                       
                         criterios: [] // Arreglo para los criterios de esta historia
                     };
                 }
@@ -124,32 +141,40 @@ class historiaUsuarioDAO {
         return rows [0] || null;
     }
 
-    /**
+/**
      * Funcion para guardar una nueva historia de usuario con criterios de aceptacion en el sistema mediante una transaccion
      * @param {nombre} String Nombre de la historia de usuario
      * @param {descripcion} String Descripcion de la historia de usuario 
      * @param {criterios} Array Criterios de aceptacion de la historia de usuario 
      * @param {valor} Int Valor de la historia de usuario
-     * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario  
+     * @param {idEpica} Int Id de la epica asiganada a la historia
+     * @param {puntos_de_historia} Int puntos de historia asignados a la historia. 
+     * @param {idProyecto} Int Id del proyecto donde se agrega la historia de usuario 
      * @returns {respuesta} Respuesta de la transaccion
      */
-    async agregarHistoria({nombre, descripcion, criterios, valor, horas, idProyecto }){
+    async agregarHistoria({nombre, descripcion, criterios, valor, horas, puntos_de_historia, puntosDeHistoria, idEpica, idProyecto}){
         //Encontrar un cliente exclusivo del pool de conexiones
         const client = await this.pool.connect();
         try {
+            const rawPuntosAdd = puntos_de_historia ?? puntosDeHistoria ?? 0;
+            const puntosFinalesAdd = Number.isInteger(Number(rawPuntosAdd)) && Number(rawPuntosAdd) >= 0 ? Number(rawPuntosAdd) : 0;
+
             //Empezar la transaccion
             await client.query('BEGIN');
+            //Se preprara la linea de insercion de la historia
             const insercionHistoria = 
-                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, id_proyecto) 
-                VALUES ($1, $2, $3, $4, $5)
+                `INSERT INTO scrumbird.historia_de_usuario (nombre, descripcion, valor, horas_estimadas, puntos_de_historia, epica_asignada, id_proyecto) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING id;
              `;
-            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, idProyecto]);
+            //Ejecutamos la linea de inscercion
+            const resultadoHistoria = await client.query(insercionHistoria, [nombre, descripcion, valor, horas, puntosFinalesAdd, idEpica, idProyecto]);
+            //Recuperamos el id
             const idGenerado = resultadoHistoria.rows[0].id;
-
+            //Se define la linea de insercion de los criterios d aceptacion
             const insercionCriterio = `INSERT INTO scrumbird.criterios_de_aceptacion (numero_de_criterio, criterios_de_aceptacion, id_historia, id_proyecto)
             VALUES ($1, $2, $3, $4);`;
-            let numeroCriteriosInsertados;
+
             criterios.forEach((element, index) => {
                 const resultadoCriterio = client.query(insercionCriterio, [index + 1, element.criterio, idGenerado, idProyecto])
             });
@@ -192,16 +217,19 @@ class historiaUsuarioDAO {
         }
     }
 
-    /**
+   /**
      * Metodo para modificar una historia de usuario y actualizar sus criterios de aceptacion mediante una transaccion
      * @param {number} idHistoria - Id de la historia de usuario a modificar
      * @param {number} idProyecto - Id del proyecto al que pertenece la historia
      * @param {Object} datos - Objeto con nombre, descripcion, criterios, valor y horas actualizadas
      * @returns {Promise<Object>} Objeto con estado ok y mensaje compatible con el controlador
      */
-    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas }) {
+    async modificarHistoria(idHistoria, idProyecto, { nombre, descripcion, criterios, valor, horas, puntos_de_historia, puntosDeHistoria, idEpica }) {
         const client = await this.pool.connect();
         try {
+            const rawPuntosMod = puntos_de_historia ?? puntosDeHistoria ?? 0;
+            const puntosFinalesMod = Number.isInteger(Number(rawPuntosMod)) && Number(rawPuntosMod) >= 0 ? Number(rawPuntosMod) : 0;
+
             // Iniciar la transaccion
             await client.query('BEGIN');
 
@@ -211,16 +239,20 @@ class historiaUsuarioDAO {
                 SET nombre = $1, 
                     descripcion = $2, 
                     valor = $3, 
-                    horas_estimadas = $4
-                WHERE id = $5 AND id_proyecto = $6;
+                    horas_estimadas = $4,
+                    puntos_de_historia = $5,
+                    epica_asignada = $6
+                WHERE id = $7 AND id_proyecto = $8;
             `;
             const resultadoHistoria = await client.query(actualizacionHistoria, [
                 nombre,
                 descripcion,
                 valor,
                 horas,
+                puntosFinalesMod, 
+                idEpica,
                 idHistoria,
-                idProyecto
+                idProyecto,
             ]);
 
             if (resultadoHistoria.rowCount === 0) {

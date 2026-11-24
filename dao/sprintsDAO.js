@@ -28,6 +28,7 @@ class sprintsDAO {
                 h.descripcion AS historia_descripcion,
                 h.valor,
                 COALESCE(h.horas_estimadas, 0) AS horas_estimadas,
+                h.pendiente,
                 s_asignado.no_iteracion AS sprint_asignado_num,
                 ca.id AS id_criterio,
                 ca.numero_de_criterio,
@@ -70,6 +71,7 @@ class sprintsDAO {
                             criteriosAceptacion: [],
                             Valor: row.valor || 0,
                             horasEstimadas: row.horas_estimadas || 0,
+                            pendiente: row.pendiente || false,
                             SprintAsignado: row.sprint_asignado_num ? `Sprint ${row.sprint_asignado_num}` : "Sin asignar"
                         };
                         acc[row.sprint_id].historiasAsignadas.push(historia);
@@ -95,6 +97,21 @@ class sprintsDAO {
             console.error("Error al obtener los sprints con sus historias:", error);
             throw error;
         }
+    }
+
+    /**
+     * Metodo para actualizar un nuevo sprint
+     * @param {*} idSprint Id del sprint a modificar
+     * @param {*} idProyecto Id del proyecto donde se encuntra el sprint
+     * @param {*} nuevoEstado Nuevo estado del sprint
+     * @returns Lista de objetos Sprints
+     */
+    async actualizarEstadoSprint(idSprint, idProyecto, nuevoEstado) {
+        const { rows } = await this.pool.query(
+            'UPDATE scrumbird.sprint SET estado = $1 WHERE id = $2 AND id_proyecto = $3 RETURNING *;',
+            [nuevoEstado, idSprint, idProyecto]
+        );
+        return rows[0];
     }
 
     /**

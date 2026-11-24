@@ -2,22 +2,40 @@
 // GESTIÓN DE SPRINTS - CRUD COMPLETO Y LÓGICA DE PANELES
 // ==========================================================
 
+// Variable global para almacenar la lista de sprints recuperada de la base de datos
 let datosSprints = [];
 let idSprintSeleccionado = null;
 let sprintSeleccionadoFilaDOM = null;
 
-// Patrón para validar objetivos (letras de la a a la z, ñ y acentos)
-let patronObjetivoSprint= /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\x20]+$/;
+// Patrón regular para validar objetivos (admite letras de la a a la z, ñ y acentos)
+let patronObjetivoSprint = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\x20]+$/;
 
 // Ejecución inicial al cargar el DOM del panel de gestión
 document.addEventListener("DOMContentLoaded", async () => {
+    configurarEventosBotonesEstado();
     if (document.getElementById("DivSprint")) {
         await renderizarSprints();
     }
 });
 
 /**
- * Método renderizarSprints: Obtiene la lista de sprints de la BD,
+ * Configura los eventos de clic para los botones estáticos de Iniciar y Terminar Sprint.
+ */
+function configurarEventosBotonesEstado() {
+    const btnIniciar = document.getElementById("btnIniciarSprint");
+    const btnTerminar = document.getElementById("btnTerminarSprint");
+
+    if (btnIniciar) {
+        btnIniciar.onclick = () => cambiarEstadoSprintSeleccionado('en progreso');
+    }
+
+    if (btnTerminar) {
+        btnTerminar.onclick = () => cambiarEstadoSprintSeleccionado('terminado');
+    }
+}
+
+/**
+ * Obtiene la lista de sprints de la base de datos,
  * los ordena por número de sprint y construye las filas con su respectiva sección desplegable.
  */
 async function renderizarSprints() {
@@ -37,19 +55,17 @@ async function renderizarSprints() {
         }
 
         datosSprints = resultado.data || resultado.datos || [];
-        
-        // Ordenar estrictamente por número de Sprint (NoSprint / no_iteracion)
         datosSprints.sort((a, b) => Number(a.NoSprint || a.no_iteracion || 0) - Number(b.NoSprint || b.no_iteracion || 0));
 
         contenedorSprints.innerHTML = "";
 
         if (datosSprints.length === 0) {
             contenedorSprints.innerHTML = `<p style="text-align: center; padding: 20px; color: #64748b;">No hay sprints registrados en este proyecto.</p>`;
+            actualizarVisibilidadBotonesEstado(null);
             return;
         }
 
         datosSprints.forEach(sprint => {
-            // Leer correctamente las propiedades con mayúsculas que devuelve el DAO
             const sprintId = sprint.Id || sprint.id || sprint.id_sprint;
             const noSprint = sprint.NoSprint || sprint.no_iteracion;
             const objetivo = sprint.objetivo || sprint.objetivo_sprint;
@@ -58,12 +74,10 @@ async function renderizarSprints() {
             const fechaFin = sprint.fechaFin || sprint.fecha_fin;
             const historiasAsignadas = sprint.historiasAsignadas || sprint.historias || [];
 
-            // Contenedor principal de la fila del sprint
             const filaSprint = document.createElement("div");
             filaSprint.className = "DivFilaSprint";
-            filaSprint.id = `DivFilaSprint_${sprintId}`; // ID único por cada sprint real
+            filaSprint.id = `DivFilaSprint_${sprintId}`;
 
-            // Listener para seleccionar la fila de Sprint
             filaSprint.addEventListener("click", (e) => {
                 if (e.target.closest('.btn-toggle-sprint') || e.target.closest('.btn-accion-sprint')) return;
                 seleccionarFilaSprint(sprintId, filaSprint);
@@ -72,7 +86,7 @@ async function renderizarSprints() {
             filaSprint.innerHTML = `
                 <label>${noSprint}</label>
                 <label>${objetivo}</label>
-                <label>${estado}</label>
+                <label><span style="padding: 2px 8px; border-radius: 4px; background: ${estado === 'en progreso' ? '#10b981' : estado === 'terminado' ? '#64748b' : '#3b82f6'}; color: #fff; font-size: 11px;">${estado}</span></label>
                 <label>${fechaInicio}</label>
                 <label>${fechaFin}</label>
                 <div class="div-acciones-sprint" style="display: flex; gap: 6px; justify-content: center;">
@@ -93,17 +107,10 @@ async function renderizarSprints() {
             `;
             contenedorSprints.appendChild(filaSprint);
 
-            // Sección desplegable debajo de la fila con la tabla de historias asignadas
             const seccionDetalle = document.createElement("div");
             seccionDetalle.id = `detalleSprint_${sprintId}`;
             seccionDetalle.className = "seccion-detalle-sprint-desplegada";
-            seccionDetalle.style.display = "none";
-            seccionDetalle.style.gridColumn = "1 / -1";
-            seccionDetalle.style.padding = "12px";
-            seccionDetalle.style.backgroundColor = "#f1f5f9";
-            seccionDetalle.style.borderRadius = "8px";
-            seccionDetalle.style.marginTop = "4px";
-            seccionDetalle.style.marginBottom = "8px";
+            seccionDetalle.style.cssText = "display: none; grid-column: 1 / -1; padding: 12px; background: #f1f5f9; border-radius: 8px; margin-top: 4px; margin-bottom: 8px;";
 
             let htmlHistoriasAsignadas = `
                 <h4 style="margin-bottom: 8px; color: #1e293b; font-size: 13px;">Historias de Usuario Asignadas al Sprint ${noSprint}</h4>
@@ -114,28 +121,30 @@ async function renderizarSprints() {
                             <th style="padding: 6px 8px;">Descripción</th>
                             <th style="padding: 6px 8px;">Valor</th>
                             <th style="padding: 6px 8px;">Horas Est.</th>
+                            <th style="padding: 6px 8px;">Estado</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             if (historiasAsignadas.length === 0) {
-                htmlHistoriasAsignadas += `<tr><td colspan="4" style="padding: 8px; text-align: center; color: #64748b; font-size: 12px;">Sin historias asignadas.</td></tr>`;
+                htmlHistoriasAsignadas += `<tr><td colspan="5" style="padding: 8px; text-align: center; color: #64748b; font-size: 12px;">Sin historias asignadas.</td></tr>`;
             } else {
                 historiasAsignadas.forEach(hist => {
+                    const esPendiente = hist.pendiente;
                     htmlHistoriasAsignadas += `
-                        <tr style="border-bottom: 1px solid #cbd5e1; font-size: 12px;">
+                        <tr style="border-bottom: 1px solid #cbd5e1; font-size: 12px; ${esPendiente ? 'background-color: #ffedd5;' : ''}">
                             <td style="padding: 6px 8px;">${hist.NoHistoria || hist.numeroDeHistoria || hist.id}</td>
                             <td style="padding: 6px 8px;">${hist.Descripccion || hist.descripcion || hist.nombre}</td>
                             <td style="padding: 6px 8px;">${hist.Valor || hist.valor || 0}</td>
                             <td style="padding: 6px 8px;">${hist.horasEstimadas || hist.horas || 0}</td>
+                            <td style="padding: 6px 8px;">${esPendiente ? '<span style="color: #c2410c; font-weight: bold;">pendiente</span>' : 'normal'}</td>
                         </tr>
                     `;
                 });
             }
             htmlHistoriasAsignadas += `</tbody></table>`;
             seccionDetalle.innerHTML = htmlHistoriasAsignadas;
-
             contenedorSprints.appendChild(seccionDetalle);
         });
 
@@ -145,7 +154,7 @@ async function renderizarSprints() {
 }
 
 /**
- * Método para desplegar/contraer la sección de historias asignadas debajo de la fila del sprint
+ * Despliega o contrae la sección de historias asignadas debajo de la fila del sprint correspondiente.
  */
 function toggleDetalleSprint(sprintId) {
     const detalle = document.getElementById(`detalleSprint_${sprintId}`);
@@ -155,17 +164,136 @@ function toggleDetalleSprint(sprintId) {
 }
 
 /**
- * Listener para seleccionar una fila de Sprint
+ * Selecciona una fila de sprint en el DOM, actualiza su estilo visual y gestiona la visibilidad de los botones de estado.
  */
 function seleccionarFilaSprint(sprintId, elementoFila) {
     if (sprintSeleccionadoFilaDOM) {
         sprintSeleccionadoFilaDOM.style.backgroundColor = "";
-        sprintSeleccionadoFilaDOM.style.color = ""; // Restablece el color de texto al deseleccionar
+        sprintSeleccionadoFilaDOM.style.color = "";
     }
     idSprintSeleccionado = sprintId;
     sprintSeleccionadoFilaDOM = elementoFila;
     sprintSeleccionadoFilaDOM.style.setProperty('background-color', '#3b82f6', 'important');
     sprintSeleccionadoFilaDOM.style.color = "#fff";
+
+    const sprintObj = datosSprints.find(s => Number(s.Id || s.id || s.id_sprint) === Number(sprintId));
+    actualizarVisibilidadBotonesEstado(sprintObj ? sprintObj.estado : null);
+}
+
+/**
+ * Controla la visibilidad dinámica de los botones "Iniciar Sprint" y "Terminar Sprint"
+ * según el estado actual del sprint seleccionado.
+ */
+function actualizarVisibilidadBotonesEstado(estadoSprint) {
+    const btnIniciar = document.getElementById("btnIniciarSprint");
+    const btnTerminar = document.getElementById("btnTerminarSprint");
+
+    if (!btnIniciar || !btnTerminar) return;
+
+    if (!idSprintSeleccionado || !estadoSprint) {
+        btnIniciar.style.display = "none";
+        btnTerminar.style.display = "none";
+        return;
+    }
+
+    if (estadoSprint === 'planeado') {
+        btnIniciar.style.display = "inline-block";
+        btnTerminar.style.display = "none";
+    } else if (estadoSprint === 'en progreso') {
+        btnIniciar.style.display = "none";
+        btnTerminar.style.display = "inline-block";
+    } else {
+        btnIniciar.style.display = "none";
+        btnTerminar.style.display = "none";
+    }
+}
+
+/**
+ * Envía una solicitud para actualizar el estado del sprint seleccionado en el servidor.
+ */
+async function cambiarEstadoSprintSeleccionado(nuevoEstado) {
+    if (!idSprintSeleccionado) return;
+
+    try {
+        const respuesta = await fetch(`/sprints/estado/${idSprintSeleccionado}/${idProyectoActivo}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nuevoEstado })
+        });
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok && resultado.ok) {
+            alert(resultado.mensaje);
+            await renderizarSprints();
+            idSprintSeleccionado = null;
+            sprintSeleccionadoFilaDOM = null;
+            actualizarVisibilidadBotonesEstado(null);
+        } else {
+            alert(resultado.mensaje || "Error al cambiar el estado del sprint.");
+        }
+    } catch (error) {
+        console.error("Error al cambiar estado del sprint:", error);
+    }
+}
+
+/**
+ * Carga los paneles duales ordenando las historias con `pendiente = true` en la parte superior,
+ * aplicando fondo naranja y la etiqueta correspondiente.
+ */
+async function cargarPanelesHistorias(asignadasIds = [], modalTipo = 'add') {
+    const panelActual = document.getElementById(modalTipo === 'add' ? 'contenedorSprintAddActual' : 'contenedorSprintModActual');
+    const panelCatalogo = document.getElementById(modalTipo === 'add' ? 'contenedorSprintAddCatalogo' : 'contenedorSprintModCatalogo');
+
+    if (!panelActual || !panelCatalogo) return;
+
+    panelActual.innerHTML = "";
+    panelCatalogo.innerHTML = "";
+
+    const todas = todasLasHistorias && todasLasHistorias.length > 0 ? todasLasHistorias : await obtenerHistorias(idProyectoActivo);
+
+    const todasOrdenadas = [...todas].sort((a, b) => (b.pendiente === true) - (a.pendiente === true));
+
+    todasOrdenadas.forEach(hist => {
+        const histId = hist.id;
+        const titulo = hist.nombre || hist.titulo || "Sin título";
+        const sprintAsig = hist.sprint || hist.sprintAsig || hist.asignado_al_sprint;
+        const esPendiente = hist.pendiente === true;
+
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "tarjeta-historia-dual";
+        tarjeta.dataset.id = histId;
+        
+        let estiloTarjeta = "padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-bottom: 6px; font-size: 13px; user-select: none; display: flex; justify-content: space-between; align-items: center;";
+        if (esPendiente) {
+            estiloTarjeta += " background: #ffedd5; border: 1px solid #f97316; color: #9a3412;";
+        } else {
+            estiloTarjeta += " background: #fff; border: 1px solid #cbd5e1; color: #0f172a;";
+        }
+        tarjeta.style.cssText = estiloTarjeta;
+
+        const contenidoTexto = document.createElement("span");
+        contenidoTexto.textContent = `#${hist.numeroDeHistoria || histId} - ${titulo}`;
+        tarjeta.appendChild(contenidoTexto);
+
+        if (esPendiente) {
+            const badgePendiente = document.createElement("span");
+            badgePendiente.textContent = "pendiente";
+            badgePendiente.style.cssText = "background: #f97316; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;";
+            tarjeta.appendChild(badgePendiente);
+        }
+
+        if (asignadasIds.includes(histId)) {
+            tarjeta.onclick = () => {
+                panelCatalogo.appendChild(tarjeta);
+            };
+            panelActual.appendChild(tarjeta);
+        } else if (!sprintAsig || sprintAsig === "" || sprintAsig === "#") {
+            tarjeta.onclick = () => {
+                panelActual.appendChild(tarjeta);
+            };
+            panelCatalogo.appendChild(tarjeta);
+        }
+    });
 }
 
 // ==========================================================
@@ -180,7 +308,6 @@ function verificarNoIteracion(inputDOM, idExcluido = null) {
         inputDOM.placeholder = "Debe ser un número entero entre 1 y 100";
         return false;
     }
-    // Verificar que no se repita en el proyecto
     for (let s of datosSprints) {
         const currentId = s.id || s.id_sprint;
         const currentIter = Number(s.NoSprint || s.no_iteracion);
@@ -252,50 +379,6 @@ function validarCamposModalSprint(tipo, idExcluido = null) {
 }
 
 // ==========================================================
-// GESTIÓN DE PANELES DUALES (HISTORIAS ASIGNADAS Y CATÁLOGO)
-// ==========================================================
-
-async function cargarPanelesHistorias(asignadasIds = [], modalTipo = 'add') {
-    const panelActual = document.getElementById(modalTipo === 'add' ? 'contenedorSprintAddActual' : 'contenedorSprintModActual');
-    const panelCatalogo = document.getElementById(modalTipo === 'add' ? 'contenedorSprintAddCatalogo' : 'contenedorSprintModCatalogo');
-
-    if (!panelActual || !panelCatalogo) return;
-
-    panelActual.innerHTML = "";
-    panelCatalogo.innerHTML = "";
-
-    const todas = todasLasHistorias && todasLasHistorias.length > 0 ? todasLasHistorias : await obtenerHistorias(idProyectoActivo);
-
-    todas.forEach(hist => {
-        const histId = hist.id;
-        const titulo = hist.nombre || hist.titulo || "Sin título";
-        const sprintAsig = hist.sprint || hist.sprintAsig || hist.asignado_al_sprint;
-
-        const tarjeta = document.createElement("div");
-        tarjeta.className = "tarjeta-historia-dual";
-        tarjeta.dataset.id = histId;
-        tarjeta.style.cssText = "padding: 8px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; margin-bottom: 6px; font-size: 13px; user-select: none;";
-        tarjeta.textContent = `#${hist.numeroDeHistoria || histId} - ${titulo}`;
-
-        // Si pertenece a las asignadas a este sprint
-        if (asignadasIds.includes(histId)) {
-            tarjeta.onclick = () => {
-                panelCatalogo.appendChild(tarjeta);
-                tarjeta.onclick = () => { panelActual.appendChild(tarjeta); tarjeta.onclick = arguments.callee; };
-            };
-            panelActual.appendChild(tarjeta);
-        } else if (!sprintAsig || sprintAsig === "" || sprintAsig === "#") {
-            // Catálogo: Solo historias sin sprint asignado
-            tarjeta.onclick = () => {
-                panelActual.appendChild(tarjeta);
-                tarjeta.onclick = () => { panelCatalogo.appendChild(tarjeta); tarjeta.onclick = arguments.callee; };
-            };
-            panelCatalogo.appendChild(tarjeta);
-        }
-    });
-}
-
-// ==========================================================
 // MÉTODOS DE SOLICITUD FETCH (ALTAS, BAJAS, CAMBIOS)
 // ==========================================================
 
@@ -339,7 +422,7 @@ async function agregarSprint() {
 
 async function modificarSprint() {
     if (!idSprintSeleccionado) {
-        alert("Selecciona un sprint para modificar.");
+        alert("Se debe seleccionar un sprint para modificar.");
         return;
     }
     if (!validarCamposModalSprint('mod', idSprintSeleccionado)) return;
@@ -380,12 +463,11 @@ async function modificarSprint() {
 }
 
 function confirmarEliminarSprint(sprintId) {
-    // Panel de confirmación blanco con botones azul para sí y rojo para no
     const modalConfirm = document.createElement("div");
     modalConfirm.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:2000;";
     modalConfirm.innerHTML = `
         <div style="background:#fff; padding:24px; border-radius:12px; border:2px solid #000; width:350px; text-align:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-            <h3 style="margin-bottom:12px; color:#0f172a;">¿Estas seguro?</h3>
+            <h3 style="margin-bottom:12px; color:#0f172a;">¿Estás seguro?</h3>
             <p style="margin-bottom:20px; color:#334155; font-size:14px;">¿Deseas eliminar este sprint?</p>
             <div style="display:flex; justify-content:center; gap:12px;">
                 <button id="btnSiEliminarSprint" style="background:#0d8bf2; color:#fff; border:none; padding:8px 20px; border-radius:6px; font-weight:700; cursor:pointer;">Sí</button>
@@ -450,73 +532,55 @@ if (btnAgregarSprint) {
 if (btnModSprint) {
     btnModSprint.addEventListener("click", () => {
         if (!idSprintSeleccionado) {
-            alert("Debes seleccionar un sprint de la lista antes de modificar.");
+            alert("Se debe seleccionar un sprint de la lista antes de modificar.");
             return;
         }
-        const sprintObj = datosSprints.find(s => (s.id || s.id_sprint) === idSprintSeleccionado);
-        if (!sprintObj) return;
+        const sprintObj = datosSprints.find(s => Number(s.Id || s.id || s.id_sprint) === Number(idSprintSeleccionado));
+        if (!sprintObj) {
+            alert("No se encontró la información del sprint seleccionado.");
+            return;
+        }
 
         document.getElementById("inpModNoIteracionSprint").value = sprintObj.NoSprint || sprintObj.no_iteracion || "";
         document.getElementById("inpModObjetivoSprint").value = sprintObj.objetivo || sprintObj.objetivo_sprint || "";
         document.getElementById("inpModFechaInicioSprint").value = sprintObj.fechaInicio || sprintObj.fecha_inicio || "";
         document.getElementById("inpModFechaFinSprint").value = sprintObj.fechaFin || sprintObj.fecha_fin || "";
 
-        const asignadasIds = (sprintObj.historiasAsignadas || sprintObj.historias || []).map(h => Number(h.id || h.id_historia));
+        const asignadasIds = (sprintObj.historiasAsignadas || sprintObj.historias || []).map(h => Number(h.ID || h.id || h.id_historia));
         cargarPanelesHistorias(asignadasIds, 'mod');
 
         modalModificarSprint.classList.add('activo');
     });
 }
 
-if (btnCerrarSprintAdd) btnCerrarSprintAdd.addEventListener("click", () => modalAgregarSprint.classList.remove('activo'));
-if (btnCerrarSprintMod) btnCerrarSprintMod.addEventListener("click", () => modalModificarSprint.classList.remove('activo'));
-if (btnGuardarSprintAdd) btnGuardarSprintAdd.addEventListener("click", agregarSprint);
-if (btnGuardarSprintMod) btnGuardarSprintMod.addEventListener("click", modificarSprint);
-
-// Listener global para cerrar modales al hacer clic fuera del contenido blanco
-window.addEventListener('click', (e) => {
-    if (e.target === modalAgregarSprint) modalAgregarSprint.classList.remove('activo');
-    if (e.target === modalModificarSprint) modalModificarSprint.classList.remove('activo');
-});
-
-async function cerrarSprintDesdePanel(idSprint, boton) {
-    if (boton.disabled) return;
-
-    const confirmado = window.confirm(
-        "¿Cerrar este sprint?\n\n" +
-        "Se marcará como terminado y se guardará el trabajo " +
-        "pendiente del proyecto para el burndown.\n\n" +
-        "Las historias pendientes conservarán su estado. " +
-        "Este cierre no podrá repetirse desde esta opción."
-    );
-
-    if (!confirmado) return;
-
-    boton.disabled = true;
-
-    try {
-        const respuesta = await fetch(
-            `/sprints/cerrar/${idSprint}/${idProyectoActivo}`,
-            {
-                method: "POST",
-                headers: { "Accept": "application/json" }
-            }
-        );
-
-        const resultado = await respuesta.json();
-
-        if (!respuesta.ok || !resultado.ok) {
-            throw new Error(
-                resultado.mensaje || "No se pudo cerrar el sprint."
-            );
-        }
-
-        alert(resultado.mensaje);
-        await renderizarSprints();
-    } catch (error) {
-        console.error("Error cerrando sprint:", error);
-        alert(error.message);
-    } finally {
-        boton.disabled = false;
-    }
+// Escuchadores de eventos para cerrar los modales mediante los botones correspondientes
+if (btnCerrarSprintAdd) {
+    btnCerrarSprintAdd.addEventListener("click", () => {
+        modalAgregarSprint.classList.remove('activo');
+    });
 }
+
+if (btnCerrarSprintMod) {
+    btnCerrarSprintMod.addEventListener("click", () => {
+        modalModificarSprint.classList.remove('activo');
+    });
+}
+
+// Escuchadores de eventos para los botones de guardado
+if (btnGuardarSprintAdd) {
+    btnGuardarSprintAdd.addEventListener("click", agregarSprint);
+}
+
+if (btnGuardarSprintMod) {
+    btnGuardarSprintMod.addEventListener("click", modificarSprint);
+}
+
+// Escuchador global en la ventana para cerrar los modales al hacer clic fuera de su contenido principal
+window.addEventListener('click', (e) => {
+    if (e.target === modalAgregarSprint) {
+        modalAgregarSprint.classList.remove('activo');
+    }
+    if (e.target === modalModificarSprint) {
+        modalModificarSprint.classList.remove('activo');
+    }
+});

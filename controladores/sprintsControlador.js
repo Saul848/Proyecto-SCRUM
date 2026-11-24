@@ -88,10 +88,10 @@ class sprintControlador {
      */
     async modificarSprint(req, res) {
         try {
-            const { idSprint, idProyecto } = req.params;
+            const { sprintId, idProyecto } = req.params;
             const { no_iteracion, objetivo, fecha_inicio, fecha_fin, historias } = req.body;
 
-            const idSprintNum = Number(idSprint);
+            const idSprintNum = Number(sprintId);
             const idProyectoNum = Number(idProyecto);
 
             // Verificamos si los IDs proporcionados son válidos
@@ -154,9 +154,9 @@ class sprintControlador {
      */
     async eliminarSprint(req, res) {
         try {
-            const { idSprint, idProyecto } = req.params;
+            const { sprintId, idProyecto } = req.params;
 
-            const idSprintNum = Number(idSprint);
+            const idSprintNum = Number(sprintId);
             const idProyectoNum = Number(idProyecto);
 
             // Verificamos la validez de los parámetros
@@ -196,6 +196,59 @@ class sprintControlador {
                     mensaje: "El sprint no existe en la BD"
                 });
             }
+        } catch (err) {
+            this.#error(res, err);
+        }
+    }
+
+    /**
+     * Metodo para cambiar el estado de un sprint
+     * @param {*} req 
+     * @param {*} res 
+     * @returns 
+     */
+    async actualizarEstadoSprint(req, res) {
+        try {
+            //Se recupera el id del sprint y el del proyecto al que pertenece del req
+            const { sprintId, idProyecto } = req.params;
+            //Se recupera el nuevo estado del body 
+            const { nuevoEstado } = req.body; // 'en progreso' o 'terminado'
+            //Se parsea el id del sprint y el del proyecto a entero.
+            const idSprintNum = Number(sprintId);
+            const idProyectoNum = Number(idProyecto);
+
+            //Se verifica que exista el sprint a modificar, si no existe se envia un mensaje
+            const sprint = await this.dao.obtenerSprintPorId(idSprintNum, idProyectoNum);
+            if (!sprint) {
+                return res.status(404).json({ ok: false, mensaje: "El sprint no existe" });
+            }
+
+            //Si el nuevo estado es "en progreso" entonces se realizan varias verificaciones
+            if (nuevoEstado === 'en progreso') {
+                //Si el estado previo del sprint no es "planeado", se lanza un error
+                if (sprint.estado !== 'planeado') {
+                    return res.status(400).json({ ok: false, mensaje: "Un sprint solo puede iniciarse si su estado es 'planeado'." });
+                }
+                //Si ya hay alguna historia en progreso, se lanza un error porque solo puede haber una historia en progreso a la vez
+                const sprintsProyecto = await this.dao.obtenerSprints(idProyectoNum);
+                const yaHayEnProgreso = sprintsProyecto.some(s => s.estado === 'en progreso' && Number(s.Id) !== idSprintNum);
+                if (yaHayEnProgreso) {
+                    return res.status(400).json({ ok: false, mensaje: "Ya existe un sprint en progreso. Solo puede haber uno a la vez." });
+                }
+            //Si el nuevo estado fue "terminado" se valida que el estado anterior no sea otro que "en progreso"
+            } else if (nuevoEstado === 'terminado') {
+                if (sprint.estado !== 'en progreso') {
+                    return res.status(400).json({ ok: false, mensaje: "Un sprint solo puede terminarse si su estado es 'en progreso'." });
+                }
+            }
+            
+            //Se actualiza el estado del sprint y se regresa una respuesta de confirmacion.
+            const sprintActualizado = await this.dao.actualizarEstadoSprint(idSprintNum, idProyectoNum, nuevoEstado);
+            res.status(200).json({
+                ok: true,
+                mensaje: `Sprint ${nuevoEstado === 'en progreso' ? 'iniciado' : 'terminado'} correctamente`,
+                data: sprintActualizado
+            });
         } catch (err) {
             this.#error(res, err);
         }

@@ -29,9 +29,8 @@ router.put('/actualizar/:sprintId/:idProyecto', (req, res) => controlador.modifi
 router.delete('/eliminar/:sprintId/:idProyecto', (req, res) => controlador.eliminarSprint(req, res));
 
 /**
- * Cierra un sprint y registra el pendiente del proyecto.
+ * Actualiza el estado de un sprint
  */
-router.post('/cerrar/:sprintId/:idProyecto', (req, res) =>
-    controlador.cerrarSprint(req, res)
-);
+router.put('/estado/:sprintId/:idProyecto', (req, res) => controlador.actualizarEstadoSprint(req, res));
+
 module.exports = router;

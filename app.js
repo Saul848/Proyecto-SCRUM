@@ -13,6 +13,7 @@ const path = require('path');
 const express = require("express");
 
 const app = express();
+
 /**
  * Middleware para procesar cuerpos de solicitud en formato JSON.
  */
@@ -39,10 +40,15 @@ app.use('/usuarios', require('./routes/UsuarioRoutes'));
 app.use('/historias', require('./routes/HistoriaUsuarioRoutes'));
 
 /**
+ * Rutas de epicas
+ */
+app.use('/epicas', require('./routes/epicasRoutes'));
+
+
+/**
  * Rutas de sprints
  */
 app.use('/sprints', require('./routes/sprintsRoutes'));
-
 
 /**
  * Rutas de material adicional general.

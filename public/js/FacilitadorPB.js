@@ -1,7 +1,13 @@
 //Botones de apertura de modales
 const btnAgregarHistoria = document.getElementById("btnAgregarHistoria");
 const btnModHistoria = document.getElementById("btnModHistoria");
-//Modales Agregar y Modificar
+// Select principal de epicas
+const selectPrincipalEpicas = document.getElementById("selectEpicas");
+// Botones de gestion de epicas
+const btnAddEpica = document.getElementById("btnAddEpica");
+const btnModEpica = document.getElementById("btnModEpica");
+const btnDelEpica = document.getElementById("btnDelEpica");
+// Modales Agregar y Modificar
 const modalAgregarHistoria = document.getElementById("modalAgregarHistoria");
 const modalModificarHistoria = document.getElementById("modalModificarHistoria");
 //Seccion de historias
@@ -13,6 +19,8 @@ const inpAddValor = document.getElementById("inpAddValor");
 const inpAddHoras = document.getElementById("inpAddHoras");
 const btnGuardarHistoria = document.getElementById("btnGuardarModalAdd");
 const btnCerrarModalAdd = document.getElementById("btnCerrarModalAdd");
+const inpAddPuntos = document.getElementById("inpAddPuntos");
+const selectAddEpica = document.getElementById("selectAddEpica");
 
 // Campos criterios de aceptacion
 const containerAdd = document.getElementById("contenedorAdd");
@@ -22,8 +30,8 @@ const indicadorAdd = document.getElementById("criterioIndicadorAdd");
 const btnAgregarCriterioAdd = document.getElementById("btnAgregarCriterioAdd");
 const btnEliminarCriterioAdd = document.getElementById("btnEliminarCriterioAdd"); // <-- Nuevo
 
-//Grupo de elementos Dom con inputs del modal Agregar historia
-const inpModalAdd = [inpAddTitulo, inpAddDescripcion, inpAddValor, inpAddHoras];
+// Grupo de elementos Dom con inputs del modal Agregar historia
+const inpModalAdd = [inpAddTitulo, inpAddDescripcion, inpAddValor, inpAddHoras, inpAddPuntos, selectAddEpica];
 
 // Elementos inputs del modal modificar
 const inpModTitulo = document.getElementById("inpModTitulo");
@@ -33,6 +41,8 @@ const inpModValor = document.getElementById("inpModValor");
 const inpModHoras = document.getElementById("inpModHoras");
 const btnModificarHistoria = document.getElementById("btnGuardarModalMod");
 const btnCerrarModalMod = document.getElementById("btnCerrarModalMod");
+const inpModPuntos = document.getElementById("inpModPuntos");
+const selectModEpica = document.getElementById("selectModEpica");
 
 // Campos criterios de aceptacion
 const containerMod = document.getElementById("contenedorMod");
@@ -42,6 +52,18 @@ const indicadorMod = document.getElementById("criterioIndicadorMod");
 const btnAgregarCriterioMod = document.getElementById("btnAgregarCriterioMod");
 const btnEliminarCriterioMod = document.getElementById("btnEliminarCriterioMod"); // <-- Nuevo
 
+// Elementos modalAgregarEpica
+const modalAgregarEpica = document.getElementById("modalAgregarEpica");
+const inpAddNombreEpica = document.getElementById("inpAddNombreEpica");
+const btnGuardarEpica = document.getElementById("btnGuardarEpica");
+const btnCancelarAgregarEpica = document.getElementById("btnCancelarAgregarEpica");
+
+// Elementos modalModificarEpica
+const modalModificarEpica = document.getElementById("modalModificarEpica");
+const inpModNombreEpica = document.getElementById("inpModNombreEpica");
+const btnGuardarCambios = document.getElementById("btnGuardarCambios");
+const btnCancelarModificarEpica = document.getElementById("btnCancelarModificarEpica");
+
 // Captura de elementos de filtro del DOM
 const inputFiltroId = document.getElementById("inputFiltroId");
 const inputFiltroNombre = document.getElementById("inputFiltroNombre");
@@ -50,15 +72,17 @@ const inputFiltroSprint = document.getElementById("inputFiltroSprint");
 const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 
 // Variables globales adicionales para filtros
-let todasLasHistorias = [];
+let todasLasHistorias = []; //Lista de historias de usuario en un proyecto
+let listaEpicasProyecto = []; //Lista de epicas en un proyecto
 
 //Grupo de elementos Dom con inputs del modal Agregar historia
-const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor, inpModHoras];
+const inpModalMod = [inpModTitulo, inpModDescripcion, inpModValor, inpModHoras, inpModPuntos, selectModEpica];
 
 // Patrones para validacion de campos
 let patronNombre = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\x20]+$/; // Patron que permite todo el abcdario, la ñ, espacios y numeros del 0 al 9.
 let patronRangoValor = /^(?:[0-9]{1,3}|[1-3][0-9]{3}|4000)$/; // Patron que permite valores entre 0 y 4000
 let patronRangoHoras = /^(?:[0-9]{1,2}|100)$/; //Patron que me permite valores desde el 0 al 100 para las horas estimadas
+let patronPuntosHistoria = /^(?:[0-9]{1,2}|100)$/; //Patron que permite validar los puntos de historia en un rango del 1-100
 // Variable global para almacenar las historias obtenidas del servidor
 let datosHistorias = [];
  // Índice actabasado en 0
@@ -852,6 +876,7 @@ detalle.textContent =
 // Modificación del evento DOMContentLoaded para usar la carga inicial
 document.addEventListener("DOMContentLoaded", async () => {
     await inicializarBacklog();
+    await cargarEpicasEnProyecto(idProyectoActivo);
 });
 
 /**
@@ -863,6 +888,8 @@ function limpiarCamposModalAdd() {
     reiniciarCriteriosAceptacion(containerAdd, indicadorAdd, currentIndexAdd);
     inpAddValor.value = "";
     inpAddHoras.value= "";
+    inpAddPuntos.value="";
+    selectAddEpica.value = "";
 }
 
 /**
@@ -874,6 +901,8 @@ function limpiarCamposModalMod() {
     reiniciarCriteriosAceptacion(containerMod, indicadorMod, currentIndexMod);
     inpModValor.value = "";
     inpModHoras.value ="";
+    inpModPuntos.value = "";
+    selectModEpica.value = "";
 }
 
 /**
@@ -951,16 +980,134 @@ document.addEventListener("click", function (event) {
         return;
     }
 
-    // Si se hizo clic en cualquier otro lugar, quitamos el resaltado y bajamos la bandera
+    // Si se hizo clic en cualquier otro lugar, quitamos el borde punteado y bajamos la bandera
     if (idUltimoPanelSeleccionado !== null) {
         const ultimoPanel = document.getElementById(idUltimoPanelSeleccionado);
         if (ultimoPanel !== null) {
-            ultimoPanel.style.backgroundColor = "";
+            ultimoPanel.style.removeProperty('border');
+            ultimoPanel.style.removeProperty('outline');
         }
         idUltimoPanelSeleccionado = null;
     }
     modificando = false;
 });
+
+// Listener del btnAddEpica que abre el modalAgregarEpica 
+btnAddEpica.addEventListener("click", function () {
+    // Se verifica si hay acceso al input para colocar el nombre de la nueva epica
+        if (inpAddNombreEpica) {
+          //Si se alcanza entonces se limpia el contenido y se deja sus estilo normal
+            inpAddNombreEpica.value = "";
+            inpAddNombreEpica.style.border = "";
+        }
+        // Si hay acceso al modal de agregar Epica entonces se muestra
+        if (modalAgregarEpica) modalAgregarEpica.classList.add("activo");
+    });
+
+// Listener del btnCancelarAgregarEpica
+btnCancelarAgregarEpica.addEventListener("click", function () {
+    // Se verifica si hay acceso al input para colocar el nombre de la nueva epica
+        if (inpAddNombreEpica) {
+          // Si se alcanza entonces se limpia el contenido y se deja sus estilo normal
+            inpAddNombreEpica.value = "";
+            inpAddNombreEpica.style.border = "";
+        }
+        // Si hay acceso al modal de agregar Epica entonces se muestra
+        if (modalAgregarEpica) modalAgregarEpica.classList.remove("activo");
+    });
+
+// Listener del btnModEpica
+btnModEpica.addEventListener("click", function () {
+        // Se obtiene el id de la epica seleccionada actualmente
+        const idEpicaSeleccionada = selectPrincipalEpicas ? selectPrincipalEpicas.value : "";
+        // Si no se pudo obtener el valor se muestra un mensaje en pantalla
+        if (!idEpicaSeleccionada) {
+            alert("Debes seleccionar una épica en el selector antes de modificar.");
+            return;
+        }
+        // Obtenemos el objeto epica seleccionado actualmente
+        const epicaActual = listaEpicasProyecto.find(e => String(e.id) === String(idEpicaSeleccionada));
+        // Si hay acceso al input donde se insertara el nuevo nombre dentro del panel modificar epica, entones se cargara el valor anterior con estilos normales
+        if (inpModNombreEpica) {
+            inpModNombreEpica.value = epicaActual ? epicaActual.nombre : (selectPrincipalEpicas.options[selectPrincipalEpicas.selectedIndex]?.text || "");
+            inpModNombreEpica.style.border = "";
+        }
+        // Se muestra el panel modal
+        if (modalModificarEpica) modalModificarEpica.classList.add("activo");
+    });
+
+// Listener del boton para cancelar la modificacion de una epica
+btnCancelarModificarEpica.addEventListener("click", function () {
+        // Si hay acceso al input del panel modificar epica se limpia su contenido y el estilo se muestra con normalidad
+        if (inpModNombreEpica) {
+            inpModNombreEpica.value = "";
+            inpModNombreEpica.style.border = "";
+        }
+        // Se oculta el panel para modificar la epica
+        if (modalModificarEpica) modalModificarEpica.classList.remove("activo");
+    });
+
+// Listener del boton para eliminar una epica
+btnDelEpica.addEventListener("click", function () {
+        // Recuperamos el id de la epica seleccionada actualmente
+        const idEpicaSeleccionada = selectPrincipalEpicas ? selectPrincipalEpicas.value : "";
+        // Si no fue posible recuperarlo entonces no regreses nada
+        if (!idEpicaSeleccionada) {
+            alert("Debes seleccionar una épica en el selector antes de eliminar.");
+            return;
+        }
+        // Elimina la epica
+        eliminarEpica();
+    });
+
+// Listener del boton para guardar una nueva epica
+btnGuardarEpica.addEventListener("click", function () {
+        // Se recupera el nuevo nombre de la epica
+        const valorInput = inpAddNombreEpica ? inpAddNombreEpica.value.trim() : "";
+        // Se valida que no este vacio y que corresponda con el patron definido para validar un nombre
+        if (valorInput === null || valorInput.length === 0 || !patronNombre.test(valorInput)) {
+            // Si el input esta vacio entonces se modifica su apariencia, se borra el contenido y se muestra el error en el input
+            if (inpAddNombreEpica) {
+                inpAddNombreEpica.style.border = "2px solid red";
+                inpAddNombreEpica.value = "";
+                inpAddNombreEpica.placeholder = "Nombre de épica inválido (sin símbolos especiales)";
+            }
+            // Entones no sucede nada
+            return;
+        }
+
+        // Si no hubo algun error se muestra el input en color azul indicando que el ombre es correcto
+        if (inpAddNombreEpica) inpAddNombreEpica.style.border = "2px solid blue";
+        // Se realiza la solicitud a la BD
+        agregarEpica();
+    });
+
+// Listener del boton para guardar los cambios de una epica modificada
+btnGuardarCambios.addEventListener("click", function () {
+        // Se recupera el nuevo nombre de la epica
+        const valorInput = inpModNombreEpica ? inpModNombreEpica.value.trim() : "";
+        // Se valida que no este vacio y que corresponda con el patron definido para validar un nombre
+        if (valorInput === null || valorInput.length === 0 || !patronNombre.test(valorInput)) {
+            // Si el input esta vacio entonces se modifica su apariencia, se borra el contenido y se muestra el error en el input
+            if (inpModNombreEpica) {
+                inpModNombreEpica.style.border = "2px solid red";
+                inpModNombreEpica.value = "";
+                inpModNombreEpica.placeholder = "Nombre de épica inválido (sin símbolos especiales)";
+            }
+            // Entones no sucede nada
+            return;
+        }
+        // Si no hubo algun error se muestra el input en color azul indicando que el nombre es correcto
+        if (inpModNombreEpica) inpModNombreEpica.style.border = "2px solid blue";
+        // Se realiza la solicitud a la BD
+        modificarEpica();
+    });
+
+// Listener del select principal de epicas
+selectPrincipalEpicas.addEventListener("change", function () {
+    // Si se selecciona algun filtro entonces se aplican los filtros
+        aplicarFiltros();
+    });
 
 //Funcion que actualiza los elementos para mostrar los criterios de aceptacion en los modales
 /**
@@ -1149,15 +1296,17 @@ function verificarCampos(grupoInputs){
     let verificado = true;
     
     grupoInputs.forEach(elemento => {
+        if (!elemento) return;
         if(elemento.value.trim() === ""){
             elemento.style.border = "2px solid red";
-            elemento.placeholder = "Error, rellena este campo";
+            if (elemento.tagName !== "SELECT") {
+                elemento.placeholder = "Error, rellena este campo";
+            }
             verificado = false;
         } else {
             if(elemento === inpAddTitulo || elemento === inpModTitulo){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
-                    elemento.value = "";
                     elemento.placeholder = "El nombre no debe llevar numeros o simbolos";
                     verificado = false;
                 } else {
@@ -1171,7 +1320,6 @@ function verificarCampos(grupoInputs){
             if(elemento === inpAddDescripcion || elemento === inpModDescripcion){
                 if(!patronNombre.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
-                    elemento.value = "";
                     elemento.placeholder = "Ingrese una descripccion adecuada";
                     verificado = false;
                 } else {
@@ -1181,7 +1329,6 @@ function verificarCampos(grupoInputs){
             if(elemento === inpAddValor || elemento ===inpModValor){
                 if(!patronRangoValor.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
-                    elemento.value = "";
                     elemento.placeholder = "Ingrese numeros válidos";
                     verificado = false;
                 } else {
@@ -1191,8 +1338,25 @@ function verificarCampos(grupoInputs){
             if(elemento === inpAddHoras || elemento ===inpModHoras){
                 if(!patronRangoHoras.test(elemento.value.trim())){
                     elemento.style.border = "2px solid red";
-                    elemento.value = "";
                     elemento.placeholder = "Ingrese horas entre 0 y 100";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+            }
+            if (elemento.tagName === "SELECT") {
+                if (elemento.value.trim() === "") {
+                    elemento.style.border = "2px solid red";
+                    verificado = false;
+                } else {
+                    elemento.style.border = "2px solid blue";
+                }
+                return;
+            }
+            if(elemento === inpAddPuntos || elemento === inpModPuntos){
+                if(!patronPuntosHistoria.test(elemento.value.trim())){
+                    elemento.style.border = "2px solid red";
+                    elemento.placeholder = "Ingrese puntos de historia enteros válidos (0 - 100)";
                     verificado = false;
                 } else {
                     elemento.style.border = "2px solid blue";
@@ -1246,7 +1410,6 @@ function verificarTituloUnico(inputDom) {
         }
         if (datosHistorias[n].titulo === inputDom.value.trim() || datosHistorias[n].nombre === inputDom.value.trim()) {
             inputDom.style.border = "2px solid red";
-            inputDom.value = "";
             inputDom.placeholder = "La historia ya existe en el sistema";
             return false;
         }
@@ -1288,19 +1451,20 @@ function agregarNuevaHistoria() {
 }
 
 /**
- * Ilumina en azul la fila de la historia seleccionada y activa la bandera
+ * Resalta con borde punteado azul la fila de la historia seleccionada sin cambiar su fondo
  */
 function iluminarHistoria(id) {
     if (idUltimoPanelSeleccionado !== null) {
         const panelAnterior = document.getElementById(idUltimoPanelSeleccionado);
         if (panelAnterior) {
-            panelAnterior.style.backgroundColor = "";
+            panelAnterior.style.removeProperty('border');
+            panelAnterior.style.removeProperty('outline');
         }
     }
     idUltimoPanelSeleccionado = `DivFilaHistoria_${id}`;
     const panelActual = document.getElementById(idUltimoPanelSeleccionado);
     if (panelActual) {
-        panelActual.style.setProperty('background-color', '#3b82f6', 'important'); // Azul resaltado
+        panelActual.style.setProperty('border', '2px dashed #2563eb', 'important');
         modificando = true;
     }
 }
@@ -1313,50 +1477,70 @@ function descomponerId(panelDivFilaHistoria) {
 }
 
 /**
- * Carga los datos de la historia seleccionada en los inputs y textareas del modal Modificar
+ * Carga el contendio al intentar modificar
+ * @param {} id 
+ * @returns 
  */
 function recuperarContenido(id) {
-    posicion = null;
-    for (let m = 0; m < datosHistorias.length; m++) {
-        if (datosHistorias[m].id === id) {
-            posicion = m;
-            break;
-        }
-    }
-
-    if (posicion === null) {
+    posicion = datosHistorias.findIndex((h) => Number(h.id) === Number(id));
+    if (posicion === -1) {
+        posicion = null;
         alert("No se pudo recuperar la información de la historia de usuario.");
         return false;
     }
 
     const historia = datosHistorias[posicion];
 
-    // Limpiamos estado previo del modal
-    limpiarCamposModalMod();
+    // Limpia solo bordes rojos/azules previos sin borrar valores que vamos a cargar
+    inpModalMod.forEach((el) => {
+        if (el) {
+            el.style.border = "";
+            el.style.outline = "";
+        }
+    });
 
-    // Cargamos los campos principales
-    inpModTitulo.value = historia.nombre || historia.titulo || "";
-    inpModDescripcion.value = historia.descripcion || "";
-    inpModValor.value = historia.valor ?? "";
-    inpModHoras.value = historia.horas ?? "";
+    inpModTitulo.value = historia.nombre ?? historia.titulo ?? "";
+    inpModDescripcion.value = historia.descripcion ?? "";
+    inpModValor.value = historia.valor ?? 0;
+    inpModHoras.value = historia.horas ?? 0;
 
-    // Cargamos dinámicamente los criterios de aceptación en containerMod
+    const puntosActuales =
+        historia.puntos_de_historia ??
+        historia.puntosDeHistoria ??
+        historia.puntos ??
+        0;
+    if (inpModPuntos) {
+        inpModPuntos.value = Number.isNaN(Number(puntosActuales)) ? 0 : Number(puntosActuales);
+    }
+
+    if (selectModEpica) {
+        const epicaEncontrada = listaEpicasProyecto.find(
+            (e) =>
+                String(e.id) === String(historia.id_epica ?? historia.idEpica ?? "") ||
+                (historia.epica_asignada &&
+                    e.nombre.trim().toLowerCase() === String(historia.epica_asignada).trim().toLowerCase())
+        );
+        selectModEpica.value = epicaEncontrada ? String(epicaEncontrada.id) : "";
+    }
+
     const criterios = Array.isArray(historia.criterios) && historia.criterios.length > 0
         ? historia.criterios
         : [{ criterio: "" }];
 
     containerMod.innerHTML = "";
     criterios.forEach((crit, index) => {
+        const textoCrit = typeof crit === "string" ? crit : (crit?.criterio ?? "");
         const ta = document.createElement("textarea");
         ta.id = `criterioMod_${index + 1}`;
+        ta.maxLength = 250;
+        ta.className = index === 0 ? "criterio-input active" : "criterio-input";
         ta.placeholder = `Escribe el criterio ${index + 1}...`;
-        ta.value = crit.criterio || "";
-        if (index === 0) ta.classList.add("active");
+        ta.value = textoCrit;
         containerMod.appendChild(ta);
     });
 
     currentIndexMod = 0;
-    indicadorMod.textContent = `1/${criterios.length}`;
+    actualizarVista(containerMod, indicadorMod, currentIndexMod);
     return true;
 }
 
@@ -1397,6 +1581,10 @@ async function agregarHistoriaUsuario(idProyecto) {
     });
     let valor = parseInt(inpAddValor.value.trim(), 10);
     let horas = parseInt(inpAddHoras.value.trim(), 10);
+    const rawPuntos = inpAddPuntos ? inpAddPuntos.value.trim() : "0";
+    const parsedPuntos = rawPuntos === "" ? 0 : parseInt(rawPuntos, 10);
+    const puntosDeHistoria = Number.isNaN(parsedPuntos) ? 0 : parsedPuntos;
+    let idEpica = selectAddEpica ? selectAddEpica.value : "";
 
     try {
         const respuesta = await fetch("/historias/historiasPB", {
@@ -1410,6 +1598,9 @@ async function agregarHistoriaUsuario(idProyecto) {
                 criterios: criteriosArray,
                 valor: valor,
                 horas: horas,
+                puntosDeHistoria: puntosDeHistoria,
+                puntos_de_historia: puntosDeHistoria,
+                idEpica: idEpica,
                 idProyecto: idProyecto
             })
         });
@@ -1441,38 +1632,55 @@ async function agregarHistoriaUsuario(idProyecto) {
  * Funcion que realiza la solicitud delete para eliminar una historia
  */
 async function eliminarHistoriaUsuario(idHistoria, idProyecto) {
-    const respuesta = await fetch(`/historias/historiasPB/${idHistoria}/${idProyecto}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
-    const resultado = await respuesta.json();
-    
-    if(resultado.ok || respuesta.status === 201){
-        alert(resultado.mensaje || "Historia eliminada correctamente");
+    try {
+        const respuesta = await fetch(`/historias/historiasPB/${idHistoria}/${idProyecto}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const resultado = await respuesta.json();
 
-        // Volvemos a inicializar el backlog para actualizar la lista, incluyendo la nueva historia
-        await inicializarBacklog();
-    } else {
-        alert(resultado.mensaje || resultado.error || "Error al eliminar la historia");
+        if (respuesta.ok && (resultado.ok || resultado.success)) {
+            alert(resultado.mensaje || "Historia eliminada correctamente");
+            if (idUltimoPanelSeleccionado === `DivFilaHistoria_${idHistoria}`) {
+                idUltimoPanelSeleccionado = null;
+                modificando = false;
+            }
+            await inicializarBacklog();
+        } else {
+            alert(resultado.mensaje || resultado.error || "No se pudo eliminar la historia.");
+        }
+    } catch (error) {
+        console.error("Error al eliminar historia:", error);
+        alert("Error de conexión al intentar eliminar la historia.");
     }
 }
-
 
 /**
  * Envía la petición PUT al servidor para actualizar la historia de usuario
  */
 async function modificarHistoriaUsuario(idHistoria, idProyecto) {
-    const nombre = inpModTitulo.value.trim();
-    const descripcion = inpModDescripcion.value.trim();
-    const criteriosDom = containerMod.querySelectorAll('textarea');
-    const criteriosArray = [];
-    criteriosDom.forEach((element) => {
-        criteriosArray.push({ criterio: element.value.trim() });
-    });
-    const valor = parseInt(inpModValor.value.trim(), 10);
-    const horas = parseInt(inpModHoras.value.trim(), 10);
+    const nombre = inpModTitulo ? inpModTitulo.value.trim() : "";
+    const descripcion = inpModDescripcion ? inpModDescripcion.value.trim() : "";
+
+    const criteriosDom = containerMod ? Array.from(containerMod.querySelectorAll("textarea")) : [];
+    const criteriosArray = criteriosDom.map((element) => ({
+        criterio: element.value.trim()
+    }));
+
+    const valorNum = parseInt(inpModValor ? inpModValor.value.trim() : "0", 10);
+    const valor = Number.isNaN(valorNum) ? 0 : valorNum;
+
+    const horasNum = parseInt(inpModHoras ? inpModHoras.value.trim() : "0", 10);
+    const horas = Number.isNaN(horasNum) ? 0 : horasNum;
+
+    const rawPuntos = inpModPuntos ? inpModPuntos.value.trim() : "0";
+    const puntosNum = rawPuntos === "" ? 0 : parseInt(rawPuntos, 10);
+    const puntosDeHistoria = Number.isNaN(puntosNum) ? 0 : puntosNum;
+
+    const rawEpica = selectModEpica ? selectModEpica.value : "";
+    const idEpica = rawEpica === "" ? null : Number(rawEpica);
 
     try {
         const respuesta = await fetch(`/historias/historiasPB/${idHistoria}/${idProyecto}`, {
@@ -1487,6 +1695,10 @@ async function modificarHistoriaUsuario(idHistoria, idProyecto) {
                 criterios: criteriosArray,
                 valor: valor,
                 horas: horas,
+                puntosDeHistoria: puntosDeHistoria,
+                puntos_de_historia: puntosDeHistoria,
+                idEpica: idEpica,
+                id_epica: idEpica,
                 idProyecto: idProyecto
             })
         });
@@ -1495,11 +1707,9 @@ async function modificarHistoriaUsuario(idHistoria, idProyecto) {
 
         if (respuesta.ok && (resultado.ok || resultado.success || respuesta.status === 200)) {
             alert(resultado.mensaje || "Historia modificada correctamente");
-
-            // Recargamos la tabla y reseteamos la selección
             await inicializarBacklog();
             limpiarCamposModalMod();
-            modalModificarHistoria.classList.remove('activo');
+            modalModificarHistoria.classList.remove("activo");
             modificando = false;
             idUltimoPanelSeleccionado = null;
         } else {
@@ -1510,6 +1720,100 @@ async function modificarHistoriaUsuario(idHistoria, idProyecto) {
         alert("No se pudo conectar con el servidor para modificar la historia.");
     }
 }
+
+/**
+ * Funcion para agregar una nueva epica al proyecto
+ */
+async function agregarEpica() {
+    try {
+        // Se obtiene el nombre de la epica a agregar
+        const nombreEpica = inpAddNombreEpica ? inpAddNombreEpica.value.trim() : "";
+        // Se obtiene el id del proyecto
+        const idProyecto = idProyectoActivo;
+        // Se realiza la solicitud fetch correspondiente
+        const respuesta = await fetch(`/epicas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nombre: nombreEpica,
+                idProyecto: idProyecto
+            })
+        });
+        const resultado = await respuesta.json();
+        alert(resultado.mensaje || "");
+
+        if (respuesta.ok && resultado.ok) {
+            if (inpAddNombreEpica) {
+                inpAddNombreEpica.value = "";
+                inpAddNombreEpica.style.border = "";
+            }
+            if (modalAgregarEpica) {
+                modalAgregarEpica.classList.remove("activo");
+            }
+            await cargarEpicasEnProyecto(idProyecto);
+        }
+    } catch (error) {
+        console.error("Error al agregar épica:", error);
+    }
+}
+
+/**
+ * Funcion para modificar una Epica
+ */
+async function modificarEpica() {
+    try {
+        const nombreEpica = inpModNombreEpica ? inpModNombreEpica.value.trim() : "";
+        const idEpica = selectPrincipalEpicas ? selectPrincipalEpicas.value : "";
+        const idProyecto = idProyectoActivo;
+        const respuesta = await fetch(`/epicas/${idEpica}/${idProyecto}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nombre: nombreEpica
+            })
+        });
+        const resultado = await respuesta.json();
+        alert(resultado.mensaje || "");
+        if (respuesta.ok && resultado.ok) {
+            if (inpModNombreEpica) {
+                inpModNombreEpica.value = "";
+                inpModNombreEpica.style.border = "";
+            }
+            if (modalModificarEpica) {
+                modalModificarEpica.classList.remove("activo");
+            }
+            await cargarEpicasEnProyecto(idProyecto);
+            await inicializarBacklog();
+        }
+    } catch (error) {
+        console.error("Error al modificar épica:", error);
+    }
+}
+
+/**
+ * Funcion para eliminar una epica
+ */
+async function eliminarEpica() {
+    try {
+        const idEpica = selectPrincipalEpicas ? selectPrincipalEpicas.value : "";
+        const idProyecto = idProyectoActivo;
+
+        const respuesta = await fetch(`/epicas/${idEpica}/${idProyecto}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+        const resultado = await respuesta.json();
+        alert(resultado.mensaje || "");
+
+        if (respuesta.ok && resultado.ok) {
+            await cargarEpicasEnProyecto(idProyecto);
+            await inicializarBacklog();
+        }
+    } catch (error) {
+        console.error("Error al eliminar épica:", error);
+    }
+}
+
 
 // function cargar_cabecera_inicial() {
 //     document.getElementById("").style.display = "block";
@@ -1542,22 +1846,41 @@ function aplicarFiltros() {
     const filtroNombre = inputFiltroNombre.value.trim().toLowerCase();
     const filtroValor = inputFiltroValor.value.trim().toLowerCase();
     const filtroSprint = inputFiltroSprint.value.trim().toLowerCase();
-
+    const filtroEpica = selectPrincipalEpicas ? selectPrincipalEpicas.value : "";
+    const nombreEpicaSeleccionada = (selectPrincipalEpicas && filtroEpica !== "")
+      ? (selectPrincipalEpicas.options[selectPrincipalEpicas.selectedIndex]?.text || "").toLowerCase()
+      : "";
     const historiasFiltradas = todasLasHistorias.filter((historia) => {
         const idStr = String(historia.id).toLowerCase();
         const nombreStr = String(historia.nombre || historia.titulo || "").toLowerCase();
         const valorStr = String(historia.valor || "").toLowerCase();
         const sprintStr = String(historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "").toLowerCase();
-
+        const epicaHistoriaStr = String(historia.epica_asignada || "").toLowerCase();
+        
         const matchId = filtroId === "" || idStr.includes(filtroId);
         const matchNombre = filtroNombre === "" || nombreStr.includes(filtroNombre);
         const matchValor = filtroValor === "" || valorStr.includes(filtroValor);
         const matchSprint = filtroSprint === "" || sprintStr.includes(filtroSprint);
+        const matchEpica = filtroEpica === "" || epicaHistoriaStr === nombreEpicaSeleccionada;
 
-        return matchId && matchNombre && matchValor && matchSprint;
+        return matchId && matchNombre && matchValor && matchSprint && matchEpica;
     });
 
     renderizarTablaFiltrada(historiasFiltradas);
+}
+
+/**
+ * Obtiene el color de fondo correspondiente al estado de la historia.
+ * @function obtenerColorEstadoHistoria
+ * @param {string} estado
+ * @returns {string}
+ */
+function obtenerColorEstadoHistoria(estado) {
+    const estadoNormalizado = String(estado || "por empezar").trim().toLowerCase();
+    if (estadoNormalizado === "en progreso") return "#fed7aa"; // Naranja
+    if (estadoNormalizado === "en revision" || estadoNormalizado === "en revisión") return "#bfdbfe"; // Azul
+    if (estadoNormalizado === "terminado") return "#bbf7d0"; // Verde
+    return "#ffffff"; // Por empezar -> Blanco
 }
 
 /**
@@ -1580,6 +1903,10 @@ function renderizarTablaFiltrada(historias) {
         const filaHtml = document.createElement("div");
         filaHtml.id = `DivFilaHistoria_${historia.id}`;
         filaHtml.className = "DivFilaHistoria";
+
+        const estadoActual = historia.estado || "por empezar";
+        filaHtml.style.backgroundColor = obtenerColorEstadoHistoria(estadoActual);
+
         // NUEVO: Seleccionar e iluminar la fila al hacer clic sobre ella
         filaHtml.onclick = (e) => {
             if (e.target.closest('.DivBtnEliminar') || e.target.closest('.btn-fila-lateral')) {
@@ -1593,11 +1920,12 @@ function renderizarTablaFiltrada(historias) {
             ? historia.criterios 
             : [{ criterio: "Sin criterios de aceptación" }];
 
+        const totalCriterios = criterios.length;
         let criteriosTextAreasHTML = "";
         criterios.forEach((crit, index) => {
             const claseActiva = index === 0 ? "active" : "";
-            // Usamos un textarea con la clase específica y readonly para visualización en tabla
-            criteriosTextAreasHTML += `<textarea class="criterio-input-fila ${claseActiva}" readonly placeholder="Criterio...">${crit.criterio || ""}</textarea>`;
+            const textoCrit = typeof crit === "string" ? crit : (crit?.criterio ?? "");
+            criteriosTextAreasHTML += `<textarea class="criterio-input-fila ${claseActiva}" readonly placeholder="Criterio...">${textoCrit}</textarea>`;
         });
 
         filaHtml.innerHTML = `
@@ -1606,16 +1934,20 @@ function renderizarTablaFiltrada(historias) {
             <label class="LabelDescripccion">${historia.descripcion || "#"}</label>
             
             <!-- Contenedor con botones laterales para los Criterios de Aceptación -->
-            <div class="criterio-fila-wrapper" data-index="0">
+            <div class="criterio-fila-wrapper" data-index="0" data-total="${totalCriterios}">
                 <button type="button" class="btn-fila-lateral btn-fila-izq" onclick="cambiarCriterioFila(${historia.id}, -1)" title="Anterior">◀</button>
                 <div class="criterios-fila-columna" id="criteriosContainer_${historia.id}">
+                    <span class="criterio-contador-fila" id="contadorCriterioFila_${historia.id}">1 / ${totalCriterios}</span>
                     ${criteriosTextAreasHTML}
                 </div>
                 <button type="button" class="btn-fila-lateral btn-fila-der" onclick="cambiarCriterioFila(${historia.id}, 1)" title="Siguiente">▶</button>
             </div>
 
             <label class="LabelValor">${historia.valor || "#"}</label>
-            <label class="LabelValor">${historia.horas || "#"}</label>
+            <label class="LabelHorasEstimadas">${historia.horas || "#"}</label>
+            <label class="LabelPuntosHistoria">${historia.puntos_de_historia ?? 0}</label>
+            <label class="LabelEpicaAsignada">${historia.epica_asignada || "#"}</label>
+            <label class="LabelEstadoHistoria">${estadoActual}</label>
             <label class="LabelSprintAsignado">${historia.sprint || historia.sprintAsig || historia.asignado_al_sprint || "#"}</label>
             
             <div class="DivBtnEliminar">
@@ -1625,6 +1957,169 @@ function renderizarTablaFiltrada(historias) {
 
         divHistoria.appendChild(filaHtml);
     });
+}
+
+/**
+ * Alterna el criterio de aceptación visible dentro de una fila del Product Backlog.
+ * @function cambiarCriterioFila
+ * @param {number|string} idHistoria - Identificador de la historia de usuario.
+ * @param {number} delta - Desplazamiento (-1 para anterior, 1 para siguiente).
+ * @returns {void}
+ */
+
+function cambiarCriterioFila(idHistoria, delta) {
+    const fila = document.getElementById(`DivFilaHistoria_${idHistoria}`);
+    if (!fila) return;
+
+    const wrapper = fila.querySelector(".criterio-fila-wrapper");
+    const contenedor = document.getElementById(`criteriosContainer_${idHistoria}`);
+    if (!wrapper || !contenedor) return;
+
+    const textareas = Array.from(contenedor.querySelectorAll("textarea.criterio-input-fila"));
+    if (textareas.length === 0) return;
+
+    let indiceActual = Number(wrapper.getAttribute("data-index") || 0);
+    if (textareas.length > 1) {
+        indiceActual = (indiceActual + delta + textareas.length) % textareas.length;
+    } else {
+        indiceActual = 0;
+    }
+
+    wrapper.setAttribute("data-index", String(indiceActual));
+    textareas.forEach((ta, idx) => {
+        ta.classList.toggle("active", idx === indiceActual);
+    });
+
+    const contador = document.getElementById(`contadorCriterioFila_${idHistoria}`);
+    if (contador) {
+        contador.textContent = `${indiceActual + 1} / ${textareas.length}`;
+    }
+}
+
+/**
+ * Funcion que permite obtener todas las epicas en un proyecto e insertar los valores en los selects correspondientes
+ * @param {Int} idProyecto El ide del proyecto donde se encuentran las epicas
+ * @returns Variable global listaEpicasProyecto
+ */
+async function cargarEpicasEnProyecto(idProyecto) {
+    try {
+      // Se realiza la solicitud al backend
+        const respuesta = await fetch(`/epicas/${idProyecto}`, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        // Se parsea la respuesta de json a objetos js
+        const datos = await respuesta.json();
+        // Se recupera el arreglo de epicas en un proyecto, si se recupero el campo data regresalo, si no regresa una lista vacia
+        listaEpicasProyecto = Array.isArray(datos.data) ? datos.data : (Array.isArray(datos) ? datos : []);
+        // Se cargan las epicas del proyecto sobre los selects del Product Backglog, primero el principal y luego en los modales de agregar y modificar historia
+        poblarSelectEpicas(selectPrincipalEpicas, listaEpicasProyecto, "Todas las épicas");
+        poblarSelectEpicas(selectAddEpica, listaEpicasProyecto, "Selecciona una épica");
+        poblarSelectEpicas(selectModEpica, listaEpicasProyecto, "Selecciona una épica");
+        // Se asigna la lista de epicas a la variable global
+        return listaEpicasProyecto;
+    } catch (error) {
+        // Si ocurre un error se avisa por medio de consola y se regresa un alista vacia
+        console.error("Error al cargar las épicas del proyecto:", error);
+        return [];
+    }
+}
+
+/**
+ * Regresa desde Gestión de Sprints a la vista del Product Backlog
+ */
+function regresarAProductBacklog() {
+    const modalSprints = document.getElementById("modal-gestion-sprints");
+    if (modalSprints) {
+        modalSprints.style.display = "none";
+        modalSprints.classList.remove("activo");
+    }
+
+    if (typeof mostrarModal === "function") {
+        mostrarModal("modal-product-backlog", "cabecera-productBacklog");
+    } else {
+        const modalPB = document.getElementById("modal-product-backlog");
+        if (modalPB) modalPB.style.display = "block";
+    }
+}
+
+/**
+ * Restablece bordes, valores y placeholders de un modal de historia
+ */
+function restablecerEstilosModalHistoria(modalEl, inputsLista, containerEl, indicadorEl, esAgregar) {
+    if (inputsLista) {
+        inputsLista.forEach((el) => {
+            if (!el) return;
+            el.style.border = "";
+            el.style.outline = "";
+            if (el.tagName === "SELECT") {
+                el.value = "";
+            } else {
+                el.value = "";
+            }
+        });
+    }
+
+    if (inpAddTitulo) inpAddTitulo.placeholder = "Escribe el título...";
+    if (inpAddDescripcion) inpAddDescripcion.placeholder = "Escribe la descripción...";
+    if (inpAddValor) inpAddValor.placeholder = "0 - 4000";
+    if (inpAddHoras) inpAddHoras.placeholder = "0 - 100";
+    if (inpAddPuntos) inpAddPuntos.placeholder = "Puntos de historia";
+
+    if (inpModTitulo) inpModTitulo.placeholder = "Escribe el título...";
+    if (inpModDescripcion) inpModDescripcion.placeholder = "Escribe la descripción...";
+    if (inpModValor) inpModValor.placeholder = "0 - 4000";
+    if (inpModHoras) inpModHoras.placeholder = "0 - 100";
+    if (inpModPuntos) inpModPuntos.placeholder = "Puntos de historia";
+
+    if (containerEl && indicadorEl) {
+        const prefijo = esAgregar ? "criterioAdd" : "criterioMod";
+        containerEl.innerHTML = "";
+        const primerTA = document.createElement("textarea");
+        primerTA.id = `${prefijo}_1`;
+        primerTA.maxLength = 250;
+        primerTA.className = "criterio-input active";
+        primerTA.placeholder = "Escribe el criterio 1...";
+        containerEl.appendChild(primerTA);
+
+        if (esAgregar) {
+            currentIndexAdd = 0;
+        } else {
+            currentIndexMod = 0;
+        }
+        indicadorEl.textContent = "1/1";
+    }
+
+    if (modalEl) {
+        modalEl.classList.remove("activo");
+    }
+}
+
+/**
+ * Funcion que permite 
+ * @param {*} selectEl 
+ * @param {*} epicas 
+ * @param {*} textoPorDefecto 
+ * @returns 
+ */
+function poblarSelectEpicas(selectEl, epicas, textoPorDefecto) {
+    // Se verifica que el elemento Dom tenga un valor
+    if (!selectEl) return;
+    // Se guarda el valor anterior del select
+    const valorPrevio = selectEl.value;
+    // Se reinicia su contenido y se genera la opccion por defecto
+    selectEl.innerHTML = `<option value="">${textoPorDefecto}</option>`;
+    // Por cada epica contenida en la lista de epicas se genera una opccion en el select y se le asigna al mismo seelct
+    epicas.forEach((epica) => {
+        const option = document.createElement("option");
+        option.value = epica.id;
+        option.textContent = epica.nombre;
+        selectEl.appendChild(option);
+    });
+    // Se verifica que no se repitan valores en el select
+    if (valorPrevio && Array.from(selectEl.options).some(opt => opt.value === valorPrevio)) {
+        selectEl.value = valorPrevio;
+    }
 }
 
 
@@ -1681,6 +2176,7 @@ btnLimpiarFiltros.addEventListener("click", () => {
     inputFiltroNombre.value = "";
     inputFiltroValor.value = "";
     inputFiltroSprint.value = "";
+    selectPrincipalEpicas.value = "";
     aplicarFiltros();
 });
 

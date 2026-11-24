@@ -67,7 +67,7 @@ class historiaUsuarioControlador {
      * @returns
      */
     async agregarHistoria(req, res) {
-        const { nombre, descripcion, criterios, valor, horas, idProyecto} = req.body;
+        const { nombre, descripcion, criterios, valor, horas, puntosDeHistoria, idEpica, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
             if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || !idProyecto) {
@@ -83,12 +83,13 @@ class historiaUsuarioControlador {
                     mensaje: "No se han registrado criterios de aceptacion para la historia"
                 })
             }
-            // Se verifica que el valor sea un numero
-            if (isNaN(valor) || typeof valor !== 'number') {
-                return res.status(404).json({
+            // Verificar que el valor sea entero
+            const valorNum = Number(valor);
+            if (!Number.isInteger(valorNum)) {
+                return res.status(400).json({
                     ok: false,
                     mensaje: "El valor enviado para la historia no es numerico"
-                })       
+                });
             }
             // Se verifica que el valor este dentro del rango estimado
             if(valor < 0 || valor > 4000){
@@ -102,6 +103,21 @@ class historiaUsuarioControlador {
                     ok: false,
                     mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
             })
+            }
+            // Verificar que puntosDeHistoria sea entero
+            const puntosNum = Number(puntosDeHistoria);
+            if (!Number.isInteger(puntosNum)) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Los puntos de historia deben ser un número entero"
+                });
+            }
+            // Verificar que idEpica no tenga length 0
+            if (idEpica === undefined || idEpica === null || String(idEpica).trim().length === 0) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Debe seleccionar una épica para la historia de usuario"
+                });
             }
 
         //Fase de insercion
@@ -183,7 +199,7 @@ class historiaUsuarioControlador {
         }
     }
 
-    /**
+/**
      * Metodo que procesa la solicitud para modificar una historia de usuario existente
      * @param {*} req Request Params con idHistoria e idProyecto, y Body con los datos actualizados
      * @param {*} res Estado ok y mensaje correspondiente
@@ -191,7 +207,7 @@ class historiaUsuarioControlador {
      */
     async modificarHistoriaEnProyecto(req, res) {
         const { idHistoria, idProyecto } = req.params;
-        const { nombre, descripcion, criterios, valor, horas } = req.body;
+        const { nombre, descripcion, criterios, valor, horas, puntosDeHistoria, puntos_de_historia, puntos, idEpica } = req.body;
 
         try {
             // Convertimos los parámetros de texto a número entero
@@ -231,7 +247,8 @@ class historiaUsuarioControlador {
             }
 
             // Se verifica que el valor sea un número
-            if (isNaN(valor) || typeof valor !== 'number') {
+            const valorNum = Number(valor);
+            if (!Number.isInteger(valorNum)) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "El valor enviado para la historia no es numerico"
@@ -239,7 +256,7 @@ class historiaUsuarioControlador {
             }
 
             // Se verifica que el valor esté dentro del rango estimado
-            if (valor < 0 || valor > 4000) {
+            if (valorNum < 0 || valorNum > 4000) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "El valor especificado para la historia no esta dentro del rango establecido"
@@ -247,10 +264,36 @@ class historiaUsuarioControlador {
             }
 
             // Se verifica que las horas sean un número y estén dentro del rango establecido
-            if (isNaN(horas) || typeof horas !== 'number' || horas < 0 || horas > 100) {
+            const horasNum = Number(horas);
+            if (!Number.isInteger(horasNum) || horasNum < 0 || horasNum > 100) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "La cantidad de horas especificadas para esta historia no esta dentro del rango establecido"
+                });
+            }
+
+            // Verificar que idEpica no tenga length 0
+            if (idEpica === undefined || idEpica === null || String(idEpica).trim().length === 0) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Debe seleccionar una épica para la historia de usuario"
+                });
+            }
+
+            // Normalizar puntosDeHistoria para aceptar 0 y nunca enviar null/NaN
+            const candidatoPuntos =
+                puntosDeHistoria !== undefined && puntosDeHistoria !== null && String(puntosDeHistoria).trim() !== ""
+                    ? Number(puntosDeHistoria)
+                    : (puntos_de_historia !== undefined && puntos_de_historia !== null && String(puntos_de_historia).trim() !== ""
+                        ? Number(puntos_de_historia)
+                        : (puntos !== undefined && puntos !== null && String(puntos).trim() !== ""
+                            ? Number(puntos)
+                            : 0));
+
+            if (!Number.isInteger(candidatoPuntos) || candidatoPuntos < 0 || candidatoPuntos > 100) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "Los puntos de historia deben ser un número entero válido entre 0 y 100"
                 });
             }
 
@@ -263,8 +306,19 @@ class historiaUsuarioControlador {
                 });
             }
 
+            // Pasamos el cuerpo normalizado para garantizar que puntosDeHistoria no sea null ni NaN
+            const datosActualizados = {
+                ...req.body,
+                nombre: nombre.trim(),
+                descripcion: descripcion.trim(),
+                valor: valorNum,
+                horas: horasNum,
+                puntosDeHistoria: candidatoPuntos,
+                puntos_de_historia: candidatoPuntos
+            };
+
             // Fase de actualización en el DAO
-            const historiaModificada = await this.dao.modificarHistoria(idHistoriaNum, idProyectoNum, req.body);
+            const historiaModificada = await this.dao.modificarHistoria(idHistoriaNum, idProyectoNum, datosActualizados);
 
             if (historiaModificada && historiaModificada.ok) {
                 return res.status(201).json({
