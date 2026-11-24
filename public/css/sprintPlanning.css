@@ -1,3 +1,74 @@
+/* ==========================================================================
+   AMPLITUD EN DESARROLLADOR Y FACILITADOR + MEDIA PANTALLA
+   ========================================================================== */
+#zonaDeTrabajo > #vista-sprintPlanning,
+#zonaDeTrabajo #vista-sprintPlanning,
+#vista-sprintPlanning {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  box-sizing: border-box !important;
+}
+
+#zonaDeTrabajo #area-trabajo,
+#zonaDeTrabajo .area-trabajo,
+#vista-sprintPlanning #area-trabajo,
+#vista-sprintPlanning .area-trabajo {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 16px 20px !important;
+  box-sizing: border-box !important;
+}
+
+#zonaDeTrabajo .area-fondo,
+#vista-sprintPlanning .area-fondo {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 24px 28px !important;
+  box-sizing: border-box !important;
+}
+
+/* Evita que un contenedor flex/grid en Desarrollador bloquee el ancho */
+.dev-main-container > div:not(.dev-sidebar-menu) {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 1150px) {
+  #zonaDeTrabajo,
+  .dev-main-container > .dev-product-backlog,
+  .dev-main-container > #modal-mensajes-desarrollador {
+    padding: 12px !important;
+  }
+
+  #zonaDeTrabajo .area-fondo,
+  #vista-sprintPlanning .area-fondo {
+    padding: 16px !important;
+  }
+
+  .contenido-daily,
+  .contenido-fase2,
+  .review-contenido-principal,
+  .tablero-retrospectiva {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+  }
+
+  .panel-solicitudes,
+  .panel-resumen-review {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   1. RESET Y BASE
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -9,11 +80,60 @@ body {
   background-color: #79766f23;
 }
 
-/*cabeceras*/
+.oculto {
+  display: none !important;
+}
+
+/* ==========================================================================
+   2. CONTENEDOR PRINCIPAL DE REUNIONES (AMPLIO EN ZONA DE TRABAJO)
+   ========================================================================== */
+#vista-sprintPlanning {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#area-trabajo,
+.area-trabajo {
+  width: 100%;
+  max-width: 100%;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.area-fondo {
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 26px 30px;
+  min-height: 78vh;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   3. CABECERAS Y BARRA SUPERIOR DE REUNIÓN
+   ========================================================================== */
 #planningSuperior {
   background-color: #ffffff;
   padding: 15px 30px;
   border-bottom: 1px solid #e4e4e7;
+}
+
+.planning-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.planning-barra #cabeceraPlanning {
+  flex: 1;
+  min-width: 0;
 }
 
 #cabeceraPlanning .cabeceraDefault {
@@ -31,27 +151,12 @@ body {
 
 #planningSuperior h1 {
   font-size: 20px;
-  color: #111;
-}
-
-/* Área de trabajo */
-#area-trabajo {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.area-fondo {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 30px;
-  min-height: 80vh;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #111827;
 }
 
 .fase-subtitulo h2 {
   font-size: 18px;
-  color: #333;
+  color: #1e293b;
   margin-bottom: 20px;
   border-bottom: 2px solid #1565c0;
   padding-bottom: 8px;
@@ -60,12 +165,13 @@ body {
 
 .panel {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .panel h3 {
   font-size: 16px;
   margin-bottom: 12px;
-  color: #222;
+  color: #1e293b;
 }
 
 .diseño-fondo {
@@ -74,295 +180,28 @@ body {
   border-radius: 10px;
   padding: 20px;
   width: 100%;
+  overflow-x: auto;
 }
 
-/*tablas*/
-.tablaHistorias, .tablaDuracion, #tablaTareas, .tablaAsignacion {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-.tablaHistorias th, .tablaHistorias td,
-.tablaDuracion th, .tablaDuracion td,
-#tablaTareas th, #tablaTareas td,
-.tablaAsignacion th, .tablaAsignacion td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 14px;
-}
-
-.tablaHistorias th, .tablaDuracion th, #tablaTareas th, .tablaAsignacion th {
-  background-color: #f1f5f9;
-  color: #1e293b;
-  font-weight: 600;
-}
-
-#tablaTareas input[type="number"] {
-  width: 70px;
-  padding: 6px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  background-color: #fff;
-  color: #000;
-  text-align: center;
-}
-
-.oculto {
-  display: none !important;
-}
-
+/* ==========================================================================
+   4. BOTONES Y ACCIONES
+   ========================================================================== */
 .acciones {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-top: 25px;
-  padding-top: 15px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid #e2e8f0;
 }
 
-/*botones*/
 .btn-azul {
   background-color: #1565c0;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-azul:hover {
-  background-color: #0d47a1;
-}
-
-.btn-rojo {
-  background-color: #de3b40;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-rojo:hover {
-  background-color: #b52e33;
-}
-
-/*panel de solicitudes*/
-.contenido-fase2 {
-  display: flex;
-  gap: 20px;
-}
-
-.contenido-fase2 .panel {
-  flex: 2;
-}
-
-.panel-solicitudes {
-  flex: 1;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 15px;
-}
-
-.select-desarrollador {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  background-color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-
-.app {
-  display: flex;
-  min-height: 100vh;
-}
-
-/*general*/
-.area-trabajo {
-  flex: 1;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.area-fondo {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 30px 30px;
-  min-height: 99%;
-  flex: 1;
-}
-
-/*fase 1*/
-.fase-titulo {
-  border-radius: 12px;
-}
-
-.iteracion {
-  font-size: 18px;
-  color:#000;
-  font-weight: normal;
-  margin-left: 10px;
-}
-
-.fase-titulo h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: #000;
-}
-
-.subtitulo {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #000;
-}
-
-.lista-requisitos {
-  background-color: #79766f23;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-  width: 90%;
-}
-
-.panel h3 {
-  background-color: #ffffff;
-  font-size: 16px;
-  margin-bottom: 14px;
-  color: #000;
-}
-
-.lista-requisitos {
-  list-style: none;
-}
-
-.lista-requisitos li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  font-size: 15px;
-  color: #000;
-}
-
-.lista-requisitos input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #fff;
-  cursor: pointer;
-}
-
-.diseño-fondo {
-  background-color: #79766f23;
-  border-radius: 10px;
-  padding: 21px 21px;
-  width: 90%;
-}
-
-.tabla-resumen {
-  background-color: #79766f23;
-  border-radius: 10px;
-  margin-bottom: 16px;
-  width: 99%;
-  border-collapse: collapse;
-}
-
-.tabla-resumen th,
-.tabla-resumen td {
-  text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid #000;
-  font-size: 14px;
-}
-
-.tabla-resumen th {
-  color: #000;
-  font-weight: bold;
-}
-
-.tabla-tareas input[type="number"] {
-  width: 60px;
-  padding: 6px;
-  border: 1px solid #3d3526;
-  border-radius: 6px;
-  background-color: #79766f23;
-  color: #000;
-}
-
-.contenedor-dudas {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.mensaje-duda {
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.mensaje-duda .autor {
-  font-weight: bold;
-  font-size: 12px;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.mensaje-duda.equipo {
-  background-color: #79766f23;
-  align-self: flex-start;
-}
-
-.mensaje-duda.cliente {
-  background-color: #1565c0;
-  align-self: flex-start;
-}
-
-.zona-nueva-duda {
-  display: flex;
-  gap: 10px;
-  align-self: flex-end;
-}
-
-.zona-nueva-duda input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #3d3526;
-  border-radius: 8px;
-  background-color: #211c15;
-  color: #ffffff;
-}
-
-/*fase 2*/
-.texto-seleccion {
-  color: #000;
-  font-size: 14px;
-}
-
-.asignado {
-  color: #000;
-}
-
-.btn-azul {
-  background-color: #1565c0;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -375,61 +214,44 @@ body {
   background-color: #2e7d32;
   color: #ffffff;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .btn-verde:hover {
   background-color: #1b5e20;
 }
 
-.btn-gris {
-  background-color: #3d3526;
-  color: #ffffff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-gris:hover {
-  background-color: #4a4130;
-}
-
 .btn-rojo {
   background-color: #de3b40;
   color: #ffffff;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .btn-rojo:hover {
   background-color: #b52e33;
 }
 
-
-
-.panel .btn-gris {
-  margin-top: 12px;
-  display: inline-block;
+.btn-gris {
+  background-color: #475569;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.btnContinuar {
-  display: block;
-  padding: 15px 23px;
-}
-
-.acciones {
-  display: flex;
-  gap: 12px;
-  margin-top: 10px;
-  padding: 15px;
+.btn-gris:hover {
+  background-color: #334155;
 }
 
 .btn-autoasignar {
@@ -446,31 +268,206 @@ body {
   background-color: #0d47a1;
 }
 
-.btnFinalizar {
-  display: block;
-  padding: 15px 23px;
+.btn-salir-reunion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.btn-salir-reunion:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
 
-/*estilo para la revisión de entregables del sprint*/
+.btn-salir-reunion:active {
+  transform: translateY(1px);
+}
 
-/* Contenedor principal de la revisión (Grid de tarjetas + Panel lateral) */
-.review-contenido-principal {
+.btn-salir-icono {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   5. TABLAS DE SPRINT PLANNING (FASE 1, DETALLES Y FASE 2)
+   ========================================================================== */
+.tablaHistorias,
+.tablaDuracion,
+#tablaTareas,
+.tablaAsignacion {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tablaHistorias th,
+.tablaHistorias td,
+.tablaDuracion th,
+.tablaDuracion td,
+#tablaTareas th,
+#tablaTareas td,
+.tablaAsignacion th,
+.tablaAsignacion td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.tablaHistorias th,
+.tablaDuracion th,
+#tablaTareas th,
+.tablaAsignacion th {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+#tablaTareas input[type="number"] {
+  width: 75px;
+  padding: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0f172a;
+  text-align: center;
+}
+
+/* Fase 2: Asignación + Panel lateral de solicitudes */
+.contenido-fase2 {
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  margin-top: 15px;
+  width: 100%;
 }
 
-/* Cuadrícula de tarjetas de historias de usuario */
+.contenido-fase2 .panel {
+  flex: 2;
+  min-width: 0;
+}
+
+.panel-solicitudes {
+  flex: 1;
+  min-width: 260px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.select-desarrollador {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   6. SPRINT REVIEW (REVISIÓN DE ENTREGABLES)
+   ========================================================================== */
+#vista-sprintReview {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.review-encabezado {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#txtObjetivoIteracion {
+  font-size: 18px;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.banner-titulo-review {
+  background-color: #e2e8f0;
+  padding: 14px 20px;
+  border-radius: 8px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.banner-titulo-review h3 {
+  margin: 0;
+  font-size: 19px;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.review-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 22px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.review-meta h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.review-meta .num-iteracion {
+  font-size: 15px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.alerta-espera {
+  background-color: #fffbeb;
+  border: 1px solid #f6e05e;
+  color: #b7791f;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.review-contenido-principal {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+}
+
 .grid-historias-review {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  flex: 1;
 }
 
-/* Tarjeta individual de revisión */
 .tarjeta-historia-review {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -482,7 +479,6 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Cabecera blanca dentro de la tarjeta */
 .tarjeta-header-blanco {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
@@ -503,7 +499,6 @@ body {
   margin: 0;
 }
 
-/* Sección de Criterios de Aceptación */
 .tarjeta-criterios h4 {
   font-size: 14px;
   color: #1e293b;
@@ -514,6 +509,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 8px;
 }
 
@@ -533,7 +530,6 @@ body {
   cursor: pointer;
 }
 
-/* Caja de comentarios */
 .tarjeta-comentario {
   display: flex;
   flex-direction: column;
@@ -562,7 +558,6 @@ body {
   border-color: #1565c0;
 }
 
-/* Pie de tarjeta y botones de decisión */
 .tarjeta-footer-estado {
   display: flex;
   flex-direction: column;
@@ -586,7 +581,6 @@ body {
   transition: background-color 0.2s;
 }
 
-/* Badges y etiquetas de estado final */
 .badge-estado {
   display: inline-block;
   padding: 10px 14px;
@@ -612,9 +606,9 @@ body {
   color: #ffffff;
 }
 
-/* Panel lateral derecho (Resumen exclusivo del Cliente) */
 .panel-resumen-review {
   width: 280px;
+  flex-shrink: 0;
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -644,163 +638,51 @@ body {
   justify-content: space-between;
 }
 
-/* Alerta de espera para el Facilitador / Desarrollador */
-.alerta-espera {
-  background-color: #fffbeb;
-  border: 1px solid #f6e05e;
-  color: #b7791f;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-#vista-sprintReview {
-  width: 100%;
-  padding: 10px 10px;
-  box-sizing: border-box;
-}
-
-/* Encabezado: Objetivo arriba centrado y barra gris abarcando todo */
-.review-encabezado {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-#txtObjetivoIteracion {
-  font-size: 18px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.banner-titulo-review {
-  background-color: #e2e8f0;
-  padding: 14px 20px;
-  border-radius: 8px;
-  width: 100%;
-  box-sizing: border-box;
-  text-align: center;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.banner-titulo-review h3 {
-  margin: 0;
-  font-size: 19px;
-  color: #1e293b;
-  font-weight: 700;
-}
-
-/* Fila inferior distribuida de extremo a extremo */
-.review-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 12px;
-}
-
-.review-meta h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #334155;
-  font-weight: 600;
-}
-
-.review-meta .num-iteracion {
-  font-size: 15px;
-  color: #475569;
-  font-weight: 500;
-}
-
-/* Contenedor principal de tarjetas y panel resumen optimizado */
-.review-contenido-principal {
-  display: flex;
-  gap: 24px;
-  width: 100%;
-  align-items: flex-start;
-}
-
-.grid-historias-review {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-/* Barra superior: título a la izquierda, botón de salir a la derecha */
-.planning-barra {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.planning-barra #cabeceraPlanning {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Botón de salir: discreto, con borde rojo; se rellena al pasar el cursor */
-.btn-salir-reunion {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #fff;
-  color: #dc2626;
-  border: 1.5px solid #fca5a5;
-  border-radius: 20px;
-  padding: 9px 18px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s ease, color 0.2s ease,
-              border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn-salir-reunion:hover {
-  background-color: #dc2626;
-  color: #fff;
-  border-color: #dc2626;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
-}
-
-.btn-salir-reunion:active {
-  transform: translateY(1px);
-}
-
-.btn-salir-icono {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.nav-daily { display: flex; align-items: center; gap: 12px; }
-.btn-nav-daily { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-.btn-nav-daily:disabled { opacity: .4; cursor: not-allowed; }
-.resumen-daily { margin: 0 0 14px; padding: 8px 12px; background: #eff6ff; border-radius: 8px; color: #1e3a8a; font-size: 14px; }
-.fila-impedimento { flex-wrap: wrap; }
-.fila-impedimento select { padding: 8px; border: 1px solid #1e293b; border-radius: 6px; max-width: 170px; }
-.fila-impedimento select:disabled { background: #f1f5f9; border-color: #cbd5e1; }
-.campo-daily textarea:disabled { background: #f8fafc; color: #334155; }
-
-/* ================= DAILY SCRUM ================= */
-/* ================= DAILY SCRUM (PANEL DESARROLLADOR) ================= */
+/* ==========================================================================
+   7. DAILY SCRUM (SINCRONIZACIÓN DIARIA)
+   ========================================================================== */
 #vista-dailyScrum {
   width: 100%;
   box-sizing: border-box;
 }
 
+.nav-daily {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-nav-daily {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-nav-daily:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.resumen-daily {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  background: #eff6ff;
+  border-radius: 8px;
+  color: #1e3a8a;
+  font-size: 14px;
+}
+
 .contenido-daily {
   display: grid;
-  grid-template-columns: minmax(310px, 1fr) minmax(340px, 1.2fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1.25fr);
   gap: 24px;
   align-items: start;
   margin-top: 14px;
+  width: 100%;
 }
 
 .panel-reporte-daily,
@@ -810,6 +692,7 @@ body {
   border-radius: 10px;
   padding: 18px 20px;
   margin-bottom: 0;
+  min-width: 0;
 }
 
 .panel-reporte-daily h3,
@@ -855,7 +738,12 @@ body {
   border-color: #0284c7;
 }
 
-/* Fila de impedimento: Sí / [Switch] / [Historia] / [Describe el impedimento] */
+.campo-daily textarea:disabled {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
 .fila-impedimento {
   display: flex;
   align-items: center;
@@ -877,12 +765,12 @@ body {
   background-color: #ffffff;
   color: #0f172a;
   font-size: 13px;
-  max-width: 175px;
-  flex: 0 1 175px;
+  flex: 1 1 160px;
+  min-width: 140px;
 }
 
 .fila-impedimento input[type="text"] {
-  flex: 1 1 160px;
+  flex: 1 1 180px;
   min-width: 150px;
   padding: 8px 12px;
   border: 1px solid #94a3b8;
@@ -897,12 +785,6 @@ body {
   background-color: #f1f5f9;
   border-color: #cbd5e1;
   color: #64748b;
-}
-
-.campo-daily textarea:disabled {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-  color: #334155;
 }
 
 /* Switch deslizante */
@@ -954,7 +836,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Botón publicar actualización */
 #btnPublicarDaily {
   width: 100%;
   background-color: #0284c7;
@@ -970,12 +851,11 @@ body {
   background-color: #0369a1;
 }
 
-/* Muro y tarjetas estilo referencia */
 #muroDaily {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-height: 460px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -1045,32 +925,20 @@ body {
   padding: 8px 0;
 }
 
-/* Ajustes reunión diaria (Facilitador) */
-#vista-dailyScrum .panel-muro-daily {
-  margin-top: 6px;
+/* ==========================================================================
+   8. SPRINT RETROSPECTIVE
+   ========================================================================== */
+#vista-retrospectiva {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-#vista-dailyScrum #muroDaily {
-  max-height: 520px;
-}
-
-#vista-dailyScrum .acciones {
-  margin-top: 20px;
-  padding-top: 14px;
-}
-
-@media (max-width: 960px) {
-  .contenido-daily {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Sprint Retrospective */
 .tablero-retrospectiva {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 15px;
+  width: 100%;
 }
 
 .columna-retro {
@@ -1078,6 +946,7 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 16px;
+  min-width: 0;
 }
 
 .form-nota-retro textarea {
@@ -1099,8 +968,74 @@ body {
   margin-bottom: 10px;
 }
 
-@media (max-width: 900px) {
+/* ==========================================================================
+   9. DISEÑO RESPONSIVO (MEDIA PANTALLA / TABLET / MÓVIL)
+   ========================================================================== */
+@media (max-width: 1150px) {
+  #area-trabajo,
+  .area-trabajo {
+    padding: 12px 14px;
+  }
+
+  .area-fondo {
+    padding: 18px 20px;
+  }
+
+  /* Apilar columnas en media pantalla (ej. ventana partida a la mitad) */
+  .contenido-daily {
+    grid-template-columns: 1fr;
+  }
+
+  .contenido-fase2 {
+    flex-direction: column;
+  }
+
+  .panel-solicitudes {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .review-contenido-principal {
+    flex-direction: column;
+  }
+
+  .panel-resumen-review {
+    width: 100%;
+  }
+
   .tablero-retrospectiva {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  #area-trabajo,
+  .area-trabajo {
+    padding: 8px 10px;
+  }
+
+  .area-fondo {
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  .diseño-fondo {
+    padding: 12px;
+  }
+
+  .tablaHistorias th,
+  .tablaHistorias td,
+  .tablaDuracion th,
+  .tablaDuracion td,
+  #tablaTareas th,
+  #tablaTareas td,
+  .tablaAsignacion th,
+  .tablaAsignacion td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .acciones button {
+    width: 100%;
   }
 }

@@ -5,6 +5,105 @@ const ID_PROYECTO = proyectoGuardado?.id || Number(params.get("proyecto")) || 1;
 
 let cacheReuniones = [];
 let vistaActualReuniones = 'activas';
+let participantesProyecto = [];
+
+const TIPO_DAILY = 1;
+const TIPO_PLANNING = 2;
+const TIPO_RETROSPECTIVA = 3;
+const TIPO_REVIEW = 4;
+
+const ESTADOS_REUNION_CERRADA = ["finalizada", "cerrada", "completada"];
+
+function esReunionCerrada(reunion) {
+  if (!reunion || !reunion.estado) return false;
+  return ESTADOS_REUNION_CERRADA.includes(String(reunion.estado).toLowerCase().trim());
+}
+
+/**
+ * Valida si se puede crear o entrar a una reunión según el sprint y el flujo Scrum
+ */
+function validarSecuenciaReunion(idTipoReunion, idSprint, listaReuniones = cacheReuniones) {
+  const tipo = Number(idTipoReunion);
+  const sprintNum = Number(idSprint);
+
+  if (!sprintNum) {
+    return { permitido: false, motivo: "Selecciona un Sprint primero." };
+  }
+
+  const delSprint = (listaReuniones || []).filter(r => Number(r.id_sprint) === sprintNum);
+  const planificaciones = delSprint.filter(r => Number(r.id_tipo_reunion) === TIPO_PLANNING);
+  const planificacionCerrada = planificaciones.some(r => esReunionCerrada(r));
+  const diarias = delSprint.filter(r => Number(r.id_tipo_reunion) === TIPO_DAILY);
+  const revisiones = delSprint.filter(r => Number(r.id_tipo_reunion) === TIPO_REVIEW);
+
+  if (tipo === TIPO_PLANNING) {
+    return { permitido: true, motivo: "" };
+  }
+
+  if (tipo === TIPO_DAILY) {
+    if (planificaciones.length === 0) {
+      return {
+        permitido: false,
+        motivo: `Primero debes crear y finalizar la reunión de Planificación del Sprint ${sprintNum}.`
+      };
+    }
+    if (!planificacionCerrada) {
+      return {
+        permitido: false,
+        motivo: `La reunión Diaria del Sprint ${sprintNum} solo puede crearse o iniciarse cuando la Planificación esté finalizada.`
+      };
+    }
+    return { permitido: true, motivo: "" };
+  }
+
+  if (tipo === TIPO_REVIEW) {
+    if (!planificacionCerrada) {
+      return {
+        permitido: false,
+        motivo: `Primero debe existir y finalizarse la Planificación del Sprint ${sprintNum}.`
+      };
+    }
+    if (diarias.length === 0) {
+      return {
+        permitido: false,
+        motivo: `Debe existir al menos una reunión Diaria en el Sprint ${sprintNum} antes de la Revisión.`
+      };
+    }
+    return { permitido: true, motivo: "" };
+  }
+
+  if (tipo === TIPO_RETROSPECTIVA) {
+    if (!planificacionCerrada) {
+      return {
+        permitido: false,
+        motivo: `No se puede abrir la Retrospectiva del Sprint ${sprintNum} sin una Planificación finalizada.`
+      };
+    }
+    if (revisiones.length === 0) {
+      return {
+        permitido: false,
+        motivo: `Primero debe existir la reunión de Revisión del Sprint ${sprintNum}.`
+      };
+    }
+    return { permitido: true, motivo: "" };
+  }
+
+  return { permitido: true, motivo: "" };
+}
+
+function generarNombreReunionPorDefecto(idTipoReunion, idSprint) {
+  const tipo = Number(idTipoReunion);
+  const sprintTexto = idSprint ? `Sprint ${idSprint}` : "Sprint";
+
+  const nombresPorTipo = {
+    [TIPO_DAILY]: `Daily meeting - ${sprintTexto}`,
+    [TIPO_PLANNING]: `Sprint Planning - ${sprintTexto}`,
+    [TIPO_RETROSPECTIVA]: `Sprint Retrospective - ${sprintTexto}`,
+    [TIPO_REVIEW]: `Sprint Review - ${sprintTexto}`
+  };
+
+  return nombresPorTipo[tipo] || `Reunión - ${sprintTexto}`;
+}
 
 //se cargan reuniones segun el proyecto activo
 async function cargarReuniones() {
@@ -42,12 +141,12 @@ function renderizarSeccionReuniones() {
                           window.location.pathname.toLowerCase().includes('desarrollador');
 
   const reunionesFiltradasRol = cacheReuniones.filter(r => {
-  if (esCliente) {
-    // El cliente no participa ni en Retrospectiva (3) ni en Daily Scrum (1)
-    return Number(r.id_tipo_reunion) !== 3 && Number(r.id_tipo_reunion) !== 1;
-  }
-  return true;
-});
+    if (esCliente) {
+      // El cliente no participa ni en Retrospectiva (3) ni en Daily Scrum (1)
+      return Number(r.id_tipo_reunion) !== 3 && Number(r.id_tipo_reunion) !== 1;
+    }
+    return true;
+  });
 
   // Filtramos según el estado
   const actasFinalizadas = reunionesFiltradasRol.filter(r => r.estado && r.estado.toLowerCase() === 'finalizada');
@@ -235,7 +334,6 @@ async function eliminarReunion(idReunion) {
   }
 }
 
-
 //cambia al sprintPlanning cuando se presiona el boton 'Entrar' en la reunión
 async function entrarReunion(idReunion, idSprint, idTipoReunion) {
   try {
@@ -249,6 +347,12 @@ async function entrarReunion(idReunion, idSprint, idTipoReunion) {
       (rolMinuscula.includes('cliente') || window.location.pathname.toLowerCase().includes('cliente'))
     ) {
       alert("No tienes acceso a esta reunión.");
+      return;
+    }
+
+    const validacionEntrada = validarSecuenciaReunion(tipoReal, idSprint, cacheReuniones);
+    if (!validacionEntrada.permitido) {
+      alert(validacionEntrada.motivo);
       return;
     }
 
@@ -274,7 +378,7 @@ async function entrarReunion(idReunion, idSprint, idTipoReunion) {
       //cargar el HTML de sprintPlanning
       const respuesta = await fetch('../html/sprintPlanning.html');
       contenedorPlanning.innerHTML = await respuesta.text();
-      contenedorPlanning.style.display = "block";;
+      contenedorPlanning.style.display = "block";
 
       if (typeof inicializarSprintPlanning === 'function') {
         inicializarSprintPlanning(idSprint, idReunion, ID_PROYECTO, tipoReal);
@@ -302,6 +406,11 @@ async function configurarModalAgendar() {
   if (btnCancelar && modalCrear) {
     btnCancelar.addEventListener("click", () => {
       modalCrear.style.display = "none";
+      const btnGuardarActual = document.getElementById("btnGuardarReunion");
+      if (btnGuardarActual) {
+        btnGuardarActual.disabled = false;
+        btnGuardarActual.style.opacity = "1";
+      }
     });
   }
 
@@ -310,14 +419,26 @@ async function configurarModalAgendar() {
     btnGuardar.onclick = async () => {
       const idTipoReunion = document.getElementById("seleccionTipoReunion").value;
       const idSprint = document.getElementById("inputSprintSeleccionado").value;
-      const nombre = document.getElementById("nombreReunion").value;
+      const nombreIngresado = document.getElementById("nombreReunion").value.trim();
+      const nombreFinal = nombreIngresado || generarNombreReunionPorDefecto(idTipoReunion, idSprint);
       const fechaInicio = document.getElementById("fechaInicio").value;
-      const fechaFin = document.getElementById("fechaFin").value;
+      const fechaFinInput = document.getElementById("fechaFin")?.value || "";
+      const fechaFin = fechaFinInput || fechaInicio;
 
-      if (!idSprint || !fechaInicio || !fechaFin) {
+      if (!idSprint || !fechaInicio) {
         alert("Por favor completa los campos obligatorios (*).");
         return;
       }
+
+      const validacion = validarSecuenciaReunion(idTipoReunion, idSprint, cacheReuniones);
+      if (!validacion.permitido) {
+        alert(validacion.motivo);
+        return;
+      }
+
+      const participantesSeleccionados = Array.from(
+        document.querySelectorAll('#listaParticipantesCheck input[name="participantes"]:checked:not(:disabled)')
+      ).map(cb => Number(cb.value));
 
       try {
         const respuesta = await fetch('/reuniones/crear', {
@@ -327,9 +448,10 @@ async function configurarModalAgendar() {
             idProyecto: ID_PROYECTO,
             idSprint: Number(idSprint),
             idTipoReunion: Number(idTipoReunion),
-            nombre,
+            nombre: nombreFinal,
             fechaInicio,
-            fechaFin
+            fechaFin,
+            participantes: participantesSeleccionados
           })
         });
 
@@ -377,27 +499,47 @@ async function cargarDatosFormularioModal() {
           inputOcultoSprint.value = "";
         }
       }
+
       //tipos de reunión
       const selectTipo = document.getElementById("seleccionTipoReunion");
       selectTipo.innerHTML = tiposReunion && tiposReunion.length > 0
         ? tiposReunion.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')
         : '<option value="">No hay tipos de reunión</option>';
 
-      //obtiene participantes
-      const contenedorParticipantes = document.getElementById("listaParticipantesCheck");
-      if (contenedorParticipantes) {
-        contenedorParticipantes.innerHTML = participantes.length > 0
-          ? participantes.map(p => `
-              <label style="display: block; margin-bottom: 5px;">
-                <input type="checkbox" name="participantes" value="${p.id}"> ${p.nombre} (${p.rol})
-              </label>
-            `).join('')
-          : '<p style="color: #666; font-size: 13px;">No hay participantes asociados al proyecto.</p>';
+      // Vincular cambio de tipo de reunión y actualizar estado inicial
+      participantesProyecto = Array.isArray(participantes) ? participantes : [];
+      actualizarParticipantesPorTipo();
+      actualizarAvisoSecuenciaModal();
+
+      if (selectTipo) {
+        selectTipo.onchange = () => {
+          actualizarAvisoSecuenciaModal();
+          actualizarParticipantesPorTipo();
+        };
       }
     }
   } catch (err) {
     console.error("Error al cargar datos para el formulario:", err);
   }
+}
+
+function actualizarParticipantesPorTipo() {
+  const contenedorParticipantes = document.getElementById("listaParticipantesCheck");
+  const tipo = Number(document.getElementById("seleccionTipoReunion")?.value);
+  if (!contenedorParticipantes) return;
+
+  const excluyeCliente = tipo === TIPO_DAILY || tipo === TIPO_RETROSPECTIVA;
+  const lista = excluyeCliente
+    ? participantesProyecto.filter(p => !String(p.rol || "").toLowerCase().includes("cliente"))
+    : participantesProyecto;
+
+  contenedorParticipantes.innerHTML = lista.length > 0
+    ? lista.map(p => `
+        <label style="display: block; margin-bottom: 5px;">
+          <input type="checkbox" name="participantes" value="${p.id}"> ${p.nombre} (${p.rol})
+        </label>
+      `).join('')
+    : '<p style="color: #666; font-size: 13px;">No hay participantes elegibles para este tipo de reunión.</p>';
 }
 
 //marcar visualmente el sprint
@@ -411,6 +553,34 @@ function seleccionarSprintCard(idSprint, elementoCard) {
 
   elementoCard.style.borderColor = "#2563eb";
   elementoCard.style.background = "#eff6ff";
+
+  actualizarAvisoSecuenciaModal();
+}
+
+function actualizarAvisoSecuenciaModal() {
+  const idSprint = document.getElementById("inputSprintSeleccionado")?.value;
+  const idTipo = document.getElementById("seleccionTipoReunion")?.value;
+  const btnGuardar = document.getElementById("btnGuardarReunion");
+
+  let aviso = document.getElementById("avisoRestriccionFlujo");
+  if (!aviso && btnGuardar && btnGuardar.parentElement) {
+    aviso = document.createElement("p");
+    aviso.id = "avisoRestriccionFlujo";
+    aviso.style.cssText = "margin: 8px 0 0; font-size: 13px; color: #b91c1c;";
+    btnGuardar.parentElement.insertBefore(aviso, btnGuardar);
+  }
+
+  if (!idSprint || !idTipo) return;
+  const res = validarSecuenciaReunion(idTipo, idSprint, cacheReuniones);
+
+  if (aviso) {
+    aviso.textContent = res.permitido ? "" : `⚠ ${res.motivo}`;
+    aviso.style.display = res.permitido ? "none" : "block";
+  }
+  if (btnGuardar) {
+    btnGuardar.disabled = !res.permitido;
+    btnGuardar.style.opacity = res.permitido ? "1" : "0.6";
+  }
 }
 
 // Listener para detectar el retorno automático desde Planning Poker y abrir la vista de detalles

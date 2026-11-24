@@ -1,110 +1,153 @@
+/* ==========================================================================
+   1. RESET Y BASE
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-#titulo-reuniones{
-  font-size: 1.2em;
-  margin-bottom: 30px;
-  background-color: #ffffff;
-  color: #000;
-  border-radius: 10px;
-  padding: 9px 13px;
+.modal-class {
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* ==========================================================================
+   2. LISTADO PRINCIPAL DE REUNIONES (AMPLIO)
+   ========================================================================== */
+#titulo-reuniones {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  color: #0f172a;
+  border-radius: 10px;
+  padding: 12px 16px;
+  width: 100%;
+}
+
+#zonaDeTrabajo .area-fondo,
 .area-fondo {
   background-color: #ffffff;
-  border-radius: 10px;
-  padding: 25px 25px;
-  width: 90%;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .tarjeta-reunion {
-  background-color: #f4f4f5;
-  border: 1px solid #e4e4e7;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 24px 24px;
-  margin-bottom: 20px;
-  width: 96%;
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.tarjeta-reunion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .tarjeta-reunion h2 {
   font-size: 18px;
-  margin-bottom: 10px;
-  color: #000;
+  margin-bottom: 8px;
+  color: #0f172a;
 }
 
 .detalle {
   color: #52525b;
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .estado {
   font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
 }
 
 .estado.en-curso { color: #d97706; }
 .estado.programada { color: #2563eb; }
 .estado.finalizada { color: #16a34a; }
 
-/*botones*/
-.btn-entrar, .btn-agendar, .btn-editar {
+/* ==========================================================================
+   3. BOTONES DE REUNIONES
+   ========================================================================== */
+.btn-entrar,
+.btn-agendar,
+.btn-editar {
   background-color: #1565c0;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.btn-entrar:hover, .btn-agendar:hover, .btn-editar:hover {
+.btn-entrar:hover,
+.btn-agendar:hover,
+.btn-editar:hover {
   background-color: #0d47a1;
 }
 
 .btn-agendar {
-  margin-top: 10px;
-  padding: 12px 24px;
+  margin-top: 8px;
+  padding: 11px 22px;
 }
 
 .btn-editar {
-  margin-left: 12px; 
+  margin-left: 10px;
 }
 
-/*agenda de reuniones*/
-.modal-class {
-  font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.entradaInp {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.entradaInp label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.entradaInp input, .entradaInp select {
-  padding: 10px;
-  border: 1px solid #ccc;
+.btn-eliminar-reunion {
+  background-color: transparent;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
   border-radius: 6px;
-  font-size: 14px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.btn-eliminar-reunion:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.btn-azul {
+  background-color: #1565c0;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-rojo {
+  background-color: #de3b40;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   4. MODAL CREAR / EDITAR REUNIÓN
+   ========================================================================== */
 #modalCrearReunion {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.55);
@@ -137,7 +180,7 @@
 }
 
 .modal-header {
-  padding: 20px 25px 15px 25px;
+  padding: 18px 24px 14px;
   border-bottom: 1px solid #e4e4e7;
   background-color: #ffffff;
 }
@@ -150,15 +193,16 @@
 }
 
 .modal-body {
-  padding: 20px 25px;
+  padding: 20px 24px;
   overflow-y: auto;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .entradaInp {
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -170,19 +214,19 @@
   color: #374151;
 }
 
-.entradaInp input, 
+.entradaInp input,
 .entradaInp select {
   padding: 10px 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   font-size: 14px;
-  background-color: #fff;
-  color: #000;
+  background-color: #ffffff;
+  color: #0f172a;
   outline: none;
   transition: border-color 0.2s;
 }
 
-.entradaInp input:focus, 
+.entradaInp input:focus,
 .entradaInp select:focus {
   border-color: #1565c0;
 }
@@ -193,7 +237,7 @@
 }
 
 #listaParticipantesCheck {
-  max-height: 110px;
+  max-height: 120px;
   overflow-y: auto;
   border: 1px solid #cbd5e1;
   padding: 10px;
@@ -202,61 +246,151 @@
 }
 
 .modal-footer {
-  padding: 15px 25px;
+  padding: 14px 24px;
   border-top: 1px solid #e4e4e7;
   background-color: #f8fafc;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .modal-botones {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 18px;
+  flex-wrap: wrap;
 }
 
-.btn-azul {
-  background-color: #1565c0;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-rojo {
-  background-color: #de3b40;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.tarjeta-reunion-header {
+/* Pestañas de reuniones */
+.reuniones-pestanas {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.btn-eliminar-reunion {
-  background-color: transparent;
-  color: #dc2626;
-  border: 1px solid #fca5a5;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
+.reuniones-tab {
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-.btn-eliminar-reunion:hover {
-  background-color: #dc2626;
+.reuniones-tab:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.reuniones-tab.activa {
+  background-color: #1565c0;
+  border-color: #1565c0;
   color: #ffffff;
+}
+
+/* Tarjeta de reunión finalizada y metadatos */
+.tarjeta-reunion.es-finalizada {
+  background-color: #f8fafc;
+  border-left: 5px solid #2563eb;
+}
+
+.reunion-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #52525b;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.reunion-timebox {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.btn-ver-detalles {
+  background: none;
+  border: none;
+  color: #1565c0;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.btn-ver-detalles:hover {
+  color: #0d47a1;
+}
+
+/* Layout de listado + panel lateral */
+.reuniones-layout {
+  display: flex;
+  gap: 20px;
+  position: relative;
+  align-items: flex-start;
+}
+
+.reuniones-lista-col {
+  flex: 1;
+  min-width: 0;
+}
+
+#panelDetallesReunionLateral {
+  width: 320px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  position: sticky;
+  top: 12px;
+}
+
+@media (max-width: 900px) {
+  .reuniones-layout {
+    flex-direction: column;
+  }
+
+  #panelDetallesReunionLateral {
+    width: 100%;
+    position: static;
+  }
+}
+
+/* ==========================================================================
+   5. RESPONSIVO (MEDIA PANTALLA / MÓVIL)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .area-fondo {
+    padding: 16px !important;
+  }
+
+  .tarjeta-reunion {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .btn-editar {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
+  .btn-entrar,
+  .btn-editar,
+  .btn-agendar {
+    width: 100%;
+  }
 }
