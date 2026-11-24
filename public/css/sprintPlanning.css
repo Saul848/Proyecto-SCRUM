@@ -229,10 +229,6 @@ body {
   color: #000;
 }
 
-.oculto {
-  display: none;
-}
-
 .lista-requisitos {
   background-color: #79766f23;
   border-radius: 12px;
@@ -781,4 +777,330 @@ body {
 .btn-salir-icono {
   font-size: 1rem;
   line-height: 1;
+}
+
+.nav-daily { display: flex; align-items: center; gap: 12px; }
+.btn-nav-daily { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.btn-nav-daily:disabled { opacity: .4; cursor: not-allowed; }
+.resumen-daily { margin: 0 0 14px; padding: 8px 12px; background: #eff6ff; border-radius: 8px; color: #1e3a8a; font-size: 14px; }
+.fila-impedimento { flex-wrap: wrap; }
+.fila-impedimento select { padding: 8px; border: 1px solid #1e293b; border-radius: 6px; max-width: 170px; }
+.fila-impedimento select:disabled { background: #f1f5f9; border-color: #cbd5e1; }
+.campo-daily textarea:disabled { background: #f8fafc; color: #334155; }
+
+/* ================= DAILY SCRUM ================= */
+/* ================= DAILY SCRUM (PANEL DESARROLLADOR) ================= */
+#vista-dailyScrum {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contenido-daily {
+  display: grid;
+  grid-template-columns: minmax(310px, 1fr) minmax(340px, 1.2fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 14px;
+}
+
+.panel-reporte-daily,
+.panel-muro-daily {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 0;
+}
+
+.panel-reporte-daily h3,
+.panel-muro-daily h3 {
+  background-color: transparent;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 14px;
+}
+
+.campo-daily {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.campo-daily > label:first-child {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.campo-daily textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 10px 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.campo-daily textarea:focus,
+.fila-impedimento input[type="text"]:focus,
+.fila-impedimento select:focus {
+  outline: none;
+  border-color: #0284c7;
+}
+
+/* Fila de impedimento: Sí / [Switch] / [Historia] / [Describe el impedimento] */
+.fila-impedimento {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.fila-impedimento > span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.fila-impedimento select {
+  padding: 8px 10px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  max-width: 175px;
+  flex: 0 1 175px;
+}
+
+.fila-impedimento input[type="text"] {
+  flex: 1 1 160px;
+  min-width: 150px;
+  padding: 8px 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.fila-impedimento input[type="text"]:disabled,
+.fila-impedimento select:disabled {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+.campo-daily textarea:disabled {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+/* Switch deslizante */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #94a3b8;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switch input:checked + .switch-slider {
+  background-color: #0284c7;
+}
+
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
+}
+
+.switch input:disabled + .switch-slider {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Botón publicar actualización */
+#btnPublicarDaily {
+  width: 100%;
+  background-color: #0284c7;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 18px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+#btnPublicarDaily:hover {
+  background-color: #0369a1;
+}
+
+/* Muro y tarjetas estilo referencia */
+#muroDaily {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.tarjeta-daily {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-daily-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.daily-autor {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.daily-hora {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.daily-detalle {
+  list-style: disc;
+  padding: 10px 16px 6px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.daily-estado {
+  align-self: flex-end;
+  margin: 4px 14px 12px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.daily-estado.sin-impedimentos {
+  background-color: #bbf7d0;
+  color: #166534;
+}
+
+.daily-estado.con-impedimento {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.texto-vacio {
+  color: #64748b;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+/* Ajustes reunión diaria (Facilitador) */
+#vista-dailyScrum .panel-muro-daily {
+  margin-top: 6px;
+}
+
+#vista-dailyScrum #muroDaily {
+  max-height: 520px;
+}
+
+#vista-dailyScrum .acciones {
+  margin-top: 20px;
+  padding-top: 14px;
+}
+
+@media (max-width: 960px) {
+  .contenido-daily {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sprint Retrospective */
+.tablero-retrospectiva {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 15px;
+}
+
+.columna-retro {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.form-nota-retro textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  margin-bottom: 8px;
+  resize: vertical;
+}
+
+.tarjeta-nota-retro {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .tablero-retrospectiva {
+    grid-template-columns: 1fr;
+  }
 }

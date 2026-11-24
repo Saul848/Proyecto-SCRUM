@@ -54,6 +54,21 @@ function crearReunionControlador(pool) {
         }
     };
 
+    // En reunionControlador.js
+    const eliminarReunion = async (req, res) => {
+        try {
+            const { idReunion } = req.params;
+            const eliminadas = await reunionDAO.eliminarReunion(idReunion);
+            if (eliminadas === 0) {
+                return res.status(404).json({ ok: false, error: 'Reunión no encontrada' });
+            }
+            res.json({ ok: true, mensaje: 'Reunión eliminada correctamente' });
+        } catch (err) {
+            console.error('ERROR AL ELIMINAR REUNIÓN:', err.message);
+            res.status(500).json({ ok: false, error: 'No se pudo eliminar la reunión' });
+        }
+    };
+
     //cambiar estado a 'En curso'
     const cambiarEstadoEnCurso = async (req, res) => {
         try {
@@ -137,6 +152,44 @@ function crearReunionControlador(pool) {
         }
     };
 
+    const obtenerDaily = async (req, res) => {
+        try {
+            const { idReunion } = req.params;
+            const data = await reunionDAO.obtenerDaily(idReunion);
+            if (!data) return res.status(404).json({ ok: false, error: 'Daily no encontrada' });
+            res.json({ ok: true, data });
+        } catch (err) {
+            console.error('ERROR AL OBTENER DAILY:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
+    const publicarDaily = async (req, res) => {
+        try {
+            const { idReunion } = req.params;
+            const { idUsuario, ayer, hoy, tieneImpedimento, impedimento, idHistoria } = req.body;
+
+            if (!idUsuario || !ayer?.trim() || !hoy?.trim()) {
+                return res.status(400).json({ ok: false, error: 'Completa lo que hiciste ayer y lo que harás hoy.' });
+            }
+            if (tieneImpedimento && (!impedimento?.trim() || !idHistoria)) {
+                return res.status(400).json({ ok: false, error: 'Describe el impedimento y elige la historia afectada.' });
+            }
+
+            await reunionDAO.guardarRespuestaDaily(idReunion, idUsuario, {
+                ayer: ayer.trim(),
+                hoy: hoy.trim(),
+                tieneImpedimento: !!tieneImpedimento,
+                impedimento: tieneImpedimento ? impedimento.trim() : null,
+                idHistoria: tieneImpedimento ? Number(idHistoria) : null
+            });
+            res.json({ ok: true, mensaje: 'Actualización publicada' });
+        } catch (err) {
+            console.error('ERROR AL PUBLICAR DAILY:', err.message);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    };
+
     return { 
         obtenerReuniones, 
         obtenerDatosFormulario, 
@@ -146,7 +199,10 @@ function crearReunionControlador(pool) {
         cambiarEstadoFinalizada,
         obtenerHistoriasRevision,
         revisarHistoria,
-        devolverBacklog
+        devolverBacklog,
+        obtenerDaily, 
+        publicarDaily,
+        eliminarReunion
     };
 }
 

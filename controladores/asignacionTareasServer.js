@@ -76,6 +76,16 @@ function setupAsignacionTareasSockets(server) {
             io.to(`sprint-${data.sprintId}`).emit("acta-revision-cerrada-cliente", data);
         });
 
+        //daily scrum: alguien publicó su reporte
+        socket.on("publicar-daily", (data) => {
+            io.to(`sprint-${data.sprintId}`).emit("daily-actualizada", data);
+        });
+
+        //daily scrum: el facilitador la finalizó
+        socket.on("disparar-finalizar-daily", (data) => {
+            io.to(`sprint-${data.sprintId}`).emit("daily-finalizada-cliente", data);
+        });
+
         socket.on("disconnect", () => {
             console.log(`Desconectado de asignación de tareas: ${socket.id}`);
         });

@@ -2,6 +2,11 @@ if (typeof window.requisitos === 'undefined') window.requisitos = [];
 
 const proyectoGuardadoSession = JSON.parse(sessionStorage.getItem('proyectoActivo'));
 const urlParamsGlobal = new URLSearchParams(window.location.search);
+const ID_TIPO_DAILY = 1;
+const ID_TIPO_PLANNING = 2;
+const ID_TIPO_RETROSPECTIVA = 3;
+const ID_TIPO_REVIEW = 4;
+
 
 if (typeof window.ID_PROYECTO === 'undefined') {
   window.ID_PROYECTO = proyectoGuardadoSession?.id || Number(urlParamsGlobal.get("proyecto")) || 1;
@@ -171,10 +176,21 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
     };
   }
 
-  if (window.ID_TIPO_REUNION === 4) {
+  if (window.ID_TIPO_REUNION === ID_TIPO_DAILY) {
+    if (rol === 'cliente') {
+      alert("La Daily Scrum es exclusiva del equipo Scrum.");
+      document.getElementById("vista-sprintPlanning").style.display = "none";
+      document.getElementById("modal-reuniones").style.display = "block";
+      if (typeof cargarReuniones === "function") cargarReuniones();
+      return;
+    }
+    mostrarVista("vista-dailyScrum");
+    inicializarDailyScrum();
+  } else if (window.ID_TIPO_REUNION === ID_TIPO_REVIEW) {
     mostrarVista("vista-sprintReview");
+  } else if (window.ID_TIPO_REUNION === ID_TIPO_RETROSPECTIVA) {
+    mostrarVista("vista-retrospectiva");
   } else {
-  // Ejecutamos la carga inicial
     cargarHistoriasSprint();
     const vistaParam = urlParams.get("vista");
     if (vistaParam === "detalles") {
@@ -216,11 +232,9 @@ async function cargarHistoriasSprint() {
 
 //cabeceras
 function ocultarTodasCabeceras() {
-  ["historiasSprint", "historiasResumen", "historiasAsignacion", "historiasRevision"].forEach(id => {
+  ["historiasSprint", "historiasResumen", "historiasAsignacion", "historiasRevision", "historiasDaily", "historiasRetrospectiva"].forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.classList.add("oculto");
-    }
+    if (el) el.classList.add("oculto");
   });
 }
 
@@ -233,15 +247,14 @@ function mostrarCabeceraR(id) {
 }
 
 function mostrarVista(idVista) {
-
   // El cliente no participa en la Fase 2: se le muestra un aviso en lugar de la asignación
   if (obtenerRolActual() === 'cliente') {
     if (idVista === 'vista-fase2' || idVista === 'vistaDetalles') {
-      ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
-        const v = document.getElementById(vId);
-        if (v) {
-          v.style.setProperty("display", "none", "important");
-          v.classList.add("oculto");
+      ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview", "vista-dailyScrum", "vista-retrospectiva"].forEach(vId => {
+        const vista = document.getElementById(vId);
+        if (vista) {
+          vista.style.setProperty("display", "none", "important");
+          vista.classList.add("oculto");
         }
       });
       mostrarCabeceraR("historiasSprint");
@@ -251,7 +264,7 @@ function mostrarVista(idVista) {
     mostrarAvisoFase2Cliente(false);
   }
 
-  ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview"].forEach(vId => {
+  ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview", "vista-dailyScrum", "vista-retrospectiva"].forEach(vId => {
     const vista = document.getElementById(vId);
     if (vista) {
       vista.style.setProperty("display", "none", "important");
@@ -279,6 +292,13 @@ function mostrarVista(idVista) {
     case "vista-sprintReview":
       mostrarCabeceraR("historiasRevision");
       cargarHistoriasRevision();
+      break;
+    case "vista-dailyScrum":
+      mostrarCabeceraR("historiasDaily");
+      break;
+    case "vista-retrospectiva":
+      mostrarCabeceraR("historiasRetrospectiva");
+      inicializarRetrospectiva();
       break;
   }
 }
@@ -792,23 +812,81 @@ function inicializarSocketsAsignacion(idSprint) {
           cargarHistoriasRevision();
       }
     });
+
+    //alguien publicó su daily: refresca el muro si estoy viendo esa reunión
+    socketAsignacion.on("daily-actualizada", (data) => {
+      const vista = document.getElementById("vista-dailyScrum");
+      if (vista && vista.style.display === "block" && Number(data.reunionId) === Number(dailyReunionVista)) {
+        cargarMuroDaily(dailyReunionVista);
+      }
+    });
+
+    //el facilitador finalizó la daily
+    socketAsignacion.on("daily-finalizada-cliente", (data) => {
+      if (obtenerRolActual() === 'facilitador') return;
+      if (Number(data.reunionId) !== Number(window.ID_REUNION)) return;
+      alert("El facilitador ha finalizado la Daily Scrum.");
+      salirDeDaily();
+    });
   }
   socketAsignacion.emit("join-asignacion-sprint", { sprintId: idSprint });
 }
 
 //funcion que evalua el rol para cargar la vista de revisión y aplicar las restricciones correspondientes
 function aplicarRestriccionesRevision(rol) {
-    const rolActual = rol.toLowerCase();
+  const rolActual = rol.toLowerCase();
 
-    // Seleccionar elementos según el rol
-    const elementosCliente = document.querySelectorAll('[data-rol*="cliente"]');
-    const elementosFacilitadorDev = document.querySelectorAll('[data-rol*="facilitador"], [data-rol*="desarrollador"]');
-    const panelResumen = document.getElementById('panelResumenRevision');
-    const btnCerrarActa = document.getElementById('btnCerrarActaSprint');
-    const btnRetrospectiva = document.getElementById('btnIrRetrospectiva');
+  const elementosCliente = document.querySelectorAll('[data-rol*="cliente"]');
+  const elementosFacilitadorDev = document.querySelectorAll('[data-rol*="facilitador"], [data-rol*="desarrollador"]');
+  const panelResumen = document.getElementById('panelResumenRevision');
+  const btnCerrarActa = document.getElementById('btnCerrarActaSprint');
+  const btnRetrospectiva = document.getElementById('btnIrRetrospectiva');
 
-  //evento para el botón de cerrar acta de revisión (Ejecutado por el Cliente o Facilitador)
-  const btnCerrarActaSprint = document.getElementById("btnCerrarActaSprint");
+  if (rolActual === 'cliente') {
+    elementosCliente.forEach(el => el.style.display = 'flex');
+    elementosFacilitadorDev.forEach(el => el.classList.add('oculto'));
+    if (panelResumen) panelResumen.style.display = 'block';
+    if (btnCerrarActa) {
+      btnCerrarActa.style.display = 'block';
+      btnCerrarActa.classList.remove('oculto');
+    }
+    if (btnRetrospectiva) {
+      btnRetrospectiva.style.display = 'none';
+      btnRetrospectiva.classList.add('oculto');
+    }
+  } else if (rolActual === 'facilitador') {
+    elementosCliente.forEach(el => el.style.display = 'none');
+    elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
+    if (panelResumen) panelResumen.style.display = 'none';
+    if (btnCerrarActa) {
+      btnCerrarActa.style.display = 'block';
+      btnCerrarActa.classList.remove('oculto');
+    }
+    if (btnRetrospectiva) {
+      btnRetrospectiva.style.display = 'block';
+      btnRetrospectiva.classList.remove('oculto');
+    }
+
+    document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
+  } else if (rolActual === 'desarrollador') {
+    elementosCliente.forEach(el => el.style.display = 'none');
+    elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
+
+    const btnDevolver = document.querySelectorAll('.btn-devolver-backlog');
+    btnDevolver.forEach(b => b.style.display = 'none');
+
+    if (panelResumen) panelResumen.style.display = 'none';
+    if (btnCerrarActa) btnCerrarActa.style.display = 'none';
+    if (btnRetrospectiva) {
+      btnRetrospectiva.style.display = 'block';
+      btnRetrospectiva.classList.remove('oculto');
+    }
+
+    document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
+  }
+}
+
+const btnCerrarActaSprint = document.getElementById("btnCerrarActaSprint");
   if (btnCerrarActaSprint) {
     btnCerrarActaSprint.onclick = async () => {
       const rolActual = obtenerRolActual();
@@ -817,7 +895,6 @@ function aplicarRestriccionesRevision(rol) {
         if (!confirm("¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo.")) return;
 
         try {
-          //marcar la reunión como 'Finalizada' en la BD
           const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' }
@@ -825,7 +902,6 @@ function aplicarRestriccionesRevision(rol) {
           const resultado = await respuesta.json();
 
           if (resultado.ok) {
-            //disparar el socket para notificar en tiempo real al Facilitador y Desarrollador
             if (socketAsignacion) {
               socketAsignacion.emit("cliente-cerro-acta-revision", {
                 sprintId: window.ID_SPRINT,
@@ -834,9 +910,9 @@ function aplicarRestriccionesRevision(rol) {
             }
 
             alert("¡Acta de revisión cerrada con éxito!");
-            //regresar al panel principal o ocultar la vista
             document.getElementById("vista-sprintPlanning").style.display = "none";
             document.getElementById("modal-reuniones").style.display = "block";
+            if (typeof cargarReuniones === "function") cargarReuniones();
           } else {
             alert("Error al finalizar la reunión.");
           }
@@ -844,7 +920,6 @@ function aplicarRestriccionesRevision(rol) {
           console.error("Error al cerrar el acta:", err);
         }
       } else if (rolActual === 'facilitador') {
-        //si es el facilitador cerrando la sesión completa de revisión
         if (!confirm("¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?")) return;
 
         try {
@@ -858,6 +933,7 @@ function aplicarRestriccionesRevision(rol) {
             alert("Reunión finalizada correctamente.");
             document.getElementById("vista-sprintPlanning").style.display = "none";
             document.getElementById("modal-reuniones").style.display = "block";
+            if (typeof cargarReuniones === "function") cargarReuniones();
           } else {
             alert("Error al finalizar la reunión.");
           }
@@ -866,45 +942,6 @@ function aplicarRestriccionesRevision(rol) {
         }
       }
     };
-  }
-
-    if (rolActual === 'cliente') {
-        // El cliente ve botones de aprobar/rechazar y el resumen lateral
-        elementosCliente.forEach(el => el.style.display = 'flex');
-        elementosFacilitadorDev.forEach(el => el.classList.add('oculto'));
-        if (panelResumen) panelResumen.style.display = 'block';
-        if (btnCerrarActa) {
-            btnCerrarActa.style.display = 'block';
-            btnCerrarActa.classList.remove('oculto');
-        }
-        if (btnRetrospectiva) btnRetrospectiva.style.display = 'none';
-
-    } else if (rolActual === 'facilitador') {
-        // El facilitador ve los estados de revisión y el botón de devolver a backlog si fue rechazado
-        elementosCliente.forEach(el => el.style.display = 'none');
-        elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
-        if (panelResumen) panelResumen.style.display = 'none';
-        if (btnCerrarActa) btnCerrarActa.style.display = 'block'; // Ocultar si el cliente ya cerró el acta
-        if (btnRetrospectiva) btnRetrospectiva.style.display = 'block';
-
-        // Bloquear inputs de edición para que solo observe
-        document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
-
-    } else if (rolActual === 'desarrollador') {
-        // El desarrollador solo consulta estados y navega a retrospectiva (Imagen 3)
-        elementosCliente.forEach(el => el.style.display = 'none');
-        elementosFacilitadorDev.forEach(el => el.classList.remove('oculto'));
-        
-        // El desarrollador NO ve el botón de cerrar acta ni devolver a backlog
-        const btnDevolver = document.querySelectorAll('.btn-devolver-backlog');
-        btnDevolver.forEach(b => b.style.display = 'none');
-
-        if (panelResumen) panelResumen.style.display = 'none';
-        if (btnCerrarActa) btnCerrarActa.style.display = 'none';
-        if (btnRetrospectiva) btnRetrospectiva.style.display = 'block';
-
-        document.querySelectorAll('.txt-comentario-cliente').forEach(ta => ta.disabled = true);
-    }
   }
 
   async function cargarHistoriasRevision() {
@@ -1153,6 +1190,384 @@ window.guardarRevisionHistoria = async (idHistoria, estado) => {
     alert("Ocurrió un error al procesar la revisión.");
   }
 };
+
+// ================= DAILY SCRUM =================
+
+let dailyReunionVista = null;   //la daily que se está mostrando (puede ser una anterior)
+let dailyHistorial = [];        //dailies del sprint, para navegar por fechas
+let dailyLectura = false;       //el formulario está en modo lectura (ya publicó)
+
+function salirDeDaily() {
+  document.getElementById("vista-sprintPlanning").style.display = "none";
+  document.getElementById("modal-reuniones").style.display = "block";
+  if (typeof cargarReuniones === 'function') cargarReuniones();
+}
+
+function formatearFechaDaily(iso) {
+  if (!iso) return "--";
+  const [a, m, d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+
+async function inicializarDailyScrum() {
+  const rol = obtenerRolActual();
+  const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Usuario" };
+  dailyReunionVista = window.ID_REUNION;
+
+  document.getElementById("txtDailySprint").textContent = window.ID_SPRINT;
+  document.getElementById("txtNombreDevDaily").textContent = usuario.nombre || usuario.name || "--";
+
+  //permisos por rol, solo dentro de la vista de la daily
+  document.querySelectorAll('#vista-dailyScrum [data-rol]').forEach(el => {
+    const permitidos = el.dataset.rol.split(',').map(r => r.trim().toLowerCase());
+    el.style.display = permitidos.includes(rol) ? '' : 'none';
+  });
+  //facilitador y cliente: el muro ocupa todo el ancho
+  if (rol !== 'desarrollador') {
+    document.querySelector('#vista-dailyScrum .contenido-daily').style.gridTemplateColumns = '1fr';
+  }
+
+  const chk = document.getElementById("chkImpedimento");
+  const inpImp = document.getElementById("inpDailyImpedimento");
+  const selHist = document.getElementById("selDailyHistoria");
+
+  chk.onchange = () => {
+    inpImp.disabled = !chk.checked;
+    selHist.disabled = !chk.checked;
+    if (!chk.checked) {
+      inpImp.value = '';
+      selHist.value = '';
+      window._impDailyEnviadoEnReporte = false;
+    }
+  };
+
+  //las historias del sprint llenan el selector de impedimento
+  await cargarHistoriasSprint();
+  selHist.innerHTML = '<option value="">Historia afectada...</option>' +
+    requisitos.map(h => {
+      const num = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+      return `<option value="${h.id}">PB-${num} ${escaparHTMLDaily(h.nombre)}</option>`;
+    }).join('');
+
+  //publicar / editar
+  document.getElementById("btnPublicarDaily").onclick = async () => {
+    if (dailyLectura) { //"Editar mi reporte de hoy"
+      cambiarModoFormularioDaily(false);
+      return;
+    }
+
+    const ayer = document.getElementById("inpDailyAyer").value.trim();
+    const hoy = document.getElementById("inpDailyHoy").value.trim();
+    const impedimento = inpImp.value.trim();
+    const idHistoria = selHist.value;
+
+    if (!ayer || !hoy) return alert("Completa lo que hiciste ayer y lo que harás hoy.");
+    if (chk.checked && (!impedimento || !idHistoria)) {
+      return alert("Describe el impedimento y elige la historia afectada.");
+    }
+
+    try {
+      const resp = await fetch(`/reuniones/${window.ID_REUNION}/daily`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idUsuario: usuario.id, ayer, hoy,
+          tieneImpedimento: chk.checked, impedimento, idHistoria
+        })
+      });
+      const res = await resp.json();
+      if (!res.ok) return alert(res.error || "No se pudo publicar.");
+
+      // Si marcó que tiene impedimento y aún no se ha enviado en esta sesión/reporte de hoy:
+      if (chk.checked && impedimento && idHistoria && !window._impDailyEnviadoEnReporte) {
+        try {
+          const respImp = await fetch("/impedimentos/crear", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idProyecto: window.ID_PROYECTO,
+              idSprint: Number(window.ID_SPRINT),
+              idHistoria: Number(idHistoria),
+              idUsuarioReporta: usuario.id,
+              descripcion: impedimento
+            })
+          });
+          const resImp = await respImp.json();
+          if (respImp.ok && resImp.success) {
+            window._impDailyEnviadoEnReporte = true;
+          }
+        } catch (errImp) {
+          console.error("No se pudo sincronizar el impedimento con Sprint Backlog:", errImp);
+        }
+      }
+
+      await cargarMuroDaily(window.ID_REUNION);
+      if (socketAsignacion) {
+        socketAsignacion.emit("publicar-daily", { sprintId: window.ID_SPRINT, reunionId: window.ID_REUNION });
+      }
+    } catch (err) {
+      console.error("Error al publicar la daily:", err);
+      alert("Ocurrió un error al publicar.");
+    }
+  };
+
+  //navegación por fechas
+  const moverDaily = (delta) => {
+    const i = dailyHistorial.findIndex(d => Number(d.id) === Number(dailyReunionVista));
+    const destino = dailyHistorial[i + delta];
+    if (destino) cargarMuroDaily(destino.id);
+  };
+  document.getElementById("btnDailyAnterior").onclick = () => moverDaily(-1);
+  document.getElementById("btnDailySiguiente").onclick = () => moverDaily(1);
+
+  //finalizar (facilitador)
+  document.getElementById("btnFinalizarDaily").onclick = async () => {
+    if (!confirm("¿Finalizar la Daily Scrum?")) return;
+    try {
+      await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (socketAsignacion) {
+        socketAsignacion.emit("disparar-finalizar-daily", { sprintId: window.ID_SPRINT, reunionId: window.ID_REUNION });
+      }
+      salirDeDaily();
+    } catch (err) {
+      console.error("Error al finalizar la daily:", err);
+    }
+  };
+
+  cargarMuroDaily(window.ID_REUNION);
+}
+
+function escaparHTMLDaily(t) {
+  const d = document.createElement("div");
+  d.textContent = t ?? "";
+  return d.innerHTML;
+}
+
+//formulario en modo lectura (ya publicó) o edición
+function cambiarModoFormularioDaily(lectura) {
+  dailyLectura = lectura;
+  const chk = document.getElementById("chkImpedimento");
+  ["inpDailyAyer", "inpDailyHoy"].forEach(id => document.getElementById(id).disabled = lectura);
+  chk.disabled = lectura;
+  document.getElementById("inpDailyImpedimento").disabled = lectura || !chk.checked;
+  document.getElementById("selDailyHistoria").disabled = lectura || !chk.checked;
+  document.getElementById("btnPublicarDaily").textContent =
+    lectura ? "Editar mi reporte de hoy" : "Publicar actualización";
+}
+
+//carga el muro de una daily (la actual o una anterior)
+async function cargarMuroDaily(idReunion) {
+  const muro = document.getElementById("muroDaily");
+  const tpl = document.getElementById("tplTarjetaDaily");
+  if (!muro || !tpl) return;
+
+  try {
+    const resp = await fetch(`/reuniones/${idReunion}/daily`, { headers: { "Accept": "application/json" } });
+    const res = await resp.json();
+    if (!res.ok) return console.error(res.error);
+
+    const { reunion, respuestas, totalDesarrolladores, historial } = res.data;
+    dailyReunionVista = reunion.id;
+    dailyHistorial = historial;
+
+    //fecha y flechas
+    document.getElementById("txtDailyFecha").textContent = formatearFechaDaily(reunion.fecha);
+    const i = historial.findIndex(d => Number(d.id) === Number(reunion.id));
+    document.getElementById("btnDailyAnterior").disabled = i <= 0;
+    document.getElementById("btnDailySiguiente").disabled = i < 0 || i >= historial.length - 1;
+
+    //resumen
+    const conImpedimento = respuestas.filter(r => r.tieneImpedimento).length;
+    document.getElementById("resumenDaily").textContent =
+      `${respuestas.length} de ${totalDesarrolladores} desarrolladores reportaron | ` +
+      `${conImpedimento} impedimento${conImpedimento === 1 ? '' : 's'} activo${conImpedimento === 1 ? '' : 's'}`;
+
+    //tarjetas (textContent: lo que escriben los usuarios nunca se interpreta como HTML)
+    muro.innerHTML = '';
+    document.getElementById("msjMuroVacio").classList.toggle("oculto", respuestas.length > 0);
+
+    respuestas.forEach(r => {
+      const nodo = tpl.content.cloneNode(true);
+      nodo.querySelector(".daily-autor").textContent = r.rol ? `${r.autor} - ${r.rol}` : r.autor;
+      nodo.querySelector(".daily-hora").textContent =
+        new Date(r.publicadoEn).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+      nodo.querySelector(".daily-ayer").textContent = r.ayer;
+      nodo.querySelector(".daily-hoy").textContent = r.hoy;
+
+      const estado = nodo.querySelector(".daily-estado");
+      if (r.tieneImpedimento) {
+        estado.classList.add("con-impedimento");
+        estado.textContent = `Impedimento activo: ${r.impedimento}`;
+      } else {
+        estado.classList.add("sin-impedimentos");
+        estado.textContent = "Sin impedimentos";
+      }
+      muro.appendChild(nodo);
+    });
+
+    //formulario: solo editable en la daily a la que entré
+    const panel = document.getElementById("panelReporteDaily");
+    const esDev = obtenerRolActual() === 'desarrollador';
+    const esLaMia = Number(reunion.id) === Number(window.ID_REUNION);
+    const finalizada = String(reunion.estado).toLowerCase() === 'finalizada';
+    const mostrarForm = esDev && esLaMia && !finalizada;
+
+    if (panel) panel.style.display = mostrarForm ? '' : 'none';
+    document.querySelector('#vista-dailyScrum .contenido-daily').style.gridTemplateColumns =
+      mostrarForm ? '' : '1fr';
+
+    if (mostrarForm) {
+      const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1 };
+      const mia = respuestas.find(r => Number(r.idUsuario) === Number(usuario.id));
+      if (mia) {
+        document.getElementById("inpDailyAyer").value = mia.ayer;
+        document.getElementById("inpDailyHoy").value = mia.hoy;
+        document.getElementById("chkImpedimento").checked = !!mia.tieneImpedimento;
+        document.getElementById("inpDailyImpedimento").value = mia.impedimento || '';
+        document.getElementById("selDailyHistoria").value = mia.idHistoria || '';
+        cambiarModoFormularioDaily(true);
+      } else {
+        cambiarModoFormularioDaily(false);
+      }
+    }
+  } catch (err) {
+    console.error("Error al cargar el muro de la daily:", err);
+  }
+}
+
+
+// ================= SPRINT RETROSPECTIVE =================
+
+let notasRetroLocal = []; // Arreglo temporal en memoria mientras conectas tu API
+
+// Al pulsar "Continuar a reuniones (Retrospectiva)" en Sprint Review, regresa al módulo de Reuniones
+document.addEventListener("click", (e) => {
+  if (e.target && e.target.id === "btnIrRetrospectiva") {
+    document.getElementById("vista-sprintPlanning").style.display = "none";
+    document.getElementById("modal-reuniones").style.display = "block";
+    if (typeof cargarReuniones === "function") {
+      cargarReuniones();
+    }
+  }
+});
+
+function inicializarRetrospectiva() {
+  const rol = obtenerRolActual();
+
+  // El cliente no participa en la Retrospectiva
+  if (rol === 'cliente') {
+    alert("La reunión de Retrospectiva es exclusiva del equipo Scrum.");
+    document.getElementById("vista-sprintPlanning").style.display = "none";
+    document.getElementById("modal-reuniones").style.display = "block";
+    if (typeof cargarReuniones === "function") cargarReuniones();
+    return;
+  }
+
+  const txtSprint = document.getElementById("txtRetroSprint");
+  if (txtSprint) txtSprint.textContent = window.ID_SPRINT;
+
+  const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Integrante" };
+
+  // Tanto facilitador como desarrolladores pueden agregar notas
+  document.querySelectorAll(".btn-agregar-nota").forEach(btn => {
+    btn.onclick = () => {
+      const categoria = btn.dataset.target; // 'bien' | 'mejorar' | 'acciones'
+      const mapaInputs = {
+        bien: "inpNotaBien",
+        mejorar: "inpNotaMejorar",
+        acciones: "inpNotaAcciones"
+      };
+
+      const textarea = document.getElementById(mapaInputs[categoria]);
+      const texto = textarea ? textarea.value.trim() : "";
+      if (!texto) return alert("Escribe una nota antes de agregarla.");
+
+      notasRetroLocal.push({
+        id: Date.now(),
+        categoria,
+        texto,
+        autor: usuario.nombre || usuario.name || "Usuario",
+        votos: 0,
+        votadoPorMi: false,
+        compromiso: false
+      });
+
+      textarea.value = "";
+      renderizarTableroRetrospectiva();
+    };
+  });
+
+  // Solo el facilitador puede guardar y cerrar oficialmente la retrospectiva
+  const btnCerrar = document.getElementById("btnCerrarRetrospectiva");
+  if (btnCerrar) {
+    btnCerrar.style.display = (rol === 'facilitador') ? '' : 'none';
+    btnCerrar.onclick = async () => {
+      if (!confirm("¿Guardar acuerdos y cerrar la retrospectiva?")) return;
+      try {
+        await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        alert("Retrospectiva guardada correctamente.");
+        document.getElementById("vista-sprintPlanning").style.display = "none";
+        document.getElementById("modal-reuniones").style.display = "block";
+        if (typeof cargarReuniones === "function") cargarReuniones();
+      } catch (err) {
+        console.error("Error al cerrar la retrospectiva:", err);
+        alert("Ocurrió un error al cerrar la retrospectiva.");
+      }
+    };
+  }
+
+  renderizarTableroRetrospectiva();
+}
+
+function renderizarTableroRetrospectiva() {
+  const contenedores = {
+    bien: document.getElementById("listaNotasBien"),
+    mejorar: document.getElementById("listaNotasMejorar"),
+    acciones: document.getElementById("listaNotasAcciones")
+  };
+  const tpl = document.getElementById("tplNotaRetro");
+  if (!tpl) return;
+
+  const esFacilitador = obtenerRolActual() === 'facilitador';
+
+  Object.values(contenedores).forEach(c => { if (c) c.innerHTML = ""; });
+
+  notasRetroLocal.forEach(nota => {
+    const contenedor = contenedores[nota.categoria];
+    if (!contenedor) return;
+
+    const nodo = tpl.content.cloneNode(true);
+    nodo.querySelector(".retro-texto").textContent = nota.texto;
+    nodo.querySelector(".retro-autor").textContent = `Por: ${nota.autor}`;
+    nodo.querySelector(".retro-votos").textContent = nota.votos;
+
+    if (nota.categoria === "acciones") {
+      const lblCompromiso = nodo.querySelector(".lbl-compromiso");
+      const chkCompromiso = nodo.querySelector(".chk-compromiso");
+      lblCompromiso.classList.remove("oculto");
+      chkCompromiso.checked = nota.compromiso;
+      chkCompromiso.disabled = !esFacilitador;
+      chkCompromiso.onchange = () => {
+        nota.compromiso = chkCompromiso.checked;
+      };
+    }
+
+    const btnVotar = nodo.querySelector(".btn-votar-retro");
+    btnVotar.onclick = () => {
+      nota.votadoPorMi = !nota.votadoPorMi;
+      nota.votos += nota.votadoPorMi ? 1 : -1;
+      renderizarTableroRetrospectiva();
+    };
+
+    contenedor.appendChild(nodo);
+  });
+}
 
 window.actualizarContadoresResumen = () => {
   const tarjetas = document.querySelectorAll('.tarjeta-historia-review');

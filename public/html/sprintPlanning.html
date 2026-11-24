@@ -21,6 +21,16 @@
             <div id="historiasRevision" class="cabeceraDefault oculto">
                 <h1>Revisión de entregables del Sprint</h1>
             </div>
+
+            <!--daily scrum-->
+            <div id="historiasDaily" class="cabeceraDefault oculto">
+                <h1>Daily Scrum - Sincronización Diaria</h1>
+            </div>
+
+            <!-- Sprint Retrospective -->
+            <div id="historiasRetrospectiva" class="cabeceraDefault oculto">
+                <h1>Sprint Retrospective - Retrospectiva del Sprint</h1>
+            </div>
         </div>
 
         <!-- Botón de salida: visible para todos los roles y en todas las fases -->
@@ -182,9 +192,158 @@
                     Cerrar acta de revisión y finalizar sprint
                 </button>
 
-                <!-- visible para facilitador/desarrollador -->
+                <!-- visible para facilitador/desarrollador: regresa al módulo de reuniones -->
                 <button type="button" id="btnIrRetrospectiva" class="btn-azul oculto" data-rol="facilitador,desarrollador">
-                    Ir a retrospectiva
+                    Continuar a reuniones (Retrospectiva)
+                </button>
+            </div>
+        </div>
+
+        <!-- Daily Scrum: sincronización diaria -->
+        <div id="vista-dailyScrum" class="oculto">
+
+            <div class="review-meta">
+                <h3>Sincronización diaria</h3>
+                <div class="nav-daily">
+                    <button type="button" id="btnDailyAnterior" class="btn-nav-daily">&lsaquo; Anterior</button>
+                    <span class="num-iteracion">
+                        Sprint <strong id="txtDailySprint">#</strong> | Fecha: <strong id="txtDailyFecha">--</strong>
+                    </span>
+                    <button type="button" id="btnDailySiguiente" class="btn-nav-daily">Siguiente &rsaquo;</button>
+                </div>
+            </div>
+
+            <p id="resumenDaily" class="resumen-daily"></p>
+
+            <div class="contenido-daily">
+
+                <!-- Reporte del desarrollador en sesión -->
+                <div class="panel panel-reporte-daily" id="panelReporteDaily" data-rol="desarrollador">
+                    <h3>Mi reporte de hoy (<span id="txtNombreDevDaily">--</span>)</h3>
+
+                    <div class="campo-daily">
+                        <label for="inpDailyAyer">¿Qué hice ayer?</label>
+                        <textarea id="inpDailyAyer" rows="3"></textarea>
+                    </div>
+
+                    <div class="campo-daily">
+                        <label for="inpDailyHoy">¿Qué haré hoy?</label>
+                        <textarea id="inpDailyHoy" rows="3"></textarea>
+                    </div>
+
+                    <div class="campo-daily">
+                        <label for="chkImpedimento">¿Tengo algún impedimento?</label>
+                        <div class="fila-impedimento">
+                            <span>Sí /</span>
+                            <label class="switch">
+                                <input type="checkbox" id="chkImpedimento">
+                                <span class="switch-slider"></span>
+                            </label>
+                            <select id="selDailyHistoria" disabled>
+                                <option value="">Historia afectada...</option>
+                            </select>
+                            <input type="text" id="inpDailyImpedimento" placeholder="Describe el impedimento" disabled>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnPublicarDaily" class="btn-azul">Publicar actualización</button>
+                </div>
+
+                <!-- Muro del equipo -->
+                <div class="panel panel-muro-daily">
+                    <h3>Muro del Equipo (Sincronización del día)</h3>
+                    <div id="muroDaily"></div>
+                    <p id="msjMuroVacio" class="texto-vacio oculto">Aún nadie ha publicado su actualización.</p>
+                </div>
+            </div>
+
+            <div class="acciones">
+                <button type="button" id="btnFinalizarDaily" class="btn-azul" data-rol="facilitador">
+                    Finalizar Daily
+                </button>
+            </div>
+        </div>
+
+        <!-- Plantilla de tarjeta del muro -->
+        <template id="tplTarjetaDaily">
+            <article class="tarjeta-daily">
+                <header class="tarjeta-daily-cabecera">
+                    <strong class="daily-autor"></strong>
+                    <span class="daily-hora"></span>
+                </header>
+                <ul class="daily-detalle">
+                    <li>Ayer: <span class="daily-ayer"></span></li>
+                    <li>Hoy: <span class="daily-hoy"></span></li>
+                </ul>
+                <span class="daily-estado"></span>
+            </article>
+        </template>
+
+        <!-- Plantilla de tarjeta de Retrospectiva -->
+        <template id="tplNotaRetro">
+            <article class="tarjeta-nota-retro" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                <p class="retro-texto" style="margin: 0 0 8px 0; font-size: 14px; color: #1e293b;"></p>
+                <footer class="retro-footer" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b;">
+                    <span class="retro-autor"></span>
+                    <div class="retro-controles" style="display: flex; align-items: center; gap: 8px;">
+                        <!-- Solo visible en la columna de Acciones -->
+                        <label class="lbl-compromiso oculto" style="cursor: pointer;">
+                            <input type="checkbox" class="chk-compromiso"> Compromiso
+                        </label>
+                        <button type="button" class="btn-votar-retro" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 12px; padding: 2px 8px; cursor: pointer;">
+                            👍 <span class="retro-votos">0</span>
+                        </button>
+                    </div>
+                </footer>
+            </article>
+        </template>
+
+        <!-- Sprint Retrospective: tablero colaborativo -->
+        <div id="vista-retrospectiva" class="oculto">
+
+            <div class="review-meta">
+                <h3>Retrospectiva de la iteración</h3>
+                <span class="num-iteracion">Sprint <strong id="txtRetroSprint">#</strong></span>
+            </div>
+
+            <!-- Tablero de 3 columnas -->
+            <div class="tablero-retrospectiva" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 15px;">
+
+                <!-- Columna 1: Continuar -->
+                <div class="panel columna-retro" data-categoria="bien" style="border-top: 4px solid #10b981;">
+                    <h3>¿Qué hicimos bien? (Continuar)</h3>
+                    <div class="form-nota-retro" style="margin-bottom: 12px;">
+                        <textarea id="inpNotaBien" rows="2" placeholder="Escribe algo positivo del sprint..." style="width: 100%; margin-bottom: 6px;"></textarea>
+                        <button type="button" class="btn-azul btn-agregar-nota" data-target="bien">+ Agregar nota</button>
+                    </div>
+                    <div id="listaNotasBien" class="lista-notas-retro"></div>
+                </div>
+
+                <!-- Columna 2: Mejorar -->
+                <div class="panel columna-retro" data-categoria="mejorar" style="border-top: 4px solid #ef4444;">
+                    <h3>¿Qué podemos mejorar?</h3>
+                    <div class="form-nota-retro" style="margin-bottom: 12px;">
+                        <textarea id="inpNotaMejorar" rows="2" placeholder="Escribe un área de oportunidad..." style="width: 100%; margin-bottom: 6px;"></textarea>
+                        <button type="button" class="btn-azul btn-agregar-nota" data-target="mejorar">+ Agregar nota</button>
+                    </div>
+                    <div id="listaNotasMejorar" class="lista-notas-retro"></div>
+                </div>
+
+                <!-- Columna 3: Acciones -->
+                <div class="panel columna-retro" data-categoria="acciones" style="border-top: 4px solid #2563eb;">
+                    <h3>¿Qué vamos a empezar a hacer? (Acciones)</h3>
+                    <div class="form-nota-retro" style="margin-bottom: 12px;">
+                        <textarea id="inpNotaAcciones" rows="2" placeholder="Propón una acción concreta..." style="width: 100%; margin-bottom: 6px;"></textarea>
+                        <button type="button" class="btn-azul btn-agregar-nota" data-target="acciones">+ Agregar nota</button>
+                    </div>
+                    <div id="listaNotasAcciones" class="lista-notas-retro"></div>
+                </div>
+
+            </div>
+
+            <div class="acciones" style="margin-top: 20px;">
+                <button type="button" id="btnCerrarRetrospectiva" class="btn-azul">
+                    Guardar y Cerrar Retrospectiva
                 </button>
             </div>
         </div>
