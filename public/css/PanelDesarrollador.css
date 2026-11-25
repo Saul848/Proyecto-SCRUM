@@ -250,227 +250,391 @@ body {
 .cabecera-default.activa {
     display: flex !important;
 }
-/* ==========================================
-   ESTILOS DE LA ZONA DE TRABAJO Y PRODUCT BACKLOG
-   ========================================== */
 
-#zonaDeTrabajo {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-    background-color: #eef2f5; /* Fondo gris claro suave como la vista original */
-    box-sizing: border-box;
-}
+/* ==========================================================
+   ESTILOS AISLADOS: PRODUCT BACKLOG Y SPRINTS (SOLO LECTURA)
+   ========================================================== */
 
 #DivContPB {
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
+  background-color: #eaf2f2;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-/* 1. Barra de Filtros Superior */
+/* Barra de filtros */
 .filtros-pb-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: #e6eff2;
-    padding: 12px 16px;
-    border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
 }
 
 .filtro-input {
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 14px;
-    background-color: #ffffff;
-    outline: none;
-    transition: border-color 0.2s;
+  padding: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
 }
 
-.filtro-input:focus {
-    border-color: #3b82f6;
+.filtro-id {
+  width: 12%;
+}
+
+.filtro-nombre {
+  width: 25%;
+}
+
+.filtro-valor {
+  width: 15%;
+}
+
+.filtro-sprint {
+  width: 20%;
+}
+
+.filtro-epicas {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  min-width: 160px;
+  cursor: pointer;
 }
 
 .btn-limpiar-filtros {
-    background-color: #e2e8f0;
-    color: #1e293b;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 13px;
+  padding: 6px 12px;
+  background: #eff0e2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-/* 2. Encabezados de Tabla */
+/* Encabezados y filas del Product Backlog (10 columnas, sin columna eliminar) */
+#DivEncabezados,
+.DivFilaHistoria {
+  display: grid;
+  grid-template-columns: 46px minmax(110px, 1.2fr) minmax(130px, 1.4fr) minmax(175px, 1.8fr) 64px 72px 64px minmax(90px, 1fr) 88px minmax(88px, 1fr);
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  min-width: 940px;
+  box-sizing: border-box;
+}
+
 #DivEncabezados {
-    display: grid;
-    grid-template-columns: 60px 1.5fr 2fr 1.5fr 1fr 1.2fr;
-    gap: 10px;
-    padding: 10px 16px;
-    font-weight: 700;
-    font-size: 13px;
-    color: #0f172a;
-    align-items: center;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 8px 12px;
+  color: #000000;
 }
 
-/* 3. Filas de Historias */
 #DivHistoria {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-right: 6px;
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Estilo para cada item renderizado en el backlog */
-.fila-historia-item {
-    display: grid;
-    grid-template-columns: 60px 1.5fr 2fr 1.5fr 1fr 1.2fr;
-    gap: 10px;
-    background-color: #ffffff;
-    border: 1px solid #000000;
-    border-radius: 20px;
-    padding: 14px 16px;
-    align-items: center;
-    font-size: 14px;
-    color: #334155;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+#DivHistoria::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* 4. Opciones Inferiores */
+#DivHistoria::-webkit-scrollbar-track {
+  background: #d8e5e5;
+  border-radius: 4px;
+}
+
+#DivHistoria::-webkit-scrollbar-thumb {
+  background: #a0a0a0;
+  border: 2px solid #d8e5e5;
+  border-radius: 4px;
+}
+
+/* Filas de historia no seleccionables */
+.DivFilaHistoria {
+  flex-direction: row;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  cursor: default;
+}
+
+.DivFilaHistoria label {
+  color: #334155;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+  padding: 0 2px;
+  min-width: 0;
+}
+
+.DivFilaHistoria .LabelID {
+  color: #000000;
+  font-weight: 700;
+}
+
+.DivFilaHistoria .LabelPuntosHistoria,
+.DivFilaHistoria .LabelEpicaAsignada,
+.DivFilaHistoria .LabelEstadoHistoria {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+#DivEncabezados label,
+.DivFilaHistoria label,
+.DivFilaHistoria .criterio-fila-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Navegador horizontal de criterios por fila */
+.criterio-fila-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 56px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.criterios-fila-columna {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.criterio-contador-fila {
+  align-self: flex-end;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #475569;
+  background-color: #e2e8f0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  user-select: none;
+}
+
+.criterios-fila-columna textarea.criterio-input-fila {
+  display: none;
+  width: 100%;
+  height: 100%;
+  resize: none !important;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 0;
+  background-color: #f8fafc;
+  color: #334155;
+  outline: none;
+}
+
+.criterios-fila-columna textarea.criterio-input-fila.active {
+  display: block;
+}
+
+.btn-fila-lateral {
+  position: static;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 100%;
+  background-color: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.2s;
+  color: #475569;
+}
+
+.btn-fila-lateral:hover {
+  background-color: #cbd5e1;
+}
+
+.btn-fila-izq {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.btn-fila-der {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* Barra inferior del Product Backlog */
 #divOpccionesInferiores {
-    display: flex;
-    margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
-.btn-ver-material {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #805ad5; /* Púrpura/Morado similar a la vista facilitador */
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+#DivBtnModHistoria {
+  margin-top: 15px;
 }
 
-.btn-ver-material:hover {
-    background-color: #6b46c1;
+#btnGestionarSprints {
+  height: 40px;
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 10px 18px !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
-.btn-ver-material:active {
-    transform: scale(0.98);
-}
-.dev-seccion-label {
-    font-size: 11px;
-    color: #94a3b8;
-    font-weight: bold;
-    padding-left: 10px;
+#btnGestionarSprints:hover {
+  background-color: #1d4ed8 !important;
 }
 
-.dev-menu-lista {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+/* Definición de hecho (DOD) */
+#ContDOD {
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 700px;
+  margin-top: 24px;
 }
 
-.dev-menu-btn {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    font-size: 14px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #334155;
-    transition: background-color 0.2s, color 0.2s;
+#encabezado-dod {
+  background-color: #eef3f6;
+  padding: 20px 24px;
 }
 
-.dev-menu-btn:hover {
-    background-color: #f1f5f9;
+#encabezado-dod h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
-.dev-menu-btn.activo {
-    background-color: #e0f2fe;
-    color: #0284c7;
-    font-weight: 700;
+#contenido-definicion label {
+  display: block;
+  font-size: 0.95em;
+  color: #333;
+  white-space: pre-line;
 }
 
-/*cambios*/
-/* ==========================================
-   ESTRUCTURA ACTUAL DEL PANEL DESARROLLADOR
-   ========================================== */
+/* ==========================================================
+   SECCIÓN DE SPRINTS (SOLO LECTURA)
+   ========================================================== */
 
-/* Encabezado superior */
-.dev-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 16px 25px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    box-sizing: border-box;
+#DivContSprints {
+  background-color: #eaf2f2;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
-.dev-badge-rol {
-    background-color: #ff9431;
-    color: #ffffff;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
+.barra-superior-sprints {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
 }
 
-#dev-titulo-pagina {
-    margin: 0;
-    font-size: 24px;
-    color: #2d3748;
+.btn-regresar-pb {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
-/* Contenedor principal: menú + contenido */
-.dev-main-container {
-    display: flex;
-    width: 100%;
-    min-height: calc(100vh - 85px);
-    background-color: #f8fafc;
+.btn-regresar-pb:hover {
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
+  transform: translateX(-2px);
 }
 
-/* Menú lateral */
-.dev-sidebar-menu {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-    box-sizing: border-box;
+#DivEncabezadosSprint,
+.DivFilaSprint {
+  display: grid;
+  grid-template-columns: 90px 2fr 1fr 1fr 1fr 90px;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 10px 16px;
+  box-sizing: border-box;
 }
 
-/* Área del Product Backlog */
-.dev-main-container > .dev-product-backlog {
-    flex: 1;
-    min-width: 0;
-    padding: 25px;
-    overflow-y: auto;
-    box-sizing: border-box;
+#DivEncabezadosSprint {
+  font-weight: bold;
+  font-size: 13px;
+  color: #000000;
+  margin-bottom: 8px;
 }
 
-/* Área de mensajes */
-.dev-main-container > #modal-mensajes-desarrollador {
-    flex: 1;
-    min-width: 0;
-    padding: 25px;
-    overflow-y: auto;
-    box-sizing: border-box;
+#DivSprint {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
 }
 
+/* Filas de sprint sin selección ni iluminación */
+.DivFilaSprint {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  box-sizing: border-box;
+  cursor: default;
+}
+
+#DivEncabezadosSprint label,
+.DivFilaSprint label,
+.DivFilaSprint div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+}
 
 /*Estilos del modal de usuarios miembros de un equipo*/
 /* ===== Modal: miembros del equipo ===== */

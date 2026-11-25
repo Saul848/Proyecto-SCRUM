@@ -1,4 +1,6 @@
 
+
+
 function mostrarModal(idModal, idCabecera) {
 
      // Actualizar la cabecera correspondiente
