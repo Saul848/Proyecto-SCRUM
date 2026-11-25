@@ -144,33 +144,62 @@ function inicializarSprintPlanning(idSprintParam, idReunionParam, idProyectoPara
   }
 
   if (btnConfirmarSprint) {
-    btnConfirmarSprint.onclick = async () => {
-      try {
-        await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sprint: window.ID_SPRINT })
+  btnConfirmarSprint.onclick = async () => {
+    try {
+      const inpFechaInicio = document.getElementById("inpFechaInicio");
+      const inpFechaFin = document.getElementById("inpFechaFin");
+
+      const historiasAsignadas = (window.requisitos || [])
+        .filter(h => h.asignado_a || h.id_desarrollador)
+        .map(h => {
+          const horas = Number(h.horas_estimadas ?? h.puntos_de_historia ?? 5);
+          const factor = Number(h.factor_complejidad ?? 0);
+          return {
+            idHistoria: Number(h.id),
+            idDesarrollador: Number(h.id_desarrollador) || null,
+            nombreDesarrollador: h.asignado_a,
+            horasEstimadas: horas,
+            factorComplejidad: factor,
+            esfuerzoEstimado: Math.round(horas * (1 + factor)),
+            estado: "por-empezar"
+          };
         });
 
-        if (socketAsignacion) {
-          socketAsignacion.emit("disparar-confirmar-sprint", {
-            sprintId: window.ID_SPRINT,
-            reunionId: window.ID_REUNION,
-            proyectoId: window.ID_PROYECTO
-          });
-        }
+      const resp = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sprint: window.ID_SPRINT,
+          proyectoId: window.ID_PROYECTO,
+          fechaInicio: inpFechaInicio ? inpFechaInicio.value : null,
+          fechaFin: inpFechaFin ? inpFechaFin.value : null,
+          asignaciones: historiasAsignadas
+        })
+      });
 
-        alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
-        sessionStorage.setItem("ULTIMA_REUNION_CONFIRMADA", String(window.ID_REUNION));
-        sessionStorage.removeItem("ID_REUNION_ACTIVA");
-        sessionStorage.removeItem("TIPO_REUNION_ACTIVA");
-        navegarASprintBacklog(window.ID_SPRINT, window.ID_PROYECTO);
-      } catch (err) {
-        console.error("Error al confirmar el sprint:", err);
-        alert("Ocurrió un error al finalizar la reunión.");
+      if (!resp.ok) {
+        throw new Error(`Error HTTP ${resp.status}`);
       }
-    };
-  }
+
+      if (socketAsignacion) {
+        socketAsignacion.emit("disparar-confirmar-sprint", {
+          sprintId: window.ID_SPRINT,
+          reunionId: window.ID_REUNION,
+          proyectoId: window.ID_PROYECTO
+        });
+      }
+
+      alert("¡Sprint Backlog confirmado con éxito! La reunión ha finalizado.");
+      sessionStorage.setItem("ULTIMA_REUNION_CONFIRMADA", String(window.ID_REUNION));
+      sessionStorage.removeItem("ID_REUNION_ACTIVA");
+      sessionStorage.removeItem("TIPO_REUNION_ACTIVA");
+      await navegarASprintBacklog(window.ID_SPRINT, window.ID_PROYECTO);
+    } catch (err) {
+      console.error("Error al confirmar el sprint:", err);
+      alert("Ocurrió un error al finalizar la reunión.");
+    }
+  };
+}
 
   if (window.ID_TIPO_REUNION === ID_TIPO_DAILY) {
     if (rol === 'cliente') {
@@ -207,7 +236,9 @@ async function cargarHistoriasSprint() {
         headers: { "Accept": "application/json" }
       });
       const datos = await respuesta.json();
-      window.requisitos = Array.isArray(datos.data) ? datos.data : [];
+      window.requisitos = Array.isArray(datos.data)
+        ? datos.data.map(h => ({ ...h, id: Number(h.id ?? h.historia_id) }))
+        : [];
 
       const cuerpoHistorias = document.getElementById('cuerpoHistorias');
       if (cuerpoHistorias) {
@@ -825,7 +856,7 @@ function poblarTablaDetalles() {
             <option value="0" ${factorSeleccionado === 0 ? 'selected' : ''}>0% Ninguno</option>
             <option value="0.25" ${factorSeleccionado === 0.25 ? 'selected' : ''}>25% Bajo</option>
             <option value="0.5" ${factorSeleccionado === 0.5 ? 'selected' : ''}>50% Medio</option>
-            <option value="1.0" ${factorSeleccionado === 1.0 ? 'selected' : ''}>100% Alto</option>
+            <option value="1" ${factorSeleccionado === 1 ? 'selected' : ''}>100% Alto</option>
           </select>
         </td>
         <td class="lbl-esfuerzo">${horasEstimadas}</td>
@@ -847,11 +878,13 @@ window.notificarCambioEstimacion = (idHistoria, elemento) => {
 
   const horas = Number(inpPuntos.value) || 0;
   const factor = Number(inpFactor.value) || 0;
+  const horasCalculadas = Math.round(horas * (1 + factor));
 
-  const historia = window.requisitos.find(h => h.id === idHistoria);
+  const historia = window.requisitos.find(h => Number(h.id) === Number(idHistoria));
   if (historia) {
     historia.horas_estimadas = horas;
     historia.factor_complejidad = factor;
+    historia.horas_calculadas = horasCalculadas;
   }
 
   calcularEsfuerzoTotal();
@@ -889,10 +922,14 @@ function calcularEsfuerzoTotal() {
 let solicitudesPendientes = [];
 
 // fase 2 - asignación de historias
-function cargarAsignacionFase2() {
+async function cargarAsignacionFase2() {
   const cuerpoAsignacion = document.getElementById("cuerpoAsignacion");
   if (!cuerpoAsignacion) return;
   if (obtenerRolActual() === 'cliente') return;
+
+  if (!Array.isArray(window.requisitos) || window.requisitos.length === 0) {
+    await cargarHistoriasSprint();
+  }
 
   const rol = obtenerRolActual();
   const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Usuario" };
@@ -960,16 +997,16 @@ function calcularRestante() {
 
 // función que ejecuta el desarrollador al hacer clic en "Solicitar"
 window.solicitarHistoria = (idHistoria) => {
-  if (!socketAsignacion) {
-    console.error("El socket de asignación aún no está inicializado.");
-    return;
-  }
-
+  if (!socketAsignacion) return;
   const usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Desarrollador" };
+  const hist = (window.requisitos || []).find(h => Number(h.id) === Number(idHistoria));
+  const numeroHistoria = hist?.numeroDeHistoria ?? hist?.numero_de_historia ?? idHistoria;
 
   socketAsignacion.emit("solicitar-historia", {
     sprintId: window.ID_SPRINT,
     idHistoria: idHistoria,
+    numeroHistoria: numeroHistoria,
+    nombreHistoria: hist?.nombre || `PB-${numeroHistoria}`,
     idDesarrollador: usuarioActual.id,
     nombreDesarrollador: usuarioActual.nombre || usuarioActual.name
   });
@@ -988,7 +1025,7 @@ function limpiarParametrosReunionActiva() {
   } catch (e) {}
 }
 
-function navegarASprintBacklog(sprintId, proyectoId) {
+async function navegarASprintBacklog(sprintId, proyectoId) {
   limpiarParametrosReunionActiva();
   if (sprintId) {
     sessionStorage.setItem("ID_SPRINT_ACTIVO", String(sprintId));
@@ -997,7 +1034,6 @@ function navegarASprintBacklog(sprintId, proyectoId) {
   const vistaPlanning = document.getElementById("vista-sprintPlanning");
   if (vistaPlanning) {
     vistaPlanning.style.display = "none";
-    vistaPlanning.innerHTML = "";
   }
 
   ["vista-fase1", "vistaDetalles", "vista-fase2", "vista-sprintReview", "vista-dailyScrum", "vista-retrospectiva"].forEach(id => {
@@ -1008,39 +1044,31 @@ function navegarASprintBacklog(sprintId, proyectoId) {
     }
   });
 
+  if (typeof asegurarModalSprintCargado === "function") {
+    await asegurarModalSprintCargado();
+  }
+
   if (typeof mostrarSeccion === "function") {
     mostrarSeccion("sprint-backlog");
-    return;
+  } else {
+    const seccionBacklog =
+      document.getElementById("sprint-backlog") ||
+      document.getElementById("modal-sprint-backlog") ||
+      document.getElementById("vista-sprintBacklog") ||
+      document.getElementById("seccion-sprint-backlog");
+
+    if (seccionBacklog) {
+      document.querySelectorAll(".modal-class").forEach(m => {
+        m.style.display = "none";
+      });
+      seccionBacklog.classList.remove("oculto");
+      seccionBacklog.style.display = "block";
+    }
   }
 
-  const triggerBacklog = document.querySelector(
-    '[data-seccion*="backlog" i], [onclick*="Backlog" i], #btnSprintBacklog, #nav-sprint-backlog'
-  );
-  if (triggerBacklog) {
-    triggerBacklog.click();
-    return;
+  if (typeof inicializarSelectorIteraciones === "function") {
+    await inicializarSelectorIteraciones();
   }
-
-  const seccionBacklog =
-    document.getElementById("modal-sprint-backlog") ||
-    document.getElementById("vista-sprintBacklog") ||
-    document.getElementById("seccion-sprint-backlog");
-
-  if (seccionBacklog) {
-    document.querySelectorAll(".modal-class").forEach(m => {
-      m.style.display = "none";
-    });
-    seccionBacklog.classList.remove("oculto");
-    seccionBacklog.style.display = "block";
-    return;
-  }
-
-  const esDev = obtenerRolActual() === "desarrollador";
-  const destinoBase = esDev ? "PanelDesarrollador.html" : "panelFacilitador.html";
-  const query = new URLSearchParams();
-  if (sprintId) query.set("sprint", sprintId);
-  if (proyectoId) query.set("proyecto", proyectoId);
-  window.location.href = `${destinoBase}?${query.toString()}`;
 }
 
 function renderizarPanelSolicitudes() {
@@ -1056,27 +1084,34 @@ function renderizarPanelSolicitudes() {
     return;
   }
 
-  contenedorSolicitudes.innerHTML = solicitudesPendientes.map(solicitud => `
-    <div style="background: #fff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 13px;">
-      <p style="margin: 0 0 6px 0;"><strong>${solicitud.nombreDesarrollador}</strong> solicita <strong>PB-${solicitud.idHistoria}</strong></p>
-      <div style="display: flex; gap: 8px;">
-        <button onclick="responderSolicitud(${solicitud.idHistoria}, ${solicitud.idDesarrollador}, true, '${solicitud.nombreDesarrollador}')" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Aceptar</button>
-        <button onclick="responderSolicitud(${solicitud.idHistoria}, ${solicitud.idDesarrollador}, false, '')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Rechazar</button>
+  contenedorSolicitudes.innerHTML = solicitudesPendientes.map(solicitud => {
+    const numMostrar = solicitud.numeroHistoria ?? solicitud.idHistoria;
+    return `
+      <div style="background: #fff; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 13px;">
+        <p style="margin: 0 0 6px 0;"><strong>${solicitud.nombreDesarrollador}</strong> solicita <strong>PB-${numMostrar}</strong></p>
+        <div style="display: flex; gap: 8px;">
+          <button onclick="responderSolicitud(${solicitud.idHistoria}, ${solicitud.idDesarrollador}, true, '${solicitud.nombreDesarrollador}')" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Aceptar</button>
+          <button onclick="responderSolicitud(${solicitud.idHistoria}, ${solicitud.idDesarrollador}, false, '')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Rechazar</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // función que ejecuta el facilitador al dar "Aceptar" o "Rechazar" cuando un desarrollador pide una historia
 window.responderSolicitud = (idHistoria, idDesarrollador, aceptada, nombreDesarrollador) => {
   if (!socketAsignacion) return;
+  const hist = (window.requisitos || []).find(h => Number(h.id) === Number(idHistoria));
+  const numMostrar = hist?.numeroDeHistoria ?? hist?.numero_de_historia ?? idHistoria;
+  const etiquetaHistoria = hist ? `PB-${numMostrar} - ${hist.nombre}` : `PB-${numMostrar}`;
 
   socketAsignacion.emit("gestionar-solicitud", {
     sprintId: window.ID_SPRINT,
     idHistoria,
     idDesarrollador,
     aceptada,
-    nombreDesarrollador
+    nombreDesarrollador,
+    nombreHistoria: etiquetaHistoria
   });
 };
 
@@ -1112,25 +1147,30 @@ function inicializarSocketsAsignacion(idSprint) {
 
     socketAsignacion.on("volver-detalles-cliente", () => {
       const rolActual = obtenerRolActual();
+      const params = new URLSearchParams(window.location.search);
 
-      if (rolActual === 'desarrollador') {
+      if (rolActual === 'desarrollador' && params.get("vista") !== "detalles") {
         window.location.href = `PanelDesarrollador.html?sprint=${window.ID_SPRINT}&reunion=${window.ID_REUNION}&proyecto=${window.ID_PROYECTO}&seccion=reuniones&vista=detalles`;
       }
     });
 
     socketAsignacion.on("cambio-factor-historia-cliente", (data) => {
-      const historia = window.requisitos.find(h => h.id === data.idHistoria);
+      const horasCalculadas = Math.round(Number(data.horas || 0) * (1 + Number(data.factor || 0)));
+      const historia = window.requisitos.find(h => Number(h.id) === Number(data.idHistoria));
       if (historia) {
         historia.horas_estimadas = data.horas;
         historia.factor_complejidad = data.factor;
+        historia.horas_calculadas = horasCalculadas;
       }
 
       const fila = document.querySelector(`#cuerpoTabla tr[data-id="${data.idHistoria}"]`);
       if (fila) {
         const inpPuntos = fila.querySelector(".inp-puntos");
         const inpFactor = fila.querySelector(".inp-factor");
+        const lblEsfuerzo = fila.querySelector(".lbl-esfuerzo");
         if (inpPuntos) inpPuntos.value = data.horas;
-        if (inpFactor) inpFactor.value = data.factor;
+        if (inpFactor) inpFactor.value = String(Number(data.factor ?? 0));
+        if (lblEsfuerzo) lblEsfuerzo.textContent = horasCalculadas;
       }
 
       calcularEsfuerzoTotal();
@@ -1191,11 +1231,12 @@ function inicializarSocketsAsignacion(idSprint) {
     });
 
     socketAsignacion.on("actualizar-estado-asignacion", (data) => {
-      const historia = window.requisitos.find(h => h.id === data.idHistoria);
+      const historia = window.requisitos.find(h => Number(h.id) === Number(data.idHistoria));
       if (historia) {
         historia.asignado_a = data.aceptada ? data.nombreDesarrollador : null;
+        historia.id_desarrollador = data.aceptada ? Number(data.idDesarrollador) : null;
       }
-      solicitudesPendientes = solicitudesPendientes.filter(s => s.idHistoria !== data.idHistoria);
+      solicitudesPendientes = solicitudesPendientes.filter(s => Number(s.idHistoria) !== Number(data.idHistoria));
 
       renderizarPanelSolicitudes();
       cargarAsignacionFase2();
@@ -1216,6 +1257,8 @@ function inicializarSocketsAsignacion(idSprint) {
         const bannerEspera = document.getElementById("bannerEsperaCliente");
         if (bannerEspera) bannerEspera.classList.add("oculto");
 
+        // el cliente ya cerró el acta: sin esto, cargarHistoriasRevision vuelve a mostrar el banner
+        window.ESTADO_REUNION = 'Finalizada';
         cargarHistoriasRevision();
       }
     });
@@ -1234,6 +1277,22 @@ function inicializarSocketsAsignacion(idSprint) {
       if (Number(data.reunionId) !== Number(window.ID_REUNION)) return;
       alert("El facilitador ha finalizado la Daily Scrum.");
       salirDeDaily();
+    });
+
+    // alguien agregó una nota, votó o marcó un compromiso en la retrospectiva
+    socketAsignacion.on("retro-actualizada", (data) => {
+      const vista = document.getElementById("vista-retrospectiva");
+      if (vista && vista.style.display === "block" && Number(data.reunionId) === Number(window.ID_REUNION)) {
+        cargarRetrospectiva();
+      }
+    });
+
+    // el facilitador finalizó la retrospectiva
+    socketAsignacion.on("retro-finalizada-cliente", (data) => {
+      if (obtenerRolActual() === 'facilitador') return;
+      if (Number(data.reunionId) !== Number(window.ID_REUNION)) return;
+      alert("El facilitador ha finalizado la Retrospectiva.");
+      salirDeRetrospectiva();
     });
   }
 
@@ -1294,63 +1353,53 @@ function aplicarRestriccionesRevision(rol) {
   }
 }
 
-const btnCerrarActaSprint = document.getElementById("btnCerrarActaSprint");
-if (btnCerrarActaSprint) {
-  btnCerrarActaSprint.onclick = async () => {
-    const rolActual = obtenerRolActual();
+// delegación de eventos: funciona aunque el botón se inserte/pinte después de cargar el script
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("#btnCerrarActaSprint");
+  if (!btn) return;
 
-    if (rolActual === 'cliente') {
-      if (!confirm("¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo.")) return;
+  const rolActual = obtenerRolActual();
+  const esCliente = rolActual.includes('cliente');
+  const esFacilitador = rolActual.includes('facilitador');
 
-      try {
-        const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const resultado = await respuesta.json();
+  if (!esCliente && !esFacilitador) {
+    alert("Tu rol (" + rolActual + ") no puede cerrar el acta de revisión.");
+    return;
+  }
 
-        if (resultado.ok) {
-          if (socketAsignacion) {
-            socketAsignacion.emit("cliente-cerro-acta-revision", {
-              sprintId: window.ID_SPRINT,
-              reunionId: window.ID_REUNION
-            });
-          }
+  const mensaje = esCliente
+    ? "¿Estás seguro de finalizar la revisión? Al cerrar el acta, los resultados se enviarán al equipo."
+    : "¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?";
+  if (!confirm(mensaje)) return;
 
-          alert("¡Acta de revisión cerrada con éxito!");
-          document.getElementById("vista-sprintPlanning").style.display = "none";
-          document.getElementById("modal-reuniones").style.display = "block";
-          if (typeof cargarReuniones === "function") cargarReuniones();
-        } else {
-          alert("Error al finalizar la reunión.");
-        }
-      } catch (err) {
-        console.error("Error al cerrar el acta:", err);
-      }
-    } else if (rolActual === 'facilitador') {
-      if (!confirm("¿Estás seguro de cerrar la sesión de revisión y finalizar esta reunión?")) return;
+  try {
+    const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const resultado = await respuesta.json();
 
-      try {
-        const respuesta = await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const resultado = await respuesta.json();
-
-        if (resultado.ok) {
-          alert("Reunión finalizada correctamente.");
-          document.getElementById("vista-sprintPlanning").style.display = "none";
-          document.getElementById("modal-reuniones").style.display = "block";
-          if (typeof cargarReuniones === "function") cargarReuniones();
-        } else {
-          alert("Error al finalizar la reunión.");
-        }
-      } catch (err) {
-        console.error("Error al finalizar la reunión:", err);
-      }
+    if (!respuesta.ok || !resultado.ok) {
+      alert("Error al finalizar la reunión: " + (resultado.error || respuesta.status));
+      return;
     }
-  };
-}
+
+    if (esCliente && socketAsignacion) {
+      socketAsignacion.emit("cliente-cerro-acta-revision", {
+        sprintId: window.ID_SPRINT,
+        reunionId: window.ID_REUNION
+      });
+    }
+
+    alert(esCliente ? "¡Acta de revisión cerrada con éxito!" : "Reunión finalizada correctamente.");
+    document.getElementById("vista-sprintPlanning").style.display = "none";
+    document.getElementById("modal-reuniones").style.display = "block";
+    if (typeof cargarReuniones === "function") cargarReuniones();
+  } catch (err) {
+    console.error("Error al cerrar el acta:", err);
+    alert("No se pudo finalizar la reunión. Revisa la consola (F12) y la pestaña Network.");
+  }
+});
 
 async function cargarHistoriasRevision() {
   try {
@@ -1600,22 +1649,50 @@ async function inicializarDailyScrum() {
   const inpImp = document.getElementById("inpDailyImpedimento");
   const selHist = document.getElementById("selDailyHistoria");
 
+  let historiasAsignadasDev = [];
+  if (rol === 'desarrollador' && usuario?.id) {
+    try {
+      const respHistDev = await fetch(
+        `/reuniones/sprint/${window.ID_SPRINT}/historias?idDesarrollador=${encodeURIComponent(usuario.id)}`,
+        { headers: { "Accept": "application/json" } }
+      );
+      const jsonHistDev = await respHistDev.json();
+      historiasAsignadasDev = Array.isArray(jsonHistDev.data) ? jsonHistDev.data : [];
+    } catch (err) {
+      console.error("Error al cargar historias asignadas del desarrollador:", err);
+    }
+  } else {
+    await cargarHistoriasSprint();
+    historiasAsignadasDev = Array.isArray(window.requisitos) ? window.requisitos : [];
+  }
+
+  const historiasEnCurso = historiasAsignadasDev.filter(h => {
+    const estado = String(h.estado_actual ?? h.estado ?? "").trim().toLowerCase();
+    return estado === "en-progreso" || estado === "en-revision";
+  });
+
+  const tieneHistoriasElegibles = historiasEnCurso.length > 0;
+
+  if (!tieneHistoriasElegibles) {
+    selHist.innerHTML = '<option value="">No tienes historias en progreso o revisión</option>';
+    selHist.disabled = true;
+  } else {
+    selHist.innerHTML = '<option value="">Historia afectada...</option>' +
+      historiasEnCurso.map(h => {
+        const num = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
+        return `<option value="${h.id}">PB-${num} ${escaparHTMLDaily(h.nombre)}</option>`;
+      }).join('');
+  }
+
   chk.onchange = () => {
     inpImp.disabled = !chk.checked;
-    selHist.disabled = !chk.checked;
+    selHist.disabled = !chk.checked || !tieneHistoriasElegibles;
     if (!chk.checked) {
       inpImp.value = '';
       selHist.value = '';
       window._impDailyEnviadoEnReporte = false;
     }
   };
-
-  await cargarHistoriasSprint();
-  selHist.innerHTML = '<option value="">Historia afectada...</option>' +
-    requisitos.map(h => {
-      const num = h.numeroDeHistoria ?? h.numero_de_historia ?? h.id;
-      return `<option value="${h.id}">PB-${num} ${escaparHTMLDaily(h.nombre)}</option>`;
-    }).join('');
 
   document.getElementById("btnPublicarDaily").onclick = async () => {
     if (dailyLectura) {
@@ -1798,7 +1875,8 @@ async function cargarMuroDaily(idReunion) {
 
 // ================= SPRINT RETROSPECTIVE =================
 
-let notasRetroLocal = [];
+let notasRetro = [];
+let retroFinalizada = false;
 
 document.addEventListener("click", (e) => {
   if (e.target && e.target.id === "btnIrRetrospectiva") {
@@ -1810,24 +1888,69 @@ document.addEventListener("click", (e) => {
   }
 });
 
+function salirDeRetrospectiva() {
+  document.getElementById("vista-sprintPlanning").style.display = "none";
+  document.getElementById("modal-reuniones").style.display = "block";
+  if (typeof cargarReuniones === "function") cargarReuniones();
+}
+
+function obtenerUsuarioRetro() {
+  return JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Integrante" };
+}
+
+// avisa al resto del equipo para que recargue el tablero
+function avisarRetroActualizada() {
+  if (socketAsignacion) {
+    socketAsignacion.emit("publicar-retro", { sprintId: window.ID_SPRINT, reunionId: window.ID_REUNION });
+  }
+}
+
+// helper para las llamadas de la retrospectiva
+async function llamarRetro(url, metodo, cuerpo) {
+  const resp = await fetch(url, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: cuerpo ? JSON.stringify(cuerpo) : undefined
+  });
+  const res = await resp.json();
+  if (!resp.ok || !res.ok) throw new Error(res.error || `Error ${resp.status}`);
+  return res;
+}
+
+// trae las notas de todo el equipo desde la base de datos
+async function cargarRetrospectiva() {
+  const usuario = obtenerUsuarioRetro();
+  try {
+    const resp = await fetch(`/reuniones/${window.ID_REUNION}/retrospectiva?idUsuario=${usuario.id}`, {
+      headers: { "Accept": "application/json" }
+    });
+    const res = await resp.json();
+    if (!res.ok) return console.error(res.error);
+
+    notasRetro = res.data.notas;
+    retroFinalizada = String(res.data.reunion.estado).toLowerCase() === 'finalizada';
+    renderizarTableroRetrospectiva();
+  } catch (err) {
+    console.error("Error al cargar la retrospectiva:", err);
+  }
+}
+
 function inicializarRetrospectiva() {
   const rol = obtenerRolActual();
 
   if (rol === 'cliente') {
     alert("La reunión de Retrospectiva es exclusiva del equipo Scrum.");
-    document.getElementById("vista-sprintPlanning").style.display = "none";
-    document.getElementById("modal-reuniones").style.display = "block";
-    if (typeof cargarReuniones === "function") cargarReuniones();
+    salirDeRetrospectiva();
     return;
   }
 
   const txtSprint = document.getElementById("txtRetroSprint");
   if (txtSprint) txtSprint.textContent = window.ID_SPRINT;
 
-  const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo")) || { id: 1, nombre: "Integrante" };
-
   document.querySelectorAll(".btn-agregar-nota").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
+      if (retroFinalizada) return alert("La retrospectiva ya fue finalizada.");
+
       const categoria = btn.dataset.target;
       const mapaInputs = {
         bien: "inpNotaBien",
@@ -1839,18 +1962,18 @@ function inicializarRetrospectiva() {
       const texto = textarea ? textarea.value.trim() : "";
       if (!texto) return alert("Escribe una nota antes de agregarla.");
 
-      notasRetroLocal.push({
-        id: Date.now(),
-        categoria,
-        texto,
-        autor: usuario.nombre || usuario.name || "Usuario",
-        votos: 0,
-        votadoPorMi: false,
-        compromiso: false
-      });
-
-      textarea.value = "";
-      renderizarTableroRetrospectiva();
+      try {
+        await llamarRetro(`/reuniones/${window.ID_REUNION}/retrospectiva/notas`, 'POST', {
+          idUsuario: obtenerUsuarioRetro().id,
+          categoria,
+          texto
+        });
+        textarea.value = "";
+        await cargarRetrospectiva();
+        avisarRetroActualizada();
+      } catch (err) {
+        alert("No se pudo guardar la nota: " + err.message);
+      }
     };
   });
 
@@ -1860,22 +1983,20 @@ function inicializarRetrospectiva() {
     btnCerrar.onclick = async () => {
       if (!confirm("¿Guardar acuerdos y cerrar la retrospectiva?")) return;
       try {
-        await fetch(`/reuniones/${window.ID_REUNION}/finalizar`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        await llamarRetro(`/reuniones/${window.ID_REUNION}/finalizar`, 'PUT');
+        if (socketAsignacion) {
+          socketAsignacion.emit("disparar-finalizar-retro", { sprintId: window.ID_SPRINT, reunionId: window.ID_REUNION });
+        }
         alert("Retrospectiva guardada correctamente.");
-        document.getElementById("vista-sprintPlanning").style.display = "none";
-        document.getElementById("modal-reuniones").style.display = "block";
-        if (typeof cargarReuniones === "function") cargarReuniones();
+        salirDeRetrospectiva();
       } catch (err) {
         console.error("Error al cerrar la retrospectiva:", err);
-        alert("Ocurrió un error al cerrar la retrospectiva.");
+        alert("Ocurrió un error al cerrar la retrospectiva: " + err.message);
       }
     };
   }
 
-  renderizarTableroRetrospectiva();
+  cargarRetrospectiva();
 }
 
 function renderizarTableroRetrospectiva() {
@@ -1888,10 +2009,13 @@ function renderizarTableroRetrospectiva() {
   if (!tpl) return;
 
   const esFacilitador = obtenerRolActual() === 'facilitador';
+  const usuario = obtenerUsuarioRetro();
+  const urlNota = (nota, accion) =>
+    `/reuniones/${window.ID_REUNION}/retrospectiva/notas/${encodeURIComponent(nota.id)}/${accion}`;
 
   Object.values(contenedores).forEach(c => { if (c) c.innerHTML = ""; });
 
-  notasRetroLocal.forEach(nota => {
+  notasRetro.forEach(nota => {
     const contenedor = contenedores[nota.categoria];
     if (!contenedor) return;
 
@@ -1905,17 +2029,29 @@ function renderizarTableroRetrospectiva() {
       const chkCompromiso = nodo.querySelector(".chk-compromiso");
       lblCompromiso.classList.remove("oculto");
       chkCompromiso.checked = nota.compromiso;
-      chkCompromiso.disabled = !esFacilitador;
-      chkCompromiso.onchange = () => {
-        nota.compromiso = chkCompromiso.checked;
+      chkCompromiso.disabled = !esFacilitador || retroFinalizada;
+      chkCompromiso.onchange = async () => {
+        try {
+          await llamarRetro(urlNota(nota, 'compromiso'), 'PUT', { idUsuario: usuario.id });
+          await cargarRetrospectiva();
+          avisarRetroActualizada();
+        } catch (err) {
+          alert("No se pudo actualizar el compromiso: " + err.message);
+          chkCompromiso.checked = nota.compromiso;
+        }
       };
     }
 
     const btnVotar = nodo.querySelector(".btn-votar-retro");
-    btnVotar.onclick = () => {
-      nota.votadoPorMi = !nota.votadoPorMi;
-      nota.votos += nota.votadoPorMi ? 1 : -1;
-      renderizarTableroRetrospectiva();
+    btnVotar.disabled = retroFinalizada;
+    btnVotar.onclick = async () => {
+      try {
+        await llamarRetro(urlNota(nota, 'voto'), 'PUT', { idUsuario: usuario.id });
+        await cargarRetrospectiva();
+        avisarRetroActualizada();
+      } catch (err) {
+        alert("No se pudo registrar el voto: " + err.message);
+      }
     };
 
     contenedor.appendChild(nodo);

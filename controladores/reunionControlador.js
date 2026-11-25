@@ -84,7 +84,8 @@ function crearReunionControlador(pool) {
     const obtenerHistoriasSprint = async (req, res) => {
         try {
             const { idSprint } = req.params;
-            const historias = await reunionDAO.obtenerHistoriasPorSprint(idSprint);
+            const idDesarrollador = req.query.idDesarrollador ? Number(req.query.idDesarrollador) : null;
+            const historias = await reunionDAO.obtenerHistoriasPorSprint(idSprint, idDesarrollador);
             res.json({ ok: true, data: historias });
         } catch (err) {
             console.error('ERROR AL OBTENER HISTORIAS DEL SPRINT:', err.message);
@@ -95,7 +96,20 @@ function crearReunionControlador(pool) {
     const cambiarEstadoFinalizada = async (req, res) => {
         try {
             const { idReunion } = req.params;
+            const { sprint, proyectoId, fechaInicio, fechaFin, asignaciones } = req.body || {};
+
             await reunionDAO.finalizarReunion(idReunion);
+
+            if (Array.isArray(asignaciones) && asignaciones.length > 0 && typeof reunionDAO.guardarAsignacionesSprint === "function") {
+                await reunionDAO.guardarAsignacionesSprint({
+                    idSprint: Number(sprint),
+                    idProyecto: Number(proyectoId),
+                    fechaInicio: fechaInicio || null,
+                    fechaFin: fechaFin || null,
+                    asignaciones
+                });
+            }
+
             res.json({ ok: true, mensaje: 'Reunión finalizada correctamente' });
         } catch (err) {
             console.error('ERROR AL FINALIZAR REUNIÓN:', err.message);
@@ -190,6 +204,60 @@ function crearReunionControlador(pool) {
         }
     };
 
+    //retrospectiva
+    const responderErrorRetro = (res, err, etiqueta) => {
+        console.error(etiqueta, err.message);
+        res.status(err.negocio ? 400 : 500).json({ ok: false, error: err.message });
+    };
+
+    const obtenerRetrospectiva = async (req, res) => {
+        try {
+            const { idReunion } = req.params;
+            const idUsuario = req.query.idUsuario ? Number(req.query.idUsuario) : null;
+            const data = await reunionDAO.obtenerRetrospectiva(idReunion, idUsuario);
+            if (!data) return res.status(404).json({ ok: false, error: 'Retrospectiva no encontrada' });
+            res.json({ ok: true, data });
+        } catch (err) {
+            responderErrorRetro(res, err, 'ERROR AL OBTENER RETROSPECTIVA:');
+        }
+    };
+
+    const agregarNotaRetro = async (req, res) => {
+        try {
+            const { idReunion } = req.params;
+            const { idUsuario, categoria, texto } = req.body;
+            if (!idUsuario) return res.status(400).json({ ok: false, error: 'Falta el usuario.' });
+            const id = await reunionDAO.agregarNotaRetro(idReunion, Number(idUsuario), { categoria, texto });
+            res.json({ ok: true, data: { id }, mensaje: 'Nota agregada' });
+        } catch (err) {
+            responderErrorRetro(res, err, 'ERROR AL AGREGAR NOTA DE RETRO:');
+        }
+    };
+
+    const votarNotaRetro = async (req, res) => {
+        try {
+            const { idReunion, idNota } = req.params;
+            const { idUsuario } = req.body;
+            if (!idUsuario) return res.status(400).json({ ok: false, error: 'Falta el usuario.' });
+            await reunionDAO.alternarVotoRetro(idReunion, Number(idUsuario), idNota);
+            res.json({ ok: true, mensaje: 'Voto actualizado' });
+        } catch (err) {
+            responderErrorRetro(res, err, 'ERROR AL VOTAR NOTA DE RETRO:');
+        }
+    };
+
+    const compromisoNotaRetro = async (req, res) => {
+        try {
+            const { idReunion, idNota } = req.params;
+            const { idUsuario } = req.body;
+            if (!idUsuario) return res.status(400).json({ ok: false, error: 'Falta el usuario.' });
+            await reunionDAO.alternarCompromisoRetro(idReunion, Number(idUsuario), idNota);
+            res.json({ ok: true, mensaje: 'Compromiso actualizado' });
+        } catch (err) {
+            responderErrorRetro(res, err, 'ERROR AL MARCAR COMPROMISO DE RETRO:');
+        }
+    };
+
     return { 
         obtenerReuniones, 
         obtenerDatosFormulario, 
@@ -202,7 +270,11 @@ function crearReunionControlador(pool) {
         devolverBacklog,
         obtenerDaily, 
         publicarDaily,
-        eliminarReunion
+        eliminarReunion,
+        obtenerRetrospectiva,
+        agregarNotaRetro,
+        votarNotaRetro,
+        compromisoNotaRetro
     };
 }
 

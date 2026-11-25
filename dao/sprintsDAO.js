@@ -220,24 +220,62 @@ class sprintsDAO {
      * @returns {Promise<Object>} Respuesta con estado ok
      */
     async eliminarSprint(idSprint, idProyecto) {
+        const client = await this.pool.connect();
         try {
-            const resultado = await this.pool.query(
+            await client.query('BEGIN');
+
+            await client.query(
+                `DELETE FROM scrumbird.impedimento WHERE id_sprint = $1 AND id_proyecto = $2;`,
+                [idSprint, idProyecto]
+            );
+
+            await client.query(
+                `DELETE FROM scrumbird.reunion_participante
+                WHERE id_reunion IN (
+                    SELECT id FROM scrumbird.reunion WHERE id_sprint = $1 AND id_proyecto = $2
+                );`,
+                [idSprint, idProyecto]
+            );
+
+            await client.query(
+                `DELETE FROM scrumbird.reunion WHERE id_sprint = $1 AND id_proyecto = $2;`,
+                [idSprint, idProyecto]
+            );
+
+            await client.query(
+                `DELETE FROM scrumbird.trabajando_en_historia
+                WHERE id_proyecto = $2
+                AND historia_asignada IN (
+                    SELECT id FROM scrumbird.historia_de_usuario
+                    WHERE asignado_al_sprint = $1 AND id_proyecto = $2
+                );`,
+                [idSprint, idProyecto]
+            );
+
+            await client.query(
+                `UPDATE scrumbird.historia_de_usuario
+                SET asignado_al_sprint = NULL, pendiente = true
+                WHERE asignado_al_sprint = $1 AND id_proyecto = $2;`,
+                [idSprint, idProyecto]
+            );
+
+            const resultado = await client.query(
                 'DELETE FROM scrumbird.sprint WHERE id = $1 AND id_proyecto = $2;',
                 [idSprint, idProyecto]
             );
+
+            await client.query('COMMIT');
+
             if (resultado.rowCount > 0) {
-                return {
-                    ok: true,
-                    mensaje: "Sprint eliminado correctamente"
-                };
+                return { ok: true, mensaje: "Sprint eliminado correctamente" };
             }
-            return {
-                ok: false,
-                mensaje: "El sprint no existe en la BD"
-            };
+            return { ok: false, mensaje: "El sprint no existe en la BD" };
         } catch (error) {
+            await client.query('ROLLBACK');
             console.error("Error al eliminar sprint:", error);
             throw error;
+        } finally {
+            client.release();
         }
     }
 

@@ -11,6 +11,10 @@ router.get('/sprint/:idSprint/historias-revision', reunionControlador.obtenerHis
 router.get('/:idReunion/daily', reunionControlador.obtenerDaily);
 router.post('/crear', reunionControlador.guardarReunion);
 router.post('/:idReunion/daily', reunionControlador.publicarDaily);
+router.get('/:idReunion/retrospectiva', reunionControlador.obtenerRetrospectiva);
+router.post('/:idReunion/retrospectiva/notas', reunionControlador.agregarNotaRetro);
+router.put('/:idReunion/retrospectiva/notas/:idNota/voto', reunionControlador.votarNotaRetro);
+router.put('/:idReunion/retrospectiva/notas/:idNota/compromiso', reunionControlador.compromisoNotaRetro);
 router.put('/:idReunion/iniciar', reunionControlador.cambiarEstadoEnCurso);
 router.put('/:idReunion/finalizar', reunionControlador.cambiarEstadoFinalizada);
 router.post('/historia/:idHistoria/revisar', reunionControlador.revisarHistoria);
