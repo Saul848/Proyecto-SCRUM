@@ -14,7 +14,7 @@ class sprintControlador {
      * Función que procesa la solicitud para obtener los sprints asociados a un proyecto
      * @param {*} req Request Param id del proyecto en forma de número
      * @param {*} res Respuesta con estado ok, mensaje y datos de los sprints
-     * @returns
+     * @returns respuesta con arreglo de objetos sprints
      */
     async listarSprintsPorProyecto(req, res) {
         try {
@@ -45,7 +45,7 @@ class sprintControlador {
      * Método que procesa la solicitud para agregar un nuevo sprint
      * @param {*} req Body con la información básica para agregar un nuevo sprint
      * @param {*} res Estado ok y mensaje
-     * @returns
+     * @returns Respuesta de confirmacion con el sprint creado
      */
     async agregarSprint(req, res) {
         const { no_iteracion, objetivo, fecha_inicio, fecha_fin, idProyecto, historias } = req.body;
@@ -84,7 +84,7 @@ class sprintControlador {
      * Método que procesa la solicitud para modificar un sprint existente
      * @param {*} req Params con idSprint y Body con los datos actualizados
      * @param {*} res Estado ok y mensaje
-     * @returns
+     * @returns Respuesta de confirmacion con el sprint modificado
      */
     async modificarSprint(req, res) {
         try {
@@ -150,7 +150,7 @@ class sprintControlador {
      * Función para eliminar sprints de la BD
      * @param {*} req Request Params con el id del sprint y del proyecto
      * @param {*} res Código de respuesta
-     * @returns 
+     * @returns Respuesta de confirmacion
      */
     async eliminarSprint(req, res) {
         try {
@@ -231,7 +231,8 @@ class sprintControlador {
                 }
                 //Si ya hay alguna historia en progreso, se lanza un error porque solo puede haber una historia en progreso a la vez
                 const sprintsProyecto = await this.dao.obtenerSprints(idProyectoNum);
-                const yaHayEnProgreso = sprintsProyecto.some(s => s.estado === 'en progreso' && Number(s.Id) !== idSprintNum);
+                // Se evalúan las distintas propiedades de identificador al comparar sprints en progreso.
+                const yaHayEnProgreso = sprintsProyecto.some(s => s.estado === 'en progreso' && Number(s.Id || s.id || s.id_sprint) !== idSprintNum);
                 if (yaHayEnProgreso) {
                     return res.status(400).json({ ok: false, mensaje: "Ya existe un sprint en progreso. Solo puede haber uno a la vez." });
                 }

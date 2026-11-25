@@ -39,6 +39,7 @@ class historiaUsuarioDAO {
                 t_historias.horas_estimadas,
                 t_historias.pendiente,
                 t_historias.asignado_al_sprint,
+                t_sprint.no_iteracion AS sprint_no_iteracion,
                 t_historias.puntos_de_historia,
                 t_epicas.nombre AS epica_asignada,
                 t_trabajando.estado, 
@@ -99,7 +100,7 @@ class historiaUsuarioDAO {
                         horas: row.horas_estimadas,
                         pendiente: row.pendiente,
                         asignado_al_sprint: row.asignado_al_sprint,
-                        no_iteracion: row.no_iteracion,
+                        sprint_no_iteracion: row.sprint_no_iteracion,
                         estado: row.estado,
                         puntos_de_historia: row.puntos_de_historia,
                         epica_asignada: row.epica_asignada,                       
@@ -127,7 +128,7 @@ class historiaUsuarioDAO {
         }
     }
 
-    /**
+/**
      * Funcion que permite obtener una historia de un proyecto en especifico de la BD
      * @param {idHistoria} Int Id de la historia del proyecto
      * @param {idProyecto} Int 
@@ -135,7 +136,11 @@ class historiaUsuarioDAO {
      */
     async obtenerHistoriaEnProyecto(idHistoria, idProyecto) {
         const { rows } = await this.pool.query(
-            'SELECT * FROM scrumbird.historia_de_usuario WHERE id = $1 AND id_Proyecto = $2;',
+            `SELECT h.*, t.estado
+             FROM scrumbird.historia_de_usuario h
+             LEFT JOIN scrumbird.trabajando_en_historia t
+               ON h.id = t.historia_asignada AND h.id_proyecto = t.id_proyecto
+             WHERE h.id = $1 AND h.id_proyecto = $2;`,
             [idHistoria, idProyecto]
         );
         return rows [0] || null;

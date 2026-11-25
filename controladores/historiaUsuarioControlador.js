@@ -46,6 +46,7 @@ class historiaUsuarioControlador {
                     mensaje: "Error el Proyecto no pudo ser encontrado"
                 })
             }
+
             const historias = await this.dao.obtenerHistoriasEnProyecto(idProyecto);
             if (historias){
                 res.status(201).json({
@@ -70,7 +71,7 @@ class historiaUsuarioControlador {
         const { nombre, descripcion, criterios, valor, horas, puntosDeHistoria, idEpica, idProyecto} = req.body;
         try {
             // Se verifica que ninguno de los datos este vacio
-            if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || !idProyecto) {
+            if (!nombre || !descripcion || !criterios || valor === undefined || horas === undefined || idEpica === undefined || !idEpica || !puntosDeHistoria|| !idProyecto) {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "Todos los datos del formulario son obligatorios"
@@ -113,7 +114,7 @@ class historiaUsuarioControlador {
                 });
             }
             // Verificar que idEpica no tenga length 0
-            if (idEpica === undefined || idEpica === null || String(idEpica).trim().length === 0) {
+            if (String(idEpica).trim().length === 0) {
                 return res.status(400).json({
                     ok: false,
                     mensaje: "Debe seleccionar una épica para la historia de usuario"
@@ -303,6 +304,14 @@ class historiaUsuarioControlador {
                 return res.status(404).json({
                     ok: false,
                     mensaje: "La historia no existe en la BD"
+                });
+            }
+
+            // Se impide la modificación cuando el estado de la historia es terminado.
+            if (String(historiaExistente.estado || "").trim().toLowerCase() === "terminado") {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: "No se pueden modificar las historias de usuario en estado terminado."
                 });
             }
 
