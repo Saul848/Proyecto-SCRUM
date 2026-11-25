@@ -21,14 +21,13 @@ function setupAsignacionTareasSockets(io) {
             const idSprintNum = Number(sprintId);
             if (!idSprintNum) return;
 
-            // salir de otras salas de sprint (la sala propia del socket, que es su id, se conserva)
             for (const sala of socket.rooms) {
                 if (sala.startsWith("sprint-")) socket.leave(sala);
             }
             socket.join(`sprint-${idSprintNum}`);
             console.log(`Socket ${socket.id} se unió a sprint-${idSprintNum}`);
 
-            // Si ya hay una fase activa en este sprint, sincronizar al que acaba de entrar/recargar
+            // Sincronizar solo fases que no provocan recarga de página
             const faseActiva = estadoFasePorSprint.get(idSprintNum);
             const esCliente = String(socket.data.rol || "").includes("cliente");
             if (faseActiva && !esCliente) {
@@ -36,8 +35,6 @@ function setupAsignacionTareasSockets(io) {
                     socket.emit("fase-2-cliente", faseActiva.data || {});
                 } else if (faseActiva.fase === "fase-1") {
                     socket.emit("fase-1-cliente", faseActiva.data || {});
-                } else if (faseActiva.fase === "volver-detalles") {
-                    socket.emit("volver-detalles-cliente", faseActiva.data || {});
                 }
             }
         });
@@ -49,12 +46,8 @@ function setupAsignacionTareasSockets(io) {
 
         // el facilitador gestiona (Acepta o Rechaza) la solicitud
         socket.on("gestionar-solicitud", (data) => {
-            // llamamos al DAO para guardar el cambio en la BD permanentemente
-
-            // reenviamos el cambio de estado a todos los usuarios de la sala
             io.to(`sprint-${data.sprintId}`).emit("actualizar-estado-asignacion", data);
 
-            // si la solicitud es aceptada, se envia una notificación de asignación exitosa
             if (data.aceptada) {
                 io.to(`sprint-${data.sprintId}`).emit("notificacion-asignacion-exitosa", {
                     idDesarrollador: data.idDesarrollador,
@@ -71,9 +64,9 @@ function setupAsignacionTareasSockets(io) {
         socket.on("disparar-volver-detalles", (data = {}) => {
             const idSprintNum = Number(data.sprintId);
             if (idSprintNum) {
-                estadoFasePorSprint.set(idSprintNum, { fase: "volver-detalles", data });
+                estadoFasePorSprint.delete(idSprintNum);
             }
-            io.to(`sprint-${idSprintNum}`).emit("volver-detalles-cliente", data);
+            socket.to(`sprint-${idSprintNum}`).emit("volver-detalles-cliente", data);
         });
 
         socket.on("disparar-fase-2", (data = {}) => {
@@ -133,6 +126,16 @@ function setupAsignacionTareasSockets(io) {
         // daily scrum: el facilitador la finalizó
         socket.on("disparar-finalizar-daily", (data) => {
             io.to(`sprint-${data.sprintId}`).emit("daily-finalizada-cliente", data);
+        });
+
+        // retrospectiva: alguien agregó una nota, votó o marcó un compromiso
+        socket.on("publicar-retro", (data) => {
+            io.to(`sprint-${data.sprintId}`).emit("retro-actualizada", data);
+        });
+
+        // retrospectiva: el facilitador la finalizó
+        socket.on("disparar-finalizar-retro", (data) => {
+            io.to(`sprint-${data.sprintId}`).emit("retro-finalizada-cliente", data);
         });
 
         socket.on("disconnect", () => {

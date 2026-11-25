@@ -81,7 +81,7 @@ async function verDetallesHistoriaKanban(historiaId) {
 
     // Rellenar descripción y criterios de aceptación
     document.getElementById("kanban-detalle-descripcion").textContent = historia.descripcion ?? "Sin descripción";
-    document.getElementById("kanban-detalle-criterios").textContent = historia.criterios_de_aceptacion ?? "Sin criterios definidos";
+    document.getElementById("kanban-detalle-criterios").textContent = historia.criterios_aceptacion ?? historia.criterios_de_aceptacion ?? "Sin criterios definidos";
 
     // Guardar o enlazar el enlace de evidencias si lo requieres para el botón
     window.evidenciasRutaServidor = historia.evidencias_servidor ?? "";

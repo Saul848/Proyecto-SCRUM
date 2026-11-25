@@ -71,7 +71,8 @@ async function obtenerSprintsProyecto(idProyecto) {
  */
 async function inicializarSelectorIteraciones() {
     const selectSprint = document.getElementById("select-no-iteracion");
-    if (!selectSprint) return;
+    const { proyecto } = obtenerContextoKanban();
+    if (!selectSprint || !proyecto?.id) return;
 
     const respuestaSprints = await obtenerSprintsProyecto(proyectoActualKanban.id);
     
@@ -92,17 +93,17 @@ async function inicializarSelectorIteraciones() {
     // Llenar el select con los sprints existentes
     listaSprints.forEach((sprint) => {
         const option = document.createElement("option");
-        
+        const idSprintReal = sprint.Id ?? sprint.id ?? sprint.sprint_id ?? "";
         // Usamos el no_iteracion del sprint como value para hacer las peticiones al Kanban
-        option.value = sprint.no_iteracion; 
+        option.value = idSprintReal;
         
         // Mostramos el número de iteración amigable
-        option.textContent = `Iteración ${sprint.no_iteracion}`;
+        option.textContent = `Iteración ${sprint.NoSprint ?? sprint.no_iteracion ?? ""}`;
         
         // Guardamos los datos en el dataset usando las propiedades exactas de tu JSON
         option.dataset.objetivo = sprint.objetivo ?? "";
-        option.dataset.fechaInicio = sprint.fecha_inicio ?? "";
-        option.dataset.fechaFin = sprint.fecha_fin ?? "";
+        option.dataset.fechaInicio = sprint.fechaInicio ?? sprint.fecha_inicio ?? "";
+        option.dataset.fechaFin = sprint.fechaFin ?? sprint.fecha_fin ?? "";
 
         selectSprint.appendChild(option);
     });
@@ -125,7 +126,12 @@ async function inicializarSelectorIteraciones() {
     selectSprint.selectedIndex = 0;
     const primerSprintOption = selectSprint.options[0];
     actualizarInfoSprintUI(primerSprintOption);
-    await cargarKanvan(Number(primerSprintOption.value));
+
+    if (primerSprintOption && primerSprintOption.value !== "") {
+        await cargarKanvan(Number(primerSprintOption.value));
+    } else {
+        limpiarDatosSprint();
+    }
 }
 
 /**
@@ -179,6 +185,12 @@ function formatearFechaSimple(fechaStr) {
 
 ///////////////////////////
 // TABLERO KANVAN
+function obtenerContextoKanban() {
+  const usuario = JSON.parse(sessionStorage.getItem("usuarioActivo") || "null");
+  const proyecto = JSON.parse(sessionStorage.getItem("proyectoActivo") || "null");
+  const rol = (proyecto?.rol || usuario?.rol || "invitado").toLowerCase();
+  return { usuario, proyecto, rol };
+}
 
 async function obtenerHistoriasKanvan(idProyecto, idSprint) {
     try {
@@ -220,20 +232,26 @@ async function obtenerHistoriasKanvanDesarrollador(idProyecto, idSprint, idDesar
 
 let historiasDelSprint = [];
 
-async function cargarKanvan(sprintActual = 1){
-    if (ROL_ACTUAL === "facilitador" || ROL_ACTUAL === "cliente") {
-        historiasDelSprint = await obtenerHistoriasKanvan(Number(proyectoActualKanban.id), sprintActual);
-    } else if (ROL_ACTUAL === "desarrollador") {
-        historiasDelSprint = await obtenerHistoriasKanvanDesarrollador(proyectoActualKanban.id, sprintActual, usuarioActualKanban.id);
+async function cargarKanvan(sprintActual = 1) {
+    const { usuario, proyecto, rol } = obtenerContextoKanban();
+    if (!proyecto?.id) return;
+    const sprintNum = Number(sprintActual);
+    if (!Number.isInteger(sprintNum) || sprintNum <= 0) {
+        historiasDelSprint = [];
+        inicializarTablero();
+        actualizarBarraProgreso();
+        return;
+    }
+
+    if (rol === "facilitador" || rol === "cliente") {
+        historiasDelSprint = await obtenerHistoriasKanvan(Number(proyecto.id), sprintNum);
+    } else if (rol === "desarrollador" && usuario?.id) {
+        historiasDelSprint = await obtenerHistoriasKanvanDesarrollador(proyecto.id, sprintNum, usuario.id);
     } else {
         historiasDelSprint = [];
     }
 
-    if(historiasDelSprint.length === 0){
-        console.warn("El Sprint está vacío o no hay historias.");
-    }
-
-    await obtenerImpedimentosSprintActual(sprintActual);
+    await obtenerImpedimentosSprintActual(sprintNum);
     inicializarTablero();
     inicializarBuscadorKanban();
     actualizarBarraProgreso(); // Actualiza el porcentaje según historias terminadas
@@ -262,7 +280,9 @@ function inicializarTablero() {
 
     historiasDelSprint.forEach(historia => {
         const tarjeta = crearTarjeta(historia);
-        const estado = historia.estado_actual ?? historia.estado;
+        const estadoCrudo = String(historia.estado_actual ?? historia.estado ?? "").trim().toLowerCase();
+        const estadosValidos = ["por-empezar", "en-progreso", "en-revision", "terminado"];
+        const estado = estadosValidos.includes(estadoCrudo) ? estadoCrudo : "por-empezar";
         const columnaDestino = document.querySelector(`.columna-kanban[data-estado="${estado}"]`);
 
         if (columnaDestino) {
@@ -303,6 +323,13 @@ function crearTarjeta(historia) {
             </button>
         </div>
     `;
+
+    card.addEventListener("click", () => {
+        const inputResp = document.getElementById("responsableHistoria");
+        if (inputResp) {
+            inputResp.value = historia.nombre_responsable || "No asignado";
+        }
+    });
 
     card.addEventListener("dragstart", (e) => {
         document.getElementById("responsableHistoria").value = historia.nombre_responsable || "No asignado";
@@ -346,12 +373,7 @@ async function manejarDrop(e) {
 
     const mueveHaciaAdelante = (ordenColumnas[estadoDestino] ?? 0) > (ordenColumnas[estadoAnterior] ?? 0);
 
-    const tieneImpedimentoSinResolver = impedimentosCargados.some(imp =>
-        Number(imp.id_historia) === historiaId &&
-        String(imp.estado).toLowerCase() !== "resuelto"
-    );
-
-    if (mueveHaciaAdelante && tieneImpedimentoSinResolver) {
+    if (mueveHaciaAdelante && historiaTieneImpedimentoSinResolver(historiaId)) {
         mostrarNotificacionKanban(
             "Esta historia tiene un impedimento sin resolver y no puede avanzar en el tablero.",
             "error"
@@ -380,6 +402,14 @@ async function manejarDrop(e) {
     }
 
     const esPrioritaria = tarjeta.classList.contains("prioritaria");
+
+    if (mueveHaciaAdelante && historiaTieneImpedimentoSinResolver(historiaId)) {
+        mostrarNotificacionKanban(
+            "Esta historia tiene un impedimento sin resolver y no puede avanzar en el tablero.",
+            "error"
+        );
+        return;
+    }
 
     // Mover visualmente
     if (esPrioritaria) {
@@ -452,6 +482,28 @@ async function actualizarEstadoHistoria(
     nuevoEstado
 ) {
     const datos = { nuevoEstado };
+
+    const ordenColumnas = {
+        "por-empezar": 1,
+        "en-progreso": 2,
+        "en-revision": 3,
+        "terminado": 4
+    };
+    const estadoActualHistoria = historiasDelSprint.find(
+        h => Number(h.historia_id ?? h.id) === Number(idHistoria)
+    );
+    const estadoPrevio = String(
+        estadoActualHistoria?.estado_actual ?? estadoActualHistoria?.estado ?? ""
+    ).trim().toLowerCase();
+    const esAvance = (ordenColumnas[nuevoEstado] ?? 0) > (ordenColumnas[estadoPrevio] ?? 0);
+
+    if (esAvance && historiaTieneImpedimentoSinResolver(idHistoria)) {
+        mostrarNotificacionKanban(
+            "Resuelve primero el impedimento pendiente antes de avanzar o registrar horas.",
+            "error"
+        );
+        return false;
+    }
 
     if (nuevoEstado === "en-revision") {
         let horasValidas = false;
@@ -569,7 +621,8 @@ function inicializarBuscadorKanban() {
     });
 }
 
-//para impedimentos
+///////////////////////////
+// IMPEDIMENTOS
 
 const rolesVenImpedimentos = ["facilitador", "desarrollador"];
 let impedimentosCargados = [];
@@ -623,6 +676,13 @@ function sincronizarBotonesFiltroImpedimentos() {
         btn.style.background = activo ? "#f8fafc" : "#fff";
         btn.style.fontWeight = activo ? "600" : "400";
     });
+}
+
+function historiaTieneImpedimentoSinResolver(historiaId) {
+    return Array.isArray(impedimentosCargados) && impedimentosCargados.some(imp =>
+        Number(imp.id_historia) === Number(historiaId) &&
+        String(imp.estado ?? "").trim().toLowerCase() !== "resuelto"
+    );
 }
 
 async function abrirModalImpedimentos() {
@@ -755,14 +815,42 @@ function esImpedimentoPropio(imp) {
     return Boolean(nombreActual && nombreReportante && nombreActual === nombreReportante);
 }
 
+function deduplicarImpedimentos(lista = []) {
+    const impedimentosUnicos = [];
+    const vistos = new Set();
+
+    for (const imp of lista) {
+        const sprint = imp.id_sprint ?? imp.idSprint ?? "";
+        const historia = imp.id_historia ?? imp.idHistoria ?? "";
+        const usuario = imp.id_usuario_reporta ?? imp.idUsuarioReporta ?? imp.usuario_id ?? imp.nombre_desarrollador ?? "";
+        const desc = String(imp.descripcion ?? "").trim().toLowerCase();
+        const estado = String(imp.estado ?? "").trim().toLowerCase();
+
+        const clave = `${sprint}-${historia}-${usuario}-${desc}-${estado}`;
+
+        if (!vistos.has(clave)) {
+            vistos.add(clave);
+            impedimentosUnicos.push(imp);
+        }
+    }
+
+    return impedimentosUnicos;
+}
+
+function normalizarEstadoImpedimento(imp) {
+  return String(imp?.estado ?? "").trim().toLowerCase();
+}
+
 function renderizarTarjetasImpedimentos() {
     const contenedor = document.getElementById("lista-impedimentos-container");
     if (!contenedor) return;
     contenedor.innerHTML = "";
 
-    const lista = impedimentosCargados.filter(i =>
-        filtroImpedimentoActual === "todos" || i.estado === filtroImpedimentoActual
-    );
+    const filtrados = impedimentosCargados.filter(i => {
+        const estadoNorm = normalizarEstadoImpedimento(i);
+        return filtroImpedimentoActual === "todos" || estadoNorm === filtroImpedimentoActual;
+    });
+    const lista = deduplicarImpedimentos(filtrados);
 
     if (lista.length === 0) {
         contenedor.innerHTML = `<p style="text-align:center; color:#64748b;">No hay impedimentos para mostrar en este sprint.</p>`;
@@ -770,16 +858,18 @@ function renderizarTarjetasImpedimentos() {
     }
 
     lista.forEach(imp => {
-        const esResuelto = imp.estado === "resuelto";
+        const estadoNorm = normalizarEstadoImpedimento(imp);
+        const esResuelto = estadoNorm === "resuelto";
         const borderColor = esResuelto ? "#86efac" : "#fecaca";
         const bgColor = esResuelto ? "#f0fdf4" : "#fef2f2";
+        const impId = imp.id ?? imp.id_impedimento;
 
         let htmlResolucion = "";
         if (ROL_ACTUAL === "facilitador" && !esResuelto) {
             htmlResolucion = `
                 <div style="border-top:1px dashed #fca5a5; padding-top:8px; margin-top:8px;">
-                    <textarea id="solucion-${imp.id}" placeholder="Escribe una solución detallada (mínimo 3 palabras reales)..." style="width:100%; padding:6px; margin-bottom:6px; box-sizing:border-box;"></textarea>
-                    <button type="button" id="btn-resolver-${imp.id}" onclick="marcarResuelto(${imp.id})" disabled style="background:#16a34a; color:#fff; border:none; padding:6px 12px; border-radius:4px; opacity:0.55; cursor:not-allowed;">Marcar como Resuelto</button>
+                    <textarea id="solucion-${impId}" placeholder="Escribe una solución detallada (mínimo 3 palabras reales)..." style="width:100%; padding:6px; margin-bottom:6px; box-sizing:border-box;"></textarea>
+                    <button type="button" id="btn-resolver-${impId}" onclick="marcarResuelto(${impId})" disabled style="background:#16a34a; color:#fff; border:none; padding:6px 12px; border-radius:4px; opacity:0.55; cursor:not-allowed;">Marcar como Resuelto</button>
                 </div>`;
         } else if (esResuelto) {
             htmlResolucion = `<p style="margin:4px 0 0; color:#166534; font-size:13px;"><strong>Solución:</strong> ${escaparHTML(imp.solucion)}</p>`;
@@ -806,9 +896,9 @@ function renderizarTarjetasImpedimentos() {
         contenedor.appendChild(tarjeta);
 
         if (ROL_ACTUAL === "facilitador" && !esResuelto) {
-            const txtSolucion = document.getElementById(`solucion-${imp.id}`);
+            const txtSolucion = document.getElementById(`solucion-${impId}`);
             if (txtSolucion) {
-                txtSolucion.addEventListener("input", () => actualizarEstadoBotonResolver(imp.id));
+                txtSolucion.addEventListener("input", () => actualizarEstadoBotonResolver(impId));
             }
         }
     });
@@ -920,8 +1010,29 @@ async function marcarResuelto(idImpedimento) {
             body: JSON.stringify({ solucion: validacion.solucion })
         });
         const resultado = await respuesta.json();
+
         if (resultado.success) {
+            const targetId = Number(idImpedimento);
+
+            impedimentosCargados = impedimentosCargados.map(imp => {
+                const impId = Number(imp.id ?? imp.id_impedimento);
+                return impId === targetId
+                    ? { ...imp, estado: "resuelto", solucion: validacion.solucion }
+                    : imp;
+            });
+            renderizarTarjetasImpedimentos();
+
             await cargarImpedimentosEnModal();
+
+            // Garantiza que el recién resuelto no vuelva a figurar como pendiente si el GET llegó desfasado
+            impedimentosCargados = impedimentosCargados.map(imp => {
+                const impId = Number(imp.id ?? imp.id_impedimento);
+                return impId === targetId
+                    ? { ...imp, estado: "resuelto", solucion: validacion.solucion }
+                    : imp;
+            });
+            renderizarTarjetasImpedimentos();
+
             if (typeof mostrarNotificacionKanban === "function") {
                 mostrarNotificacionKanban("Impedimento marcado como resuelto.", "exito");
             }
