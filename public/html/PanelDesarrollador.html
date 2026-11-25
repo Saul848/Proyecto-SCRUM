@@ -169,76 +169,95 @@
             <!-- Section zonaDeTrabajo -->
             <section id="zonaDeTrabajo">
 
-                <!-- ======================================= -->
-                <!-- MODAL: PRODUCT BACKLOG DEL DESARROLLADOR -->
-                <!-- ======================================= -->
 
-                <div id="modal-product-backlog" class="modal-class" style="display: block;">
+        <!-- ========================================================= -->
+        <!-- MODAL 1: PRODUCT BACKLOG (MODO CONSULTA / SOLO LECTURA)   -->
+        <!-- ========================================================= -->
+        <div id="modal-product-backlog" class="modal-class" style="display: block;">
+        <div id="DivContPB">
 
-                    <section id="dev-seccion-product-backlog" class="dev-product-backlog">
+            <!-- Barra de filtros (sin botones +, #, - de épicas) -->
+            <div id="contenedorFiltrosPB" class="filtros-pb-container">
+            <input type="text" id="inputFiltroId" class="filtro-input filtro-id" placeholder="Filtrar ID...">
+            <input type="text" id="inputFiltroNombre" class="filtro-input filtro-nombre" placeholder="Filtrar nombre...">
+            <input type="number" id="inputFiltroValor" class="filtro-input filtro-valor" placeholder="Filtrar valor...">
+            <input type="text" id="inputFiltroSprint" class="filtro-input filtro-sprint" placeholder="Filtrar sprint...">
+            <select id="selectEpicas" class="filtro-select filtro-epicas">
+                <option value="">Todas las épicas</option>
+            </select>
+            <button type="button" id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+            </div>
 
-                        <!-- FILTROS DEL PRODUCT BACKLOG -->
-                        <div id="contenedorFiltrosPB" class="filtros-pb-container">
+            <!-- Encabezados de historias de usuario (10 columnas, sin columna de eliminar) -->
+            <div id="DivEncabezados">
+            <label id="LabelID">ID</label>
+            <label id="LabelNombreHistoria">Historias de usuario</label>
+            <label id="LabelDescripccion">Descripción</label>
+            <label id="LabelCriterios">Criterios de aceptación</label>
+            <label id="LabelValor">Valor</label>
+            <label id="LabelHorasEstimadas">Horas estimadas</label>
+            <label id="LabelPuntosHistoria">Puntos</label>
+            <label id="LabelEpicaAsignada">Épica</label>
+            <label id="LabelEstadoHistoria">Estado</label>
+            <label id="LabelSprintAsginado">Sprint asignado</label>
+            </div>
 
-                            <input id="inputFiltroId" class="filtro-input filtro-id" type="text"
-                                placeholder="Filtrar ID..." aria-label="Filtrar por ID">
+            <!-- Sección que contiene los datos de las historias de usuario -->
+            <div id="DivHistoria"></div>
 
-                            <input id="inputFiltroNombre" class="filtro-input filtro-nombre" type="text"
-                                placeholder="Filtrar nombre..." aria-label="Filtrar por nombre">
+            <!-- Sección inferior con el botón renombrado a "Ver sprints" -->
+            <div id="divOpccionesInferiores">
+            <div id="DivBtnModHistoria">
+                <button type="button" id="btnGestionarSprints"
+                onclick="mostrarModal('modal-gestion-sprints', 'cabecera-gestion-sprints')">Ver sprints</button>
+            </div>
+            </div>
 
-                            <input id="inputFiltroValor" class="filtro-input filtro-valor" type="number"
-                                placeholder="Filtrar valor..." aria-label="Filtrar por valor">
+        </div> <!-- Aquí acaba el ContPB -->
 
-                            <input id="inputFiltroSprint" class="filtro-input filtro-sprint" type="text"
-                                placeholder="Filtrar sprint..." aria-label="Filtrar por sprint">
+        <!-- Definición de hecho en modo solo lectura -->
+        <div id="ContDOD">
+            <div id="encabezado-dod">
+            <h2>Definición de hecho (DOD)</h2>
+            <div id="contenido-definicion">
+                <label id="dodTexto"></label>
+            </div>
+            </div>
+        </div>
+        <!-- MATERIAL ADICIONAL -->
+            <div class="dev-pb-acciones">
+                    <button id="btn-compartir-material" type="button" class="dev-pb-btn-material">
+                        <span class="material-symbols-outlined">visibility</span>
+                    Ver material adicional
+                </button>
+            </div>
+        </div>
 
-                            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros" type="button">
-                                Limpiar
-                            </button>
+        <!-- ========================================================= -->
+        <!-- MODAL 2: SPRINTS (MODO CONSULTA / SOLO LECTURA)           -->
+        <!-- ========================================================= -->
+        <div id="modal-gestion-sprints" class="modal-class" style="display: none;">
+        <div id="DivContSprints">
+            <div class="barra-superior-sprints">
+            <button type="button" id="btnRegresarPB" class="btn-regresar-pb" onclick="regresarAProductBacklog()" title="Regresar al Product Backlog">
+                ← Volver al Product Backlog
+            </button>
+            </div>
 
-                        </div>
+            <!-- Encabezados de los sprints -->
+            <div id="DivEncabezadosSprint">
+            <label id="NoSprint">No. De sprint</label>
+            <label id="Objetivo">Objetivo</label>
+            <label id="Estado">Estado</label>
+            <label id="FechaInicio">Fecha inicio</label>
+            <label id="FechaFin">Fecha fin</label>
+            <label id="AccionesSprint">Historias</label>
+            </div>
 
-                        <!-- TABLA DE HISTORIAS -->
-                        <div class="dev-pb-tabla-contenedor">
-
-                            <table class="dev-pb-tabla">
-
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Historias de usuario</th>
-                                        <th>Descripción</th>
-                                        <th>Criterios de aceptación</th>
-                                        <th>Valor</th>
-                                        <th>Sprint asignado</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody id="dev-pb-lista-historias">
-                                    <tr>
-                                        <td colspan="6">
-                                            Cargando historias de usuario...
-                                        </td>
-                                    </tr>
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                        <!-- MATERIAL ADICIONAL -->
-                        <div class="dev-pb-acciones">
-
-                            <button id="btn-compartir-material" type="button" class="dev-pb-btn-material">
-                                <span class="material-symbols-outlined">visibility</span>
-                                Ver material adicional
-                            </button>
-
-                        </div>
-
-                    </section>
-
-                </div>
+            <!-- Sección que contiene los datos de los sprints -->
+            <div id="DivSprint"></div>
+        </div>
+        </div>
 
                 <!-- Sección de Gráficas -->
                 <div id="modal-graficas" class="modal-class" style="display: none;">
@@ -510,7 +529,8 @@
 
     <!-- Scripts por separado -->
     <script src="../js/PanelDesarrollador.js"></script>
-    <script src="../js/ProductBacklogDesarrollador.js"></script>
+    <script src="../js/restringidoPB.js"></script>
+    <script src="../js/sprintsRestrigido.js"></script>
     <script src="../js/modalSubirMaterial.js"></script>
     <script src="../js/mensajes.js"></script>
     <script src="../js/cargarModalesGrupos.js"></script>
