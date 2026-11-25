@@ -83,6 +83,7 @@ async function renderizarSprints() {
                 seleccionarFilaSprint(sprintId, filaSprint);
             });
 
+            // 🟢 [NUEVO/MODIFICADO] Se omite el botón verde de cerrar sprint en las acciones de cada fila.
             filaSprint.innerHTML = `
                 <label>${noSprint}</label>
                 <label>${objetivo}</label>
@@ -91,17 +92,6 @@ async function renderizarSprints() {
                 <label>${fechaFin}</label>
                 <div class="div-acciones-sprint" style="display: flex; gap: 6px; justify-content: center;">
                     <button type="button" class="btn-toggle-sprint" title="Ver historias asignadas" onclick="toggleDetalleSprint(${sprintId})" style="background:#0d8bf2; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">📖</button>
-                    ${estado !== "terminado" ? `
-                <button
-                    type="button"
-                    class="btn-accion-sprint"
-                    title="Cerrar sprint y registrar pendiente"
-                    onclick="cerrarSprintDesdePanel(${sprintId}, this)"
-                    style="background:#176b45; color:#fff; border:none;
-                        padding:6px 10px; border-radius:6px; cursor:pointer;">
-                    Cerrar
-                </button>
-` : ""}
                     <button type="button" class="btn-accion-sprint" title="Eliminar Sprint" onclick="confirmarEliminarSprint(${sprintId})" style="background:#ff4444; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">🗑️</button>
                 </div>
             `;
@@ -253,6 +243,9 @@ async function cargarPanelesHistorias(asignadasIds = [], modalTipo = 'add') {
 
     const todasOrdenadas = [...todas].sort((a, b) => (b.pendiente === true) - (a.pendiente === true));
 
+    // Se normalizan los identificadores de historias asignadas para comparaciones consistentes.
+    const asignadasNum = (asignadasIds || []).map((id) => Number(id));
+
     todasOrdenadas.forEach(hist => {
         const histId = hist.id;
         const titulo = hist.nombre || hist.titulo || "Sin título";
@@ -282,6 +275,23 @@ async function cargarPanelesHistorias(asignadasIds = [], modalTipo = 'add') {
             tarjeta.appendChild(badgePendiente);
         }
 
+        // Se permite alternar la tarjeta entre el panel actual y el catálogo para asignar o desasignar historias.
+        const asignarAlternar = (esAsignadaInicial) => {
+            if (esAsignadaInicial) {
+                panelCatalogo.appendChild(tarjeta);
+                panelActual.appendChild(tarjeta);
+            } else {
+                panelCatalogo.appendChild(tarjeta);
+            }
+            tarjeta.onclick = () => {
+                if (tarjeta.parentElement === panelActual) {
+                    panelCatalogo.appendChild(tarjeta);
+                } else {
+                    panelActual.appendChild(tarjeta);
+                }
+            };
+        };
+
         if (asignadasIds.includes(histId)) {
             tarjeta.onclick = () => {
                 panelCatalogo.appendChild(tarjeta);
@@ -300,18 +310,40 @@ async function cargarPanelesHistorias(asignadasIds = [], modalTipo = 'add') {
 // MÉTODOS DE VERIFICACIÓN POR CADA CAMPO EN MODALES
 // ==========================================================
 
+/**
+ * Verifica que el número de iteración sea un entero válido entre 1 y 100
+ * y que no pertenezca a otro sprint del mismo proyecto.
+ * @param {HTMLInputElement} inputDOM Campo de entrada del número de iteración
+ * @param {number|string|null} idExcluido Identificador del sprint que se está modificando
+ * @returns {boolean} Indica si el número de iteración es válido
+ */
 function verificarNoIteracion(inputDOM, idExcluido = null) {
-    const val = Number(inputDOM.value.trim());
+    // Se conserva el valor ingresado originalmente para restaurarlo si la validación falla.
+    const textoOriginal = inputDOM.value.trim();
+    const val = Number(textoOriginal);
+
     if (!Number.isInteger(val) || val < 1 || val > 100) {
         inputDOM.style.border = "2px solid red";
         inputDOM.value = "";
         inputDOM.placeholder = "Debe ser un número entero entre 1 y 100";
         return false;
     }
+
+    // Se normaliza el identificador excluido a número para evitar fallos por tipo de dato.
+    const idExcluidoNum = idExcluido !== null && idExcluido !== undefined && idExcluido !== ""
+        ? Number(idExcluido)
+        : null;
+
     for (let s of datosSprints) {
-        const currentId = s.id || s.id_sprint;
-        const currentIter = Number(s.NoSprint || s.no_iteracion);
-        if (idExcluido !== null && currentId === idExcluido) continue;
+        // Se contemplan las distintas claves de identificador devueltas por el backend.
+        const currentId = Number(s.id ?? s.id_sprint ?? s.Id);
+        const currentIter = Number(s.NoSprint ?? s.no_iteracion);
+
+        // Se omite el sprint en edición cuando ambos identificadores numéricos coinciden.
+        if (idExcluidoNum !== null && !Number.isNaN(currentId) && currentId === idExcluidoNum) {
+            continue;
+        }
+
         if (currentIter === val) {
             inputDOM.style.border = "2px solid red";
             inputDOM.value = "";
@@ -319,6 +351,9 @@ function verificarNoIteracion(inputDOM, idExcluido = null) {
             return false;
         }
     }
+
+    // Se asegura que el input conserve el número de iteración válido ingresado.
+    inputDOM.value = String(val);
     inputDOM.style.border = "2px solid blue";
     return true;
 }
@@ -364,6 +399,12 @@ function verificarFechas(inputInicio, inputFin) {
     return true;
 }
 
+/**
+ * Valida todos los campos del modal de agregar o modificar sprint.
+ * @param {string} tipo Indica si el modal corresponde a 'add' o 'mod'
+ * @param {number|string|null} idExcluido Identificador del sprint excluido al modificar
+ * @returns {boolean} Indica si todos los campos cumplen las reglas de validación
+ */
 function validarCamposModalSprint(tipo, idExcluido = null) {
     const prefix = tipo === 'add' ? 'inpAdd' : 'inpMod';
     const inpIteracion = document.getElementById(`${prefix}NoIteracionSprint`);
@@ -371,7 +412,10 @@ function validarCamposModalSprint(tipo, idExcluido = null) {
     const inpInicio = document.getElementById(`${prefix}FechaInicioSprint`);
     const inpFin = document.getElementById(`${prefix}FechaFinSprint`);
 
-    const v1 = verificarNoIteracion(inpIteracion, idExcluido);
+    // Se utiliza el identificador del modal o idSprintSeleccionado como respaldo al modificar.
+    const idAExcluir = tipo === 'mod' ? (idExcluido ?? idSprintSeleccionado) : null;
+
+    const v1 = verificarNoIteracion(inpIteracion, idAExcluir);
     const v2 = verificarObjetivo(txtObjetivo);
     const v3 = verificarFechas(inpInicio, inpFin);
 
@@ -427,11 +471,17 @@ async function modificarSprint() {
     }
     if (!validarCamposModalSprint('mod', idSprintSeleccionado)) return;
 
+    // Se solicita confirmación antes de guardar la modificación del sprint.
+    if (!confirm("¿Estás seguro de que deseas modificar este sprint?")) {
+        return;
+    }
+
     const noIteracion = document.getElementById('inpModNoIteracionSprint').value.trim();
     const objetivo = document.getElementById('inpModObjetivoSprint').value.trim();
     const fechaInicio = document.getElementById('inpModFechaInicioSprint').value;
     const fechaFin = document.getElementById('inpModFechaFinSprint').value;
 
+    // Se recolectan únicamente las historias que permanecen en el panel actual del sprint.
     const historiasIds = Array.from(document.getElementById('contenedorSprintModActual').children).map(t => Number(t.dataset.id));
 
     try {
@@ -463,6 +513,10 @@ async function modificarSprint() {
 }
 
 function confirmarEliminarSprint(sprintId) {
+    // Se solicita confirmación antes de mostrar o ejecutar la eliminación del sprint.
+    if (!confirm("¿Estás seguro de que deseas eliminar este sprint?")) {
+        return;
+    }
     const modalConfirm = document.createElement("div");
     modalConfirm.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:2000;";
     modalConfirm.innerHTML = `

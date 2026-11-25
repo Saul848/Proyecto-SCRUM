@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// El DAO es el único lugar donde se escribe SQL de la tabla que accedemos
+
 class sprintsDAO {
     constructor(pool) {
         this.pool = pool; // Pool de conexiones con PostgreSQL
@@ -47,6 +47,7 @@ class sprintsDAO {
         try {
             const { rows } = await this.pool.query(query, [idProyecto]);
 
+            // Construccion de lista de sprints
             const mapSprints = rows.reduce((acc, row) => {
                 if (!acc[row.sprint_id]) {
                     acc[row.sprint_id] = {
@@ -168,13 +169,30 @@ class sprintsDAO {
         const client = await this.pool.connect();
         try {
             await client.query('BEGIN');
+            
+            // Se conserva el estado actual del sprint en caso de no recibirse uno nuevo.
+            
+            const sprintActualRes = await client.query(
+                `SELECT estado FROM scrumbird.sprint WHERE id = $1 AND id_proyecto = $2;`,
+                [idSprint, idProyecto]
+            );
+            if (sprintActualRes.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return {
+                    ok: false,
+                    mensaje: "No se encontró el sprint para modificar"
+                };
+            }
+
+            const estadoFinal = estado || sprintActualRes.rows[0].estado || 'planeado';
 
             const querySprint = `
                 UPDATE scrumbird.sprint
                 SET no_iteracion = $1, objetivo = $2, estado = $3, fecha_inicio = $4, fecha_fin = $5
                 WHERE id = $6 AND id_proyecto = $7;
             `;
-            const resultado = await client.query(querySprint, [no_iteracion, objetivo, estado, fecha_inicio, fecha_fin, idSprint, idProyecto]);
+
+            const resultado = await client.query(querySprint, [no_iteracion, objetivo, estadoFinal, fecha_inicio, fecha_fin, idSprint, idProyecto]);
 
             if (resultado.rowCount === 0) {
                 await client.query('ROLLBACK');
@@ -251,6 +269,13 @@ class sprintsDAO {
         );
         return rows[0] || null;
     }
+
+    /**
+     * Funcion para cerrar un sprint
+     * @param {int} idSprint id del sprint dentro del proyecto
+     * @param {int} idProyecto id del proyecto
+     * @returns 
+     */
     async cerrarSprint(idSprint, idProyecto) {
     const client = await this.pool.connect();
 
